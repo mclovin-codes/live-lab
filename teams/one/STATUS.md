@@ -1,10 +1,10 @@
 # One tool status (closing, final whistle 11:24 PM ET)
 
-version: m9
+version: m10
 url: https://mclovin-codes.github.io/live-lab/teams/one/
 final: CHI 34, SEA 17.
 base: Blue v15, integrated by Team Blue. Pulled from the inbox: 5 countdown chip, 6 storylines rail, 7 odds-change setting (Gold), 8 Gold 375 px fixes. Red snippet 1 (key-number margins) arrived after the whistle and is merged as m6; Red 2 (break board) merged as m7; Red 3 and 4 pending.
-versions: m1 base plus 3s lock of game lines on any sharp book move; m2 chips and storylines; m3 odds-change setting; m4 phone fixes; m5 FINAL header and closed timed picks.; m6 key-number margins from Red.; m7 break board from Red, timedGate closed at final (Red probe finding).; m8 Stats split into Box score, Players, Injuries; Red field progress in the header (founder request after the game).; m9 stoppage-only window for timed markets and props.
+versions: m1 base plus 3s lock of game lines on any sharp book move; m2 chips and storylines; m3 odds-change setting; m4 phone fixes; m5 FINAL header and closed timed picks.; m6 key-number margins from Red.; m7 break board from Red, timedGate closed at final (Red probe finding).; m8 Stats split into Box score, Players, Injuries; Red field progress in the header (founder request after the game).; m9 stoppage-only window for timed markets and props.; m10 Stats as four tabs (Box score, Game stats, Player stats, Injuries).
 
 ## Stoppage-only window (m9)
 Timed markets and player props open only during a stoppage and close at the 0.5th percentile restart gap for that stoppage, minus 3 s, measured from the snap of the play before it. Fit: nflverse play-by-play 2023 to 2025, time_of_day snap stamps, script teams/blue/fit/fitgaps.js, output teams/blue/fit/gaps.json.
