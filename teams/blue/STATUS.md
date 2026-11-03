@@ -1,8 +1,8 @@
 # Team blue status
 
-version: v11
+version: v12
 url: https://mclovin-codes.github.io/live-lab/teams/blue/
-what changed: fair-play audit on the page (tried, placed, refused by reason, late-after-snap count). v10 lock-or-fail rules unchanged.
+what changed: iOS rebuild in Rush colours from three consultant reports: logos, headshots, icon tab bar, segmented Board, sliding sheets, locked lines with last price, countdown bar on every timed market, 10 minute halftime window, timeout pips, trailing-team needs line, Watch sheet.
 testing now: a probe in a test browser tries a 1-Stack chains pick every 3 seconds through the second half to count how often the window is open, how often placement fails and why, and whether any accepted pick lands after a snap.
 
 ## Fair play

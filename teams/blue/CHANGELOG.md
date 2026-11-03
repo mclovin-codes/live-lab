@@ -1,5 +1,15 @@
 # Team blue changelog
 
+## v12
+- Founder 9:58 PM. Three consulting subagents (NFL, sportsbook, gaming iOS UI) reported; this version takes their top items.
+- Rush colours (#00BFFF on #0B1118, cards #121A23 and #1A2530), iOS system font, borderless 16px cards, sentence-case headings.
+- Team logos in the scoreboard, player headshots on prop rows, moment cards and TD scorer buttons.
+- iOS tab bar with icons, blur and Slip badge. Segmented control for Board. Sheets slide up with a grabber over a blurred backdrop.
+- Locked lines stay in place with a lock and the last price. Price moves flash with an up or down caret for 3s.
+- Countdown bar on every timed market, amber under 10s, red under 5s. Halftime keeps timed picks and props open 10 minutes after the half ends, with time left shown in minutes and seconds.
+- Timeout pips for both teams and what the trailing team needs (FG, TD, two scores).
+- Watch sheet: ESPN, ESPN Watch, ABC via your provider, YouTube TV, NFL+, Prime Video links. Opens the provider. Never asks for credentials.
+
 ## v11
 - Fair-play audit, saved per player and shown in the lag sheet: timed picks tried, placed, refused or locked by reason, and a check that counts accepted picks later found to come after a snap (target 0).
 
