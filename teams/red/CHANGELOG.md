@@ -1,6 +1,13 @@
 # Changelog: Team Red, Redline
 
-## v2 (2026-11-02, start of Q2, not yet hosted)
+## v3 (2026-11-02, Q2)
+- Duels: on lock, the simulated player nearest you on the ladder takes the other side for the same stake, and the result moves them.
+- Quarter sprints: fresh profit race each quarter, past winners shown, sprint rank in the header.
+- Yardage milestones (50+, 75+) on the props tab.
+- Fix: down, distance and clock use whichever ESPN feed is furthest along. The situation feed was lagging the play feed by a play.
+- Note: v2 shipped to GitHub Pages; the artifact URL is retired.
+
+## v2 (2026-11-02, start of Q2)
 - Standalone static page: complete HTML document, no platform capabilities. Artifact publishing stopped because the viewer blocks ESPN.
 - Field is now you against 24 simulated players, because shared player data went with the capabilities.
 - Cash out on game lines, team totals, props, drive and next score picks: live win chance times full payout, minus 6%. Two-tap confirm.
