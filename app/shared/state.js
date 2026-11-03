@@ -109,8 +109,11 @@
 
   /* ---------- field: deterministic weekly random walk per SIM player, so every page agrees ---------- */
   function simUnits(name, wk, t) { const hours = Math.max(0, Math.min((t - wk.opens) / 36e5, (wk.settles - wk.opens) / 36e5)); let u = 0; const skill = (hash('skill' + name) - .5) * .5; for (let h = 1; h <= hours; h++) { const r = hash(name + wk.id + h); if (r < .35) u += (hash('s' + name + wk.id + h) - .48 + skill * .1) * 12; } return Math.round(u * 10) / 10; }
-  function field() { const wk = week(), t = Date.now(); const rows = NAMES.map((n, i) => ({ id: 'sim' + i, name: n, sim: true, units: simUnits(n, wk, t) })); const w = W(); if (w.entered) rows.push({ id: 'me', name: S.handle || 'You', me: true, units: units() }); rows.sort((a, b) => b.units - a.units); rows.forEach((r, i) => r.rank = i + 1); return rows; }
-  function rival() { const wk = week(), i = Math.floor(hash('rival' + (S.handle || '') + wk.id) * NAMES.length); return field().find(r => r.id === 'sim' + i); }
+  /* When Red's app/week-games.js is on the page and has this week's games cached, the Field is its 30 SIM players
+     picking real games and graded on real finals (RW.field). Otherwise the time-driven walk below. */
+  function simRows() { try { if (window.RW && RW.cached && RW.field) { const g = RW.cached(); if (g && g.length) { const r = RW.field(g); const rows = (r && r.rows || r || []).filter(x => x && x.sim !== false && x.id !== 'me'); if (rows.length) return rows.map(x => ({ id: x.id, name: x.name, sim: true, units: +x.units || 0, w: x.w, l: x.l, open: x.open })); } } } catch (e) {} const wk = week(), t = Date.now(); return NAMES.map((n, i) => ({ id: 'sim' + i, name: n, sim: true, units: simUnits(n, wk, t) })); }
+  function field() { const rows = simRows(); const w = W(); if (w.entered) rows.push({ id: 'me', name: S.handle || 'You', me: true, units: units() }); rows.sort((a, b) => b.units - a.units); rows.forEach((r, i) => r.rank = i + 1); return rows; }
+  function rival() { const wk = week(), f = field().filter(r => r.sim); if (!f.length) return null; const ids = f.map(r => r.id).sort(), id = ids[Math.floor(hash('rival' + (S.handle || '') + wk.id) * ids.length)]; return f.find(r => r.id === id); }
 
   /* ---------- season ---------- */
   function closeWeek() { const wk = week(); if (wk.phase !== 'settled') return false; const s = S.season[wk.season] = S.season[wk.season] || { weeks: {} }; if (s.weeks[wk.id]) return false; const w = S.weeks[wk.id]; const settled = w && (w.picks || []).some(p => p.status !== 'open'); s.weeks[wk.id] = { n: wk.n, units: units(), result: !w || !w.entered || !settled ? '-' : units() > 0 ? 'W' : 'L' }; save(); return true; }
