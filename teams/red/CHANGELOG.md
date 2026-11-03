@@ -1,5 +1,9 @@
 # Changelog: Team Red, Rush Live
 
+## app r10 (2026-11-03, 3:05 AM addendum)
+- Ranks: contest selector (The Rush first, then your contests, colour dots); choosing one sets the active contest; a contest shows its own card, Stack and table.
+- Contest pages: colour dot, "Pick in this contest". Player card: your place and theirs in every shared contest. Contest picks come from that contest's own Slip.
+
 ## app r9 (2026-11-03, 2:55 AM addendum)
 - Contests: stake limits per pick, odds limits per line and per slip, typed Field size and Stack, injury protection for player props, optional joiner note (payment handles withdrawn by the 3:00 AM ruling), entry link back to the commissioner, Manage shows notes and a Void a pick list. Store fields match Blue's Rush.rules; out-of-limit picks do not count.
 - Fixes: simulated Field capped at 15; entry link loop; inputs wider than a phone.

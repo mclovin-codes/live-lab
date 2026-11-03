@@ -37,6 +37,7 @@ input.k-code{text-transform:uppercase;letter-spacing:.12em;font-weight:700}
 .k-hint{font-size:12.5px;color:var(--k-dim)}
 details.k-arch summary{cursor:pointer;color:var(--k-mut);font:600 14px var(--k-font)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.k-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:1px}
 </style>
 </head>
 <body data-tab="ranks">
@@ -66,7 +67,7 @@ function entryClose(f){const gs=(games||[]).filter(g=>f.leagues.includes(g.leagu
 function summary(c){const m=c.rules.markets,mk=[m.lines&&'game lines',m.props&&'props',m.parlays&&'parlays',m.live&&'live'].filter(Boolean).join(', ');return`${esc(c.schedule.leagues.map(k=>LGN[k]).join(' + '))} &middot; ${esc(c.schedule.days.length)} day${c.schedule.days.length>1?'s':''} &middot; ${c.rules.scoring==='record'?'scored on record':'scored on Units'} &middot; ${esc(mk)}`}
 function myRow(c){try{const st=RC.standings(c,games),r=st.find(x=>x.me);return r?{r,of:st.length}:null}catch(e){return null}}
 function card(c,joinable){const mr=!joinable&&myRow(c);const status=c.status==='closed'?'<span class="k-chip win">Final</span>':c.status==='archived'?'<span class="k-chip">Archived</span>':(c.schedule.entryClose&&Date.now()>c.schedule.entryClose)?'<span class="k-chip warn">Entry closed</span>':'<span class="k-chip acc">Open</span>';
- return`<a class="k-c" href="contest.html?c=${encodeURIComponent(c.id)}"><b>${esc(c.name)}</b><span class="rt">${mr?`#${esc(mr.r.finish)}<i>of ${esc(mr.of)}</i>`:joinable?`${esc(c.size||'?')}<i>in the Field</i>`:''}</span><small>${summary(c)}</small><div class="k-chips">${status}<span class="k-chip">${c.visibility==='public'?'Public':'Private'}</span>${c.owner?'<span class="k-chip acc">You run it</span>':c.host?`<span class="k-chip">Run by ${esc(c.host)}</span>`:''}${mr?`<span class="k-chip">${esc(c.rules.scoring==='record'?`${mr.r.w}-${mr.r.l}`:U(mr.r.units)+' U')}</span>`:''}</div></a>`}
+ const col=!joinable&&RC.dot(c.id);return`<a class="k-c" href="contest.html?c=${encodeURIComponent(c.id)}"><b>${col?`<i class="k-dot" style="background:${col}"></i>`:''}${esc(c.name)}</b><span class="rt">${mr?`#${esc(mr.r.finish)}<i>of ${esc(mr.of)}</i>`:joinable?`${esc(c.size||'?')}<i>in the Field</i>`:''}</span><small>${summary(c)}</small><div class="k-chips">${status}<span class="k-chip">${c.visibility==='public'?'Public':'Private'}</span>${c.owner?'<span class="k-chip acc">You run it</span>':c.host?`<span class="k-chip">Run by ${esc(c.host)}</span>`:''}${mr?`<span class="k-chip">${esc(c.rules.scoring==='record'?`${mr.r.w}-${mr.r.l}`:U(mr.r.units)+' U')}</span>`:''}</div></a>`}
 function tg(name,opts,vals){return`<div class="k-tg">${opts.map(([k,l])=>`<button type="button" data-tg="${name}:${k}" class="${vals.includes(k)?'on':''}">${l}</button>`).join('')}</div>`}
 function seg(name,opts,val){return`<div class="k-seg">${opts.map(([k,l])=>`<button type="button" data-sg="${name}:${k}" class="${String(val)===String(k)?'on':''}">${l}</button>`).join('')}</div>`}
 function sw(name,label,sub,on){return`<div class="k-sw"><span>${label}<small>${sub}</small></span><button type="button" role="switch" aria-checked="${on}" aria-label="${label}" data-sw="${name}" class="${on?'on':''}"></button></div>`}

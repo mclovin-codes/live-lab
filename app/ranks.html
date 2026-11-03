@@ -32,6 +32,11 @@ a.rk-row{text-decoration:none;color:inherit}a.rk-row:active{background:var(--rb-
 .rk-hist{display:inline-flex;gap:3px;margin-left:6px;vertical-align:1px}.rk-hist i{width:7px;height:7px;border-radius:2px;background:var(--rb-dim)}.rk-hist i.w{background:var(--rb-win)}.rk-hist i.l{background:var(--rb-loss)}
 .rk-pin{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));z-index:5;padding:0 max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
 .rk-pin .rk-row{max-width:620px;margin:0 auto;border-radius:14px;background:#163246;box-shadow:0 8px 24px rgba(0,0,0,.5);border:0}
+.rk-cs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 12px;padding:0 16px}.rk-cs::-webkit-scrollbar{display:none}
+.rk-cs button,.rk-cs a{flex:none;display:inline-flex;align-items:center;gap:7px;font:600 13px var(--rb-font);color:var(--rb-mut);background:var(--rb-card);border:1px solid var(--rb-line);border-radius:99px;padding:7px 12px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.rk-cs button.on{color:var(--rb-fg);background:#22303D;border-color:rgba(255,255,255,.22)}.rk-cs small{font:600 11.5px var(--rb-font);color:var(--rb-mut)}.rk-cs a{background:none;border-style:dashed}
+.rk-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none;margin-right:7px;vertical-align:1px}.rk-cs .rk-dot{margin:0}
+.rk-open{display:block;margin-top:10px;color:var(--rb-acc);font:600 13px var(--rb-font);text-decoration:none}
 .rk-note{color:var(--rb-mut);font-size:13px;padding:0 2px 16px}
 .rk-skel{height:64px;border-radius:14px;background:linear-gradient(90deg,var(--rb-card),var(--rb-card2),var(--rb-card));background-size:200% 100%;animation:rks 1.2s infinite;margin-bottom:10px}@keyframes rks{to{background-position:-200% 0}}
 #rb-tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(18,26,35,.9);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid rgba(255,255,255,.1);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -42,6 +47,7 @@ a.rk-row{text-decoration:none;color:inherit}a.rk-row:active{background:var(--rb-
 <body data-tab="ranks">
 <div class="rk-wrap">
  <div class="rk-top"><h1>Ranks</h1><small id="rk-week">This week</small></div>
+ <div class="rk-cs" id="rk-cs" role="tablist" aria-label="Contest"></div>
  <div class="rk-seg" role="tablist" id="rk-seg"></div>
  <div id="rk-main"><div class="rk-skel"></div><div class="rk-skel"></div><div class="rk-skel"></div></div>
 </div>
@@ -49,6 +55,7 @@ a.rk-row{text-decoration:none;color:inherit}a.rk-row:active{background:var(--rb-
 <nav id="rb-tabs" hidden></nav>
 <script src="shared/state.js"></script>
 <script src="week-games.js"></script>
+<script src="contest-kit.js"></script>
 <script src="shared/nav.js"></script>
 <script>
 'use strict';
@@ -58,7 +65,7 @@ const U=n=>(n<0?'-':'+')+(Math.round(Math.abs(n)*10)/10).toFixed(1);
 let tab='week';try{tab=localStorage.getItem('rk.tab')||'week'}catch(e){}
 let games=RW.cached()||[];
 const av=r=>`<span class="rk-av" style="background:${r.me?'#0080FF':`hsl(${Math.floor(RW.hash(r.id+'c')*360)} 50% 36%)`}">${esc(r.name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`;
-function seg(){$('rk-seg').innerHTML=[['week','This week'],['season','Season'],['contests','Contests']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" class="${tab===k?'on':''}" data-t="${k}">${l}</button>`).join('')}
+function seg(){$('rk-seg').innerHTML=[['week','This week'],['season','Season']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" class="${tab===k?'on':''}" data-t="${k}">${l}</button>`).join('')}
 function wkRow(r,cut){return`<a href="player.html?u=${encodeURIComponent(r.id)}" class="rk-row${r.me?' me':''}${cut?' cut':''}"><span class="rk-pos">${r.out?'-':r.rank}</span>${av(r)}<span class="rk-nm"><b>${esc(r.name)}${r.me?'<span class="rk-tag you">YOU</span>':'<span class="rk-tag">SIM</span>'}</b><i>${r.out?'Not entered yet':(r.w||r.l)?`${r.w}-${r.l} graded`:r.me?(r.open?`${r.open} open pick${r.open>1?'s':''}`:'No picks yet'):'Picking this week'}${!r.me&&r.open?` &middot; ${r.open} open`:''}</i></span><span class="rk-u ${r.units>0?'up':r.units<0?'dn':''}">${U(r.units)}<small>Units</small></span></a>`}
 const R=window.Rush&&typeof Rush.field==='function'?Rush:null;
 function fieldRows(){if(!R)return RW.field(games);const m=R.me();let mw=0,ml=0;try{const ps=R.picks({week:R.week().id});mw=ps.filter(p=>p.status==='won').length;ml=ps.filter(p=>p.status==='lost').length}catch(e){}const rows=R.field().map(r=>({...r,w:r.me?mw:(r.w||0),l:r.me?ml:(r.l||0),open:r.me?m.open:(r.open||0),today:0}));if(!rows.some(r=>r.me))rows.push({id:'me',name:m.handle||'You',me:true,units:0,w:0,l:0,open:0,today:0,out:true});rows.forEach(r=>r.rank=1+rows.filter(x=>x.units>r.units+1e-9).length);rows.sort((a,b)=>b.units-a.units||(a.me?-1:b.me?1:0));return rows}
@@ -73,12 +80,28 @@ function vWeek(){const rows=fieldRows(),mine=rows.find(r=>r.me),opp=R?(R.rival()
  const pin=$('rk-pin');pin.hidden=mine.rank<=8;if(!pin.hidden)pin.innerHTML=wkRow(mine,false);return h}
 function vSeason(){const n=RW.week().n;let rows;if(R){const se=R.season(),cur=fieldRows();rows=(se.table||[]).map((t,i)=>{const c=cur.find(x=>x.name===t.name)||{};return{id:t.me?'me':'s'+i,name:t.name,me:!!t.me,sim:!!t.sim,sw:t.w||0,sl:t.l||0,units:c.units||0,hist:t.me?(se.weeks||[]).map(w=>w.result):[]}}).sort((a,b)=>b.sw-a.sw||a.sl-b.sl||b.units-a.units)}else rows=RW.season(RW.field(games));$('rk-pin').hidden=true;
  return`<div class="rk-card"><h2>Season record <span>Season 1 opens with Week ${n}</span></h2><div class="rk-note" style="padding:0">A week finished above 1,000 Stack is a win, at or below with a settled pick is a loss, no settled pick is not played. Most wins leads. Week ${n} is in progress.</div></div><div class="rk-list">${rows.map((r,i)=>`<a href="player.html?u=${encodeURIComponent(r.me?'me':r.id)}" class="rk-row${r.me?' me':''}"><span class="rk-pos">${i+1}</span>${av(r)}<span class="rk-nm"><b>${esc(r.name)}${r.me?'<span class="rk-tag you">YOU</span>':'<span class="rk-tag">SIM</span>'}</b><i>Week ${n}: ${U(r.units)} Units<span class="rk-hist">${r.hist.slice(-8).map(x=>`<i class="${x==='W'?'w':x==='L'?'l':''}"></i>`).join('')}</span></i></span><span class="rk-u">${r.sw}-${r.sl}<small>W-L</small></span></a>`).join('')}</div>`}
-function render(){seg();const w=RW.week();$('rk-week').textContent=`Week ${w.n} · Tuesday to Monday night`;if(!games.length){$('rk-main').innerHTML='<div class="rk-skel"></div><div class="rk-skel"></div>';return}const h=tab==='week'?vWeek():vSeason();const m=$('rk-main');if(m._h!==h){m.innerHTML=h;m._h=h}}
+/* contest selector: The Rush first, then every contest you are in; picking one makes it the active contest everywhere (Rush.wallet) */
+const COLOK=x=>/^#[0-9a-fA-F]{3,8}$/.test(x||'')?x:'#66768A';
+let actLocal='rush';
+function wl(){const W=R&&R.wallet;if(W&&typeof W.list==='function'){try{return W.list()}catch(e){}}const cs=window.RC?RC.list().filter(c=>(c.owner||c.joined)&&c.status!=='archived'):[];return[{id:'rush',name:'The Rush',color:'#00BFFF',weekly:true}].concat(cs.map(c=>({id:c.id,name:c.name,color:RC.dot(c.id)||'#66768A'})))}
+function act(L){const W=R&&R.wallet,a=W&&typeof W.active==='function'?W.active():actLocal;return L.some(e=>e.id===a)?a:'rush'}
+function csBar(L,a){$('rk-cs').innerHTML=L.map(e=>`<button role="tab" aria-selected="${e.id===a}" class="${e.id===a?'on':''}" data-cs="${esc(e.id)}"><i class="rk-dot" style="background:${COLOK(e.color)}"></i>${esc(e.name)}${e.rank?`<small>#${esc(e.rank)}</small>`:''}</button>`).join('')+`<a href="contests.html">${L.length>1?'All contests':'Join or create a contest'} &rsaquo;</a>`}
+const dayLbl=d=>new Date(Date.UTC(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6,8),17)).toLocaleDateString('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric'});
+function clockLine(c){if(c.status==='closed'||c.status==='archived')return'Final';const ds=c.schedule.days.slice().sort(),span=ds.length?(ds.length>1?dayLbl(ds[0])+' to '+dayLbl(ds[ds.length-1]):dayLbl(ds[0])):'';const ec=c.schedule.entryClose;return span+(ec&&ec>Date.now()?' · entry closes '+new Date(ec).toLocaleString('en-US',{timeZone:'America/New_York',weekday:'short',hour:'numeric',minute:'2-digit'})+' ET':'')}
+function cRow(r,rec){const tag=r.me?'<span class="rk-tag you">YOU</span>':r.sim?'<span class="rk-tag">SIM</span>':'';const nm=r.me?'You':r.name;const inner=`<span class="rk-pos">${esc(r.finish)}</span>${av(Object.assign({},r,{name:nm||'?'}))}<span class="rk-nm"><b>${esc(nm)}${tag}</b><i>${esc(r.w)}-${esc(r.l)}${r.p?'-'+esc(r.p):''} graded${r.open?` &middot; ${esc(r.open)} open`:''}</i></span><span class="rk-u ${r.units>0?'up':r.units<0?'dn':''}">${rec?`${esc(r.w)}-${esc(r.l)}<small>${esc(U(r.units))} U</small>`:`${esc(U(r.units))}<small>Units</small>`}</span>`;return(r.me||r.sim)?`<a href="player.html?u=${encodeURIComponent(r.me?'me':r.id)}" class="rk-row${r.me?' me':''}">${inner}</a>`:`<div class="rk-row">${inner}</div>`}
+function vContest(id,ent){const c=window.RC&&RC.get(id);if(!c){$('rk-pin').hidden=true;return'<div class="rk-card"><div class="rk-note" style="padding:0">This contest is not on this phone any more.</div></div>'}
+ const st=RC.standings(c,games),mine=st.find(r=>r.me),rec=c.rules.scoring==='record',col=COLOK(ent&&ent.color||RC.dot(id));const stack=ent&&ent.stack!=null?ent.stack:c.rules.stack;
+ let h=`<div class="rk-card" style="box-shadow:inset 0 3px 0 ${col}"><h2><b style="font:700 17px var(--rb-font);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><i class="rk-dot" style="background:${col}"></i>${esc(c.name)}</b><span>${esc(clockLine(c))}</span></h2><div class="rk-stats"><div><b>${mine?'#'+esc(mine.finish):'-'}</b><i>of ${esc(st.length)} in this contest</i></div><div><b>${esc(Math.round(+stack||0).toLocaleString())}</b><i>Stack in this contest</i></div><div><b>${mine?(rec?`${esc(mine.w)}-${esc(mine.l)}`:esc(U(mine.units))):'-'}</b><i>${rec?'Record':'Units'}</i></div></div><a class="rk-open" href="contest.html?c=${encodeURIComponent(c.id)}">Rules, picks and results &rsaquo;</a></div>`;
+ h+=`<div class="rk-list">${st.map(r=>cRow(r,rec)).join('')}</div><div class="rk-note">Ranked on ${rec?'record, wins minus losses,':'Units, profit and loss (1 Unit = 10 Stack),'} inside this contest only. Its Stack and picks are its own, apart from The Rush and every other contest.</div>`;
+ const pin=$('rk-pin'),i=mine?st.indexOf(mine):0;pin.hidden=!mine||i<8;if(!pin.hidden)pin.innerHTML=cRow(mine,rec);return h}
+function render(){const L=wl(),a=act(L);csBar(L,a);const w=RW.week();if(!games.length){$('rk-main').innerHTML='<div class="rk-skel"></div><div class="rk-skel"></div>';return}
+ if(a!=='rush'){$('rk-seg').hidden=true;$('rk-week').textContent='Contest standings';const h=vContest(a,L.find(e=>e.id===a));const m=$('rk-main');if(m._h!==h){m.innerHTML=h;m._h=h}return}
+ $('rk-seg').hidden=false;seg();$('rk-week').textContent=`Week ${w.n} · Tuesday to Monday night`;const h=tab==='week'?vWeek():vSeason();const m=$('rk-main');if(m._h!==h){m.innerHTML=h;m._h=h}}
 async function refresh(){try{games=await RW.load(true)}catch(e){}render()}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b&&b.dataset.t==='contests'){location.href='contests.html';return}if(b){tab=b.dataset.t;try{localStorage.setItem('rk.tab',tab)}catch(x){}render();scrollTo(0,0)}});
+document.addEventListener('click',e=>{const cb=e.target.closest('[data-cs]');if(cb){const id=cb.dataset.cs,W=R&&R.wallet;if(W&&typeof W.setActive==='function')W.setActive(id);else actLocal=id;render();scrollTo(0,0);return}const b=e.target.closest('[data-t]');if(b&&b.dataset.t==='contests'){location.href='contests.html';return}if(b){tab=b.dataset.t;try{localStorage.setItem('rk.tab',tab)}catch(x){}render();scrollTo(0,0)}});
 function loop(){refresh().finally(()=>setTimeout(loop,games.some(g=>g.state==='in')?20000:60000))}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
-window.addEventListener('storage',()=>render());if(R&&R.on)R.on(()=>render());
+window.addEventListener('storage',()=>render());if(R&&R.on)R.on(()=>render());if(window.RC&&!RC.shared())RC.on(()=>render());
 setTimeout(()=>{if(document.querySelector('#rnav,[data-rush-nav],.rush-nav,nav.tabbar')||(window.RushNav&&window.RushNav.mounted))return;const T=[['index.html','Home','<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],['board.html','Board','<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M9 10v10"/>'],['slips.html','Slips','<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],['ranks.html','Ranks','<path d="M8 21V11M12 21V5M16 21v-7"/>'],['lounge.html','Lounge','<path d="M4 5h16v11H8l-4 4z"/>']];const here=location.pathname.split('/').pop()||'index.html';const n=$('rb-tabs');n.innerHTML=T.map(([u,l,p])=>`<a href="${u}" class="${u===here?'on':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>${l}</a>`).join('');n.hidden=false},300);
 render();loop();
 </script>
