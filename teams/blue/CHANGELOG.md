@@ -1,5 +1,12 @@
 # Team blue changelog
 
+## v7
+- Real time: found ESPN summary carries book prices stale by up to 40 cents (+119 versus real +151). Now the full game doc comes from the FastCast checkpoint, kept current by push patches, with a safety refresh every 20 seconds. Summary polling is only the fallback when push is down.
+- Rush frame: page is the Live section of Bears at Seahawks. Stack, Units (1 U = 10 Stack), Slip, Board, Ranks, the Field. Arrive with a chosen weekly Stack and Units. Field carries simulated week-to-date Units and its own Stack, labelled SIM.
+- Your matchup: named head-to-head opponent, score in Units, their open picks on this game with tail and fade.
+- Beat the line on open picks. Free weekly Reload (1,000 Stack, Units keep counting). Path to the top 3, then #1. Top 3 prize line on Ranks. Close pick replaces cash out.
+- New storage key, so everyone starts fresh on this version.
+
 ## v6
 - Connected ESPN FastCast websocket from the browser (no key, works on GitHub Pages). It pushes JSON patches, including real DraftKings live moneyline, spread and total prices about every 2 seconds.
 - Main markets show and lock the exact DraftKings live price. Alts, team totals, quarters and props reprice from those lines. When DraftKings pulls a price the button locks.

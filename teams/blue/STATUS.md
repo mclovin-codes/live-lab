@@ -1,8 +1,10 @@
 # Team blue status
 
-version: v6
+version: v7
 url: https://mclovin-codes.github.io/live-lab/teams/blue/
-what changed: ESPN FastCast push connected, real DraftKings live prices on the board within a second, every other market reprices from them, cache-busted feeds, true lag shown on header (first reading 15s), snap clock.
-measured lag, play wallclock to first seen: situation busted 20 to 25s, situation unbusted 25 to 35s, plays and probabilities busted 21 to 27s, summary 33 to 45s, FastCast play data 26 to 28s, DraftKings price ticks about every 2s.
-testing next: v7. Using DraftKings price jumps as the earliest play signal, void rate on snap bets, Q4 and OT line behavior.
-blocked: nothing, no access needed. About 15 to 20s of play lag is ESPN publish time, not ours.
+what changed: Rush Live section of the event in Rush words (Stack, Units, Slip, Board, Ranks, the Field), matchup with tail and fade, beat the line, Reload, path to the top 3. Real time: full game doc from ESPN push, book prices current where the summary feed lagged by up to 40 cents.
+lag: play wallclock to screen about 15 to 25s, nearly all ESPN publish time. Book prices arrive by push in under 1s.
+testing next: v8. Earliest play signal from price jumps, void rate on snap picks, Q4 and OT lines.
+open question for the founder: Rush has no cash out. The page keeps Close pick for live play. Say if it should go.
+lift points for Rush engineers: FastCast doc plus polls fill S, player state in me, Field in ladder(), picks through place() and placeParlay(), grading in settle() and gradeBet(), pricing in quote().
+blocked: nothing. Field and matchup are simulated and labelled SIM.
