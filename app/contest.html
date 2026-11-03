@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B1118">
+<title>Contest · Rush</title>
+<link rel="stylesheet" href="shared/rush.css">
+<style>
+/* Contest: header card (name, chips, invite), segmented Ranks / Picks / Rules / Manage / Results; results sheet prints clean on white. */
+:root{--k-bg:#0B1118;--k-card:#121A23;--k-card2:#1A2530;--k-line:rgba(255,255,255,.07);--k-fg:#fff;--k-mut:#9AA8B6;--k-dim:#66768A;--k-acc:#00BFFF;--k-win:#10B981;--k-loss:#D95151;--k-warn:#F59E0B;--k-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Inter,Roboto,system-ui,sans-serif;color-scheme:dark}
+html,body{margin:0}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
+body{background:var(--k-bg);color:var(--k-fg);font:15px/1.38 var(--k-font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+.k-wrap{max-width:680px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 10px) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.k-back{display:inline-block;color:var(--k-acc);text-decoration:none;font:600 15px var(--k-font);padding:6px 0 8px}
+.k-hero{border-radius:20px;padding:16px;background:linear-gradient(150deg,#163246,#121A23 75%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);margin-bottom:12px}
+.k-hero h1{margin:0;font:800 26px/1.15 var(--k-font);letter-spacing:-.02em}
+.k-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.k-chip{font:600 11px var(--k-font);padding:3px 8px;border-radius:99px;background:rgba(255,255,255,.08);color:var(--k-mut)}.k-chip.acc{background:rgba(0,191,255,.16);color:var(--k-acc)}.k-chip.win{background:rgba(16,185,129,.16);color:var(--k-win)}.k-chip.warn{background:rgba(245,158,11,.16);color:var(--k-warn)}
+.k-inv{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:14px;padding:10px 12px;border-radius:12px;background:rgba(11,17,24,.5)}
+.k-inv b{font:800 20px var(--k-font);letter-spacing:.14em}.k-inv small{color:var(--k-mut);font-size:12px}
+.k-btn{padding:11px 14px;border-radius:12px;border:0;background:linear-gradient(135deg,#00C0FF,#0080FF);color:#fff;font:700 14px var(--k-font);cursor:pointer;white-space:nowrap;text-decoration:none;text-align:center;display:inline-block}
+.k-btn.ghost{background:var(--k-card2);color:var(--k-fg)}.k-btn.danger{background:rgba(217,81,81,.18);color:#FF8A8A}.k-btn.block{display:block;width:100%}.k-btn.sm{padding:7px 10px;font-size:12.5px;border-radius:9px}
+.k-seg{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;padding:2px;border-radius:10px;background:var(--k-card2);margin-bottom:12px;box-shadow:0 6px 16px rgba(11,17,24,.8)}
+.k-seg button{font:600 13px var(--k-font);color:var(--k-mut);background:none;border:0;padding:8px 0;border-radius:8px;cursor:pointer}.k-seg button.on{background:#2A3644;color:var(--k-fg);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.k-sec{background:var(--k-card);border-radius:16px;padding:14px;margin-bottom:12px}
+.k-sec h2{margin:0 0 10px;font:700 18px/1.2 var(--k-font);display:flex;justify-content:space-between;align-items:baseline;gap:8px}.k-sec h2 span{font:500 13px var(--k-font);color:var(--k-mut)}
+.k-r{display:grid;grid-template-columns:28px 32px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 4px;border-top:.5px solid var(--k-line);text-decoration:none;color:inherit}
+.k-r:first-child{border-top:0}.k-r.me{background:rgba(0,191,255,.12);border-radius:10px;padding-inline:8px}
+.k-pos{font:700 15px var(--k-font);color:var(--k-mut);text-align:center}
+.k-av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--k-font);color:#fff}
+.k-nm{min-width:0}.k-nm b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.k-nm i{font-style:normal;font-size:12px;color:var(--k-mut)}
+.k-sc{text-align:right;font:700 16px var(--k-font)}.k-sc.up{color:var(--k-win)}.k-sc.dn{color:var(--k-loss)}.k-sc small{display:block;font:500 11.5px var(--k-font);color:var(--k-mut)}
+.k-tag{font:600 10px var(--k-font);padding:1px 6px;border-radius:99px;background:rgba(255,255,255,.08);color:var(--k-mut);margin-left:6px;vertical-align:1px}.k-tag.you{background:var(--k-acc);color:#002233}
+.k-pk{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:11px 12px;border-radius:12px;background:var(--k-card2);margin-top:8px}
+.k-pk b{font-weight:600}.k-pk small{color:var(--k-mut);font-size:12.5px}.k-pk .rt{text-align:right}
+.k-res{font:700 11.5px var(--k-font);padding:3px 8px;border-radius:99px}.k-res.won{background:rgba(16,185,129,.18);color:var(--k-win)}.k-res.lost{background:rgba(217,81,81,.16);color:#FF8A8A}.k-res.open,.k-res.push,.k-res.void,.k-res.vd{background:rgba(255,255,255,.08);color:var(--k-mut)}
+.k-sealed{grid-column:1/-1;font-size:12.5px;color:var(--k-mut);padding:8px 10px;border-radius:9px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 8px,rgba(255,255,255,.07) 8px 16px)}
+.k-void{grid-column:1/-1;display:flex;gap:6px}.k-void input{flex:1;min-width:0;padding:8px 10px;border-radius:9px;border:0;background:#243241;color:#fff;font:500 14px var(--k-font)}
+.k-vd{grid-column:1/-1;font-size:12.5px;color:var(--k-warn)}
+.k-ent{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px;margin-bottom:4px}.k-ent::-webkit-scrollbar{display:none}
+.k-ent button{flex:none;font:600 13px var(--k-font);padding:7px 12px;border-radius:99px;border:0;background:var(--k-card2);color:var(--k-mut);cursor:pointer}.k-ent button.on{background:rgba(0,191,255,.18);color:var(--k-acc);box-shadow:inset 0 0 0 1px rgba(0,191,255,.5)}
+.k-dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:14px}.k-dl dt{color:var(--k-mut)}.k-dl dd{margin:0}
+.k-tbl{width:100%;border-collapse:collapse;font-size:14px}.k-tbl th{text-align:left;font:600 12px var(--k-font);color:var(--k-mut);padding:6px 4px;border-bottom:1px solid var(--k-line)}.k-tbl td{padding:8px 4px;border-bottom:.5px solid var(--k-line)}.k-tbl td.n{text-align:right}
+.k-scroll{overflow-x:auto}
+.k-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.k-note{color:var(--k-mut);font-size:13px}
+.k-mrow{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-top:.5px solid var(--k-line)}.k-mrow:first-child{border-top:0}.k-mrow.out{opacity:.45}
+.k-f{display:grid;gap:12px}.k-fl{display:grid;gap:6px}.k-fl>span{font:600 13px var(--k-font);color:var(--k-mut)}
+.k-sg2{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;padding:2px;border-radius:10px;background:var(--k-card2)}.k-sg2 button{font:600 13px var(--k-font);color:var(--k-mut);background:none;border:0;padding:8px 0;border-radius:8px;cursor:pointer}.k-sg2 button.on{background:#2A3644;color:var(--k-fg)}
+.k-tg{display:flex;flex-wrap:wrap;gap:6px}.k-tg button{font:600 13px var(--k-font);padding:7px 11px;border-radius:99px;border:0;background:var(--k-card2);color:var(--k-mut);cursor:pointer}.k-tg button.on{background:rgba(0,191,255,.18);color:var(--k-acc)}
+.k-toast{position:fixed;left:16px;right:16px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:50;max-width:520px;margin:0 auto;padding:12px 14px;border-radius:14px;background:rgba(36,50,65,.97);font:600 14px var(--k-font);box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.k-print-head{display:none}
+@media print{
+ :root{color-scheme:light}body{background:#fff;color:#11181C;padding:0;font-size:12px}#rnav,.k-back,.k-seg,.k-acts,.k-hero .k-inv,.k-toast,.k-noprint{display:none!important}
+ .k-hero,.k-sec{background:#fff;box-shadow:none;border:1px solid #ccc;border-radius:6px}.k-chip{background:#eee;color:#333}.k-tbl th,.k-tbl td{color:#11181C;border-color:#ccc}.k-print-head{display:block;font-size:11px;color:#555;margin-bottom:6px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body data-tab="ranks">
+<div class="k-wrap">
+ <a class="k-back" href="contests.html">&lsaquo; Contests</a>
+ <div id="k-main"><div class="k-sec"><div class="k-note">Loading the contest.</div></div></div>
+</div>
+<div class="k-toast" id="k-toast" hidden></div>
+<script src="shared/state.js"></script>
+<script src="week-games.js"></script>
+<script src="contest-kit.js"></script>
+<script src="shared/nav.js"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const U=n=>(n<0?'-':'+')+(Math.round(Math.abs(n)*10)/10).toFixed(1);
+const fo=o=>o==null?'':(o>0?'+':'')+o;
+const Q=new URLSearchParams(location.search);
+const LGN={nfl:'NFL',nba:'NBA',nhl:'NHL'};
+let games=RW.cached()||[],view='ranks',who='me',voidOpen=null,closeArm=false,editing=null;
+try{view=sessionStorage.getItem('k.view')||'ranks'}catch(e){}
+const av=r=>`<span class="k-av" style="background:${r.me?'linear-gradient(135deg,#00C0FF,#0080FF)':`hsl(${Math.floor(RW.hash(r.id+'c')*360)} 50% 36%)`}">${esc((r.name||'?').split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`;
+const fmtT=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(new Date(ms))+' ET';
+function toast(t){const e=$('k-toast');e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,2600)}
+async function copy(t){try{await navigator.clipboard.writeText(t);toast('Copied')}catch(e){toast('Copy failed: press and hold the link to copy')}}
+function chips(c){const closed=c.schedule.entryClose&&Date.now()>c.schedule.entryClose;return`<div class="k-chips">${c.status==='closed'?'<span class="k-chip win">Final</span>':c.status==='archived'?'<span class="k-chip">Archived</span>':closed?'<span class="k-chip warn">Entry closed</span>':'<span class="k-chip acc">Entry open</span>'}<span class="k-chip">${c.visibility==='public'?'Public':'Private'}</span>${c.schedule.leagues.map(k=>`<span class="k-chip">${LGN[k]}</span>`).join('')}<span class="k-chip">${c.rules.scoring==='record'?'Scored on record':'Scored on Units'}</span>${c.owner?'<span class="k-chip acc">You run it</span>':c.host?`<span class="k-chip">Run by ${esc(c.host)}</span>`:''}</div>`}
+function rulesList(c){const m=c.rules.markets;return`<dl class="k-dl"><dt>Sports</dt><dd>${c.schedule.leagues.map(k=>LGN[k]).join(', ')}</dd><dt>Days</dt><dd>${c.schedule.days.map(d=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'numeric',day:'numeric'}).format(new Date(Date.UTC(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6,8),17)))).join(', ')}</dd><dt>Entry closes</dt><dd>${c.schedule.entryClose?fmtT(c.schedule.entryClose):'Open all week'}</dd><dt>Stack</dt><dd>${c.rules.stack.toLocaleString()} per entry</dd><dt>Markets</dt><dd>${[m.lines&&'Game lines',m.props&&'Player props',m.parlays&&'Parlays',m.live&&'Live picks'].filter(Boolean).join(', ')}</dd><dt>Reload</dt><dd>${c.rules.reload?'Allowed once':'Not allowed'}</dd><dt>Scoring</dt><dd>${c.rules.scoring==='record'?'Record (wins minus losses), Units break ties':'Units: profit and loss, 1 Unit = 10 Stack'}</dd><dt>Ties</dt><dd>${c.rules.ties==='split'?'Players level share the place':'Broken on Units'}</dd><dt>Field</dt><dd>${c.entrants.length-c.removed.length} entrants, SIM players fill the Field</dd></dl>`}
+function vRanks(c){const st=RC.standings(c,games),live=games.some(g=>g.state==='in'&&c.schedule.leagues.includes(g.league));return`<div class="k-sec"><h2>Ranks <span>${live?'Live as games go final':c.status==='closed'?'Final':'Updates as games go final'}</span></h2>${st.map(r=>`<a class="k-r${r.me?' me':''}" href="player.html?u=${encodeURIComponent(r.id)}"><span class="k-pos">${r.finish}</span>${av(r)}<span class="k-nm"><b>${esc(r.name)}${r.me?'<span class="k-tag you">YOU</span>':r.sim?'<span class="k-tag">SIM</span>':''}</b><i>${r.w}-${r.l}${r.p?'-'+r.p:''}${r.open?` &middot; ${r.open} open`:''}</i></span><span class="k-sc ${r.units>0?'up':r.units<0?'dn':''}">${c.rules.scoring==='record'?`${r.w}-${r.l}<small>${U(r.units)} U</small>`:`${U(r.units)}<small>Units</small>`}</span></a>`).join('')}</div>`}
+function vPicks(c){const st=RC.standings(c,games),cur=st.find(r=>r.id===who)||st[0];if(!cur)return'';const owner=c.owner&&c.status!=='closed'&&c.status!=='archived';
+ const pk=p=>{const g=p.g,started=!g||g.state!=='pre',hide=!cur.me&&!started&&p.status==='open';const st2=p.voided?'vd':p.status;
+  return`<div class="k-pk"><span><b>${hide?esc(p.market):esc(p.label)}</b> ${hide?'':`<span style="color:var(--k-acc)">${fo(p.odds)}</span>`}<br><small>${esc(p.game)} &middot; ${esc(p.market)}${g?` &middot; ${g.state==='pre'?fmtT(g.date):esc(g.detail)}`:''}</small></span><span class="rt"><span class="k-res ${st2}">${p.voided?'VOIDED':{won:'HIT',lost:'MISS',push:'PUSH',void:'NO ACTION',open:'OPEN',cashed:'CLOSED'}[p.status]||p.status}</span>${p.units!=null&&!p.voided?`<br><small>${U(p.units)} U</small>`:''}</span>${hide?'<div class="k-sealed">Sealed until the game starts.</div>':''}${p.voided?`<div class="k-vd">Voided by the commissioner: ${esc(p.voided.reason||'no reason given')}</div>`:''}${owner&&!p.voided?(voidOpen===p.key?`<div class="k-void"><input id="k-vr" maxlength="140" placeholder="Reason, shown to the Field" aria-label="Reason for voiding"><button class="k-btn sm danger" data-vgo="${esc(p.key)}">Void</button><button class="k-btn sm ghost" data-vx="1">Cancel</button></div>`:`<div class="k-void"><button class="k-btn sm ghost" data-vo="${esc(p.key)}">Void this pick</button></div>`):''}</div>`};
+ return`<div class="k-sec"><h2>Picks <span>${owner?'You can void a pick with a reason':'Sealed until each game starts'}</span></h2><div class="k-ent">${st.map(r=>`<button data-who="${esc(r.id)}" class="${r.id===cur.id?'on':''}">${esc(r.me?'You':r.name)}</button>`).join('')}</div>${cur.picks.length?cur.picks.map(pk).join(''):'<div class="k-note">No picks in this contest yet.</div>'}</div>`}
+function vRules(c){return`<div class="k-sec"><h2>Rules</h2>${rulesList(c)}</div>`}
+function editForm(c){const E=editing;const sg=(n,o,v)=>`<div class="k-sg2">${o.map(([k,l])=>`<button type="button" data-eg="${n}:${k}" class="${String(v)===String(k)?'on':''}">${l}</button>`).join('')}</div>`;const tg=(n,o,v)=>`<div class="k-tg">${o.map(([k,l])=>`<button type="button" data-et="${n}:${k}" class="${v.includes(k)?'on':''}">${l}</button>`).join('')}</div>`;
+ return`<div class="k-f"><div class="k-fl"><span>Name</span><input class="k-in" id="k-en" value="${esc(E.name)}" maxlength="40" style="padding:11px;border-radius:10px;border:0;background:var(--k-card2);color:#fff;font:500 16px var(--k-font)"></div><div class="k-fl"><span>Who can join</span>${sg('visibility',[['private','Private'],['public','Public']],E.visibility)}</div><div class="k-fl"><span>Sports</span>${tg('leagues',[['nfl','NFL'],['nba','NBA'],['nhl','NHL']],E.leagues)}</div><div class="k-fl"><span>Markets</span>${tg('markets',[['lines','Game lines'],['props','Props'],['parlays','Parlays'],['live','Live']],Object.keys(E.markets).filter(k=>E.markets[k]))}</div><div class="k-fl"><span>Reload</span>${sg('reload',[['1','Allowed'],['0','Not allowed']],E.reload?'1':'0')}</div><div class="k-fl"><span>Scoring</span>${sg('scoring',[['units','Units'],['record','Record']],E.scoring)}</div><div class="k-fl"><span>Ties</span>${sg('ties',[['split','Share the place'],['units','Break on Units']],E.ties)}</div><div class="k-acts"><button class="k-btn" data-esave="1">Save changes</button><button class="k-btn ghost" data-ex="1">Cancel</button></div></div>`}
+function vManage(c){if(!c.owner)return`<div class="k-sec"><div class="k-note">Only the commissioner can manage this contest.</div></div>`;const ed=RC.editable(c);
+ let h=`<div class="k-sec"><h2>Settings <span>${ed?'Editable until entry closes':'Locked: entry has closed'}</span></h2>${editing?editForm(c):`${rulesList(c)}${ed?'<div class="k-acts"><button class="k-btn ghost" data-edit="1">Edit settings</button></div>':''}`}</div>`;
+ h+=`<div class="k-sec"><h2>Entrants <span>${c.entrants.length-c.removed.length} in</span></h2>${c.entrants.map(e=>{const out=c.removed.includes(e.id);return`<div class="k-mrow${out?' out':''}">${av(Object.assign({me:e.id==='me'},e))}<span class="k-nm"><b>${esc(e.id==='me'?'You':e.name)}${e.sim?'<span class="k-tag">SIM</span>':''}</b><i>${out?'Removed':'In the Field'}</i></span>${e.id==='me'?'<span class="k-note">Commissioner</span>':out?`<button class="k-btn sm ghost" data-rest="${esc(e.id)}">Restore</button>`:`<button class="k-btn sm danger" data-rem="${esc(e.id)}">Remove</button>`}</div>`}).join('')}</div>`;
+ h+=`<div class="k-sec"><h2>Close and archive</h2><div class="k-note">Closing freezes the Ranks into the final results sheet. Archive hides it from your list.</div><div class="k-acts">${c.status==='closed'||c.status==='archived'?`<button class="k-btn ghost" data-reopen="1">Reopen</button>`:`<button class="k-btn${closeArm?' danger':''}" data-close="1">${closeArm?'Tap again to close the contest':'Close the contest'}</button>`}${c.status!=='archived'?'<button class="k-btn ghost" data-arch="1">Archive</button>':''}</div></div>`;return h}
+function sheet(name,week,scoring,closedAt,rows,c){return`<div class="k-sec"><div class="k-print-head">Rush &middot; ${esc(name)} &middot; Week ${esc(week)} results &middot; ${closedAt?'closed '+fmtT(closedAt):'standings so far'}</div><h2>Results sheet <span>${closedAt?'Final, '+fmtT(closedAt):'So far, final at close'}</span></h2><div class="k-scroll"><table class="k-tbl"><thead><tr><th>Finish</th><th>Entrant</th><th class="n">W-L-P</th><th class="n">Units</th>${c?'<th class="n">Settled</th>':''}</tr></thead><tbody>${rows.map(r=>`<tr><td>${r.finish}</td><td>${esc(r.name)}${r.sim?' <span class="k-tag">SIM</span>':''}${r.me?' <span class="k-tag you">YOU</span>':''}</td><td class="n">${r.w}-${r.l}-${r.p}</td><td class="n">${U(r.units)}</td>${c?`<td class="n">${r.settled.length}${r.voided?` (${r.voided} void)`:''}</td>`:''}</tr>`).join('')}</tbody></table></div>${c?`<details style="margin-top:10px"><summary class="k-note" style="cursor:pointer">Every settled pick</summary><div class="k-scroll"><table class="k-tbl"><thead><tr><th>Entrant</th><th>Game</th><th>Pick</th><th class="n">Odds</th><th>Result</th><th class="n">Units</th></tr></thead><tbody>${rows.flatMap(r=>r.settled.map(p=>`<tr><td>${esc(r.name)}</td><td>${esc(p.game)}</td><td>${esc(p.label)}</td><td class="n">${fo(p.odds)}</td><td>${esc({won:'Hit',lost:'Miss',push:'Push',void:'No action',cashed:'Closed'}[p.status]||p.status)}</td><td class="n">${p.units==null?'':U(p.units)}</td></tr>`)).join('')}</tbody></table></div></details>`:''}<div class="k-acts"><button class="k-btn ghost" data-share="1">Copy results link</button>${c?'<button class="k-btn ghost" data-csv="1">Save as CSV</button>':''}<button class="k-btn ghost" data-print="1">Print</button></div></div>`}
+function vResults(c){const res=c.status==='closed'&&c.final?c.final:RC.results(c,games);return sheet(c.name,c.week,c.rules.scoring,c.status==='closed'?c.closedAt:null,res,c)}
+function render(){
+ if(Q.get('r')){let d;try{d=RC.unb64(Q.get('r'))}catch(e){}if(!d){$('k-main').innerHTML='<div class="k-sec">This results link is damaged.</div>';return}const rows=d.x.map(x=>({finish:x[0],name:x[1],sim:!!x[2],w:x[3],l:x[4],p:x[5],units:x[6],settled:[]}));document.title=`${d.n} results · Rush`;$('k-main').innerHTML=`<div class="k-hero"><h1>${esc(d.n)}</h1><div class="k-chips"><span class="k-chip win">Results</span><span class="k-chip">Week ${esc(d.w)}</span><span class="k-chip">${d.s==='record'?'Scored on record':'Scored on Units'}</span></div></div>`+sheet(d.n,d.w,d.s,d.t,rows,null);return}
+ let c=Q.get('c')?RC.get(Q.get('c')):null;
+ if(!c&&Q.get('c'))c=RC.publicList().find(p=>p.id===Q.get('c'))||null;
+ if(!c&&Q.get('i')){const d=RC.decode(Q.get('i'));if(!d){$('k-main').innerHTML='<div class="k-sec">This invite link is damaged. Ask for a new one.</div>';return}const known=RC.get(d.id);if(known){location.replace('contest.html?c='+encodeURIComponent(d.id));return}c=d;c._invite=true}
+ if(!c){$('k-main').innerHTML='<div class="k-sec"><div class="k-note">This contest is not on this phone. Open the invite link your friend sent, or find it under Contests.</div><a class="k-btn" href="contests.html" style="margin-top:10px">Contests</a></div>';return}
+ document.title=`${c.name} · Rush`;const joined=!!RC.get(c.id),closed=c.schedule.entryClose&&Date.now()>c.schedule.entryClose;
+ let h=`<div class="k-hero"><h1>${esc(c.name)}</h1>${chips(c)}${joined?`<div class="k-inv"><span><small>Code</small><br><b>${esc(c.code)}</b></span><small>${c.visibility==='private'?'Private: friends join with the link or code':'Public: listed for everyone'}</small><button class="k-btn sm" data-inv="1">Invite</button></div>`:''}</div>`;
+ if(!joined){h+=`<div class="k-sec"><h2>${c._invite?esc(c.host||'A friend')+' invited you':'Join this contest'}</h2>${rulesList(c)}<div class="k-acts">${closed?'<span class="k-note">Entry has closed for this contest.</span>':'<button class="k-btn block" data-joinc="1">Join the contest</button>'}</div></div>`;$('k-main').innerHTML=h;return}
+ const tabs=[['ranks','Ranks'],['picks','Picks'],['rules','Rules'],...(c.owner?[['manage','Manage']]:[]),['results','Results']];if(!tabs.some(t=>t[0]===view))view='ranks';
+ h+=`<div class="k-seg" role="tablist">${tabs.map(([k,l])=>`<button role="tab" aria-selected="${view===k}" class="${view===k?'on':''}" data-v="${k}">${l}</button>`).join('')}</div>`;
+ h+=view==='ranks'?vRanks(c):view==='picks'?vPicks(c):view==='rules'?vRules(c):view==='manage'?vManage(c):vResults(c);
+ if(Q.get('new')==='1'&&view==='ranks')h=h.replace('<div class="k-seg"','<div class="k-sec k-noprint"><h2>Contest created</h2><div class="k-note">Share the invite so friends can join. The link carries the contest settings, so it opens on any phone.</div><div class="k-acts"><button class="k-btn" data-inv="1">Copy invite link</button></div></div><div class="k-seg"');
+ const m=$('k-main'),f=document.activeElement&&(document.activeElement.id==='k-vr'||document.activeElement.id==='k-en');if(f)return;if(m._h!==h){m.innerHTML=h;m._h=h}}
+function cur(){return RC.get(Q.get('c'))}
+document.addEventListener('click',async e=>{const t=e.target,c=cur();const re=()=>{$('k-main')._h='';render()};
+ const v=t.closest('[data-v]');if(v){view=v.dataset.v;try{sessionStorage.setItem('k.view',view)}catch(x){}re();return}
+ const w=t.closest('[data-who]');if(w){who=w.dataset.who;re();return}
+ if(t.closest('[data-joinc]')){const src=Q.get('i')?RC.decode(Q.get('i')):RC.publicList().find(p=>p.id===Q.get('c'));const j=RC.join(src||Q.get('c'));if(j){location.replace('contest.html?c='+encodeURIComponent(j.id))}else toast('Entry has closed for this contest.');return}
+ if(t.closest('[data-inv]')&&c){const link=RC.inviteLink(c.id);if(navigator.share){try{await navigator.share({title:c.name,text:`Join my contest ${c.name} on Rush. Code ${c.code}`,url:link});return}catch(x){}}copy(link);return}
+ const vo=t.closest('[data-vo]');if(vo){voidOpen=vo.dataset.vo;re();setTimeout(()=>$('k-vr')&&$('k-vr').focus(),30);return}
+ if(t.closest('[data-vx]')){voidOpen=null;re();return}
+ const vg=t.closest('[data-vgo]');if(vg&&c){const r=($('k-vr')||{}).value||'';if(!r.trim()){toast('Add a reason so the Field knows why.');return}RC.voidPick(c.id,vg.dataset.vgo,r.trim());voidOpen=null;toast('Pick voided');re();return}
+ const rm=t.closest('[data-rem]');if(rm&&c){RC.removeEntrant(c.id,rm.dataset.rem);toast('Removed from the contest');re();return}
+ const rs=t.closest('[data-rest]');if(rs&&c){RC.restoreEntrant(c.id,rs.dataset.rest);re();return}
+ if(t.closest('[data-close]')&&c){if(!closeArm){closeArm=true;re();setTimeout(()=>{closeArm=false;re()},3500);return}closeArm=false;RC.close(c.id);view='results';toast('Contest closed. Results are final.');re();return}
+ if(t.closest('[data-arch]')&&c){RC.archive(c.id);toast('Archived');re();return}
+ if(t.closest('[data-reopen]')&&c){RC.reopen(c.id);re();return}
+ if(t.closest('[data-edit]')&&c){editing={name:c.name,visibility:c.visibility,leagues:c.schedule.leagues.slice(),markets:Object.assign({},c.rules.markets),reload:c.rules.reload,scoring:c.rules.scoring,ties:c.rules.ties};re();return}
+ if(t.closest('[data-ex]')){editing=null;re();return}
+ const eg=t.closest('[data-eg]');if(eg&&editing){const[n,k]=eg.dataset.eg.split(':');editing.name=$('k-en').value;editing[n]=n==='reload'?k==='1':k;re();return}
+ const et=t.closest('[data-et]');if(et&&editing){const[n,k]=et.dataset.et.split(':');editing.name=$('k-en').value;if(n==='markets')editing.markets[k]=!editing.markets[k];else{const a=editing[n],i=a.indexOf(k);if(i>=0){if(a.length>1)a.splice(i,1)}else a.push(k)}re();return}
+ if(t.closest('[data-esave]')&&c&&editing){editing.name=$('k-en').value.trim()||c.name;if(!Object.values(editing.markets).some(Boolean))editing.markets.lines=true;const ok=RC.update(c.id,{name:editing.name,visibility:editing.visibility,schedule:Object.assign({},c.schedule,{leagues:editing.leagues}),rules:{markets:editing.markets,reload:editing.reload,scoring:editing.scoring,ties:editing.ties}});editing=null;toast(ok?'Saved':'Entry has closed, settings are locked');re();return}
+ if(t.closest('[data-share]')){const cc=c||null;let link=location.href;if(cc){const res=cc.status==='closed'&&cc.final?cc.final:RC.results(cc,games);link=RC.resultsLink(cc,res)}copy(link);return}
+ if(t.closest('[data-csv]')&&c){const res=c.status==='closed'&&c.final?c.final:RC.results(c,games);const blob=new Blob([RC.csv(c,res)],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(c.name.replace(/[^\w]+/g,'-').replace(/^-|-$/g,'')||'contest')+`-week-${c.week}-results.csv`;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('CSV saved');return}
+ if(t.closest('[data-print]')){window.print();return}});
+RC.on(()=>{$('k-main')._h='';render()});
+render();RW.load().then(g=>{games=g;$('k-main')._h='';render()}).catch(()=>{});setInterval(()=>RW.load().then(g=>{games=g;$('k-main')._h='';render()}).catch(()=>{}),30000);
+</script>
+</body>
+</html>
