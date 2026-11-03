@@ -53,6 +53,34 @@
  *                                 and parlay legs. Timed markets (next, go, fd, drive, ns) are graded live by game.html.
  *   Rush.grade.final(spec, f)  -> 'won'|'lost'|'push'|'void'|null for f = {done, hs, as, line:{home:[q..], away:[q..]}, box}
  *                                 spec.side and spec.team use 'home' | 'away' (game.html maps ESPN team ids).
+ *   Rush.grade.sync() grades weekly and contest picks alike.
+ *
+ * CONTESTS (commissioner mode). No backend: a contest lives in each member's browser, and the invite link carries
+ * the whole contest (name, schedule, rules) inside the URL, so a friend's phone builds the same contest from the link.
+ * Each member sees their own picks plus the contest's SIM Field (seeded by the contest id, identical on every phone)
+ * plus any result cards friends share with them. On screen a contest's table is its Ranks; its players are the Field.
+ *   Contest shape: {id, code (6 letters), name, vis:'public'|'private', owner, created,
+ *     schedule:{from, to, entryClose (ms), days:[0..6] (empty = every day), sports:['nfl','nba','nhl'], games:[{league,id}] (empty = all)},
+ *     rules:{stack (Stack per entry), markets:[Rush.contest.MARKETS subset], reload (bool), scoring:'units'|'record',
+ *            ties:'split' (shared rank) | 'units' (Units break a record tie) | 'earliest' (earliest entry wins), fill (SIM players, 0..40)}}
+ *   Markets: ml, spread, total, tt, alt, periods (quarters, halves, periods), props (incl. TD scorer), parlay, timed (next play, drive, next score).
+ *   Rush.contest.create(spec)          -> contest + .link. You are owner and member. spec uses the shape above; missing fields get defaults.
+ *   Rush.contest.join(codeOrLinkOrObj) -> {ok, contest, already} or {ok:false, why}. Accepts the 6-letter code of a contest on this
+ *                                         phone or a public one, the full invite link, the encoded part after ?c=, or a contest object.
+ *   Rush.contest.leave(id)             -> only while you have no picks in it.
+ *   Rush.contest.list()                -> your contests with .phase ('open'|'locked'|'closed'), .mine, .owner, .link
+ *   Rush.contest.publicList()          -> house public contests for this week plus public ones you made; .joined, .phase, .link
+ *   Rush.contest.get(id)               -> one contest with .phase, .joined, .mine, .link
+ *   Rush.contest.allows(id, pick)      -> {ok} or {ok:false, why}: membership, dates, days, sports, games, markets.
+ *                                         pick = {league, gameId, start (ms), spec}
+ *   Rush.contest.place(id, pick)       -> {ok, pick} or {ok:false, why}. Same pick shape as Rush.place, stored with pick.contest = id,
+ *                                         paid from the contest's own Stack. Rush.picks({contest:id}) lists them; Rush.picks() stays weekly only.
+ *   Rush.contest.reload(id)            -> if the contest allows Reload: once, when under 50 Stack.
+ *   Rush.contest.me(id)                -> {stack, units, w, l, open, settled, reloaded}
+ *   Rush.contest.ranks(id)             -> rows [{id, name, sim|friend|me, units, w, l, record, rank}] sorted by the contest's scoring and ties
+ *   Rush.contest.results(id)           -> {final, closedAt, winners, rows, csv, filename}: the results sheet; csv for tracking off the app
+ *   Rush.contest.card(id)              -> your result card code; Rush.contest.importCard(code) adds a friend's row to your Ranks
+ *   Rush.contest.encode(c) / decode(code) / link(c) -> the invite encoding: contest.html?c=<base64url JSON>
  */
 (function () {
   const KEY = 'rush-app-v1', DAY = 864e5;
@@ -101,8 +129,9 @@
     const pick = Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), week: wk.id, at: Date.now(), status: 'open' }, p, { stake, win: fmt.toWin(stake, p.odds) });
     w.cash -= stake; w.picks.unshift(pick); save(); return pick;
   }
-  function picks(f) { const out = []; Object.values(S.weeks).forEach(w => (w.picks || []).forEach(p => out.push(p))); return out.filter(p => !f || ((!f.status || p.status === f.status) && (!f.league || p.league === f.league) && (!f.gameId || p.gameId == f.gameId) && (!f.week || p.week === f.week))).sort((a, b) => b.at - a.at); }
-  function findPick(id) { for (const w of Object.values(S.weeks)) { const p = (w.picks || []).find(x => x.id === id); if (p) return [w, p]; } return [null, null]; }
+  const wallets = () => Object.values(S.weeks).concat(Object.values(S.contests || {}));
+  function picks(f) { f = f || {}; const out = []; wallets().forEach(w => (w.picks || []).forEach(p => out.push(p))); return out.filter(p => ((!f.status || p.status === f.status) && (!f.league || p.league === f.league) && (!f.gameId || p.gameId == f.gameId) && (!f.week || p.week === f.week) && (f.contest === undefined ? !p.contest : f.contest === '*' || p.contest === f.contest))).sort((a, b) => b.at - a.at); }
+  function findPick(id) { for (const w of wallets()) { const p = (w.picks || []).find(x => x.id === id); if (p) return [w, p]; } return [null, null]; }
   function settle(id, result, note, pay) { const [w, p] = findPick(id); if (!p || p.status !== 'open') return false; p.status = result; p.note = note || ''; p.settled = Date.now(); p.pay = pay != null ? pay : result === 'won' ? p.stake + p.win : (result === 'push' || result === 'void') ? p.stake : 0; w.cash += p.pay; save(); return true; }
   function cashOut(id, value) { const [w, p] = findPick(id); if (!p || p.status !== 'open') return false; p.status = 'cashed'; p.pay = Math.round(value); p.settled = Date.now(); w.cash += p.pay; save(); return true; }
   function updatePick(id, patch) { const [, p] = findPick(id); if (!p) return false; Object.assign(p, patch); save(); return true; }
@@ -154,7 +183,7 @@
     return { done: !!st.completed, hs: +side('home').score || 0, as: +side('away').score || 0, line: { home: ls(side('home')), away: ls(side('away')) }, box: parseBox(s) };
   }
   async function sync() {
-    const open = picks({ status: 'open' }); const games = new Map();
+    const open = picks({ status: 'open', contest: '*' }); const games = new Map();
     open.forEach(p => (p.legs || [p]).forEach(x => { if (x.league && x.gameId) games.set(x.league + ':' + x.gameId, [x.league, x.gameId]); }));
     const finals = {}; for (const [k, [lg, id]] of games) { try { finals[k] = await finalOf(lg, id); } catch (e) {} }
     let n = 0;
@@ -165,11 +194,60 @@
     return n;
   }
 
+  /* ---------- contests (commissioner mode): player-made contests with their own schedule, rules, Field and Ranks ---------- */
+  const MK = ['ml', 'spread', 'total', 'tt', 'alt', 'periods', 'props', 'parlay', 'timed'];
+  const SPORTS = ['nfl', 'nba', 'nhl'];
+  const b64 = { enc: s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), dec: s => decodeURIComponent(escape(atob(String(s).replace(/-/g, '+').replace(/_/g, '/')))) };
+  const marketOf = sp => { if (!sp) return 'ml'; if (sp.k === 'parlay') return 'parlay'; if (['next', 'go', 'fd', 'drive', 'ns', 'wm'].includes(sp.k)) return 'timed'; if (sp.k === 'qt' || sp.k === 'qs') return 'periods'; if (sp.k === 'prop' || sp.k === 'td') return 'props'; return sp.k; };
+  function normContest(c) {
+    const now = Date.now(), wk = week(), sch = c.schedule || {}, ru = c.rules || {};
+    const out = {
+      id: String(c.id || ('c' + now.toString(36) + Math.random().toString(36).slice(2, 6))).replace(/[^a-z0-9]/gi, '').slice(0, 16),
+      name: String(c.name || 'My contest').slice(0, 40), vis: c.vis === 'public' ? 'public' : 'private', owner: c.owner || S.handle || 'You', created: +c.created || now,
+      schedule: { from: +sch.from || now, to: +sch.to || wk.settles, entryClose: +sch.entryClose || +sch.to || wk.entryCloses, days: Array.isArray(sch.days) ? sch.days.filter(d => d >= 0 && d <= 6) : [], sports: (Array.isArray(sch.sports) && sch.sports.length ? sch.sports : SPORTS).filter(s => SPORTS.includes(s)), games: Array.isArray(sch.games) ? sch.games.slice(0, 40).map(g => ({ league: SPORTS.includes(g.league) ? g.league : 'nfl', id: String(g.id).replace(/\D/g, '') })) : [] },
+      rules: { stack: Math.max(100, Math.min(100000, +ru.stack || 1000)), markets: (Array.isArray(ru.markets) && ru.markets.length ? ru.markets : MK).filter(m => MK.includes(m)), reload: ru.reload !== false, scoring: ru.scoring === 'record' ? 'record' : 'units', ties: ['split', 'units', 'earliest'].includes(ru.ties) ? ru.ties : 'split', fill: Math.max(0, Math.min(40, ru.fill == null ? 11 : +ru.fill)) },
+    };
+    out.code = out.id.slice(-6).toUpperCase(); return out;
+  }
+  function contestPhase(c) { const t = Date.now(); return t < c.schedule.entryClose ? 'open' : t < c.schedule.to ? 'locked' : 'closed'; }
+  /* the invite link carries the whole contest, so a friend's phone builds the same contest with no server */
+  function encodeContest(c) { const x = normContest(c); return b64.enc(JSON.stringify({ v: 1, i: x.id, n: x.name, p: x.vis, o: x.owner, c: x.created, s: [x.schedule.from, x.schedule.to, x.schedule.entryClose, x.schedule.days, x.schedule.sports, x.schedule.games.map(g => g.league + ':' + g.id)], r: [x.rules.stack, x.rules.markets, x.rules.reload ? 1 : 0, x.rules.scoring, x.rules.ties, x.rules.fill] })); }
+  function decodeContest(code) { try { const j = JSON.parse(b64.dec(code)); if (!j || j.v !== 1) return null; return normContest({ id: j.i, name: j.n, vis: j.p, owner: j.o, created: j.c, schedule: { from: j.s[0], to: j.s[1], entryClose: j.s[2], days: j.s[3], sports: j.s[4], games: (j.s[5] || []).map(x => { const [league, id] = String(x).split(':'); return { league, id }; }) }, rules: { stack: j.r[0], markets: j.r[1], reload: !!j.r[2], scoring: j.r[3], ties: j.r[4], fill: j.r[5] } }); } catch (e) { return null; } }
+  const inviteLink = c => { const base = (typeof location !== 'undefined' ? location.href.replace(/[^/]*([?#].*)?$/, '') : ''); return base + 'contest.html?c=' + encodeContest(c); };
+  /* house public contests, the same on every phone; any contest you make public is listed for you and shared by its link */
+  function publicContests() { const wk = week(); const mk = (id, name, sports, from, to, extra) => normContest(Object.assign({ id: id + wk.n, name, vis: 'public', owner: 'Rush', created: wk.opens, schedule: { from, to, entryClose: to - 4 * 36e5, sports }, rules: { stack: 1000, fill: 24 } }, extra || {})); const out = [mk('hnfl', 'NFL ' + wk.label + ' Sprint', ['nfl'], wk.opens, wk.settles), mk('hnba', 'NBA Nights', ['nba'], wk.opens, wk.settles - 36e5), mk('hnhl', 'Puck Week', ['nhl'], wk.opens, wk.settles - 36e5), mk('hrec', 'Record Week: most wins', SPORTS, wk.opens, wk.settles, { rules: { stack: 500, scoring: 'record', reload: false, fill: 24 } })]; Object.values(S.contests || {}).forEach(m => { if (m.contest.vis === 'public' && !out.some(x => x.id === m.contest.id)) out.push(m.contest); }); return out; }
+  function CW(id) { return (S.contests || {})[id] || null; }
+  function create(spec) { const c = normContest(Object.assign({}, spec, { owner: S.handle || 'You', created: Date.now() })); S.contests = S.contests || {}; S.contests[c.id] = { contest: c, joined: Date.now(), cash: c.rules.stack, s0: c.rules.stack, debt: 0, reloaded: false, picks: [], cards: {}, owner: true }; save(); return Object.assign({}, c, { link: inviteLink(c) }); }
+  function join(x) { let c = null; if (x && typeof x === 'object') c = normContest(x); else { const s = String(x || '').trim(), m = s.match(/[?&]c=([^&#]+)/), code = m ? m[1] : s; c = publicContests().find(p => p.id === code || p.code === code.toUpperCase()) || (CW(code) && CW(code).contest) || Object.values(S.contests || {}).map(w => w.contest).find(k => k.code === code.toUpperCase()) || decodeContest(code); } if (!c) return { ok: false, why: 'That code or link is not a contest.' }; if (CW(c.id)) return { ok: true, contest: c, already: true }; if (contestPhase(c) !== 'open') return { ok: false, why: 'Entry for this contest is closed.' }; S.contests = S.contests || {}; S.contests[c.id] = { contest: c, joined: Date.now(), cash: c.rules.stack, s0: c.rules.stack, debt: 0, reloaded: false, picks: [], cards: {} }; save(); return { ok: true, contest: c }; }
+  function leave(id) { const w = CW(id); if (!w || w.picks.length) return false; delete S.contests[id]; save(); return true; }
+  function allows(id, p) { const w = CW(id); if (!w) return { ok: false, why: 'Join the contest first.' }; const c = w.contest, t = Date.now(); if (t > c.schedule.to) return { ok: false, why: 'This contest has closed.' }; if (c.schedule.sports.length && p.league && !c.schedule.sports.includes(p.league)) return { ok: false, why: 'This contest does not cover ' + String(p.league).toUpperCase() + '.' }; if (c.schedule.games.length && !c.schedule.games.some(g => g.league === p.league && g.id == p.gameId)) return { ok: false, why: 'This game is not in the contest.' }; if (p.start && (p.start < c.schedule.from || p.start > c.schedule.to)) return { ok: false, why: 'This game is outside the contest dates.' }; if (p.start && c.schedule.days.length && !c.schedule.days.includes(new Date(p.start).getDay())) return { ok: false, why: 'This game is not on a contest day.' }; const mk = marketOf(p.spec); if (!c.rules.markets.includes(mk) && !(mk === 'spread' && p.spec && p.spec.alt && c.rules.markets.includes('alt'))) return { ok: false, why: 'This contest does not allow that market.' }; return { ok: true }; }
+  function cplace(id, p) { const w = CW(id); const a = allows(id, p); if (!a.ok) return { ok: false, why: a.why }; const stake = Math.round(+p.stake * 100) / 100; if (!(stake > 0) || stake > w.cash + 1e-9 || p.odds == null) return { ok: false, why: 'Not enough Stack in this contest.' }; const pick = Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), contest: id, at: Date.now(), status: 'open' }, p, { stake, win: fmt.toWin(stake, p.odds), contest: id }); w.cash -= stake; w.picks.unshift(pick); save(); return { ok: true, pick }; }
+  function creload(id) { const w = CW(id); if (!w || !w.contest.rules.reload || w.reloaded || w.cash >= 50 || contestPhase(w.contest) === 'closed') return false; w.reloaded = true; w.debt += w.s0; w.cash += w.s0; save(); return true; }
+  function cmine(id) { const w = CW(id); if (!w) return null; const open = w.picks.filter(p => p.status === 'open'), done = w.picks.filter(p => p.status !== 'open' && p.status !== 'void'); return { stack: Math.round(w.cash * 100) / 100, units: Math.round(w.cash + open.reduce((a, p) => a + p.stake, 0) - w.debt - w.s0) / 10, w: done.filter(p => p.status === 'won').length, l: done.filter(p => p.status === 'lost').length, open: open.length, settled: done.length, reloaded: w.reloaded }; }
+  /* SIM members fill the contest's Field, seeded by the contest id and its schedule, so every member sees the same rows */
+  function simMember(c, i, t) { const name = NAMES[(i + Math.floor(hash(c.id) * NAMES.length)) % NAMES.length], end = Math.min(t, c.schedule.to), hours = Math.max(0, (end - c.schedule.from) / 36e5), act = .2 + hash(c.id + name + 'a') * .3; let u = 0, w = 0, l = 0; for (let h = 1; h <= hours; h++) { const r = hash(c.id + name + h); if (r < act) { const win = hash('w' + c.id + name + h) < .48 + (hash('k' + name) - .5) * .1; const amt = (2 + hash('m' + c.id + name + h) * 8) * c.rules.stack / 1000; if (win) { u += amt * .91; w++; } else { u -= amt; l++; } } } return { id: 'cs' + i, name, sim: true, units: Math.round(u * 10) / 10, w, l }; }
+  /* a member's result card: a friend pastes it to see your row in their Ranks (as of the card's time) */
+  function card(id) { const w = CW(id), m = cmine(id); if (!w) return null; return b64.enc(JSON.stringify({ v: 1, c: id, n: S.handle || 'Player', u: Math.round(m.units * 10) / 10, w: m.w, l: m.l, t: Date.now() })); }
+  function importCard(code) { try { const j = JSON.parse(b64.dec(code)); const w = CW(j.c); if (!w) return { ok: false, why: 'Join that contest first.' }; const key = 'f' + hash(j.n + j.c).toString(36).slice(2, 8); w.cards[key] = { id: key, name: String(j.n).slice(0, 18), units: +j.u || 0, w: +j.w || 0, l: +j.l || 0, at: +j.t || Date.now(), friend: true }; save(); return { ok: true, row: w.cards[key] }; } catch (e) { return { ok: false, why: 'That is not a result card.' }; } }
+  function cranks(id) {
+    const w = CW(id) || null, c = w ? w.contest : publicContests().find(p => p.id === id); if (!c) return [];
+    const t = Date.now(), rows = []; for (let i = 0; i < c.rules.fill; i++) rows.push(simMember(c, i, t));
+    if (w) { Object.values(w.cards || {}).forEach(r => rows.push(Object.assign({}, r))); const m = cmine(id); rows.push({ id: 'me', name: S.handle || 'You', me: true, units: m.units, w: m.w, l: m.l, at: w.joined }); }
+    const key = c.rules.scoring === 'record' ? (a, b) => (b.w - b.l) - (a.w - a.l) || b.w - a.w : (a, b) => b.units - a.units;
+    const tie = c.rules.ties === 'units' ? (a, b) => b.units - a.units : c.rules.ties === 'earliest' ? (a, b) => (a.at || 0) - (b.at || 0) : () => 0;
+    rows.sort((a, b) => key(a, b) || tie(a, b));
+    rows.forEach((r, i) => { const prev = rows[i - 1]; r.rank = prev && c.rules.ties === 'split' && key(prev, r) === 0 ? prev.rank : i + 1; r.record = r.w + '-' + r.l; });
+    return rows;
+  }
+  function results(id) { const w = CW(id), c = w ? w.contest : publicContests().find(p => p.id === id); if (!c) return null; const rows = cranks(id), final = contestPhase(c) === 'closed', top = rows.filter(r => r.rank === 1); const csv = ['rank,name,sim,units,wins,losses'].concat(rows.map(r => [r.rank, '"' + String(r.name).replace(/"/g, '""') + '"', r.sim ? 'yes' : r.friend ? 'friend card' : 'you', r.units, r.w, r.l].join(','))).join('\n'); return { contest: c, final, closedAt: c.schedule.to, winners: final ? top.map(r => r.name) : [], rows, csv, filename: c.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-results.csv' }; }
+  function contests() { return Object.values(S.contests || {}).map(w => Object.assign({}, w.contest, { phase: contestPhase(w.contest), mine: cmine(w.contest.id), owner: !!w.owner, link: inviteLink(w.contest) })).sort((a, b) => a.schedule.to - b.schedule.to); }
+
   window.Rush = {
     week, weekOf, clock, me, enter, setHandle: n => { S.handle = String(n || '').slice(0, 18); save(); }, stack: () => W().cash, units, reload, canReload,
     place, picks, settle, cashOut, updatePick, field, rival, season, closeWeek,
     settings: () => Object.assign({}, S.settings, { handle: S.handle }), set: (k, v) => { if (k === 'handle') S.handle = v; else S.settings[k] = v; save(); },
     on: fn => { subs.push(fn); return () => subs.splice(subs.indexOf(fn), 1); },
     fmt, grade: { sync, final: finalGrade, finalOf }, SPORT, _raw: () => S,
+    contest: { MARKETS: MK, SPORTS, create, join, leave, list: contests, publicList: () => publicContests().map(c => Object.assign({}, c, { phase: contestPhase(c), joined: !!CW(c.id), link: inviteLink(c) })), get: id => { const w = CW(id), c = w ? w.contest : publicContests().find(p => p.id === id); return c ? Object.assign({}, c, { phase: contestPhase(c), joined: !!w, mine: cmine(id), link: inviteLink(c) }) : null; }, allows, place: cplace, reload: creload, me: cmine, ranks: cranks, results, card, importCard, encode: encodeContest, decode: decodeContest, link: inviteLink, marketOf },
   };
 })();
