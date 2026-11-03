@@ -25,13 +25,17 @@ All 12 rivals are labeled SIM. They replay from ESPN's probabilities and plays, 
 - Mobile preset on the Pages host, live ESPN: score, clock, situation, board, parlay placed, no horizontal scroll, no console errors.
 - Grading on 31 fixtures: moneyline, spread, total and prop pushes, team totals, quarter, half, void prop, next snap, snapped-before-pick void, punt void, first down, next score, parlay win, loss and payout. All pass.
 
+## Tested live on the host
+- Real tickets settled from real plays in Q2: Next snap Pass at -240 paid $141.67 on a stake of $100, and 5+ yards lost on an incompletion.
+
 ## Not tested
-- A real phone.
-- A live-feed settlement end to end. One next-snap pick was still open when the game went to the quarter break.
+- A real phone. Checked only at the mobile preset in the built-in browser.
+- The self-update hop has not fired yet; v6 will be its first real test.
+- First-down and drive tickets have not settled live yet.
 
 ## Blocked
 Nothing.
 
 ## Testing next
-1. Live settlement of next-snap, drive and first-down tickets during real plays.
-2. v4: a pinned rival duel, fourth-quarter close-game moments, and SIM props in the feed.
+1. Self-update on the next ship, and first-down and drive settlement.
+2. v6: same-play moments in the fourth quarter, SIM props in the feed, tighter hold on next-snap favorites.
