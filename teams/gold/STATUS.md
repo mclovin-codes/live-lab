@@ -1,6 +1,9 @@
 # Team Gold status
 
-**Version:** v18
+**Version:** v18 (Gold page frozen. Team now on the merge)
+
+## Merge role (10:55 PM)
+Founder ruling 10:52 PM: pending acceptance counts as void-after under another name. It is dropped, and the base is Blue v15. Gold now owns the presentation at final/index.html and snippets 5 (countdown chip), 6 (storylines rail) and 7 (odds-change setting) in teams/one/inbox/, with no pending acceptance and no void paths.
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Rush Live
 
