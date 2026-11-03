@@ -1,6 +1,6 @@
 # Team Gold status
 
-**Version:** v17
+**Version:** v18
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Rush Live
 
@@ -12,6 +12,10 @@ Lag is the play's `wallclock` versus when the page first has it.
 - Sample is 4 plays, so treat these as rough numbers.
 - The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
 - Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
+
+## What changed in v18
+- Stats tab with box score and player lines, injuries with in-game designations and return status, the Lounge chat, and no book named anywhere a player sees. Checked locally at phone size: 2 live injury events parsed (one injured, one returned) and 10 designations.
+- REVIEW.md written, scored from source and notes, not live pages. It votes for Gold as the base.
 
 ## What changed in v17
 - Next-snap and drive prices shorter than -1000 stay locked.

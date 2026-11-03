@@ -1,5 +1,12 @@
 # Team Gold changelog
 
+## v18
+- Stats tab: team box score (CHI against SEA) and player lines for passing, rushing, receiving, defense and kicking, with headshots, live from the summary feed.
+- Injuries: designations from the summary feed's injuries block, plus in-game events parsed from play text (injured during the play, questionable or doubtful to return, ruled out, returned). A player hurt then seen on a later play shows as returned. One not seen again shows as did not return at the final.
+- The Lounge: SIM Field chat driven by real plays (TDs, turnovers, sacks, big gains, field goals, punts, two-minute warning, quarter ends), their picks and the head-to-head rival. The player can post, and a SIM replies. The Field leaderboard moved under it.
+- No book named anywhere a player sees. Prices are the market's.
+- REVIEW.md scores Red and Blue and votes for the merge base.
+
 ## v17
 - Timed micro markets priced shorter than -1000 stay locked. One showed -2150 at the end of Q3.
 
