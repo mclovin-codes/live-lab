@@ -1,5 +1,12 @@
 # Team blue changelog
 
+## v5
+- Moment cards reorder the Live tab: 4th down go or kick (new market), 3rd down conversion, red zone, crunch time in the last 5 minutes of a one-score game.
+- Three races at once: game, this quarter, this drive. Quarter wins counted, each quarter a fresh race.
+- Path to #1: the likeliest single bets that catch the leader, stake prefilled. When leading, cash out all.
+- Win probability chart with swing of the last play. Final card at the whistle.
+- Returning to the page refreshes every feed at once. Prices beyond about -3900 go off the board.
+
 ## v4
 - Self-update: GitHub Pages caches the page for up to 10 minutes, so an open or reopened phone could sit on an old version. The page now checks every 45 seconds and reloads to the newest version, picks kept.
 

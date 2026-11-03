@@ -1,7 +1,7 @@
 # Team blue status
 
-version: v4
+version: v5
 url: https://mclovin-codes.github.io/live-lab/teams/blue/
-what changed: page self-updates within a minute of a new version (Pages caches HTML up to 10 minutes). v3 brought parlays, open picks strip and scoring alerts. A phone still holding v1 to v3 needs one refresh to pick this up.
-testing next: v5. Red-zone and 4th-down moment markets, quarter race on the ladder, halftime recap, first real settle checks through a full drive.
-blocked: nothing. Field is simulated and labelled because the brief change removed shared storage. Parlay and final grading verified with test specs; real picks not yet settled through a live drive.
+what changed: moment cards (4th down go or kick, 3rd down, red zone, crunch time), game plus quarter plus drive races, Path to #1 with prefilled stake, win probability chart, final card, instant refresh on return.
+testing next: v6. Late-game price sanity in Q4 and OT, live settle audit, bot field pressure in the last 5 minutes, stake and streak moments.
+blocked: nothing. Field is simulated and labelled. Final card and go-or-kick grading tested with forced states and past plays, not yet in a real 4th quarter.
