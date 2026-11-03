@@ -1,4 +1,11 @@
-# Changelog: Team Red, Redline
+# Changelog: Team Red, Rush Live
+
+## v6 (2026-11-02, Q2)
+- Page is now the Live section of Bears at Seahawks inside Rush. Rush's words throughout: pick, stake, Slip, Stack, Units, the Field, Board, Ranks.
+- Picks draw on the weekly Stack. Units are profit and loss (1 Unit = 10 Stack). The Field ranks on live Units, top 3 marked.
+- New: named matchup opponent (simulated, picked close to you, fixed for the week), free Reload, beat-the-line on open picks, stake sizes that fit a small Stack, prototype control to arrive with 1,000, 400 or 60 Stack.
+- Removed: early exit and streak boosts, which Rush does not have. Stack no longer moves between players; the opponent's picks only move their own Units.
+- Added HANDOFF.md for a Rush engineer.
 
 ## v5 (2026-11-02, Q2)
 - Real time: page takes ESPN's FastCast push feed over a websocket (checkpoint plus JSON patches). Polling is now only the fallback, with cache busting on plays, situation and probabilities.
