@@ -83,15 +83,13 @@
  *                           has returned to the game"; any later play naming him also counts as a return. NBA and NHL feeds
  *                           rarely say "injured", so there protection only applies when the text does.
  *
- * JOINER FIELDS (optional handles a joiner shares with the commissioner; text only, never a link, no "$" shown)
- *   Rush.joiner.FIELDS   -> [{k:'cashapp',label:'Cash App'}, venmo, applepay, zelle, paypal, {k:'note',label:'Note'}]
- *   Rush.joiner.NOTE     -> "Handles are shared with the commissioner. Rush moves no money." (show it on the join form)
- *   Rush.joiner.clean(f, allowed) -> only allowed keys; handles drop a leading $ or @, links, tags and odd characters
- *                           (60 chars); note drops tags and "$" (140 chars). Run on every value before storing or showing.
- *   Rush.joiner.get() / set(f)    -> this phone's saved handles, to prefill the join form.
+ * JOINER NOTE (founder ruling 3:00 AM: no payment handles of any kind; only an optional free-text note)
+ *   Rush.joiner.FIELDS   -> [{k:'note', label:'Note'}]. rules.fields is ['note'] or [].
+ *   Rush.joiner.NOTE     -> "Your note is shared with the commissioner." (show it on the join form)
+ *   Rush.joiner.clean(f, allowed) -> {note} only: tags, links and "$" dropped, 140 chars. Any other key is discarded.
+ *   Rush.joiner.get() / set(f)    -> this phone's saved note, to prefill the join form.
  *   Rush.joiner.card(contestId, f, allowed) -> code a joiner sends the commissioner (no backend);
- *   Rush.joiner.readCard(code, allowed)     -> {contest, name, fields, at} cleaned, or null.
- *   The app never links to a payment, never computes a payout and never says "pay".
+ *   Rush.joiner.readCard(code, allowed)     -> {contest, name, fields:{note?}, at} cleaned, or null.
  *
  * Rush.contest (commissioner mode). No backend: a contest lives in each member's browser, and the invite link carries
  * the whole contest (name, schedule, rules) inside the URL, so a friend's phone builds the same contest from the link.
@@ -290,7 +288,7 @@
   const amer = x => { if (x === null || x === undefined || x === '') return null; const n = Math.round(+x); return isFinite(n) && Math.abs(n) >= 100 && Math.abs(n) <= 100000 ? n : null; };
   const numIn = (x, lo, hi, d) => { if (x === null || x === undefined || x === '') return d; const n = +x; return isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
   const INJ = ['none', 'h1', 'full'];
-  const JFIELDS = [{ k: 'cashapp', label: 'Cash App' }, { k: 'venmo', label: 'Venmo' }, { k: 'applepay', label: 'Apple Pay' }, { k: 'zelle', label: 'Zelle' }, { k: 'paypal', label: 'PayPal' }, { k: 'note', label: 'Note' }];
+  const JFIELDS = [{ k: 'note', label: 'Note' }];
   function normRules(r) {
     r = r || {}; const fk = JFIELDS.map(f => f.k);
     const o = { stakeMin: Math.round(numIn(r.stakeMin, 0, 1e6, 0) * 100) / 100, stakeMax: r.stakeMax == null || r.stakeMax === '' ? null : Math.round(numIn(r.stakeMax, 1, 1e6, 1e6) * 100) / 100,
@@ -354,8 +352,8 @@
     });
     Object.values(out).forEach(x => delete x.raw); return out;
   }
-  /* joiner fields: handles a joiner chooses to share with the commissioner. Text only, never a link; no "$" shown. */
-  const cleanField = (k, v) => { let s = String(v == null ? '' : v).replace(/[\u0000-\u001f<>"`]/g, '').replace(/[a-z]+:\/\/|www\./gi, '').trim(); if (k !== 'note') s = s.replace(/^[$@]+/, '').replace(/[^A-Za-z0-9 ._@+\-()]/g, '').slice(0, 60); else s = s.replace(/\$/g, '').slice(0, 140); return s; };
+  /* joiner note: optional free text for the commissioner. Text only, never a link; no "$". */
+  const cleanField = (k, v) => String(v == null ? '' : v).replace(/[\u0000-\u001f<>"`$]/g, '').replace(/[a-z]+:\/\/|www\./gi, '').trim().slice(0, 140);
   function cleanFields(f, allowed) { const keys = JFIELDS.map(x => x.k).filter(k => !allowed || allowed.includes(k)), o = {}; keys.forEach(k => { const v = cleanField(k, f && f[k]); if (v) o[k] = v; }); return o; }
   function joinerCard(contestId, fields, allowed) { return b64.enc(JSON.stringify({ v: 1, c: String(contestId || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40), n: String(S.handle || 'Player').slice(0, 18), f: cleanFields(fields, allowed), t: Date.now() })); }
   function readJoinerCard(code, allowed) { try { const j = JSON.parse(b64.dec(String(code).slice(0, 4000))); if (!j || j.v !== 1) return null; return { contest: String(j.c || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40), name: String(j.n || 'Player').replace(/[<>"`]/g, '').slice(0, 18), fields: cleanFields(j.f || {}, allowed), at: +j.t || Date.now() }; } catch (e) { return null; } }
@@ -367,8 +365,8 @@
     on: fn => { subs.push(fn); return () => subs.splice(subs.indexOf(fn), 1); },
     fmt, grade: { sync, final: finalGrade, finalOf, injuryExits }, SPORT, _raw: () => S,
     rules: { norm: normRules, check: checkRules, result: contestResult, INJURY: INJ.slice() },
-    joiner: { FIELDS: JFIELDS.map(f => Object.assign({}, f)), NOTE: 'Handles are shared with the commissioner. Rush moves no money.',
-      get: () => Object.assign({}, S.joiner || {}), set: f => { S.joiner = cleanFields(f); save(); return Object.assign({}, S.joiner); },
+    joiner: { FIELDS: JFIELDS.map(f => Object.assign({}, f)), NOTE: 'Your note is shared with the commissioner.',
+      get: () => cleanFields(S.joiner || {}), set: f => { S.joiner = cleanFields(f); save(); return Object.assign({}, S.joiner); },
       clean: cleanFields, card: joinerCard, readCard: readJoinerCard },
     contest: { MARKETS: MK, SPORTS, create, join, leave, list: contests, publicList: () => publicContests().map(c => Object.assign({}, c, { phase: contestPhase(c), joined: !!CW(c.id), link: inviteLink(c) })), get: id => { const w = CW(id), c = w ? w.contest : publicContests().find(p => p.id === id); return c ? Object.assign({}, c, { phase: contestPhase(c), joined: !!w, mine: cmine(id), link: inviteLink(c) }) : null; }, allows, place: cplace, reload: creload, me: cmine, ranks: cranks, results, card, importCard, encode: encodeContest, decode: decodeContest, link: inviteLink, marketOf },
   };
