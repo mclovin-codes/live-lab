@@ -99,3 +99,11 @@ known: Lounge uses Blue SIM names, Ranks uses Red SIM names.
 - Tested in jsdom on PHI at DET (Week 9): 8 Field rows with links, 20 renders in 30 ms, no script errors.
 - Next: first live check tonight. The first NBA tips are at 23:00 UTC (6:00 PM ET).
 - Slip re-verified on the hosted code (PHI at DET): single and 2-leg parlay. Typed stake keeps focus, wins, returns and Stack after update as you type, the +10/+25/+50/+100/Max/Clear chips stay, a stake over the Stack shows "Only 1,000 Stack left", and the parlay places with both legs (+270 x60, Stack 940).
+
+## 2:55 AM addendum, store side (16f652d)
+- Rush.rules: norm (stake min and max with No max, odds min and max per line and per slip, typed Field size 2 to 1,000 and Stack 1 to 1,000,000, injury none/h1/full, joiner fields), check (stake and odds limits with a reason), result (a pick's contest result under injury protection; game lines never protected; parlays drop the injured leg and rescore).
+- Placement: the Slip in game.html lists each contest the pick would count in, as "Counts in X" or "Not counted in X: Stake over the 30 maximum", live as you type. The pick still goes on the weekly Slip and is stamped ex:{contestId: why}.
+- Injury exits: grade.sync tags graded props with inj {half, at, returned, who} from the play feed. Tested on CHI at SEA: L. Williams left in Q3 7:37 and did not return; J. Johnson left in Q4 13:06 and the "Injury Update ... has returned" line was found. NBA and NHL feeds have no injury text, so protection there applies only when the text says so.
+- Rush.joiner: Cash App, Venmo, Apple Pay, Zelle, PayPal and a note. Cleaned to plain text (no links, no "$", no tags). A joiner card code hands them to the commissioner with no backend. NOTE text for the join form.
+- Tests: 23 node checks pass; jsdom Slip with two RC contests (a 30 max, and one with game lines off) shows both reasons and stamps the pick; single and parlay regressions unchanged.
+- Waiting on Red: keep the new keys in clean(), honour ex and Rush.rules.result in standings, the join form for fields. Until then RC still counts out-of-limit picks.
