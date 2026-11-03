@@ -1,5 +1,10 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1b2c">
 <title>Blue 42</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap">
 <style>
@@ -13,8 +18,9 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html,body{height:100%}
-body{background:var(--turf);color:var(--ink);font:15px/1.35 var(--body);overscroll-behavior-y:none}
+body{margin:0;padding-top:env(safe-area-inset-top,0px);background:var(--turf);color:var(--ink);font:15px/1.35 var(--body);overscroll-behavior-y:none}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation}
 button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
@@ -117,7 +123,7 @@ h2{margin:0;font:700 14px/1.2 var(--num);letter-spacing:.09em;text-transform:upp
 .go[disabled]{background:var(--line);color:var(--dim)}
 .ghost{min-height:44px;border-radius:8px;border:1px solid var(--line);color:var(--dim);font-weight:600}
 input[type=text]{width:100%;min-height:48px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font:600 17px var(--body);padding:0 12px}
-#toast{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:30;display:grid;gap:6px;padding-inline:16px;pointer-events:none}
+#toast{position:fixed;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;gap:6px;padding-inline:16px;pointer-events:none}
 .ts{background:var(--panel2);border:1px solid var(--blue2);border-radius:8px;padding:9px 12px;font-weight:600;font-size:14px;animation:tin .22s}
 @keyframes tin{from{transform:translateY(-8px);opacity:0}}
 #burst{position:fixed;inset:0;z-index:25;display:grid;place-items:center;pointer-events:none;text-align:center}
@@ -128,7 +134,8 @@ input[type=text]{width:100%;min-height:48px;background:var(--panel2);border:1px 
 ul.cl{margin:0;padding-left:18px;color:var(--ink);font-size:14px;display:grid;gap:6px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-
+</head>
+<body>
 <div id="hdr"></div>
 <main id="view"></main>
 <nav id="tabs"></nav>
@@ -138,8 +145,8 @@ ul.cl{margin:0;padding-left:18px;color:var(--ink);font-size:14px;display:grid;ga
 <div id="burst" hidden></div>
 
 <script>
-const VERSION='v1';
-const CHANGES=[['v1',['Live pick board fed by ESPN every 3 to 10 seconds','Next-snap markets: next play, move the chains, drive result, next score','Game lines, alts, team totals, quarter lines, player props anchored on real DraftKings targets','Cash out, live sweats, ladder with labelled bots and any real players']]];
+const VERSION='v2';
+const CHANGES=[['v2',['Runs as a plain page on any host','Plays arrive up to a minute sooner: fixed a stale browser cache and now read the newest play directly','Field grew to 30 simulated players','Drive Duel: beat the field on every drive','Rank alerts name who you passed','One rebuy per quarter if you bust, charged against your score']],['v1',['Live pick board fed by ESPN every 3 to 10 seconds','Next-snap markets: next play, move the chains, drive result, next score','Game lines, alts, team totals, quarter lines, player props anchored on real DraftKings targets','Cash out, live sweats, ladder with labelled bots and any real players']]];
 const E='401873036',HOME='26',AWAY='3',BUDGET=1000;
 const CORE=`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${E}/competitions/${E}`;
 const SITE='https://site.api.espn.com/apis/site/v2/sports/football/nfl';
@@ -162,12 +169,13 @@ function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i)
 
 /* ---------- feeds ---------- */
 const S={sum:null,odds:null,sit:null,plays:[],probs:[],props:[],roster:{},box:{},ok:{},lag:null,newPlayAt:0,lastSeq:0,fullP:true,fullQ:true,err:null};
-async function j(u){const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()}
+async function j(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw new Error(r.status);return r.json()}
 function seqOf(x){return+(x.sequenceNumber||0)}
 function merge(list,items){const m=new Map(list.map(x=>[x.sequenceNumber,x]));items.forEach(x=>m.set(x.sequenceNumber,x));return[...m.values()].sort((a,b)=>seqOf(a)-seqOf(b))}
 async function pollProbs(){const full=S.fullQ;const page=Math.max(1,Math.ceil((S.probCount||1)/25));const r=await j(`${CORE}/probabilities?`+(full?'limit=1000':`limit=25&page=${page}`));S.probs=full?r.items:merge(S.probs,r.items);S.probCount=r.count;S.fullQ=S.probs.length<r.count;S.ok.probs=Date.now();tick()}
-async function pollPlays(){const full=S.fullP;const page=Math.max(1,Math.ceil((S.playCount||1)/25));const r=await j(`${CORE}/plays?`+(full?'limit=400':`limit=25&page=${page}`));S.plays=full?r.items:merge(S.plays,r.items);S.playCount=r.count;S.fullP=S.plays.length<r.count||(S.pn=(S.pn||0)+1)%12===0;const l=S.plays[S.plays.length-1];if(l){const sq=seqOf(l);if(S.lastSeq&&sq>S.lastSeq){S.newPlayAt=Date.now();if(l.wallclock)S.lag=Math.max(0,(Date.now()-Date.parse(l.wallclock))/1000)}S.lastSeq=sq}S.ok.plays=Date.now();tick()}
-async function pollSit(){S.sit=await j(`${CORE}/situation`);S.ok.sit=Date.now();tick()}
+async function pollPlays(){const full=S.fullP;const page=Math.max(1,Math.ceil((S.playCount||1)/25));const r=await j(`${CORE}/plays?`+(full?'limit=400':`limit=25&page=${page}`));S.plays=full?r.items:merge(S.plays,r.items);S.playCount=r.count;S.fullP=S.plays.length<r.count||(S.pn=(S.pn||0)+1)%12===0;notePlay();S.ok.plays=Date.now();tick()}
+async function pollSit(){S.sit=await j(`${CORE}/situation`);S.ok.sit=Date.now();const lp=S.sit.lastPlay&&S.sit.lastPlay.$ref;if(lp){const id=(lp.match(/plays\/(\d+)/)||[])[1];if(id&&!S.plays.some(p=>p.id===id)){const p=await j(lp.replace('http://','https://'));if(p&&p.sequenceNumber){S.plays=merge(S.plays,[p]);notePlay()}}}tick()}
+function notePlay(){const l=S.plays[S.plays.length-1];if(!l)return;const sq=seqOf(l);if(S.lastSeq&&sq>S.lastSeq){S.newPlayAt=Date.now();if(l.wallclock)S.lag=Math.max(0,(Date.now()-Date.parse(l.wallclock))/1000)}S.lastSeq=Math.max(S.lastSeq,sq)}
 async function pollSum(){S.sum=await j(`${SITE}/summary?event=${E}`);S.box=parseBox(S.sum);S.ok.sum=Date.now();tick()}
 async function pollOdds(){const r=await j(`${CORE}/odds`);S.odds=r.items&&r.items[0];S.ok.odds=Date.now();tick()}
 async function pollProps(){const r=await j(`${CORE}/odds/100/propBets?limit=1000`);const seen=new Set(),out=[];r.items.forEach(i=>{const a=i.athlete&&i.athlete.$ref.match(/athletes\/(\d+)/);const k=i.type.id+'|'+(a?a[1]:'');if(!a||seen.has(k))return;seen.add(k);out.push({t:+i.type.id,aid:a[1],line:i.current&&i.current.target?i.current.target.value:null})});S.props=out;tick()}
@@ -211,7 +219,7 @@ const pname=aid=>(S.roster[aid]&&S.roster[aid].short)||(S.box[aid]&&S.box[aid].n
 function micro(){const g=game();if(!g.live||!S.sit)return null;const down=S.sit.down,dist=S.sit.distance;if(!(down>=1)||!S.sit.team)return null;const off=(S.sit.team.$ref.match(/teams\/(\d+)/)||[])[1];const last=S.plays[S.plays.length-1];const ytg=last&&last.end&&last.end.yardsToEndzone>0?last.end.yardsToEndzone:(S.sit.yardLine?100-S.sit.yardLine:75);const dr=S.sum&&S.sum.drives&&S.sum.drives.current;const driveOk=dr&&dr.id&&!dr.result&&dr.team&&dr.team.id==off;return{down,dist,ytg,off,driveId:driveOk?dr.id:null,seq:S.lastSeq,text:S.sit.downDistanceText||''}}
 function pPass(m,M){let p=m.down===1?.54:m.down===2?(m.dist>=7?.64:m.dist<=2?.38:.52):m.down===3?(m.dist>=3?.84:.52):.72;const trail=(m.off==HOME?-M.cur:M.cur);if(M.f<.25&&trail>=7)p+=.14;if(M.f<.25&&trail<=-7)p-=.16;return clamp(p,.12,.93)}
 function pFirst(m){const d=m.dist;let p=m.down===1?(d<=10?.72:.55):m.down===2?(d<=3?.8:d<=6?.66:d<=10?.5:.33):m.down===3?(d<=1?.7:d<=2?.6:d<=3?.55:d<=6?.43:d<=10?.33:.2):(d<=1?.45:d<=3?.25:.07);if(m.ytg<=m.dist)p*=.85;return clamp(p,.04,.92)}
-function driveP(m){const y=m.ytg,md=[0,1,.95,.85,.6][m.down]||1;let td=.85*Math.exp(-y/48)*md,fg=.28*Math.exp(-Math.pow((y-30)/38,2))*md;if(m.down===4&&y>38){td*=.1;fg*=.1}return{td,fg,none:Math.max(.02,1-td-fg)}}
+function driveP(m){const y=m.ytg,md=[0,1,.95,.85,.6][m.down]||1;let td=.75*Math.exp(-y/48)*md,fg=.28*Math.exp(-Math.pow((y-30)/38,2))*md;if(m.down===4&&y>38){td*=.1;fg*=.1}return{td,fg,none:Math.max(.02,1-td-fg)}}
 function nextScoreP(m,M){const d=driveP(m),n0=.66,td0=.19,fg0=.15,opp=1/(1+n0),own=1-opp;const off={td:d.td+d.none*own*td0/(td0+fg0)*(1-n0),fg:d.fg+d.none*own*fg0/(td0+fg0)*(1-n0)},de={td:d.none*opp*td0/(td0+fg0)*(1-n0)*1.4,fg:d.none*opp*fg0/(td0+fg0)*(1-n0)*1.4};const k=off.td+off.fg+de.td+de.fg,none=clamp(Math.exp(-M.secs/170),.003,.97),s=(1-none)/k;return{off:{td:off.td*s,fg:off.fg*s},def:{td:de.td*s,fg:de.fg*s},none}}
 
 /* ---------- quote: every market prices through here ---------- */
@@ -252,10 +260,10 @@ function quote(sp,M){M=M||model();const label=labelOf(sp);const sus=suspended(M)
 let me={handle:'',cash:BUDGET,bets:[],w:0,l:0,streak:0,best:0,rev:0};
 const LS='blue42-'+E;
 function loadLocal(){try{const r=localStorage.getItem(LS);if(r)me=Object.assign(me,JSON.parse(r))}catch(e){}}
-function save(){me.rev=(me.rev||0)+1;try{localStorage.setItem(LS,JSON.stringify(me))}catch(e){}dirty=true}
-let dirty=false,defaultStake=25;
+function save(){me.rev=(me.rev||0)+1;try{localStorage.setItem(LS,JSON.stringify(me))}catch(e){}}
+let defaultStake=25;
 function betVal(b,M){if(b.status!=='open')return 0;if(['next','fd','drive','ns'].includes(b.spec.k))return b.stake;const fr=fair(b.spec,M);if(!fr)return b.stake;return(b.stake+b.win)*fr.w+b.stake*fr.pu}
-function myValue(M){return me.cash+me.bets.reduce((a,b)=>a+betVal(b,M),0)}
+function myValue(M){return -(me.debt||0)+me.cash+me.bets.reduce((a,b)=>a+betVal(b,M),0)}
 function place(sp,stake){const q=quote(sp);if(!q.ok){toast(q.why);return false}if(stake>me.cash||stake<=0){toast('Not enough left. You have '+money(me.cash));return false}const mm=micro();const b={id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),spec:sp,label:q.label,odds:q.odds,stake,win:toWin(stake,q.odds),at:Date.now(),seq:S.lastSeq,status:'open',off:mm&&mm.off,drive:mm&&mm.driveId,clock:game().detail};
   if(sp.k==='drive')b.team=mm&&mm.off;me.cash-=stake;me.bets.unshift(b);save();blip(620,.06);buzz(15);toast(`${q.label} ${fo(q.odds)} locked for ${money(stake)}`);render();return true}
 function cashOut(id){const b=me.bets.find(x=>x.id===id);if(!b||b.status!=='open')return;const v=Math.round(betVal(b,model())*.96);me.cash+=v;b.status='cashed';b.pay=v;b.settled=Date.now();save();toast(`Cashed out ${b.label} for ${money(v)}`);render()}
@@ -292,7 +300,9 @@ function gradeNext(b,g){const all=S.plays;let prev=null;for(const p of all){if(s
 function settle(M){let changed=false;me.bets.forEach(b=>{if(b.status!=='open')return;const res=gradeBet(b,M);if(!res||!res.r)return;b.status=res.r;b.note=res.note||'';b.settled=Date.now();let pay=0;if(res.r==='won'){pay=b.stake+b.win;me.w++;me.streak=(me.streak||0)+1;me.best=Math.max(me.best||0,me.streak);burst(`+${money(b.win)}`,b.label,'var(--win)');blip(880,.1);blip(1320,.14,.09);buzz([30,40,60])}else if(res.r==='lost'){me.l++;me.streak=0;burst(`-${money(b.stake)}`,b.label,'var(--loss)');blip(190,.2);buzz(80)}else{pay=b.stake;toast(`${b.label}: ${res.r==='push'?'push':'void'}. ${money(b.stake)} returned.`+(res.note?' '+res.note+'.':''))}me.cash+=pay;b.pay=pay;changed=true});if(changed)save();return changed}
 
 /* ---------- field of bots ---------- */
-const BOTS=[{id:'chalk',n:'Chalk Charlie',r:.09,pct:.12,p:'fav'},{id:'dog',n:'Dog Walker',r:.08,pct:.06,p:'dog'},{id:'over',n:'Over Ollie',r:.07,pct:.1,p:'over'},{id:'under',n:'Under Ursula',r:.07,pct:.1,p:'under'},{id:'fade',n:'Fade Frankie',r:.09,pct:.09,p:'fade'},{id:'steam',n:'Steam Stevie',r:.1,pct:.09,p:'steam'},{id:'snap',n:'Snap Sally',r:.4,pct:.035,p:'pass'},{id:'run',n:'Ground Game Gus',r:.28,pct:.035,p:'run'},{id:'alt',n:'Alt Line Al',r:.06,pct:.05,p:'alt'},{id:'late',n:'Late Larry',r:.24,pct:.14,p:'late'},{id:'yolo',n:'Yolo Yuri',r:.05,pct:.24,p:'yolo'}];
+const PERSONA=[{p:'fav',r:.09,pct:.12},{p:'dog',r:.08,pct:.06},{p:'over',r:.07,pct:.1},{p:'under',r:.07,pct:.1},{p:'fade',r:.09,pct:.09},{p:'steam',r:.1,pct:.09},{p:'pass',r:.4,pct:.035},{p:'run',r:.28,pct:.035},{p:'alt',r:.06,pct:.05},{p:'late',r:.24,pct:.14},{p:'yolo',r:.05,pct:.24}];
+const BOTNAMES=['Chalk Charlie','Dog Walker','Over Ollie','Under Ursula','Fade Frankie','Steam Stevie','Snap Sally','Ground Game Gus','Alt Line Al','Late Larry','Yolo Yuri','Heavy Favorite Hal','Plus Money Pam','Points Paulie','Dead Number Dee','Reverse Line Rex','Air Raid Ana','Goal Line Gil','Ladder Lou','Fourth Quarter Fay','All In Otis','Laying It Lena','Road Dog Ray','Rain Over Rita','Backdoor Bo','Middle Mike','Shotgun Sam','Dive Right Dot','Long Shot Lex','Closer Cass'];
+const BOTS=BOTNAMES.map((n,i)=>{const pp=PERSONA[i%PERSONA.length],a=.7+.6*hash('r'+n),b=.7+.6*hash('p'+n);return{id:'b'+i,n,p:pp.p,r:pp.r*a,pct:pp.pct*b}});
 let botMemo={key:'',res:[]};
 function runBots(M){const key=S.plays.length+'|'+S.probs.length+'|'+(M.g.done?1:0);if(botMemo.key!==key){botMemo={key,res:replay(M)}}return botMemo.res.map(b=>{let v=b.cash;b.open.forEach(o=>{if(M.g.done){const r=gradeFinal(o.spec,M.hs,M.as);v+=r==='won'?o.stake+o.win:r==='push'?o.stake:0}else{const fr=fair(o.spec,M);v+=fr?(o.stake+o.win)*fr.w+o.stake*fr.pu:o.stake}});return{...b,value:v}})}
 function replay(M){const T=(S.odds&&S.odds.overUnder)||46.5;const prob=new Map();S.probs.forEach(p=>{const m=p.play&&p.play.$ref&&p.play.$ref.match(/plays\/(\d+)/);if(m)prob.set(m[1],p)});const scrim=S.plays.filter(p=>prob.has(p.id)&&p.period);
@@ -308,19 +318,10 @@ function replay(M){const T=(S.odds&&S.odds.overUnder)||46.5;const prob=new Map()
       else if(bot.p==='yolo')sp={k:'ml',side:dogSide};
       if(!sp)return;const fr=fair(sp,m);if(!fr)return;const o=price(fr.w/Math.max(.02,1-fr.pu),HOLD[sp.k]);if(o==null)return;cash-=st;open.push({spec:sp,stake:st,win:toWin(st,o),odds:o});feed.push({t:Date.parse(p.wallclock)||0,label:labelOf(sp),odds:o,stake:st,spec:sp})});
     return{id:bot.id,name:bot.n,bot:true,cash,open,feed,wins}})}
-let humans=[];
 function ladder(M){const rows=runBots(M).map(b=>({id:b.id,name:b.name,bot:true,value:b.value,open:b.open.length,last:b.feed[b.feed.length-1],feed:b.feed}));
-  humans.forEach(h=>{if(h.id!==myId)rows.push({id:h.id,name:h.handle||'Player',bot:false,value:+h.value||BUDGET,open:h.open||0,last:h.last&&h.last[0],feed:h.last||[]})});
   rows.push({id:'me',name:me.handle||'You',me:true,value:myValue(M),open:me.bets.filter(b=>b.status==='open').length});
   rows.sort((a,b)=>b.value-a.value);rows.forEach((r,i)=>r.rank=i+1);return rows}
 function fieldSplit(rows,bots){let c={ml:[0,0],spread:[0,0],total:[0,0]};bots.forEach(b=>b.open.forEach(o=>{const s=o.spec;if(s.k==='ml')c.ml[s.side===HOME?0:1]++;if(s.k==='spread')c.spread[s.side===HOME?0:1]++;if(s.k==='total')c.total[s.side==='o'?0:1]++}));me.bets.forEach(b=>{if(b.status!=='open')return;const s=b.spec;if(s.k==='ml')c.ml[s.side===HOME?0:1]++;if(s.k==='spread')c.spread[s.side===HOME?0:1]++;if(s.k==='total')c.total[s.side==='o'?0:1]++});return c}
-
-/* ---------- multiplayer ---------- */
-let myId=null,dbx=null,lastPush=0;
-async function connect(){if(!window.claude||!window.claude.use)return;try{const user=await claude.use('user');const db=await claude.use('db');if(!db||!user)return;myId=await user.id();dbx=db;
-  try{const snap=await db.doc(`data/users/${myId}/state`).get();if(snap.exists){const d=snap.data();if(d&&d.me&&(d.me.rev||0)>(me.rev||0)){me=Object.assign(me,d.me);render()}}}catch(e){}
-  db.collection('players').onSnapshot(q=>{humans=q.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{});pushMe(true)}catch(e){}}
-async function pushMe(force){if(!dbx||!myId||!me.handle)return;const now=Date.now();if(!force&&!(dirty||now-lastPush>20000))return;if(!force&&now-lastPush<6000)return;lastPush=now;dirty=false;const M=model();const last=me.bets.slice(0,5).map(b=>({label:b.label,odds:b.odds,stake:b.stake,t:b.at,spec:b.spec}));try{await dbx.doc('players/'+myId).set({handle:me.handle.slice(0,18),value:Math.round(myValue(M)),open:me.bets.filter(b=>b.status==='open').length,w:me.w,l:me.l,last,updated:now});await dbx.doc(`data/users/${myId}/state`).set({me:JSON.parse(JSON.stringify(me))})}catch(e){}}
 
 /* ---------- ui helpers ---------- */
 let tab='live',boardTab='game',propTab='pass',slip=null,sheetMode=null,prevOdds={},lastRank=null;
@@ -342,8 +343,14 @@ function vHdr(M){const g=M.g,c=hdrComp(),mm=micro(),off=mm&&mm.off;const last=S.
   <div class="field"><i class="ez"></i>${ball!=null?`<i class="fd" style="left:${fdm}%"></i><i class="ball" style="left:${ball}%"></i>`:''}</div>
   <div class="hrow"><span class="dd">${esc(mm?teamAb(mm.off)+' ball, '+mm.text:(last&&last.type?last.type.text:'Waiting for the next snap'))}</span><span class="live"><i class="dot${bad?' bad':''}"></i>${age==null?'connecting':age+'s'}${S.lag!=null?' · feed +'+Math.round(S.lag)+'s':''}</span><button class="stamp" data-a="changes">${VERSION}</button></div>
   <div class="bank"><div><span class="v">${money(val)}</span> <span class="d ${d>=0?'up':'dn'}">${d>=0?'+':'-'}${money(Math.abs(d))}</span></div><div class="rk">#${myR.rank} of ${rows.length}<small>${money(me.cash)} free</small></div></div>`}
+function curDriveId(){const d=S.sum&&S.sum.drives;return d&&d.current&&d.current.id||null}
+function duel(M){const id=curDriveId();if(!id||!M.g.live&&!M.g.done)return;const rows=ladder(M),snap={};rows.forEach(r=>{if(!r.me)snap[r.id]=r.value});const val=myValue(M),d=me.duel;
+  if(!d||d.id!==id){if(d){const r=duelRows(d,rows,val);const mine=r.find(x=>x.me),won=mine.rank===1&&mine.delta>0;if(won){me.duelW=(me.duelW||0)+1;burst('DRIVE WON','+'+money(mine.delta)+' beat the field of '+r.length,'var(--blue)');buzz([30,30,30])}else if(mine.delta!==0)toast(`Drive over. You finished #${mine.rank} of ${r.length}.`);me.duelN=(me.duelN||0)+(mine.delta!==0?1:0)}me.duel={id,my:val,bots:snap,team:(S.sum.drives.current.team||{}).abbreviation||''};save()}}
+function duelRows(d,rows,val){const r=rows.map(x=>x.me?{name:'You',me:true,delta:val-d.my}:{name:x.name,delta:x.value-(d.bots[x.id]==null?x.value:d.bots[x.id])});r.sort((a,b)=>b.delta-a.delta);r.forEach((x,i)=>x.rank=i+1);return r}
+function vDuel(M,rows){const d=me.duel;if(!d)return'';const r=duelRows(d,rows,myValue(M)),mine=r.find(x=>x.me),top=r[0].me?r[1]:r[0],sign=v=>(v>=0?'+':'-')+money(Math.abs(v));return`<section class="sec"><header><h2>Drive duel${d.team?' · '+esc(d.team)+' ball':''}</h2><small>drives won ${me.duelW||0}</small></header><div class="rival"><div><b class="${mine.delta>=0?'up':'dn'}">${sign(mine.delta)}</b> this drive, #${mine.rank} of ${r.length}</div><div class="fieldline"><span>Field best: ${esc(top.name)} ${sign(top.delta)}</span><span>most profit when the drive ends wins</span></div></div></section>`}
 function vLive(M){const g=M.g,mm=micro(),last=S.plays[S.plays.length-1];const rows=ladder(M),mine=rows.find(r=>r.me),above=rows[mine.rank-2],below=rows[mine.rank];let h='';
   if(S.err&&!S.ok.probs)h+=`<div class="notice">ESPN did not respond (${esc(S.err)}). Betting stays locked until the feed is back.</div>`;
+  if(me.cash<5&&!me.bets.some(b=>b.status==='open')){const used=me.rebuyQ===g.period;h+=`<div class="notice">You are out of chips.${used?' Your rebuy returns next quarter.':''}${used?'':' <button class="tail" data-a="rebuy">Rebuy $250</button> It comes off your score.'}</div>`}
   h+=`<div class="last">${esc(last?(last.shortText||last.text||''):'Loading the last play')}<small>${last&&last.clock?'Q'+last.period.number+' '+last.clock.displayValue:''}</small></div>`;
   h+=`<section class="sec"><header><h2>Tap a price to lock it</h2><small>one tap, no slip</small></header><div class="chips">${[10,25,50,100,250].map(v=>`<button class="chip${defaultStake===v?' on':''}" data-a="stake" data-v="${v}">$${v}</button>`).join('')}</div>`;
   if(mm){const op=mm.off==HOME?AWAY:HOME,oa=teamAb(mm.off),da=teamAb(op);
@@ -353,6 +360,7 @@ function vLive(M){const g=M.g,mm=micro(),last=S.plays[S.plays.length-1];const ro
    h+=`<div class="snap"><div class="q">Next score<small>first points after now</small></div><div class="opts w">${oBtn({k:'ns',c:'td',team:mm.off},oa+' TD',M,'snap')}${oBtn({k:'ns',c:'fg',team:mm.off},oa+' FG',M,'snap')}${oBtn({k:'ns',c:'td',team:op},da+' TD',M,'snap')}${oBtn({k:'ns',c:'fg',team:op},da+' FG',M,'snap')}</div></div>`;
   }else h+=`<div class="empty">${g.state==='post'?'Game over. Every open pick is graded from the final box score.':'Snap markets reopen when the offense is back on the field.'}</div>`;
   h+=`</section>`;
+  h+=vDuel(M,rows);
   h+=`<section class="sec"><header><h2>Your race</h2><small>${me.w}-${me.l}${me.streak>1?' · '+me.streak+' straight':''}</small></header><div class="rival">${above?`<div>${Math.round(above.value-mine.value)===0?`<b>Level</b> with`:`<b class="dn">${money(above.value-mine.value)}</b> behind`} ${esc(above.name)}${above.bot?'<span class="tag">BOT</span>':''} at #${above.rank}</div>`:'<div><b class="up">You lead the ladder</b></div>'}${below?`<div class="fieldline"><span>${esc(below.name)} is ${money(mine.value-below.value)} behind you</span></div>`:''}</div></section>`;
   const open=me.bets.filter(b=>b.status==='open');
   h+=`<section class="sec"><header><h2>Sweating now</h2><small>${open.length} open</small></header>${open.length?open.map(b=>betCard(b,M)).join(''):'<div class="empty">No live picks. Tap any price above.</div>'}</section>`;
@@ -400,21 +408,21 @@ function vProps(M){const gs=[['pass','Passing'],['rush','Rushing'],['rec','Recei
 function vPicks(M){const open=me.bets.filter(b=>b.status==='open'),done=me.bets.filter(b=>b.status!=='open');let h=`<section class="sec"><header><h2>Open</h2><small>${open.length}</small></header>${open.length?open.map(b=>betCard(b,M)).join(''):'<div class="empty">Nothing open.</div>'}</section>`;
   h+=`<section class="sec"><header><h2>Graded</h2><small>${me.w}-${me.l} · best streak ${me.best||0}</small></header>${done.length?done.map(b=>{const net=(b.pay||0)-b.stake,tag={won:'WON',lost:'LOST',push:'PUSH',void:'VOID',cashed:'CASHED'}[b.status];return`<div class="bet ${b.status==='won'?'won':b.status==='lost'?'lost':''}"><div class="t"><span>${esc(b.label)}</span><span class="od">${fo(b.odds)}</span></div><div class="s"><span>${tag}${b.note?' · '+esc(b.note):''}</span><span class="${net>=0?'up':'dn'}">${net>=0?'+':'-'}${money(Math.abs(net))}</span></div></div>`}).join(''):'<div class="empty">Your graded picks land here.</div>'}</section>`;
   return h}
-function vLadder(M){const rows=ladder(M);return`<section class="sec"><header><h2>Live ladder</h2><small>value = cash + open picks at live price</small></header><div>${rows.map(r=>{const d=r.value-BUDGET;return`<div class="row${r.me?' me':''}"><div class="rn">${r.rank}</div><div class="nm">${esc(r.name)}${r.bot?'<span class="tag">BOT</span>':r.me?'<span class="tag">YOU</span>':''}<small>${r.last?esc(r.last.label)+' '+fo(r.last.odds):(r.open?r.open+' open':'no picks yet')}</small></div><div class="val">${money(r.value)}<small class="${d>=0?'up':'dn'}" style="display:block;font-size:13px">${d>=0?'+':'-'}${money(Math.abs(d))}</small></div></div>`}).join('')}</div><div class="empty">Bots are labelled and run on the same prices and grading. Real players appear here when they open this page and pick a name.</div></section>`}
+function vLadder(M){const rows=ladder(M);return`<section class="sec"><header><h2>Live ladder</h2><small>value = cash + open picks at live price</small></header><div>${rows.map(r=>{const d=r.value-BUDGET;return`<div class="row${r.me?' me':''}"><div class="rn">${r.rank}</div><div class="nm">${esc(r.name)}${r.bot?'<span class="tag">BOT</span>':r.me?'<span class="tag">YOU</span>':''}<small>${r.last?esc(r.last.label)+' '+fo(r.last.odds):(r.open?r.open+' open':'no picks yet')}</small></div><div class="val">${money(r.value)}<small class="${d>=0?'up':'dn'}" style="display:block;font-size:13px">${d>=0?'+':'-'}${money(Math.abs(d))}</small></div></div>`}).join('')}</div><div class="empty">Everyone tagged BOT is a simulated player on the same prices and grading, replayed from ESPN plays, so the field is the same on every phone.</div></section>`}
 function vTabs(M){const rows=ladder(M),r=rows.find(x=>x.me),o=me.bets.filter(b=>b.status==='open').length;return[['live','LIVE',''],['board','BOARD',''],['picks','PICKS',o?o+' open':''],['ladder','LADDER','#'+r.rank]].map(t=>`<button class="${tab===t[0]?'on':''}" data-a="tab" data-v="${t[0]}">${t[1]}${t[2]?`<small>${t[2]}</small>`:''}</button>`).join('')}
 function vSheet(M){if(sheetMode==='name')return`<h3>Blue 42</h3><p>You get ${money(BUDGET)} of fake money for this game. No real money, ever. Lock prices on every snap, cash out or sweat, and climb the ladder.</p><input type="text" id="hn" maxlength="18" placeholder="Your name on the ladder" autocomplete="off"><button class="go" data-a="setname">Start with ${money(BUDGET)}</button>`;
-  if(sheetMode==='changes')return`<h3>What changed</h3>${CHANGES.map(c=>`<div><b class="n">${c[0]}</b><ul class="cl">${c[1].map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}<p>Lines are priced from ESPN win, cover and total probabilities after every play, anchored on DraftKings numbers. Fake money only.</p><button class="ghost" data-a="close">Close</button>`;
+  if(sheetMode==='changes')return`<h3>What changed</h3>${CHANGES.map(c=>`<div><b class="n">${c[0]}</b><ul class="cl">${c[1].map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}<p>Lines are priced from ESPN win and total probabilities after every play, anchored on DraftKings numbers. Fake money only.</p><button class="ghost" data-a="close">Close</button>`;
   if(sheetMode==='slip'&&slip){const q=quote(slip.sp,M),st=slip.stake,win=q.ok?toWin(st,q.odds):0,moved=q.ok&&slip.o0!=null&&q.odds!==slip.o0;return`<div class="slipodds"><h3>${esc(q.label)}</h3><b>${q.ok?fo(q.odds):'LOCK'}</b></div>${moved?`<p class="up">Price moved from ${fo(slip.o0)}. You lock what you see.</p>`:''}<div class="slipodds"><span class="stake">${money(st)}</span><span>to win <b class="n up" style="color:var(--win);font-size:22px">${money(win)}</b></span></div><div class="chips">${[10,25,50,100,250].map(v=>`<button class="chip" data-a="add" data-v="${v}">+${v}</button>`).join('')}<button class="chip" data-a="max">MAX</button><button class="chip" data-a="clr">CLR</button></div><button class="go" data-a="confirm"${q.ok&&st>0&&st<=me.cash?'':' disabled'}>${q.ok?(st>me.cash?'Only '+money(me.cash)+' left':'Lock at '+fo(q.odds)):esc(q.why)}</button><button class="ghost" data-a="close">Cancel</button>`}
   return''}
 
 /* ---------- render ---------- */
-let html={};
+let html={},rankToast=0;const BOOT=Date.now();
 function put(id,h){if(html[id]!==h){html[id]=h;$(id).innerHTML=h}}
 function render(){const M=model();put('hdr',vHdr(M));put('view',tab==='live'?vLive(M):tab==='board'?vBoard(M):tab==='picks'?vPicks(M):vLadder(M));put('tabs',vTabs(M));const open=!!sheetMode;$('scrim').hidden=!open;$('sheet').hidden=!open;if(open&&sheetMode==='slip')put('sheet',vSheet(M));
-  const r=ladder(M).find(x=>x.me).rank;if(lastRank&&r!==lastRank&&me.handle)toast(r<lastRank?`Up to #${r}`:`Dropped to #${r}`);lastRank=r}
+  const r=ladder(M).find(x=>x.me).rank;if(lastRank&&r!==lastRank&&me.handle&&Date.now()-BOOT>20000&&Date.now()-rankToast>9000){rankToast=Date.now();const rs=ladder(M);if(r<lastRank){const u=rs[r];toast(`Up to #${r}. You passed ${u?u.name:'the field'}.`)}else{const u=rs[r-2];toast(`Down to #${r}. ${u?u.name:'Someone'} passed you.`)}}lastRank=r}
 function openSheet(m){sheetMode=m;html.sheet=null;$('sheet').innerHTML=vSheet(model());html.sheet=$('sheet').innerHTML;$('scrim').hidden=false;$('sheet').hidden=false}
 function closeSheet(){sheetMode=null;slip=null;$('scrim').hidden=true;$('sheet').hidden=true}
-let tickT=0;function tick(){if(tickT)return;tickT=setTimeout(()=>{tickT=0;const M=model();settle(M);render();pushMe()},60)}
+let tickT=0;function tick(){if(tickT)return;tickT=setTimeout(()=>{tickT=0;const M=model();settle(M);duel(M);render()},60)}
 
 /* tap handling survives re-renders: act on the element under pointerdown */
 let dn=null;
@@ -434,9 +442,10 @@ function act(d){switch(d.a){
   case'clr':slip.stake=0;render();break;
   case'confirm':if(place(slip.sp,slip.stake))closeSheet();break;
   case'cash':cashOut(d.id);break;
+  case'rebuy':{const p=game().period;if(me.rebuyQ===p||me.cash>=5)break;me.rebuyQ=p;me.debt=(me.debt||0)+250;me.cash+=250;save();toast('Rebuy: $250 added, $250 off your score');render();break}
   case'changes':openSheet('changes');break;
   case'close':closeSheet();break;
-  case'setname':{const v=($('hn').value||'').trim();me.handle=v||'Rookie';save();closeSheet();pushMe(true);render();wake();break}
+  case'setname':{const v=($('hn').value||'').trim();me.handle=v||'Rookie';save();closeSheet();render();wake();break}
 }}
 function wake(){try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}}
 
@@ -445,7 +454,6 @@ loadLocal();render();if(!me.handle)openSheet('name');
 loop(pollProbs,3000);loop(pollSit,4000);loop(pollPlays,5000);loop(pollSum,10000);loop(pollOdds,60000);loop(pollProps,380000);pollRoster().catch(()=>{});
 setInterval(()=>{const M=model();put('hdr',vHdr(M))},1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){S.fullQ=true;S.fullP=true;wake()}});
-connect();
-/* feed health for the team: did ESPN load inside the real viewer */
-setTimeout(async()=>{try{if(!window.claude||!claude.use)return;const db=await claude.use('db'),user=await claude.use('user');if(!db||!user)return;const id=await user.id();await db.doc('health/'+id).set({v:VERSION,probs:S.probs.length,plays:S.plays.length,err:S.err||'',at:Date.now()})}catch(e){}},15000);
 </script>
+</body>
+</html>

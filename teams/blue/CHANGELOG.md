@@ -1,5 +1,12 @@
 # Team blue changelog
 
+## v2, GitHub Pages
+- Complete standalone document, no artifact capabilities. Field is now 30 labelled simulated players, the same on every phone. Real-player sync removed per the brief change.
+- Fixed stale feed: the browser was serving minutes-old ESPN plays under stale-while-revalidate. All fetches now skip the browser cache, and the newest play is pulled from the situation feed as soon as it appears.
+- Drive Duel: profit on each drive ranked against the field, drives won counted.
+- Rank alerts name who you passed. One $250 rebuy per quarter after busting, charged against score.
+- Graded next play, chains, drive result and next score against real tonight plays: results matched the play text.
+
 ## v1, 8:42 PM ET
 - First publish of Blue 42. $1,000 fake budget for the game.
 - Live tab: one-tap next-snap markets (next play pass or run, moves the chains, drive result, next score), live sweats with cash out, your race against the rank above.
