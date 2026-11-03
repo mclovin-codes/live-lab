@@ -1,10 +1,11 @@
 # Team Red status
 
-- Version: v6
+- Version: v7
 - URL: https://mclovin-codes.github.io/live-lab/teams/red/
-- What changed: Page is now the Live section of one Rush event. Weekly Stack, Slip, Units, the Field ranked on Units, matchup opponent, Reload, beat-the-line. Early exit and boosts removed. HANDOFF.md added.
-- Lag: push delivery 0.2 to 0.3 seconds from server stamp to page. Polling measured 20 to 46 seconds after play wallclock. Play-to-page over push: one sample, 11 seconds; more samples still to come.
-- Verified: every tab scanned for words Rush bans, stake, Reload and arrival flows, phone width, no console errors. Not yet proven: a pick settling on a real play over push, fourth quarter pricing.
-- Testing next (v7): real settles over push, play lag samples, fourth quarter pricing check, faster live tab between snaps.
+- What changed: DraftKings price jumps lock next snap and drive markets and alert the player before ESPN posts the play. Header lag is a rolling median.
+- Lag: push delivery 0.1 to 0.3 seconds, but ESPN only publishes plays 19 to 49 seconds after play time (median about 28, six plays). The scoreboard topic is no faster. DraftKings prices moved about 10 seconds after play time on the one play timed. Correction: the 11 second figure reported with v5 was not representative.
+- Verified: next snap picks settled correctly on real plays over push (hosted v6). Early signal tested only with injected prices; it has not fired on a real snap yet. Drive and next score picks have not settled on a real play yet. Fourth quarter pricing not yet seen.
+- Testing next (v8): early signal against real snaps, fourth quarter pricing check.
+- Requested: licensed low-latency play data, asked through the chief of staff. ESPN alone cannot beat about 20 seconds.
 - Blocked: nothing.
-- Known limits: ESPN lags TV, so someone watching TV can see a snap before the page does; next snap stakes are capped at $100.
+- Known limits: ESPN lags TV, so someone watching TV can see a snap before the page does; next snap stakes are limited to 100 Stack.

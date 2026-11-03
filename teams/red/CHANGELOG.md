@@ -1,5 +1,10 @@
 # Changelog: Team Red, Rush Live
 
+## v7 (2026-11-02, Q2)
+- Early signal: a DraftKings price jump locks next snap and drive markets at once. A large jump shows an alert. One play measured: DraftKings moved about 10 seconds after play time, ESPN posted the play at 22.
+- Header PLAY lag is now the median of the last 5 plays. Correction: the 11 second figure reported with v5 was one unrepresentative sample. Six plays over push measured 19 to 49 seconds, median about 28.
+- First real picks settled over push on hosted v6: next snap pass or run and moves the chains graded correctly against the plays.
+
 ## v6 (2026-11-02, Q2)
 - Page is now the Live section of Bears at Seahawks inside Rush. Rush's words throughout: pick, stake, Slip, Stack, Units, the Field, Board, Ranks.
 - Picks draw on the weekly Stack. Units are profit and loss (1 Unit = 10 Stack). The Field ranks on live Units, top 3 marked.
