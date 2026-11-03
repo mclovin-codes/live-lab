@@ -76,3 +76,16 @@ Roles: Gold Home tone; Blue the store (limits enforced at placement, injury prot
 ## Ruling, 2026-11-03 3:00 AM ET: payment handles out
 
 Founder: "Let's keep the payment source out of it for now then." Item 4 of the 2:55 AM addendum is withdrawn: no joiner fields for payment handles, no Cash App, Venmo, Apple Pay, Zelle or PayPal anywhere in the app. The free-text note field for joiners may stay if already built. Everything else in that addendum stands.
+
+## Addendum, 2026-11-03 3:05 AM ET (founder, verbatim): one player, several contests
+
+"One other challenge we haven't considered, when viewing the board and making picks, what if somebody who joins a private contest sees and joins the weekly Rush public contest. How do they decipher between their stack amounts and making picks in one or the other contest or both easily."
+
+The design (chief of staff's call, teams may improve it, say why in STATUS.md):
+1. Every pick belongs to exactly one contest. Each contest the player is in has its own Stack, Slip and Ranks. The Rush weekly is a contest like any other, always first in the list.
+2. A contest switcher in the header on every page: a pill showing the active contest's name and its Stack ("The Rush · 952 Stack"); tap to switch; each contest has a colour dot that follows it everywhere. The Board, the game page and the Slip always act inside the active contest, and the page says so.
+3. In the pick sheet, a "Place in" row listing every contest the player is in with that contest's Stack beside it, the active one preselected; the player can tick more than one and set a stake per contest; one confirm places all; the sheet refuses any contest whose rules exclude the market (live picks off, props off, limits) and says why.
+4. Slips grouped by contest with the colour dot; Ranks with a contest selector; the game page shows the player's open picks on this game per contest.
+5. Home shows the active contest first, then a row of the other contests with their Stack and rank, one tap to switch.
+
+Roles: Blue the store (per-contest Stack and Slip, active contest, multi-place), the header pill in shared/nav.js and the pick sheet; Red Ranks and the contest pages; Gold Home and Slips.
