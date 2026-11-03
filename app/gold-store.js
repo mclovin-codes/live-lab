@@ -17,7 +17,7 @@
     record() { const s = R.season(); return { w: s.w || 0, l: s.l || 0 }; },
     reload() { return R.reload(); },
     picks() { return R.picks().map(p => ({ ...p, st: p.status })); },
-    field() { return R.field().map(r => ({ rank: r.rank, name: r.me ? (r.name || 'You') : r.name, sim: !!r.sim, you: !!r.me, units: r.units })); },
+    field() { return R.field().map(r => ({ id: r.id, rank: r.rank, name: r.me ? (r.name || 'You') : r.name, sim: !!r.sim, you: !!r.me, units: r.units })); },
     fmt(n) { return R.fmt && R.fmt.stack ? R.fmt.stack(n) : Math.round(n).toLocaleString('en-US'); },
     nav(active) {
       if (window.Rush && window.Rush.nav) { const own = document.getElementById('g-nav'); if (own) own.remove(); try { window.Rush.nav.refresh(); } catch (e) {} return; }
@@ -25,6 +25,10 @@
       el.innerHTML = NAV.map(([k, href, t, path]) => `<a class="${k === active ? 'on' : ''}" href="${href}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${path}</svg>${t}</a>`).join('');
     }
   };
+  const escH = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // Player names open Red's player card.
+  GS.card = (id, name) => `<a class="g-plink" href="player.html?u=${encodeURIComponent(id)}">${escH(name)}</a>`;
+  GS.idOf = name => { const r = R.field().find(x => x.name === name); return r ? r.id : null; };
   window.GS = GS;
   if (R && R.on) R.on(() => { if (typeof window.render === 'function') window.render(); });
 })();
