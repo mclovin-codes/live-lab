@@ -1,8 +1,8 @@
 # Team blue status
 
-version: v15
+version: v15 (final; work continued in teams/one as m1 to m5)
 url: https://mclovin-codes.github.io/live-lab/teams/blue/
-what changed: Phase 2. Stats tab (team box score, player groups, headshots), injuries with returned or did-not-return, the Lounge chat (simulated Field plus player posts), no book brand names. REVIEW.md written: vote Blue as base.
+what changed: final whistle CHI 34 SEA 17. 40 real picks graded at the final, 0 open, 0 voided. Probe through the final: 99 tries, 32 placed, 67 locked, 0 refused at placement, 0 after a snap; 124 snaps, median close 27s before the snap, 0 snapped first. Closing numbers in teams/one/STATUS.md.
 probe on real snaps (1-Stack chains pick every 3s while the page was in front, Q3 to Q4 start): 60 tries, 22 placed, 38 locked (17 ball may be live, 11 line moved, 5 feed paused, 3 repricing, 2 book suspended), 0 failed at the placement check, 0 accepted after a snap. Every accepted pick was at least 26s before the next snap. All accepted picks came during timeouts and breaks; after runs and catches the window never opened, because ESPN lag tonight is 19 to 45s.
 Q4 live check at 15:00, CHI 20 SEA 9: main lines exact DraftKings (SEA +348, CHI -523, SEA +6.5 -126, total 44.5). Alts and team totals consistent with the DK-implied mean margin of 6 and remaining sd 6.7. Winning margin bands sum to 1.000. Q4 total -115 both ways. Timed window open 22s after a timeout, locks at 0. Overtime: game logic, quarter-race OT label, 2nd-half lines through OT and settling are in place; untested live unless the game goes to OT.
 model limit seen in Q4: a normal margin centred on the DK-implied mean understates the tails of a two-score lead (for example CHI 13+ at +430), because real outcomes cluster at 3 and 7 point steps.
