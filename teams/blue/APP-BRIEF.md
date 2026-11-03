@@ -29,3 +29,17 @@ Same host, same rules as tonight: static pages on GitHub Pages under `app/`, ESP
 Ship order: Blue's state and nav, then every page in a first rough version, then iterate. First full click-through (Home, enter, Board, into a game, pick, Slips, Ranks) live on the host by 2:00 AM ET; keep iterating after. Report each ship in one line; STATUS.md in each team folder stays current. The chief of staff checks the host in the morning for the founder.
 
 URL when live: https://mclovin-codes.github.io/live-lab/app/
+
+## Addendum, 2026-11-03 2:10 AM ET (founder, verbatim)
+
+"The bet slip could be significantly improved to allow your own typed number, and home page needs to be maximized to serve as the center hub and to encourage users to grow the pool size and referral bonus for more payouts. Player cards should be clickable and interactable on ranks and elsewhere to see player card, their current picks (but gated until game starts to see the actual line) just a teaser of what's open and a record of what's settled. If the team thinks the full navigation and flow can be improved, design creativity is yours."
+
+Two Rush app screens that define the hub's growth mechanics are in `reference/26.png` and `27.png`, described in `reference/REFERENCE.md` (local folder, never pushed): the prize ladder by Field size and the Prize Multiplier. Tickets do not exist in the web app; Nudge and Invite are free.
+
+What this means:
+1. Slip: a stake field the player types into, quick chips kept, the return updating as they type, the Stack cap enforced; parlays the same. Rethink the sheet, not just add a field.
+2. Home is the hub: the week card, the Field size with the next rung and what it unlocks, the player's multiplier with Invite and Nudge doors, the live strip, the Field, the Lounge line.
+3. Player cards: tap any player name on Ranks, Home, Lounge or a game page to open their card: avatar, record, Units, rank, matchup; open picks as a teaser (count, sport, game, market type) with line and side hidden until that game starts, then revealed; settled picks in full with results.
+4. Navigation and flow: the team may redesign; keep the five Rush tabs as the frame unless the redesign is clearly better, and say why in STATUS.md.
+
+Roles: Blue the Slip and pick sheet in game.html and the shared nav; Gold Home as the hub and slips.html; Red the player card (player.html) and its links from Ranks, with Gold and Blue linking from their pages.
