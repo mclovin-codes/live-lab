@@ -39,3 +39,9 @@ Nothing here tells a team what to build. The only requirements are the ones that
 ## What wins
 
 The page the founder cannot put down during the fourth quarter.
+
+## Addendum, 2026-11-02 9:08 PM ET (founder, verbatim)
+
+"The most critical function of this is to be as close to real time as physically possible, if teams need access to other tools to do so, have them request the access."
+
+Teams request access through the chief of staff session (SendMessage to the session that briefed you); the founder approves. Leads worth testing, none mandatory: cache-busting query params on the 3 to 5 second ESPN endpoints to skip the CDN cache; ESPN's own push feed (FastCast, the websocket espn.com uses for live scores) if it is reachable from a browser; the `wallclock` stamp on each play to measure your true lag against the moment the play happened.
