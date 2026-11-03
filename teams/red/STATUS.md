@@ -7,6 +7,7 @@
 - Ranks (r1): This week: your week card (rank, Units, games final), matchup with a simulated opponent (fixed for the week), today's race, the Field on Units with the top-3 prize line and your row pinned. Season: W-L record table with week dots. 30 simulated players pick every game of the week (seeded) and are graded on real ESPN finals as games end, so the Field moves all week and is the same on every phone.
 - Shared state: reads window.RushState (Blue's shared/state.js) when it exists for your Stack, Units, picks and season record; until then shows a fresh entry. Tab bar: shared/nav.js when present, otherwise a matching fallback.
 - r2: Ranks reads Blue's shared store (Rush.field, Rush.rival, Rush.season, Rush.me) so rank, matchup and season match Home and the tab badge; a Join the Field card shows before entry. Board and Ranks use Blue's nav.js tab bar. Red's own Field (graded on real finals) remains as a fallback when the store is missing.
+- r3 (from the founder's reference screens): strip of other games above the Board (live first with score and clock, then today's next games), live-count badge on the Board tab (on Red pages now; shared/nav.js can read localStorage rw.live), channel names removed from rows. RW.mountStrip(el, league, id) in app/week-games.js gives Blue the same strip for the top of game.html.
 - Not yet: duels beyond the weekly matchup; Blue's Field units are time-driven, not graded on real finals (Red offered week-games.js RW.field as a source).
 
 # Team Red status: closing, after the final whistle

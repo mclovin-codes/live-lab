@@ -24,7 +24,7 @@ async function load(force){if(!force&&cache&&Date.now()-cacheAt<15000)return cac
  jobs.push(J(`${SB}${LEAGUES.nfl.path}/scoreboard?week=${w.n}&seasontype=2`).then(d=>(d.events||[]).map(e=>norm('nfl',e))).catch(()=>[]));
  for(const lg of['nba','nhl'])for(const d of ds)jobs.push(J(`${SB}${LEAGUES[lg].path}/scoreboard?dates=${d}`).then(r=>(r.events||[]).map(e=>norm(lg,e))).catch(()=>[]));
  const all=(await Promise.all(jobs)).flat(),seen=new Set,games=[];for(const g of all){const k=g.league+g.id;if(seen.has(k))continue;seen.add(k);if(g.date>=w.start-6*36e5&&g.date<=w.end)games.push(g)}
- games.sort((a,b)=>a.date-b.date);cache=games;cacheAt=Date.now();try{localStorage.setItem('rw.games',JSON.stringify({at:cacheAt,w:w.n,games}))}catch(e){}return games}
+ games.sort((a,b)=>a.date-b.date);cache=games;cacheAt=Date.now();try{localStorage.setItem('rw.games',JSON.stringify({at:cacheAt,w:w.n,games}));localStorage.setItem('rw.live',JSON.stringify({n:games.filter(g=>g.state==='in').length,at:cacheAt}))}catch(e){}badge();return games}
 function cached(){try{const j=JSON.parse(localStorage.getItem('rw.games')||'null');if(j&&j.w===week().n)return j.games}catch(e){}return null}
 
 /* ---------- the simulated Field: 30 players who pick every game of the week, graded on real finals ---------- */
@@ -56,5 +56,21 @@ function me(){const s=RS();try{if(s&&typeof s.me==='function'){const m=s.me();re
 function mySeason(){const s=RS();try{if(s){const r=typeof s.season==='function'?s.season():s.season;if(r)return{w:r.w||r.wins||0,l:r.l||r.losses||0,hist:r.hist||r.weeks||[]}}}catch(e){}return{w:0,l:0,hist:[]}}
 function opponent(rows){const mine=rows.find(r=>r.me);let best=null;for(const r of rows){if(r.me)continue;if(!best||Math.abs(r.units-mine.units)<Math.abs(best.units-mine.units))best=r}const k='rw.opp.'+week().n;try{const v=localStorage.getItem(k);if(v){const f=rows.find(r=>r.id===v);if(f)return f}if(best)localStorage.setItem(k,best.id)}catch(e){}return best}
 
-window.RW={LEAGUES,week,days,load,cached,field,season,me,opponent,etDay,hash};
+/* ---------- live count for the Board tab badge (shared/nav.js can read localStorage 'rw.live' {n, at}) ---------- */
+function liveCount(){try{const j=JSON.parse(localStorage.getItem('rw.live')||'null');if(j&&Date.now()-j.at<5*60e3)return j.n}catch(e){}return 0}
+let badgeObs=null;function badge(){const nav=document.getElementById('rnav');if(!nav)return;const paint=()=>{const a=nav.querySelector('a[href="board.html"]');if(!a)return;const n=liveCount();let em=a.querySelector('em.rw-live');if(!n){if(em)em.remove();return}if(!em){em=document.createElement('em');em.className='rw-live';a.appendChild(em)}if(em.textContent!==String(n))em.textContent=String(n)};paint();if(!badgeObs){badgeObs=new MutationObserver(()=>{badgeObs.disconnect();paint();badgeObs.observe(nav,{childList:true,subtree:true})});badgeObs.observe(nav,{childList:true,subtree:true})}}
+setTimeout(badge,400);setTimeout(badge,1500);
+
+/* ---------- strip of other games, for the top of game.html and the Board.
+   RW.mountStrip(el, league, id): fills el with live games first, then today's next games; the current game is outlined; refreshes itself. ---------- */
+const STRIP_CSS=`.rw-strip{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:2px 0 10px}.rw-strip::-webkit-scrollbar{display:none}
+.rw-pill{flex:none;scroll-snap-align:start;display:grid;grid-template-columns:24px auto auto auto 24px;align-items:center;gap:7px;padding:7px 11px;border-radius:99px;background:#1A2530;color:#fff;text-decoration:none;font:600 14px/1 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;font-variant-numeric:tabular-nums;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.rw-pill img{width:24px;height:24px;object-fit:contain}.rw-pill .c{display:flex;flex-direction:column;align-items:center;gap:2px;font:600 11px/1.05 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;color:#9AA8B6;min-width:38px;text-align:center}.rw-pill .c.live{color:#FF8A8A}
+.rw-pill.cur{box-shadow:inset 0 0 0 2px #00BFFF}.rw-pill .s{min-width:16px;text-align:center}
+em.rw-live{position:absolute;top:3px;left:calc(50% + 7px);font:700 10.5px/16px -apple-system,system-ui,sans-serif;font-style:normal;min-width:17px;height:17px;padding:0 5px;border-radius:9px;background:#D95151;color:#fff;text-align:center}`;
+function stripHTML(games,league,id){const now=Date.now(),td=etDay(now);const live=games.filter(g=>g.state==='in'),next=games.filter(g=>g.state==='pre'&&etDay(g.date)===td),rest=games.filter(g=>g.state==='pre'&&etDay(g.date)!==td).slice(0,6);const list=[...live,...next,...rest].slice(0,24);const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const t=ms=>new Intl.DateTimeFormat('en-US',{timeZone:ET,hour:'numeric',minute:'2-digit'}).format(new Date(ms));
+ return list.map(g=>{const lv=g.state==='in',cl=lv?(g.clock&&g.period?`<span>${esc(g.clock)}</span><span>${esc(g.detail.replace(/^.*-\s*/,''))}</span>`:`<span>${esc(g.detail)}</span>`):`<span>${esc(t(g.date))}</span><span>${esc(LEAGUES[g.league].name)}</span>`;return`<a class="rw-pill${g.league===league&&String(g.id)===String(id)?' cur':''}" href="game.html?league=${g.league}&id=${esc(g.id)}"><img src="${esc(g.away.logo)}" alt="${esc(g.away.abbr)}" width="24" height="24"><span class="s">${lv?esc(g.away.score):''}</span><span class="c${lv?' live':''}">${cl}</span><span class="s">${lv?esc(g.home.score):''}</span><img src="${esc(g.home.logo)}" alt="${esc(g.home.abbr)}" width="24" height="24"></a>`}).join('')}
+function mountStrip(el,league,id){if(!el)return;if(!document.getElementById('rw-strip-css')){const st=document.createElement('style');st.id='rw-strip-css';st.textContent=STRIP_CSS;document.head.appendChild(st)}el.classList.add('rw-strip');const paint=gs=>{const h=stripHTML(gs||[],league,id);if(el._h!==h){el.innerHTML=h;el._h=h;const c=el.querySelector('.cur');if(c&&!el._scrolled){el._scrolled=1;el.scrollLeft=Math.max(0,c.offsetLeft-16)}}el.hidden=!h};paint(cached());const tick=()=>load().then(paint).catch(()=>{}).finally(()=>setTimeout(tick,(cache||[]).some(g=>g.state==='in')?20000:60000));tick()}
+window.RW={LEAGUES,week,days,load,cached,field,season,me,opponent,etDay,hash,liveCount,badge,mountStrip,stripHTML,STRIP_CSS};
 })();

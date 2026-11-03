@@ -55,6 +55,7 @@ body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.38 var(--rb-font);fo
 <body data-tab="board">
 <div class="rb-wrap">
  <div class="rb-top"><div><h1>Board</h1><small id="rb-week">This week</small></div><span class="rb-upd" id="rb-upd"></span></div>
+ <div id="rb-strip" hidden></div>
  <div class="rb-seg" role="tablist" id="rb-seg"></div>
  <div id="rb-main"><div class="rb-skel"></div><div class="rb-skel"></div><div class="rb-skel"></div></div>
 </div>
@@ -76,7 +77,7 @@ function row(g){const live=g.state==='in',fin=g.state==='post',H=g.home,A=g.away
  const st=live?`<span class="rb-st live">${esc(g.detail)}</span>`:fin?`<span class="rb-st">${esc(g.detail||'Final')}</span>`:`<span class="rb-st">${esc(RW.etDay(g.date)===RW.etDay(Date.now())?hFmt(g.date):tFmt(g.date))}</span>`;
  const t=(x,k)=>`<div class="rb-t${lose(k)?' lose':''}"><img src="${esc(x.logo)}" alt="" width="26" height="26" loading="lazy" onerror="this.style.visibility='hidden'"><span class="ab">${esc(x.abbr)}</span><span class="nm">${esc(x.name)}${x.record?' &middot; '+esc(x.record):''}</span>${live||fin?`<span class="sc">${x.score??''}</span>`:''}</div>`;
  const ln=lineTxt(g);
- return`<a class="rb-g" href="game.html?league=${g.league}&id=${esc(g.id)}"><div class="rb-teams">${t(A,'a')}${t(H,'h')}</div><div class="rb-side">${st}${ln&&!fin?`<span class="rb-ln">${ln}</span>`:''}</div><div class="rb-meta"><span class="rb-lg">${RW.LEAGUES[g.league].name}</span>${live?'<span class="rb-lp">Live picks</span>':''}${g.broadcast?`<span>${esc(g.broadcast)}</span>`:''}<span class="rb-go">${fin?'Results':live?'Pick live':'Full book'} &rsaquo;</span></div></a>`}
+ return`<a class="rb-g" href="game.html?league=${g.league}&id=${esc(g.id)}"><div class="rb-teams">${t(A,'a')}${t(H,'h')}</div><div class="rb-side">${st}${ln&&!fin?`<span class="rb-ln">${ln}</span>`:''}</div><div class="rb-meta"><span class="rb-lg">${RW.LEAGUES[g.league].name}</span>${live?'<span class="rb-lp">Live picks</span>':''}<span class="rb-go">${fin?'Results':live?'Pick live':'Full book'} &rsaquo;</span></div></a>`}
 function render(){seg();const w=RW.week(),fmt=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric'}).format(new Date(ms));$('rb-week').textContent=`Week ${w.n} · ${fmt(w.start+6*36e5)} to ${fmt(w.end-12*36e5)}`;
  const list=games.filter(g=>lg==='all'||g.league===lg),today=RW.etDay(Date.now());
  const G=[['live','Live',list.filter(g=>g.state==='in')],['today','Today',list.filter(g=>g.state==='pre'&&RW.etDay(g.date)===today)],['later','Later this week',list.filter(g=>g.state==='pre'&&RW.etDay(g.date)>today)],['final','Final',list.filter(g=>g.state==='post').reverse()]];
@@ -91,7 +92,7 @@ function loop(){refresh(true).finally(()=>setTimeout(loop,games.some(g=>g.state=
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh(true)});
 /* tab bar: shared/nav.js when it exists, otherwise a matching fallback */
 setTimeout(()=>{if(document.querySelector('#rnav,[data-rush-nav],.rush-nav,nav.tabbar')||(window.RushNav&&window.RushNav.mounted))return;const T=[['index.html','Home','<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],['board.html','Board','<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M9 10v10"/>'],['slips.html','Slips','<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],['ranks.html','Ranks','<path d="M8 21V11M12 21V5M16 21v-7"/>'],['lounge.html','Lounge','<path d="M4 5h16v11H8l-4 4z"/>']];const here=location.pathname.split('/').pop()||'index.html';const n=$('rb-tabs');n.innerHTML=T.map(([u,l,p])=>`<a href="${u}" class="${u===here?'on':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>${l}</a>`).join('');n.hidden=false},300);
-render();loop();
+render();loop();RW.mountStrip(document.getElementById('rb-strip'),'','');
 </script>
 </body>
 </html>
