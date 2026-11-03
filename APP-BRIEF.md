@@ -89,3 +89,5 @@ The design (chief of staff's call, teams may improve it, say why in STATUS.md):
 5. Home shows the active contest first, then a row of the other contests with their Stack and rank, one tap to switch.
 
 Roles: Blue the store (per-contest Stack and Slip, active contest, multi-place), the header pill in shared/nav.js and the pick sheet; Red Ranks and the contest pages; Gold Home and Slips.
+
+Founder, 3:08 AM: "Especially if stack and time frame is different." So: each contest's Stack is its own number everywhere (the pill, the sheet, Slips, Home), never summed; the Board inside a contest shows only the games that contest covers (its sports and days) and that contest's own clocks (entry close, settle); the "Place in" row greys out any contest whose schedule does not include this game and says why ("Friends League: Thursday only"); a contest's week card on Home carries its own dates and clocks, not the Rush week's.
