@@ -60,6 +60,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 <nav id="g-nav"></nav>
 <div id="g-toast" hidden></div>
 <script src="shared/state.js"></script>
+<script src="contest-kit.js"></script>
 <script src="shared/nav.js"></script>
 <script src="gold-store.js"></script>
 <script>
@@ -88,7 +89,7 @@ function render(){const ws=wallets(),act=WAL()?WAL().active():'rush',cur=ws.find
   let h=`<div class="g-top"><h1>Slips</h1><span data-rush-pill></span></div><div class="seg">${[['open','Open ('+open.length+')'],['done','Settled ('+done.length+')'],['parlay','Parlay']].map(([k,t])=>`<button class="${tab===k?'on':''}" data-tab="${k}">${t}</button>`).join('')}</div>`;
   if(tab==='parlay')h+=parlayView();
   else{const list=tab==='open'?open:done;const groups=ws.map(w=>({w,ps:list.filter(p=>(p.contest||'rush')===w.id)})).filter(g=>g.ps.length);
-    const stray=list.filter(p=>!ws.some(w=>w.id===(p.contest||'rush')));if(stray.length)groups.push({w:{id:'x',name:'Other contests',color:'#5E6E80',stack:0,units:0},ps:stray});
+    const stray=list.filter(p=>!ws.some(w=>w.id===(p.contest||'rush')));groups.sort((x,y)=>(y.w.id===act)-(x.w.id===act));if(stray.length)groups.push({w:{id:'x',name:'Other contests',color:'#5E6E80',stack:0,units:0},ps:stray});
     if(!groups.length)h+=`<div class="g-card"><div class="g-note">${tab==='open'?'No open picks. Pick from the Board or build a parlay across games.':'Settled picks land here. Games grade from ESPN about a minute after they end.'}</div></div>`;
     for(const{w,ps}of groups){const u=w.units||0;const head=`<div class="g-h">${dot(w.color)}${esc(w.name)}${w.id===act?' <span class="lg">ACTIVE</span>':''}<small>${GS.fmt(w.stack||0)} Stack · ${u>0?'+':''}${(+u).toFixed(1)} U</small></div>`;
       if(tab==='done'){const wn=ps.filter(p=>p.status==='won').length,l=ps.filter(p=>p.status==='lost').length;h+=`<div class="g-card">${head}<div class="g-note">W/L ${wn}-${l}</div><div class="rows">${ps.map(settledRow).join('')}</div></div>`}
