@@ -1,3 +1,13 @@
+# Team Red status
+
+## Weekly app (from 2026-11-03)
+- Role: app/board.html and app/ranks.html, plus app/week-games.js (Red's shared loader for this week's games and the simulated Field, used by both pages).
+- URLs: https://mclovin-codes.github.io/live-lab/app/board.html and https://mclovin-codes.github.io/live-lab/app/ranks.html
+- Board (r1): every NFL, NBA and NHL game of Week 9 (Tue Nov 3 to Mon Nov 9) from ESPN scoreboards: NFL by week (week=9), NBA and NHL one dates=YYYYMMDD call per day. 112 games at first load (15 NFL, 47 NBA, 50 NHL). Grouped Live, Today, Later this week, Final; logos, records, score or start time in ET, main line (spread or puck line and O/U), broadcast, tap into game.html?league=&id=. League segmented control. Refresh every 15s when anything is live, else 60s.
+- Ranks (r1): This week: your week card (rank, Units, games final), matchup with a simulated opponent (fixed for the week), today's race, the Field on Units with the top-3 prize line and your row pinned. Season: W-L record table with week dots. 30 simulated players pick every game of the week (seeded) and are graded on real ESPN finals as games end, so the Field moves all week and is the same on every phone.
+- Shared state: reads window.RushState (Blue's shared/state.js) when it exists for your Stack, Units, picks and season record; until then shows a fresh entry. Tab bar: shared/nav.js when present, otherwise a matching fallback.
+- Not yet: wired to Blue's state API (not shipped when r1 went out); duels beyond the weekly matchup.
+
 # Team Red status: closing, after the final whistle
 
 - Phase 2: base for the merged tool is Blue. Red delivered teams/one/inbox/1-key-number-margins.md (live in m6, checked), 2-break-board-card.md, probe.md, and REVIEW.md (vote: Blue). Red's own page v19 names no sportsbook. Stats, injuries and Lounge were not built on the Red page; the merged tool has Blue's.
