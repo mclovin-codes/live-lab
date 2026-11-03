@@ -1,5 +1,8 @@
 # Team Gold changelog
 
+## v17
+- Timed micro markets priced shorter than -1000 stay locked. One showed -2150 at the end of Q3.
+
 ## v16
 - Final whistle recap. Live becomes a game card with final score (OT marked), Units on this game and this week, rank in the Field, result against this week's matchup, record, best hit, Stack left for the week, and the Field's top three. The header badge reads FINAL.
 

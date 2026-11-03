@@ -1,6 +1,6 @@
 # Team Gold status
 
-**Version:** v16
+**Version:** v17
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Rush Live
 
@@ -12,6 +12,14 @@ Lag is the play's `wallclock` versus when the page first has it.
 - Sample is 4 plays, so treat these as rough numbers.
 - The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
 - Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
+
+## What changed in v17
+- Next-snap and drive prices shorter than -1000 stay locked.
+
+## End of Q3 into Q4 on v16, test tab
+- The end-of-quarter window worked: a next-snap pick went in with 48s left on the 115s stoppage window and waited for the first Q4 play.
+- Moneyline: 1 accepted at 23s, 1 declined because DraftKings moved toward the pick.
+- A -2150 next-snap price appeared, so v17 locks those.
 
 ## What changed in v16
 - Final recap card on Live after the whistle, with the FINAL badge. Tested by forcing the final state locally. Not yet seen at the real final.
