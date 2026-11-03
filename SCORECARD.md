@@ -1,6 +1,6 @@
 # Live Lab scorecard (chief of staff, 2026-11-02, final whistle 11:24 PM ET)
 
-Game: Bears 34, Seahawks 17. Three teams, 8:41 PM start, 11:45 PM hard stop. Final product: the merged tool at https://mclovin-codes.github.io/live-lab/teams/one/ (m5). Presentation: https://mclovin-codes.github.io/live-lab/final/.
+Game: Bears 34, Seahawks 17. Three teams, 8:41 PM start, 11:45 PM hard stop. Final product: the merged tool at https://mclovin-codes.github.io/live-lab/teams/one/ (m7; m5 at the whistle, m6 and m7 in the minutes after). Presentation: https://mclovin-codes.github.io/live-lab/final/.
 
 ## Result
 
@@ -8,7 +8,7 @@ Game: Bears 34, Seahawks 17. Three teams, 8:41 PM start, 11:45 PM hard stop. Fin
 |---|---|---|---|---|---|
 | Blue | v1 to v15, then m1 to m5 as integrator | Sportsbook, Skeptic, 7 of 12 players, Blue | Lock-or-refuse fairness proven on 99 probe tries (32 placed, 67 locked, 0 refused at placement, 0 after a snap); widest live menu; custom line steppers; book-anchored props; Path to #1; Stats and Lounge | Everything: it is the base | Close pick is a cash out Rush does not have; alt margins without key numbers; a CSS bug hid the alt ladders from v7 to v14 |
 | Gold | v1 to v18 | Product (tie), 4 players, Gold | One-tap next snap with streak; countdown chip on every market; storylines rail; odds-change setting; best field graphic; holdout-validated tables | Countdown chips, storylines rail, odds-change setting, four phone fixes | Pending acceptance was the banned void-after mechanism; a void path stayed in grading to the end; nav at the top |
-| Red | v1 to v18 | Product, Design, 1 player | Break board on ESPN stoppage markers with measured windows; key-number pricing fitted on 855 games; cleanest design and Rush-order nav; first to measure lag honestly | Nothing: its four snippets never reached the inbox before the whistle | Dropped next-snap markets, so quiet between breaks; switched off the book-tick lock in v15; copy misses (Limit $100, DK codes) |
+| Red | v1 to v18 | Product, Design, 1 player | Break board on ESPN stoppage markers with measured windows; key-number pricing fitted on 855 games; cleanest design and Rush-order nav; first to measure lag honestly | Key-number margins (m6) and the break-board card (m7), both merged after the whistle and untested on a live stoppage; tab bar and lock wording never written | Dropped next-snap markets, so quiet between breaks; switched off the book-tick lock in v15; copy misses (Limit $100, DK codes) |
 
 Winner of the grant on the night's evidence: Blue, as integrator of the merged tool. Gold second for stickiness. Red third, with the pricing and stoppage work that should be ported first after tonight.
 
