@@ -47,7 +47,10 @@ FastCast doc plus polls fill S, player state in me, Field in ladder(), picks thr
 blocked: nothing. Field and matchup simulated and labelled SIM.
 
 ## Weekly app (Blue role): status
-shipped: app/shared/state.js (store, API at top), app/shared/rush.css, app/shared/nav.js (five-tab bar). Next: app/game.html.
+shipped: app/shared/state.js (store, API at top), app/shared/rush.css, app/shared/nav.js (five-tab bar), app/game.html v1.
+game.html v1: game.html?league=nfl|nba|nhl&id=<ESPN event>. Header carousel (scoreboard with logos, records and possession, court or field graphic; win probability step chart), pills Odds, Box Score, Stats, Plays; Odds subtabs Popular (main lines, featured parlays, alt stepper), Game Lines, Alt Lines (spread and total steppers), Team Totals, Halves, Quarters or Periods, Player Props (book pregame targets, headshots). Box score with starters, bench and on-court markers. Stats: Game (last 5 with W or L, total-vs-line bars, game information, where to watch), Teams (compare bars), Players (game leaders). Plays feed with win percentage after each play. Picks and parlays go to the weekly Slip; finals graded through Rush.grade.sync().
+fairness on game.html: pregame lines open until the start. Live, every market is stoppage-only (timeouts, commercial breaks, end of a period, halftime or intermission) and needs a posted book price; a placement check re-reads the play feed and refuses if a new play has landed. Per-possession NBA and NHL markets are not offered.
+tested headless on live ESPN: NBA MIA at LAL (final), NFL BUF at MIN (pregame), NHL UTA at TOR (pregame); picks place into the weekly Slip. Not yet tested on a live NBA or NHL game in the browser (all NBA games had ended; the browser pane was hidden).
 
 ## NBA live probe, PHX at GS (401909919), Q4 9:00 to 7:26, 170 s, 24 new plays
 - Works with the NFL shapes and the sport path swapped: core plays (wallclock, period, clock, possessionTeam, shootingPlay, scoreValue, coordinate), core probabilities (homeWinPercentage, spreadCoverProbHome, totalOverProb), site summary (boxscore, plays inline: 436, winprobability, pickcenter with live moneyline, spread and total).
