@@ -1,5 +1,9 @@
 # Changelog: Team Red, Rush Live
 
+## v16 (2026-11-02, start of Q4)
+- After the final the win probability bar and ball marker clear; results card leads the page. Fourth quarter bar, overtime and final grading checked with staged states.
+- Real end of the 3rd: marker wallclock 03:24:37, posted 71s late at 03:25:48; picks open 03:25:49 to 03:27:07 with 74 markets; first 4th-quarter snap 03:28:43, so they closed 96s before play.
+
 ## v15 (2026-11-02, Q3)
 - Real commercial break after the Bears touchdown (03:13:37): marker 03:14:40, picks opened 03:15:13 with 77 markets, but a DraftKings repricing tick at 03:15:53 closed them 37s before the planned 03:16:30. Kickoff came at 03:17:55. DraftKings ticks no longer close drive, next score and player picks inside an ESPN-marked stoppage; a new live play still does. Game lines still lock on every tick.
 

@@ -1,8 +1,9 @@
 # Team Red status
 
-- Version: v15
+- Version: v16
 - URL: https://mclovin-codes.github.io/live-lab/teams/red/
-- What changed: DraftKings repricing during a stoppage no longer closes timed picks early.
+- What changed: Clean header after the final. Q4, overtime and final paths checked.
+- Real end of the 3rd (v15 rules): marker 03:24:37 posted 71s late, picks open 03:25:49 to 03:27:07 (74 markets), next snap 03:28:43, closed 96s before play.
 - Real break after a score (v14 rules): touchdown 03:13:37, commercial break marker 03:14:40, picks open 03:15:13 (77 markets), planned close 03:16:30, kickoff 03:17:55, so planned close was 85s before play. A DraftKings tick closed it early at 03:15:53, fixed in v15. Touchdown to kickoff here: 258s.
 - Real commercial breaks (hosted page, v11 rules of 100s): break 1 marker at 02:59:49 posted 14s late, picks open 03:00:04 to 03:01:29, next snap 03:02:20, closed 51s before. Break 2 marker 03:04:47 posted 12s late, open 03:05:00 to 03:06:27, next snap 03:07:22, closed 55s before. Under v13+ rules (110s) the margin would be 41 to 45s. Score window not yet seen live.
 - Expert panel (three opus subagents): NFL expert gave stoppage timing (4 national breaks per quarter of about 2:20; no guaranteed break after punts; touchdown to kickoff 75 to 100s without a break) and safe close times now used; sportsbook expert found top books lock markets on game events, not clocks, keep locked prices visible, and use Placing pick / Price moved flows; iOS expert set the visual system, sheet and tab behaviour.
@@ -18,6 +19,6 @@
   - Player props (pass yards, completions, rush yards, receiving yards, catches): current box score plus a rest-of-game gamma distribution whose mean and variance come from nflverse 2023 to 2025 player games, by stat, role rank, checkpoint and pace, scaled to time left. Line at the median. Hold 7%. Milestones from the same distribution, hold 10%.
   - Anytime TD: share of players in that role (rush attempts or targets rank) who scored the rest of the way, nflverse 2023 to 2025, scaled to time left. Hold 15%.
 - SportsGameOdds: would use it only for live player prop lines from real books, to replace the modelled props, through a small proxy the founder provisions (a static page cannot hold a key). Not requested yet.
-- Testing next (v14): windows on real second-half commercial breaks and scores, fourth quarter pricing check, horizontal market chips per the sportsbook expert.
+- Testing next (v17): after-score window live, two-minute warning window, final results card on the real final.
 - Blocked: nothing.
 - Known limits: ESPN lags TV, so game lines (locked on the DraftKings tick, 9 to 18s after a snap) are the only markets a fast broadcast could beat. The after-touchdown window (60s) is tight if a network skips the break: 75s is the shortest touchdown-to-kickoff the NFL expert cited.
