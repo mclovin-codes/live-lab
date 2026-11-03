@@ -1,5 +1,8 @@
 # Changelog: Team Red, Rush Live
 
+## app r11 (2026-11-03)
+- Board inside the active contest: "Picking in" bar with the contest's Stack and clocks, only the games it covers, only its sports. Contest store keeps the joiner note only; contest picks are not re-checked after placement.
+
 ## app r10 (2026-11-03, 3:05 AM addendum)
 - Ranks: contest selector (The Rush first, then your contests, colour dots); choosing one sets the active contest; a contest shows its own card, Stack and table.
 - Contest pages: colour dot, "Pick in this contest". Player card: your place and theirs in every shared contest. Contest picks come from that contest's own Slip.

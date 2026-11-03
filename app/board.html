@@ -49,6 +49,7 @@ body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.38 var(--rb-font);fo
 .rb-sc .rb-bt{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--rb-card2);font:600 13px var(--rb-font);color:var(--rb-mut);min-height:36px}
 .rb-sc.next{box-shadow:inset 0 0 0 1.5px var(--rb-acc)}.rb-sc.next .rb-tp{background:linear-gradient(135deg,rgba(0,191,255,.16),rgba(0,128,255,.04))}.rb-sc.next .rb-md b{color:var(--rb-acc)}
 .rb-next{font:700 11px var(--rb-font);letter-spacing:.06em;padding:3px 8px;border-radius:99px;background:var(--rb-acc);color:#002233}.rb-sc .lv{color:#FF8A8A}
+.rb-ctx{display:flex;align-items:center;gap:10px;background:var(--rb-card);border-radius:12px;padding:10px 12px;margin-bottom:12px;text-decoration:none;color:inherit}.rb-ctx i{width:10px;height:10px;border-radius:50%;flex:none}.rb-ctx span{min-width:0;flex:1}.rb-ctx b{display:block;font:600 14px var(--rb-font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rb-ctx small{display:block;font-size:12px;color:var(--rb-mut)}.rb-ctx em{font:600 12px var(--rb-font);font-style:normal;color:var(--rb-acc);flex:none}
 .rb-empty{background:var(--rb-card);border-radius:14px;padding:16px;color:var(--rb-mut);font-size:14px}
 .rb-skel{height:76px;border-radius:14px;background:linear-gradient(90deg,var(--rb-card),var(--rb-card2),var(--rb-card));background-size:200% 100%;animation:rbs 1.2s infinite;margin-bottom:10px}
 @keyframes rbs{to{background-position:-200% 0}}
@@ -63,7 +64,8 @@ body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.38 var(--rb-font);fo
 <div class="rb-wrap">
  <div class="rb-top"><div><h1>Board</h1><small id="rb-week">This week</small></div><span class="rb-upd" id="rb-upd"></span></div>
  <div id="rb-strip" hidden></div>
- <div class="rb-seg" role="tablist" id="rb-seg"></div>
+ <a class="rb-ctx" id="rb-ctx" hidden></a>
+<div class="rb-seg" role="tablist" id="rb-seg"></div>
  <div id="rb-main"><div class="rb-skel"></div><div class="rb-skel"></div><div class="rb-skel"></div></div>
 </div>
 <nav id="rb-tabs" hidden></nav>
@@ -78,7 +80,15 @@ let lg='all';try{lg=localStorage.getItem('rb.lg')||'all'}catch(e){}
 let games=RW.cached()||[],lastAt=0,err='';
 const tFmt=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'numeric',minute:'2-digit'}).format(new Date(ms))+' ET';
 const hFmt=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit'}).format(new Date(ms))+' ET';
-function seg(){$('rb-seg').innerHTML=[['all','All'],['nfl','NFL'],['nba','NBA'],['nhl','NHL']].map(([k,l])=>`<button role="tab" aria-selected="${lg===k}" class="${lg===k?'on':''}" data-lg="${k}">${l}</button>`).join('')}
+/* the active contest (Rush.wallet): the Board shows only the games it covers, with its own clocks */
+const LGN={nfl:'NFL',nba:'NBA',nhl:'NHL'};
+function ctx(){const W=window.Rush&&Rush.wallet;let cur=null;try{cur=W&&W.current?W.current():null}catch(e){}if(!cur||cur.id==='rush')return{id:'rush',cur,sports:['nfl','nba','nhl'],keep:()=>true};return{id:cur.id,cur,sports:(cur.sports||[]).filter(k=>LGN[k]),keep:g=>{try{return W.covers(cur.id,{league:g.league,start:g.date}).ok}catch(e){return true}}}}
+function ctxBar(C){const el=$('rb-ctx'),cur=C.cur;if(!cur){el.hidden=true;return}const col=/^#[0-9a-fA-F]{3,8}$/.test(cur.color||'')?cur.color:'#66768A',now=Date.now(),day=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric'}).format(new Date(ms));
+ const dt=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(new Date(ms))+' ET';
+ const clock=cur.phase==='settled'?'Settled':cur.phase==='upcoming'?'Opens '+dt(cur.opens):cur.entryClose&&cur.entryClose>now?'Entry closes '+dt(cur.entryClose):'Settles '+dt(cur.settles);
+ const sub=C.id==='rush'?`${Math.round(cur.stack||0).toLocaleString()} Stack · ${clock}`:`${Math.round(cur.stack||0).toLocaleString()} Stack · ${C.sports.map(k=>LGN[k]).join(', ')} · ${day(cur.opens)} to ${day(cur.settles-5*36e5)} · ${clock}`;
+ el.href=C.id==='rush'?'ranks.html':'contest.html?c='+encodeURIComponent(C.id);el.innerHTML=`<i style="background:${col}"></i><span><b>Picking in ${esc(cur.name)}</b><small>${esc(sub)}</small></span><em>${C.id==='rush'?'Ranks':'Rules'} &rsaquo;</em>`;el.hidden=false}
+function seg(sports){sports=sports||['nfl','nba','nhl'];if(lg!=='all'&&!sports.includes(lg))lg='all';$('rb-seg').hidden=sports.length<2;$('rb-seg').innerHTML=[['all','All'],['nfl','NFL'],['nba','NBA'],['nhl','NHL']].filter(([k])=>k==='all'||sports.includes(k)).map(([k,l])=>`<button role="tab" aria-selected="${lg===k}" class="${lg===k?'on':''}" data-lg="${k}">${l}</button>`).join('')}
 function lineTxt(g){const L=g.line;if(!L.details&&L.ou==null)return'';return`${esc(L.details||'')}${L.ou!=null?` <i>&middot;</i> O/U ${L.ou}`:''}`}
 function row(g){const live=g.state==='in',fin=g.state==='post',H=g.home,A=g.away;const lose=t=>fin&&H.score!=null&&((t==='h'&&H.score<A.score)||(t==='a'&&A.score<H.score));
  const st=live?`<span class="rb-st live">${esc(g.detail)}</span>`:fin?`<span class="rb-st">${esc(g.detail||'Final')}</span>`:`<span class="rb-st">${esc(RW.etDay(g.date)===RW.etDay(Date.now())?hFmt(g.date):tFmt(g.date))}</span>`;
@@ -88,15 +98,17 @@ function row(g){const live=g.state==='in',fin=g.state==='post',H=g.home,A=g.away
 function schedule(list){const nfl=list.filter(g=>g.league==='nfl');if(!nfl.length)return'';const nx=nfl.find(g=>g.state==='pre');const d=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',month:'short',day:'numeric'}).format(new Date(ms));const tm=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit'}).format(new Date(ms)).replace(' ','').toLowerCase();const w=RW.week().n;
  return`<section class="rb-grp"><h2>NFL Week ${w}<span>${nfl.length} games</span></h2><div class="rb-sch">${nfl.map(g=>{const fin=g.state==='post',live=g.state==='in';const mid=live?`<span class="lv">${esc(g.detail)}</span><b>${g.away.score} - ${g.home.score}</b>`:fin?`<span>Final</span><b>${g.away.score} - ${g.home.score}</b>`:`<span>WK ${w}</span><b>${esc(d(g.date))}</b><b>${esc(tm(g.date))}</b>`;
   return`<a class="rb-sc${g===nx?' next':''}" href="game.html?league=nfl&id=${esc(g.id)}"><div class="rb-tp"><div class="rb-tm"><img src="${esc(g.away.logo)}" alt="" width="40" height="40" loading="lazy"><b>${esc(g.away.abbr)}</b><span>${esc(g.away.record)}</span></div><div class="rb-md">${mid}</div><div class="rb-tm"><img src="${esc(g.home.logo)}" alt="" width="40" height="40" loading="lazy"><b>${esc(g.home.abbr)}</b><span>${esc(g.home.record)}</span></div></div><div class="rb-bt">${g===nx?'<span class="rb-next">NEXT</span>':live?'<span class="lv">Live picks open</span>':fin?'<span>Results</span>':'<span>Full book</span>'}<span>${esc(g.line.details||'')}${g.line.ou!=null&&!fin?' &middot; O/U '+g.line.ou:''}</span></div></a>`}).join('')}</div></section>`}
-function render(){seg();const w=RW.week(),fmt=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric'}).format(new Date(ms));$('rb-week').textContent=`Week ${w.n} · ${fmt(w.start+6*36e5)} to ${fmt(w.end-12*36e5)}`;
- const list=games.filter(g=>lg==='all'||g.league===lg),today=RW.etDay(Date.now());
+function render(){const C=ctx();ctxBar(C);seg(C.sports);const w=RW.week(),fmt=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric'}).format(new Date(ms));$('rb-week').textContent=C.id==='rush'||!C.cur?`Week ${w.n} · ${fmt(w.start+6*36e5)} to ${fmt(w.end-12*36e5)}`:`${C.cur.name} · ${fmt(C.cur.opens)} to ${fmt(C.cur.settles-5*36e5)}`;
+ const base=games.filter(C.keep),list=base.filter(g=>lg==='all'||g.league===lg),today=RW.etDay(Date.now());
  const G=[['live','Live',list.filter(g=>g.state==='in')],['today','Today',list.filter(g=>g.state==='pre'&&RW.etDay(g.date)===today)],['later','Later this week',list.filter(g=>g.state==='pre'&&RW.etDay(g.date)>today)],['final','Final',list.filter(g=>g.state==='post').reverse()]];
  let h=err?`<div class="rb-err">${esc(err)}</div>`:'';
  if(!games.length&&!err){$('rb-main').innerHTML='<div class="rb-skel"></div><div class="rb-skel"></div>';return}
- if(lg==='all'||lg==='nfl')h+=schedule(games);
+ if(games.length&&!base.length)h+=`<div class="rb-empty">No games in ${esc(C.cur?C.cur.name:'this contest')} this week. Switch contests with the pill at the top.</div>`;
+ if(lg==='all'||lg==='nfl')h+=schedule(base);
  for(const[k,n,arr]of G){if(k!=='live'&&!arr.length&&k!=='today')continue;h+=`<section class="rb-grp"><h2>${k==='live'&&arr.length?'<span class="dot"></span>':''}${n}<span>${arr.length} game${arr.length===1?'':'s'}</span></h2>${arr.length?`<div class="rb-list">${arr.map(row).join('')}</div>`:`<div class="rb-empty">${k==='live'?'Nothing live right now. Pregame lines are open below.':'No more games today.'}</div>`}</section>`}
  const m=$('rb-main');if(m._h!==h){m.innerHTML=h;m._h=h}}
 async function refresh(force){try{games=await RW.load(force);err='';lastAt=Date.now()}catch(e){err='Scores did not load. Pull to retry or wait a moment.'}render()}
+if(window.Rush&&Rush.on)Rush.on(()=>render());
 document.addEventListener('click',e=>{const b=e.target.closest('[data-lg]');if(b){lg=b.dataset.lg;try{localStorage.setItem('rb.lg',lg)}catch(x){}render()}});
 setInterval(()=>{if(lastAt)$('rb-upd').textContent='Updated '+Math.round((Date.now()-lastAt)/1000)+'s ago'},1000);
 function loop(){refresh(true).finally(()=>setTimeout(loop,games.some(g=>g.state==='in')?15000:60000))}
