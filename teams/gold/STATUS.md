@@ -1,6 +1,6 @@
 # Team Gold status
 
-**Version:** v11
+**Version:** v12
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Rush Live
 
@@ -12,6 +12,24 @@ Lag is the play's `wallclock` versus when the page first has it.
 - Sample is 4 plays, so treat these as rough numbers.
 - The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
 - Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
+
+## What changed in v12
+- Timed markets price from empirical NFL tables (nflverse 2023-2025, about 115,000 snaps). Method and calibration are in `model/METHODS.md`.
+
+## How every market is priced (formula and hold)
+Holds are applied to the no-push win probability q. "x1.05" means the implied probability is q times 1.05, about 4.8% overround on a two-way market. Odds round to the nearest 5 (10 above 300, 25 above 1000).
+- **Moneyline, main spread, main total:** DraftKings' live price exactly as ESPN's push feed carries it, so the hold is DraftKings' own. Fallback when DraftKings is missing: ESPN's per-play win, cover and over probabilities, x1.05.
+- **Alt spreads:** final margin ~ Normal(mu, sigma), with sigma = 13.5 x sqrt(fraction of game left), floor 1.3. mu is the average of the two values that reproduce DraftKings' de-vigged moneyline and de-vigged spread. Whole-number lines take the push mass out of the normal. x1.05.
+- **Alt totals:** total ~ Normal(muT, sigma), with muT = DraftKings total + sigma x invNorm(de-vigged over). x1.05.
+- **Team totals:** each team's mean is (muT +/- mu)/2, floored at its current score, with sd 0.72 sigma. x1.05.
+- **Quarter and halves:** current period points plus remaining expected points times that period's share of remaining time. sd is 7 x sqrt(quarter time left / 900), or 9.5 for a half. Tie pushes on quarter winner. x1.05.
+- **Next snap pass or run, 5+ or 10+ yards, moves the chains, this drive (TD, FG, no score), next score (CHI, SEA, none):** fitted nflverse tables by down, distance, yards to end zone, clock and score margin. Hold: q x 1.07 for q under 0.5, q + 0.035 at or above, about 7% overround on two-way markets and about 10% on three-way.
+- **Player props (yards, receptions, completions):** projection = current stat + time left x a blend of game pace and a positional prior. sd = prior sd x sqrt(time left). Line at the projection rounded to .5. x1.05. **Weakest market:** the priors are hand-set, not fit.
+- **Anytime TD:** 1 - exp(-lambda x time left), with lambda 0.5 for the lead rusher and 0.34 for others. Hand-set, also weak.
+- **Parlays:** product of leg decimal odds x 0.90 for same-game correlation.
+
+## SportsGameOdds (offered, not requested)
+What it would do: replace the hand-set prop and anytime-TD priors with real book player-prop lines, and cross-check alt prices against market consensus. It needs a small server proxy, such as a Cloudflare Worker or Vercel function, to hold the key, since a static page cannot. It would not help speed, because the founder says it runs further behind. Worth it at integration time for props, not tonight.
 
 ## What changed in v11
 - No void after the fact. Live picks are pending until the feed confirms the ball was dead at the tap. Picks that fail are never accepted, and the stake stays in the Stack. This is how books accept in-play picks with a delay.
@@ -81,6 +99,6 @@ All 12 rivals are labeled SIM stand-ins for the Field, with made-up Units from e
 Nothing.
 
 ## Testing next
-1. Lock lag on live snaps: how often the window closes before the snap, and how many picks void.
-2. Tune the window if voids are frequent.
+1. Second half: acceptance rate on live picks, and lock lag on more snaps.
+2. Fit props and anytime TD from nflverse player data, the weakest markets.
 3. Drive and one-tap settlement live.
