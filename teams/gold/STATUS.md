@@ -1,6 +1,6 @@
 # Team Gold status
 
-**Version:** v15
+**Version:** v16
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Rush Live
 
@@ -12,6 +12,10 @@ Lag is the play's `wallclock` versus when the page first has it.
 - Sample is 4 plays, so treat these as rough numbers.
 - The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
 - Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
+
+## What changed in v16
+- Final recap card on Live after the whistle, with the FINAL badge. Tested by forcing the final state locally. Not yet seen at the real final.
+- Overtime: the clock shows OT. Second-half and game markets count OT. The model uses the OT clock for time left.
 
 ## Q3 on v15, measured live in my test tab
 - 7 picks: 4 next snap, 3 moneyline. Next snap: 3 settled (2 hits, 1 miss), each accepted and settled 34-41s after the tap; 1 pending at the check. Moneyline: 2 accepted 18-22s after the tap; 1 pending at the check. None declined.

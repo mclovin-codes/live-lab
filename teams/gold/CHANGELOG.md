@@ -1,5 +1,8 @@
 # Team Gold changelog
 
+## v16
+- Final whistle recap. Live becomes a game card with final score (OT marked), Units on this game and this week, rank in the Field, result against this week's matchup, record, best hit, Stack left for the week, and the Field's top three. The header badge reads FINAL.
+
 ## v15
 - Odds-change setting in the Slip: Ask me, Higher only or Any change, as DraftKings, FanDuel and bet365 offer. If the price moves while the Slip is open, it shows the old and new price with a green or red arrow, and the button reads "Accept -590 and lock 25". A tap on a price that changed since it was drawn asks again unless the setting allows it.
 - Storylines rail at the top of Live: underdog, this drive or red zone, a player nearest a yardage milestone, scoring pace against the total, and a touchdown scorer. Each card has a logo or headshot and one price.
