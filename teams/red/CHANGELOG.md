@@ -1,5 +1,12 @@
 # Changelog: Team Red, Redline
 
+## v5 (2026-11-02, Q2)
+- Real time: page takes ESPN's FastCast push feed over a websocket (checkpoint plus JSON patches). Polling is now only the fallback, with cache busting on plays, situation and probabilities.
+- Measured lag shown in the header: PUSH (server stamp to page) and PLAY (ESPN wallclock to page). Last play card shows the same per play.
+- Main spread, total and moneyline are DraftKings live prices from the push feed. If a score lands before DraftKings updates, the ESPN model prices them until it does.
+- Bet delay down to 1.5 seconds, snap lock down to 0.7 seconds.
+- Measured before the change, 150 seconds of polling: plays feed 20 to 35 seconds after wallclock, summary 35 to 46. Cache busting saved up to about 7 seconds on plays, nothing on summary.
+
 ## v4 (2026-11-02, Q2)
 - Big plays take over the screen (touchdown, field goal, turnover, missed kick, fourth down, 25+ yards, third down sack) and show the swing in your live value.
 - Bankroll and ladder rank move live: cash plus the current worth of open picks.

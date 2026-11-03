@@ -1,9 +1,9 @@
 # Team Red status
 
-- Version: v4
+- Version: v5
 - URL: https://mclovin-codes.github.io/live-lab/teams/red/
-- What changed: Big play takeovers with the swing on your picks, live bankroll and rank, fourth quarter bar, overtime and winning margin markets, second half total, final results card, screen stays awake. Fixed a load-time error present in v3.
-- Verified: local copy against live ESPN at phone width. Grading checked for margin, overtime and second half with test scores. Takeover triggered with a test play; a real one has not fired yet. Fourth quarter bar and results card have not run in a real fourth quarter or final.
-- Testing next (v5): bonus bet each quarter so a busted player stays in, fourth quarter pricing check, last-two-minutes markets, key numbers in margin pricing.
+- What changed: ESPN push feed replaces polling, real DraftKings live prices on main lines, measured lag on the page, shorter bet delay.
+- Lag: push delivery measured about 0.3 seconds from server stamp to page. Polling measured 20 to 46 seconds after play wallclock. Play-to-page lag over push being measured now.
+- Testing next (v6): measure play lag over push through several real plays, bonus bet each quarter so a busted player stays in, fourth quarter pricing check.
 - Blocked: nothing.
-- Known limits: DraftKings feed lagged the score by minutes (SEA -3, -166 with CHI up 7), so ESPN's per-play probabilities drive prices and DK is shown for reference. ESPN lags TV, so someone watching TV can see a snap before the page does; next snap stakes are capped at $100.
+- Known limits: ESPN lags TV, so someone watching TV can see a snap before the page does; next snap stakes are capped at $100.

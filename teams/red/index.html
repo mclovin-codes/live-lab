@@ -47,7 +47,7 @@ h2{margin:0 0 6px;font:700 15px var(--disp);letter-spacing:.09em;text-transform:
 h2 span{font:500 11.5px var(--body);letter-spacing:0;text-transform:none;color:var(--dim);text-align:right}
 .lp{background:var(--s1);padding:9px 11px;border-radius:6px;border:1px solid var(--line)}
 .lp .a{display:flex;justify-content:space-between;gap:8px;font:700 13px var(--disp);color:var(--amber);letter-spacing:.05em}
-.lp p{margin:2px 0 0;font-size:13.5px}.lp.score{border-color:var(--amber);background:#33230f}
+.lp p{margin:2px 0 0;font-size:13.5px}.lgl{margin-top:3px;font-size:11.5px;color:var(--dim)}.lp.score{border-color:var(--amber);background:#33230f}
 .row{display:grid;gap:6px;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
 .st{display:flex;flex-direction:column;gap:6px}
 .o{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:52px;padding:5px 4px;border-radius:6px;background:var(--s2);border:1px solid var(--line);text-align:center;transition:background .3s}
@@ -123,7 +123,7 @@ input.hn{width:100%;padding:10px;background:var(--s2);border:1px solid var(--lin
  <div id="banner" class="banner g" hidden></div>
  <div class="sb g">
   <div class="tm" id="tA"><small>CHI</small><span id="sA">-</span></div>
-  <div class="ck"><span id="clk">Loading</span><i><span id="age" class="live">connecting</span> &middot; <button class="vbtn" id="vb">v4</button></i></div>
+  <div class="ck"><span id="clk">Loading</span><i><span id="age" class="live">connecting</span> &middot; <button class="vbtn" id="vb">v5</button></i></div>
   <div class="tm r" id="tH"><span id="sH">-</span><small>SEA</small></div>
  </div>
  <div class="dd g"><b id="dn">Waiting for the feed</b><span id="rz"></span></div>
@@ -136,8 +136,8 @@ input.hn{width:100%;padding:10px;background:var(--s2);border:1px solid var(--lin
 <div id="slip"></div>
 <script>
 'use strict';
-const VER='v4',E='401873036',HID='26',AID='3';
-const CHANGES=[['v4','Big plays take over the screen with what they did to your picks. Your bankroll and ladder rank now move live with every play, based on what your open picks are worth. Fourth quarter bar shows what the trailing team needs. New markets: overtime, winning margin, second half total, no more scoring. Final results card. Screen stays awake.'],['v3','Duels: when you lock a pick, the player closest to you on the ladder takes the other side, and the money moves between you. Quarter sprints: a fresh race every quarter, with your sprint rank in the header. Yardage milestones on the props tab. Down, distance and clock now use whichever ESPN feed is furthest along, so next snap markets stay open longer.'],['v2','Cash out on game lines, props and drive picks. Same game parlays from any non-snap market. Three straight wins earns a +25% profit boost. One-tap betting on next snap markets. Your rank move shows when a pick lands. Now runs as a plain web page.'],['v1','First live build. Next snap, this drive and next score markets, full game board with alts, team totals, quarter lines, player props, anytime TD. Every line reprices off ESPN after each play, with the DraftKings number shown beside it. You race a field of 24 simulated players.']];
+const VER='v5',E='401873036',HID='26',AID='3';
+const CHANGES=[['v5','Real time: this page now takes ESPN\'s push feed, the same one espn.com uses, instead of polling. Updates land in a fraction of a second. Header shows PUSH (delivery time) and PLAY (seconds after ESPN\'s play time). Main spread, total and moneyline are now DraftKings live prices. Bet delay is shorter.'],['v4','Big plays take over the screen with what they did to your picks. Your bankroll and ladder rank now move live with every play, based on what your open picks are worth. Fourth quarter bar shows what the trailing team needs. New markets: overtime, winning margin, second half total, no more scoring. Final results card. Screen stays awake.'],['v3','Duels: when you lock a pick, the player closest to you on the ladder takes the other side, and the money moves between you. Quarter sprints: a fresh race every quarter, with your sprint rank in the header. Yardage milestones on the props tab. Down, distance and clock now use whichever ESPN feed is furthest along, so next snap markets stay open longer.'],['v2','Cash out on game lines, props and drive picks. Same game parlays from any non-snap market. Three straight wins earns a +25% profit boost. One-tap betting on next snap markets. Your rank move shows when a pick lands. Now runs as a plain web page.'],['v1','First live build. Next snap, this drive and next score markets, full game board with alts, team totals, quarter lines, player props, anytime TD. Every line reprices off ESPN after each play, with the DraftKings number shown beside it. You race a field of 24 simulated players.']];
 const CORE=`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${E}/competitions/${E}`;
 const SUM=`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${E}`;
 const $=id=>document.getElementById(id);
@@ -169,25 +169,25 @@ const num=x=>x==null||x===''?null:Number(x);
 const lastId=r=>{const m=/\/(\d+)(?:\?|$)/.exec(r||'');return m?m[1]:null};
 async function J(u){const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
 
-function ingestPlays(items){let ch=false;for(const p of items){const old=G.plays.get(p.id);if(!old||old.modified!==p.modified||old.text!==p.text){G.plays.set(p.id,p);ch=true}}
+function ingestPlays(items){let ch=false;for(const p of items){const old=G.plays.get(p.id);if(!old||old.text!==p.text||old.statYardage!==p.statYardage||old.scoringPlay!==p.scoringPlay){if(old)p._seen=old._seen;else{p._seen=Date.now();p._src=FC.up?'push':'poll';if(playsLoaded&&p.wallclock&&(FC.up||performance.now()>15000)){const lg=p._seen-Date.parse(p.wallclock);if(lg>=-5000&&lg<600000){p._lag=lg;G.lag={ms:lg,src:p._src,id:p.id}}}}G.plays.set(p.id,p);ch=true}}
  if(ch){G.list=[...G.plays.values()].sort((a,b)=>Number(a.sequenceNumber)-Number(b.sequenceNumber));const l=G.list[G.list.length-1];if(l){const ns=Number(l.sequenceNumber);if(ns!==G.seq){G.seq=ns;G.snapAt=Date.now()}G.score.H=l.homeScore??G.score.H;G.score.A=l.awayScore??G.score.A;const pn=l.period&&l.period.number,cv=l.clock&&l.clock.value;if(pn>G.period||(pn===G.period&&cv<G.clock)){G.period=pn;G.clock=cv}}syncSit()}return ch}
 let playPage=1,playsLoaded=false,probPage=1;const seen=new Set;let takeT=null,takeBase=0;
-function bigPlay(p){if(!p.type)return null;const ty=p.type.text||'',t=lastId(p.team&&p.team.$ref),tm=t===HID?'SEA':t===AID?'CHI':'',yd=p.statYardage||0;if(/extra point|two.?point|kickoff$/i.test(ty)&&!p.isTurnover)return null;
+function bigPlay(p){if(!p.type)return null;const ty=p.type.text||'',t=lastId(p.team&&p.team.$ref),tm=t===HID?'SEA':t===AID?'CHI':'',yd=p.statYardage||0;if(/extra point|two.?point|kickoff$/i.test(ty)&&!isTO(p))return null;
  if(/touchdown/i.test(ty)||(p.scoringPlay&&p.scoreValue>=6))return{h:`${tm} TOUCHDOWN`,c:'td'};if(p.scoringPlay&&/field goal/i.test(ty))return{h:`${tm} FIELD GOAL`,c:'td'};if(p.scoringPlay)return{h:`${tm} SCORES`,c:'td'};
- if(p.isTurnover)return{h:'TURNOVER',c:'to'};if(/field goal missed|blocked/i.test(ty))return{h:'NO GOOD',c:'to'};if(isSnap(p)&&!SPECIAL.test(ty)&&p.start&&p.start.down===4&&yd>=(p.start.distance||99))return{h:'FOURTH DOWN CONVERTED',c:'bp'};if(isSnap(p)&&!SPECIAL.test(ty)&&p.start&&p.start.down===4)return{h:'STOPPED ON FOURTH',c:'to'};if(isSnap(p)&&!SPECIAL.test(ty)&&yd>=25)return{h:`${tm} ${yd}-YARD PLAY`,c:'bp'};if(/sack/i.test(ty)&&p.start&&p.start.down===3)return{h:'THIRD DOWN SACK',c:'to'};return null}
+ if(isTO(p))return{h:'TURNOVER',c:'to'};if(/field goal missed|blocked/i.test(ty))return{h:'NO GOOD',c:'to'};if(isSnap(p)&&!SPECIAL.test(ty)&&p.start&&p.start.down===4&&yd>=(p.start.distance||99))return{h:'FOURTH DOWN CONVERTED',c:'bp'};if(isSnap(p)&&!SPECIAL.test(ty)&&p.start&&p.start.down===4)return{h:'STOPPED ON FOURTH',c:'to'};if(isSnap(p)&&!SPECIAL.test(ty)&&yd>=25)return{h:`${tm} ${yd}-YARD PLAY`,c:'bp'};if(/sack/i.test(ty)&&p.start&&p.start.down===3)return{h:'THIRD DOWN SACK',c:'to'};return null}
 function takeover(b,p){const el=$('take');takeBase=Math.round(equity());const open=ST.bets.filter(x=>x.status==='open').length;el.className='take '+b.c;el.hidden=false;el.innerHTML=`<b>${esc(b.h)}</b><p>${esc((p.shortText||p.text||'').slice(0,110))}</p><div id="tkimp">${open?`${open} of your picks riding`:'No picks riding on this'}</div>`;if(!ST.mute)beep(b.c!=='to');try{navigator.vibrate&&navigator.vibrate(b.c==='td'?[80,60,160]:60)}catch(e){}
  clearInterval(takeT);let n=0;takeT=setInterval(()=>{n++;const d=$('tkimp'),dl=Math.round(equity())-takeBase;if(d&&open&&dl)d.textContent=`Your picks ${dl>0?'+':'-'}${money(Math.abs(dl))} in live value`;if(n>=5){clearInterval(takeT);el.hidden=true}},1000)}
 function checkBig(){for(const p of G.list){if(seen.has(p.id))continue;seen.add(p.id);if(!playsLoaded)continue;const b=bigPlay(p);if(b&&Date.now()-Date.parse(p.wallclock||0)<180000)takeover(b,p)}}
 async function pollPlays(){
  if(!playsLoaded){let d=await J(`${CORE}/plays?limit=400`);ingestPlays(d.items||[]);for(let i=2;i<=d.pageCount;i++){d=await J(`${CORE}/plays?limit=400&page=${i}`);ingestPlays(d.items||[])}playsLoaded=true;const n=d.count||G.list.length;playPage=Math.max(1,Math.ceil(n/25));checkBig();sim();return true}
- let d=await J(`${CORE}/plays?limit=25&page=${playPage}`);
- if(d.pageCount>playPage){playPage=d.pageCount;d=await J(`${CORE}/plays?limit=25&page=${playPage}`)}
+ const bu=()=>`&_=${Date.now()}`;let d=await J(`${CORE}/plays?limit=25&page=${playPage}${bu()}`);
+ if(d.pageCount>playPage){playPage=d.pageCount;d=await J(`${CORE}/plays?limit=25&page=${playPage}${bu()}`)}
  let ch=ingestPlays(d.items||[]);
  if((d.items||[]).length<4&&playPage>1){const e=await J(`${CORE}/plays?limit=25&page=${playPage-1}`);ch=ingestPlays(e.items||[])||ch}
  if(ch){checkBig();sim()}return ch}
-async function pollProb(){let d=await J(`${CORE}/probabilities?limit=5&page=${probPage}`);if(d.pageCount>probPage){probPage=d.pageCount;d=await J(`${CORE}/probabilities?limit=5&page=${probPage}`)}
+async function pollProb(){let d=await J(`${CORE}/probabilities?limit=5&page=${probPage}&_=${Date.now()}`);if(d.pageCount>probPage){probPage=d.pageCount;d=await J(`${CORE}/probabilities?limit=5&page=${probPage}&_=${Date.now()}`)}
  const it=(d.items||[])[(d.items||[]).length-1];if(!it)return false;const ch=!G.prob||G.prob.sequenceNumber!==it.sequenceNumber;G.prob=it;return ch}
-async function pollSit(){const s=await J(`${CORE}/situation`);const ch=JSON.stringify(G.sitRaw)!==JSON.stringify(s);if(ch)G.sitAt=Date.now();G.sitRaw=s;syncSit();return ch}
+async function pollSit(){const s=await J(`${CORE}/situation?_=${Date.now()}`);const ch=JSON.stringify(G.sitRaw)!==JSON.stringify(s);if(ch)G.sitAt=Date.now();G.sitRaw=s;syncSit();return ch}
 function syncSit(){const s=G.sitRaw;let lp=null;for(let i=G.list.length-1;i>=0;i--){const p=G.list[i];if(p.end&&p.end.down!=null&&p.end.team){lp=p;break}}
  const sid=s&&s.lastPlay?lastId(s.lastPlay.$ref):null,sp=sid?G.plays.get(sid):null;
  if(s&&(!lp||!sp||Number(sp.sequenceNumber)>=Number(lp.sequenceNumber))){G.sit=s;return}
@@ -200,6 +200,40 @@ async function pollSummary(){const s=await J(SUM);const c=s.header.competitions[
  G.box=parseBox(s.boxscore);G.drives={prev:s.drives&&s.drives.previous||[],cur:s.drives&&s.drives.current||null};G.sumAt=Date.now();
  if(!G.dk&&s.pickcenter&&s.pickcenter[0]){const it=s.pickcenter[0];G.dk={sp:it.spread,ou:it.overUnder,ov:it.overOdds,un:it.underOdds,hml:it.homeTeamOdds.moneyLine,aml:it.awayTeamOdds.moneyLine,hs:it.homeTeamOdds.spreadOdds,as:it.awayTeamOdds.spreadOdds}}return true}
 
+/* ---------- ESPN FastCast push feed: full game document, then JSON patches over a websocket ---------- */
+const FC={ws:null,up:false,doc:null,mid:0,q:[],net:null,last:0,chain:Promise.resolve(),retry:0,dirty:{},ids:new Set};
+const TOPIC=`gp-football-nfl-${E}`;
+async function inflate(b64){const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));return new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('deflate'))).text()}
+async function fcConnect(){if(!window.DecompressionStream||!window.WebSocket)return;try{const h=await J('https://fastcast.semfs.engsvc.go.com/public/websockethost');const ws=new WebSocket(`wss://${h.ip}:${h.securePort}/FastcastService/pubsub/profiles/12000?TrafficManager-Token=${encodeURIComponent(h.token)}`);FC.ws=ws;
+  ws.onopen=()=>ws.send(JSON.stringify({op:'C'}));
+  ws.onmessage=m=>{FC.last=Date.now();if(FC.up)G.lastOk=FC.last;let j;try{j=JSON.parse(m.data)}catch(e){return}if(j.op==='C'){ws.send(JSON.stringify({op:'S',sid:j.sid,tc:TOPIC}));return}if(j.tc!==TOPIC)return;
+   if(j.op==='H'){FC.chain=FC.chain.then(()=>fcBase(j)).catch(fcReset);return}
+   if(j.op==='I'){FC.chain=FC.chain.then(()=>{if(j.mid>FC.mid)FC.mid=j.mid});return}
+   if(j.op==='P'||j.op==='R'){const rx=Date.now();FC.chain=FC.chain.then(()=>fcMsg(j,rx)).catch(fcReset)}};
+  ws.onclose=()=>fcDown();ws.onerror=()=>{try{ws.close()}catch(e){}}}catch(e){fcDown()}}
+function fcDown(){FC.up=false;FC.doc=null;FC.ws=null;FC.q=[];FC.chain=Promise.resolve();if(FC.timer)return;FC.retry=Math.min(FC.retry+1,6);FC.timer=setTimeout(()=>{FC.timer=null;fcConnect()},800*FC.retry)}
+function fcReset(){try{FC.ws&&FC.ws.close()}catch(e){}}
+async function fcBase(j){FC.doc=await J(j.pl);FC.mid=j.mid;FC.dirty={header:1,drives:1,boxscore:1,pickcenter:1,all:1};const q=FC.q;FC.q=[];for(const m of q)if(m.mid>FC.mid)await fcApply(m);FC.up=true;FC.retry=0;G.sitRaw=null;G.lastOk=Date.now();fcFlush()}
+async function fcMsg(j,rx){const raw=JSON.parse(j.pl),body=raw['~c']?JSON.parse(await inflate(raw.pl)):raw.pl,m={mid:j.mid,ts:raw.ts,rx,ops:typeof body==='string'?JSON.parse(body):body,live:j.op==='P'};if(!FC.doc){FC.q.push(m);return}await fcApply(m);fcFlush()}
+async function fcApply(m){if(m.mid<=FC.mid)return;if(m.mid>FC.mid+1)throw new Error('gap');FC.mid=m.mid;if(m.live&&m.ts)FC.net=m.rx-m.ts;for(const o of m.ops){jp(FC.doc,o);const seg=o.path.split('/');if(seg[1]==='entities'&&seg[2]==='plays')FC.ids.add(seg[3]);else FC.dirty[seg[1]]=1}}
+function jpWalk(doc,path){const seg=path.split('/').slice(1).map(x=>x.replace(/~1/g,'/').replace(/~0/g,'~'));let o=doc;for(let i=0;i<seg.length-1;i++){o=o[seg[i]];if(o==null)throw new Error('path')}return[o,seg[seg.length-1]]}
+function jp(doc,p){const put=(path,v,ins)=>{const[o,k]=jpWalk(doc,path);if(Array.isArray(o)){if(k==='-')o.push(v);else if(ins)o.splice(+k,0,v);else o[+k]=v}else o[k]=v};const del=path=>{const[o,k]=jpWalk(doc,path);const v=Array.isArray(o)?o.splice(+k,1)[0]:o[k];if(!Array.isArray(o))delete o[k];return v};const get=path=>{const[o,k]=jpWalk(doc,path);return o[k]};
+ if(p.op==='add')put(p.path,p.value,true);else if(p.op==='replace')put(p.path,p.value);else if(p.op==='remove')del(p.path);else if(p.op==='copy')put(p.path,JSON.parse(JSON.stringify(get(p.from))),true);else if(p.op==='move')put(p.path,del(p.from),true)}
+const refT=o=>o&&o.$key?{$ref:'/teams/'+o.$key}:o;
+function fcPlay(p){const q=Object.assign({},p);q.team=refT(p.team);if(p.start)q.start=Object.assign({},p.start,{team:refT(p.start.team)});if(p.end)q.end=Object.assign({},p.end,{team:refT(p.end.team)});const d=G.pdrive&&G.pdrive[p.id];if(d)q.drive={$ref:'/drives/'+d};return q}
+const oddN=x=>{if(x==null)return null;const t=String(x).toUpperCase();if(t==='EVEN'||t==='EV')return 100;const n=parseFloat(t.replace(/[^0-9.+-]/g,''));return isFinite(n)&&Math.abs(n)>=100?n:null};
+const lineN=x=>{if(x==null)return null;const n=parseFloat(String(x).replace(/^[ou]/i,''));return isFinite(n)?n:null};
+function fcFlush(){if(!FC.doc)return;const c=FC.doc,D=FC.dirty,ids=FC.ids;FC.dirty={};FC.ids=new Set;let ch=false;
+ if(D.drives||D.all){const nd=d=>d?Object.assign({},d,{team:d.team&&d.team.$key?{id:d.team.$key}:d.team}):null;const dr=c.drives||{};G.drives={prev:(dr.previous||[]).map(nd),cur:nd(dr.current)};G.pdrive={};for(const d of [...(dr.previous||[]),dr.current])if(d)for(const r of d.plays||[]){const k=r.$key||r.id;if(k)G.pdrive[k]=d.id}for(const q of G.plays.values()){const did=G.pdrive[q.id];if(did&&!q.drive)q.drive={$ref:'/drives/'+did}}}
+ const ent=c.entities&&c.entities.plays||{},list=D.all?Object.values(ent):[...ids].map(k=>ent[k]).filter(Boolean);if(list.length){ch=ingestPlays(list.map(fcPlay));const l=G.list[G.list.length-1];if(l&&l.probabilities){const a=l.probabilities,w=a.winProbability||{},v=a.coverProbability||{};if(w.homeWinPercentage!=null)G.prob={homeWinPercentage:w.homeWinPercentage,tiePercentage:0,spreadCoverProbHome:v.homeCoverPercentage,spreadPushProb:v.spreadPushPercentage,totalOverProb:v.totalOverPercentage,totalPushProb:0,sequenceNumber:l.sequenceNumber}}}
+ if(D.header||D.all){const cp=c.header&&c.header.competitions&&c.header.competitions[0];if(cp){const st=cp.status,m=/(\d+):(\d+)/.exec(st.displayClock||'');G.state=st.type.state;G.period=st.period||G.period;if(m)G.clock=+m[1]*60+ +m[2];G.detail=st.type.shortDetail||st.type.detail||G.detail;for(const x of cp.competitors||[]){const K=x.homeAway==='home'?'H':'A';G.score[K]=parseInt(x.score)||0;G.lines[K]=(x.linescores||[]).map(l=>parseFloat(l.displayValue)||0)}}}
+ if(D.boxscore||D.all){G.box=parseBox(c.boxscore);G.sumAt=Date.now()}
+ if(D.pickcenter||D.all){const pk=(c.pickcenter||[])[0];if(pk){if(pk.spread!=null)G.dk={sp:pk.spread,ou:pk.overUnder,ov:pk.overOdds,un:pk.underOdds,hml:pk.homeTeamOdds&&pk.homeTeamOdds.moneyLine,aml:pk.awayTeamOdds&&pk.awayTeamOdds.moneyLine,hs:pk.homeTeamOdds&&pk.homeTeamOdds.spreadOdds,as:pk.awayTeamOdds&&pk.awayTeamOdds.spreadOdds};const lv=o=>o&&o.live||{},ml=pk.moneyline||{},ps=pk.pointSpread||{},to=pk.total||{};const v={mh:oddN(lv(ml.home).odds),ma:oddN(lv(ml.away).odds),sl:lineN(lv(ps.home).line),sh:oddN(lv(ps.home).odds),sa:oddN(lv(ps.away).odds),tl:lineN(lv(to.over).line),to:oddN(lv(to.over).odds),tu:oddN(lv(to.under).odds),at:Date.now(),pts:G.score.H+G.score.A};G.live=v}}
+ if(ch){checkBig();sim()}syncSit();if(!FC.flushT)FC.flushT=setTimeout(()=>{FC.flushT=null;render()},60)}
+setInterval(()=>{if(FC.ws&&FC.last&&Date.now()-FC.last>45000)fcReset()},5000);
+/* DraftKings live prices from the push feed. A score after the last DraftKings update makes them stale, so the model takes over until they move. */
+function dkLive(){const v=G.live;if(!v||G.state!=='in'||v.pts!==G.score.H+G.score.A)return null;return v}
+const dev=(a,b)=>impl(a)/(impl(a)+impl(b));
 /* Live projected margin and total come from ESPN's per-play probabilities. The DraftKings feed lags scores by minutes, so a fresh DK move nudges the level and the nudge fades over about three minutes. */
 const sdM=()=>Math.max(1.2,13.5*Math.sqrt(secLeft()/3600)),sdT=()=>Math.max(1.2,13*Math.sqrt(secLeft()/3600));
 function espnMu(){const P=G.prob,D=G.dk;if(!P)return null;const sM=sdM(),sT=sdT();const a=sM*inv(P.homeWinPercentage+(P.tiePercentage||0)/2);let m=a;if(D&&D.sp!=null&&P.spreadCoverProbHome!=null){m=(a-D.sp+sM*inv(P.spreadCoverProbHome+(P.spreadPushProb||0)/2))/2}
@@ -208,7 +242,8 @@ function reanchor(){const D=G.dk;if(!D||D.sp==null)return;const e=espnMu();if(!e
  const ph=D.hs!=null&&D.as!=null?impl(D.hs)/(impl(D.hs)+impl(D.as)):.5,po=D.ov!=null&&D.un!=null?impl(D.ov)/(impl(D.ov)+impl(D.un)):.5;
  const dm=-D.sp+sM*inv(ph),dt=D.ou+sT*inv(po);anchor={bm:clamp(dm-e.m,-3,3),bt:clamp(dt-e.t,-4,4),at:Date.now()}}
 function live(){const e=espnMu(),cm=G.score.H-G.score.A,ct=G.score.H+G.score.A,sM=sdM(),sT=sdT(),D=G.dk;let m,t;
- if(e&&e.t!=null){const k=anchor?Math.exp(-(Date.now()-anchor.at)/180000):0;m=e.m+(anchor?anchor.bm*k:0);t=e.t+(anchor?anchor.bt*k:0)}
+ const V=dkLive();if(V&&V.sl!=null&&V.sh&&V.sa&&V.tl!=null&&V.to&&V.tu){m=-V.sl+sM*inv(dev(V.sh,V.sa));t=V.tl+sT*inv(dev(V.to,V.tu))}
+ else if(e&&e.t!=null){const k=anchor?Math.exp(-(Date.now()-anchor.at)/180000):0;m=e.m+(anchor?anchor.bm*k:0);t=e.t+(anchor?anchor.bt*k:0)}
  else if(D){m=-D.sp;t=D.ou}else return null;
  return{m,t:Math.max(t,ct+.25),cm,ct,sM,sT}}
 
@@ -220,6 +255,7 @@ const SKIP=/coin toss|timeout|end |two.?minute|kickoff|extra point|two.?point|of
 const SPECIAL=/punt|field goal|blocked/i;
 const isNoPlay=p=>/no play/i.test(p.text||'')||/^penalty/i.test(p.type&&p.type.text||'');
 const isSnap=p=>!SKIP.test(p.type&&p.type.text||'')&&!isNoPlay(p);
+const isTO=p=>!!p.isTurnover||/interception|fumble recovery \(opp|sack.*fumble/i.test(p.type&&p.type.text||'');
 const isPass=p=>/pass|sack|interception/i.test(p.type.text);
 const isRush=p=>/rush/i.test(p.type.text);
 function passP(d,dist,lead,q){let p=d===1?.55:d===2?(dist>=7?.62:dist<=3?.42:.54):d===3?(dist>=5?.88:dist<=2?.5:.75):(dist<=2?.55:.85);if(q>=3&&lead<=-9)p+=.1;if(q>=4&&lead>=9)p-=.16;return clamp(p,.12,.95)}
@@ -242,14 +278,14 @@ function sim(){for(const b of BOTS){b.bal=1000;b.w=0;b.l=0;b.qp={}}feed=[];let d
  for(const p of G.list){const sq=p.sequenceNumber,did=lastId(p.drive&&p.drive.$ref);const pts=(p.homeScore||0)+(p.awayScore||0)-(prev.h+prev.a);
   if(drv&&did&&did!==drv.id){settleDrive(drv);drv=null}
   if(did&&!drv&&isSnap(p)&&p.start&&p.start.down>0){drv={id:did,y:p.start.yardsToEndzone||70,d:p.start.down,dist:p.start.distance||10,res:'none',team:lastId(p.start.team&&p.start.team.$ref)===HID?'SEA':'CHI',seq:sq,q:p.period&&p.period.number||1}}
-  if(drv&&pts>=6&&!p.isTurnover)drv.res='td';else if(drv&&pts===3)drv.res='fg';
+  if(drv&&pts>=6&&!isTO(p))drv.res='td';else if(drv&&pts===3)drv.res='fg';
   prev={h:p.homeScore||0,a:p.awayScore||0};
   if(!isSnap(p)||SPECIAL.test(p.type.text)||!p.start||!(p.start.down>0))continue;
   const d=p.start.down,dist=p.start.distance||10,pp=passP(d,dist,0,p.period&&p.period.number||1),isP=isPass(p),isR=isRush(p);
   for(const b of BOTS){const k=b.id+'|'+sq;if(hash(k)>b.act*.5||b.bal<5)continue;const m=hash(k+'m');let label,odds,won;
    const sharp=hash(k+'e')<b.edge*2;
    if(m<.45&&(isP||isR)){let take=hash(k+'s')<pp;if(sharp)take=isP;odds=am(take?pp:1-pp,1.06);label=take?'Next snap: pass':'Next snap: run';won=take===isP}
-   else if(m<.75){const c=convP(d,dist),yes=(p.statYardage||0)>=dist&&!p.isTurnover;let take=hash(k+'s')<c+.08;if(sharp)take=yes;odds=am(take?c:1-c,1.06);label=take?'First down: yes':'First down: no';won=take===yes}
+   else if(m<.75){const c=convP(d,dist),yes=(p.statYardage||0)>=dist&&!isTO(p);let take=hash(k+'s')<c+.08;if(sharp)take=yes;odds=am(take?c:1-c,1.06);label=take?'First down: yes':'First down: no';won=take===yes}
    else{const y10=(p.statYardage||0)>=10,c=.19;let take=hash(k+'s')<.35;if(sharp)take=y10;odds=am(take?c:1-c,1.06);label=take?'10+ yards: yes':'10+ yards: no';won=take===y10}
    const st=Math.min(b.bal,Math.round(b.unit*(.5+hash(k+'q')*1.3)));const dl=won?toWin(st,odds):-st,q=p.period&&p.period.number||1;b.bal+=dl;b.qp[q]=(b.qp[q]||0)+dl;if(won)b.w++;else b.l++;feed.push({who:b.name,sim:1,txt:`${label} ${fo(odds)}`,st,won,seq:sq})}}
  feed=feed.slice(-40).reverse()}
@@ -273,11 +309,11 @@ let M={},Mg={},flash={},prev={},micro=false;G.proj={};
 function reg(s){s.k=s.k||[s.t,s.side,s.line,s.pid,s.stat,s.drive,s.seq,s.period].join('|');s.sid=s.sid||s.side;M[s.k]=s;Mg[s.g+'|'+s.sid]=s;const o=prev[s.k];if(o!=null&&o!==s.odds)flash[s.k]={d:(s.odds>o)?'up':'dn',at:Date.now()};prev[s.k]=s.odds;return s}
 function build(){M={};Mg={};const R={};const L=live();const open=G.state==='in'||G.state==='pre';if(!L||!open||Date.now()-G.lastOk>20000){R.closed=true;return R}
  const Hm=L.m,ct=L.ct,sec=secLeft();
- const sp=(side,line,p,g,main)=>reg({t:'spread',side,line,g,sid:side+line,odds:am(p),p,lbl:`${abbr(side)} ${fl(line)}`,mkt:main?'Spread':'Alternate spread'});
- const tot=(side,line,p,g,main)=>reg({t:'total',side,line,g,sid:side+line,odds:am(p),p,lbl:`${side==='o'?'Over':'Under'} ${line}`,mkt:main?'Game total':'Alternate total'});
- const mainL=half(Hm);{const q=ou(Hm,L.sM,mainL);R.spH=sp('H',-mainL,q.o,'sp',1);R.spA=sp('A',mainL,q.u,'sp',1);R.spG=fieldShare('sp',[{id:'H'+(-mainL),p:q.o},{id:'A'+mainL,p:q.u}],Math.floor(sec/240))}
- let tL=half(L.t);if(tL<=ct)tL=ct+.5;{const q=ou(L.t,L.sT,tL);R.ov=tot('o',tL,q.o,'to',1);R.un=tot('u',tL,q.u,'to',1);R.toG=fieldShare('to',[{id:'o'+tL,p:q.o},{id:'u'+tL,p:q.u}],Math.floor(sec/240))}
- {const q=ou(Hm,L.sM,0),hp=clamp(q.o,.012,.985);if(sec>20&&hp>.02&&hp<.98){R.mlH=reg({t:'ml',side:'H',g:'ml',sid:'H',p:hp,odds:am(hp),lbl:'SEA moneyline',mkt:'Moneyline'});R.mlA=reg({t:'ml',side:'A',g:'ml',sid:'A',p:1-hp,odds:am(1-hp),lbl:'CHI moneyline',mkt:'Moneyline'});R.mlG=fieldShare('ml',[{id:'H',p:hp},{id:'A',p:1-hp}],Math.floor(sec/240))}}
+ const V=dkLive();const sp=(side,line,p,g,main,fx)=>reg({t:'spread',side,line,g,sid:side+line,odds:fx||am(p),p,lbl:`${abbr(side)} ${fl(line)}`,mkt:main?'Spread':'Alternate spread'});
+ const tot=(side,line,p,g,main,fx)=>reg({t:'total',side,line,g,sid:side+line,odds:fx||am(p),p,lbl:`${side==='o'?'Over':'Under'} ${line}`,mkt:main?'Game total':'Alternate total'});
+ const dS=V&&V.sl!=null&&V.sh&&V.sa,dT=V&&V.tl!=null&&V.to&&V.tu&&V.tl>ct,dM=V&&V.mh&&V.ma;R.dkLive=!!(dS||dT||dM);const mainL=dS?-V.sl:half(Hm);{let q=ou(Hm,L.sM,mainL);if(dS){const a=dev(V.sh,V.sa);q={o:a,u:1-a}}R.spH=sp('H',-mainL,q.o,'sp',1,dS&&V.sh);R.spA=sp('A',mainL,q.u,'sp',1,dS&&V.sa);R.spG=fieldShare('sp',[{id:'H'+(-mainL),p:q.o},{id:'A'+mainL,p:q.u}],Math.floor(sec/240))}
+ let tL=dT?V.tl:half(L.t);if(tL<=ct)tL=ct+.5;{let q=ou(L.t,L.sT,tL);if(dT){const a=dev(V.to,V.tu);q={o:a,u:1-a}}R.ov=tot('o',tL,q.o,'to',1,dT&&V.to);R.un=tot('u',tL,q.u,'to',1,dT&&V.tu);R.toG=fieldShare('to',[{id:'o'+tL,p:q.o},{id:'u'+tL,p:q.u}],Math.floor(sec/240))}
+ {const q=ou(Hm,L.sM,0),hp=dM?dev(V.mh,V.ma):clamp(q.o,.012,.985);if(sec>20&&hp>.02&&hp<.98){R.mlH=reg({t:'ml',side:'H',g:'ml',sid:'H',p:hp,odds:dM?V.mh:am(hp),lbl:'SEA moneyline',mkt:'Moneyline'});R.mlA=reg({t:'ml',side:'A',g:'ml',sid:'A',p:1-hp,odds:dM?V.ma:am(1-hp),lbl:'CHI moneyline',mkt:'Moneyline'});R.mlG=fieldShare('ml',[{id:'H',p:hp},{id:'A',p:1-hp}],Math.floor(sec/240))}}
  R.altS=[];for(const d of [-10,-7,-3,3,7,10]){const l=Math.round(mainL+d);const q=ou(Hm,L.sM,l);if(q.o<.05||q.o>.95)continue;R.altS.push({l,H:sp('H',-l,q.o,'alts'+l),A:sp('A',l,q.u,'alts'+l)})}
  R.altT=[];for(const d of [-14,-10,-6,-3,3,6,10,14]){const l=tL+d;if(l<=ct)continue;const q=ou(L.t,L.sT,l);if(q.o<.05||q.o>.95)continue;R.altT.push({l,o:tot('o',l,q.o,'altt'+l),u:tot('u',l,q.u,'altt'+l)})}
  const muH=(L.t+L.m)/2,muA=(L.t-L.m)/2,sTT=Math.max(1.1,.72*L.sT);R.tt=[];for(const[K,mu,sc] of[['A',muA,G.score.A],['H',muH,G.score.H]]){let l=Math.floor(Math.max(mu,sc))+.5;const q=ou(mu,sTT,l);R.tt.push({K,l,o:reg({t:'tt',side:'o',team:K,line:l,g:'tt'+K,sid:'o',p:q.o,odds:am(q.o),lbl:`${abbr(K)} over ${l} points`,mkt:'Team total'}),u:reg({t:'tt',side:'u',team:K,line:l,g:'tt'+K,sid:'u',p:q.u,odds:am(q.u),lbl:`${abbr(K)} under ${l} points`,mkt:'Team total'})})}
@@ -290,7 +326,7 @@ function build(){M={};Mg={};const R={};const L=live();const open=G.state==='in'|
   const band=(K,lo,hi)=>{const sgn=K==='H'?1:-1,m=sgn*L.m,p=(hi?cdf((hi+.5-m)/L.sM):1)-cdf((lo-.5-m)/L.sM);if(p<.015||p>.9)return null;return reg({t:'margin',side:K,lo,hi,g:'mg',sid:K+lo,p,odds:am(p,1.12),lbl:`${abbr(K)} by ${lo}${hi?'-'+hi:'+'}`,mkt:'Winning margin'})};
   R.mg=[[1,3],[4,6],[7,13],[14,0]].map(([lo,hi])=>({n:`${lo}${hi?'-'+hi:'+'}`,A:band('A',lo,hi),H:band('H',lo,hi)}))}
  /* micro */
- const off=offense(),s=G.sit,d=s&&s.down,dist=s&&s.distance;const sitPlay=s&&s.lastPlay?lastId(s.lastPlay.$ref):null;const snapLock=Date.now()-(G.snapAt||0)<1500||(sitPlay&&!G.plays.has(sitPlay)&&Date.now()-(G.sitAt||0)<15000);
+ const off=offense(),s=G.sit,d=s&&s.down,dist=s&&s.distance;const sitPlay=s&&s.lastPlay?lastId(s.lastPlay.$ref):null;const snapLock=Date.now()-(G.snapAt||0)<700||(sitPlay&&!G.plays.has(sitPlay)&&Date.now()-(G.sitAt||0)<15000);
  micro=G.state==='in'&&off&&d>=1&&d<=4&&dist>0&&sec>0&&!/half/i.test(G.detail);R.micro=micro;
  if(micro&&!snapLock){const seq=G.seq,y=yte()||50,lead=off==='H'?L.cm:-L.cm,pp=passP(d,dist,lead,G.period),a=abbr(off);
   const ms=(side,sid,p,lbl,sub,g)=>reg({t:'play',side,g,sid,seq,p,odds:am(p,1.06),lbl,mkt:sub,stakeMax:100});
@@ -331,7 +367,7 @@ function grade(b){const final=G.state==='post';let r=null;
  else if(b.t==='td'){const p=G.box[b.pid];const v=p?(p['rushing:rushingTouchdowns']||0)+(p['receiving:receivingTouchdowns']||0):0;if(v>=1)r='won';else if(final&&G.boxFinal)r='lost'}
  else if(b.t==='drive'){const x=driveRes(b.drive);if(x)r=x===b.side?'won':'lost';else if(final)r=b.side==='none'?'won':'lost'}
  else if(b.t==='next'){const hit=nextScore(b.seq);if(hit)r=hit===b.side?'won':'lost';else if(final)r=b.side==='none'?'won':'lost'}
- else if(b.t==='play'){const pl=nextSnap(b.seq);if(pl){b.res=(pl.shortText||pl.text||'').slice(0,90);if(SPECIAL.test(pl.type.text))r='void';else if(b.side==='pass'||b.side==='run'){if(!isPass(pl)&&!isRush(pl))r='void';else r=(b.side==='pass')===isPass(pl)?'won':'lost'}else if(b.side==='fdY'||b.side==='fdN'){const got=(pl.statYardage||0)>=(pl.start&&pl.start.distance||99)&&!pl.isTurnover;r=(b.side==='fdY')===got?'won':'lost'}else{const got=(pl.statYardage||0)>=10&&!pl.isTurnover;r=(b.side==='bigY')===got?'won':'lost'}}else if(final)r='void'}
+ else if(b.t==='play'){const pl=nextSnap(b.seq);if(pl){b.res=(pl.shortText||pl.text||'').slice(0,90);if(SPECIAL.test(pl.type.text))r='void';else if(b.side==='pass'||b.side==='run'){if(!isPass(pl)&&!isRush(pl))r='void';else r=(b.side==='pass')===isPass(pl)?'won':'lost'}else if(b.side==='fdY'||b.side==='fdN'){const got=(pl.statYardage||0)>=(pl.start&&pl.start.distance||99)&&!isTO(pl);r=(b.side==='fdY')===got?'won':'lost'}else{const got=(pl.statYardage||0)>=10&&!isTO(pl);r=(b.side==='bigY')===got?'won':'lost'}}else if(final)r='void'}
  return r}
 /* Parlay: a lost leg kills it now; pushed and voided legs drop out and the price recalculates, as a book does. */
 function gradeParlay(b){let ch=false;for(const l of b.legs){if(l.status!=='open')continue;const r=grade(l);if(r){l.status=r;ch=true}}
@@ -381,7 +417,7 @@ function obn(s,top,lbl){if(!s)return`<button class="o lk" disabled><span class="
 function shareBar(a,b,la,lb){if(a==null)return'';return`<div class="sh" aria-hidden="true"><i style="width:${a}%"></i></div><div class="pc"><span>Field ${a}% ${esc(la)}</span><span>${b}% ${esc(lb)}</span></div>`}
 function lastPlay(){for(let i=G.list.length-1;i>=0;i--){const p=G.list[i];if(!/end |timeout|official|coin/i.test(p.type&&p.type.text||''))return p}return G.list[G.list.length-1]}
 function vNow(){const R=Rm,p=lastPlay();let h='';
- if(p){const wc=p.wallclock?Math.max(0,Math.round((Date.now()-Date.parse(p.wallclock))/1000)):null;h+=`<div class="lp${p.scoringPlay?' score':''}"><div class="a"><span>${esc(p.type.text)} &middot; Q${p.period&&p.period.number||''} ${esc(p.clock&&p.clock.displayValue||'')}</span><span id="pa">${wc!=null?wc+'s ago':''}</span></div><p>${esc(p.text||p.shortText||'')}</p></div>`}
+ if(p){const wc=p.wallclock?Math.max(0,Math.round((Date.now()-Date.parse(p.wallclock))/1000)):null;h+=`<div class="lp${p.scoringPlay?' score':''}"><div class="a"><span>${esc(p.type.text)} &middot; Q${p.period&&p.period.number||''} ${esc(p.clock&&p.clock.displayValue||'')}</span><span id="pa">${wc!=null?wc+'s ago':''}</span></div><p>${esc(p.text||p.shortText||'')}</p>${p._lag!=null?`<div class="lgl">Reached this page ${(p._lag/1000).toFixed(1)}s after ESPN's play time, by ${p._src}</div>`:''}</div>`}
  if(G.state==='post')h=resultCard()+h;
  if(G.period>=4&&G.state==='in'){const d=Math.abs(G.score.H-G.score.A),trail=G.score.H<G.score.A?'SEA':'CHI',need=d===0?'Next score takes the lead':d<=3?`${trail} needs a field goal to tie`:d<=8?`${trail} needs one score`:d<=16?`${trail} needs two scores`:`${trail} needs three scores`;h=`<div class="clutch">${G.period>4?'OVERTIME':'FOURTH QUARTER'}<span>${esc(need)}</span></div>`+h}
  else if(R.closed)h+=`<div class="note">Markets suspended: the live feed went quiet. They reopen when ESPN answers again.</div>`;
@@ -403,7 +439,7 @@ function resultCard(){const l=ladder(),r=l.findIndex(x=>x.me)+1,done=ST.bets.fil
 function gameTable(){const R=Rm;return`<div class="tb"><div></div><div class="h">Spread</div><div class="h">Total</div><div class="h">Moneyline</div>
  <div class="n">CHI</div>${ob(R.spA,fl(R.spA&&R.spA.line))}${ob(R.ov,R.ov?'O '+R.ov.line:'')}${ob(R.mlA,'')}
  <div class="n">SEA</div>${ob(R.spH,fl(R.spH&&R.spH.line))}${ob(R.un,R.un?'U '+R.un.line:'')}${ob(R.mlH,'')}</div>
- ${R.spG?shareBar(R.spG['A'+R.spA.line],R.spG['H'+R.spH.line],'CHI','SEA'):''}${R.toG?shareBar(R.toG['o'+R.ov.line],R.toG['u'+R.un.line],'over','under'):''}${G.dk?`<div class="pc"><span>DraftKings feed: SEA ${fl(G.dk.sp)}, total ${esc(G.dk.ou)}</span><span>${esc(fo(G.dk.aml))} / ${esc(fo(G.dk.hml))}</span></div>`:''}`}
+ ${R.spG?shareBar(R.spG['A'+R.spA.line],R.spG['H'+R.spH.line],'CHI','SEA'):''}${R.toG?shareBar(R.toG['o'+R.ov.line],R.toG['u'+R.un.line],'over','under'):''}<div class="pc"><span>${R.dkLive?'Main lines: DraftKings live prices':'Main lines: ESPN live model'}</span></div>`}
 function vBoard(){const R=Rm;if(R.closed)return`<div class="note">${G.state==='post'?'Final. Board closed.':'Board suspended until the live feed answers.'}</div>`;let h=`<section><h2>Live game lines <span>Reprices after every play</span></h2>${gameTable()}</section>`;
  if(R.altS.length)h+=`<section><h2>Alternate spreads</h2><div class="st">${R.altS.map(r=>`<div class="row">${ob(r.A,'CHI '+fl(r.A.line))}${ob(r.H,'SEA '+fl(r.H.line))}</div>`).join('')}</div></section>`;
  if(R.altT.length)h+=`<section><h2>Alternate totals</h2><div class="st">${R.altT.map(r=>`<div class="row">${ob(r.o,'Over '+r.l)}${ob(r.u,'Under '+r.l)}</div>`).join('')}</div></section>`;
@@ -431,7 +467,7 @@ function vField(){const l=ladder();const qn=Math.min(G.period,5),qs=sprint(qn),q
  let h=`<section><h2>${qlbl} sprint <span>Fresh race every quarter</span></h2><div>${qs.slice(0,3).concat(qi>2?[qs[qi]]:[]).map(p=>`<div class="lb${p.me?' mine':''}"><span class="pos">${qs.indexOf(p)+1}</span><span class="nm">${esc(p.name)}</span>${p.sim?'<span class="chip">SIM</span>':'<span class="chip re">YOU</span>'}<span class="amt">${sign(p.pl)}</span></div>`).join('')}</div>${wins?`<div class="wins">${wins}</div>`:''}</section><section><h2>The field <span>You and 24 simulated players</span></h2><div>${l.map((p,i)=>`<div class="lb${p.me?' mine':''}"><span class="pos">${i+1}</span><span class="nm">${esc(p.name)}${p.me&&ST.handle?' (you)':''}</span>${p.sim?'<span class="chip">SIM</span>':'<span class="chip re">YOU</span>'}<span class="amt">${money(Math.round(p.bal))}</span></div>`).join('')}</div></section>`;
  h+=`<section><h2>Latest picks</h2><div>${feed.slice(0,16).map(f=>`<div class="fd1"><b>${esc(f.who)}</b> ${money(f.st)} on ${esc(f.txt)}${f.won==null?'':f.won?' <span class="won">won</span>':' <span class="lost">lost</span>'}</div>`).join('')||'<div class="note">Picks show up after the next snap.</div>'}</div></section>`;
  h+=`<section><h2>Your name on the ladder</h2><input id="hn" class="hn" maxlength="18" placeholder="Pick a handle" value="${esc(ST.handle)}" aria-label="Your handle"></section>`;
- h+=`<section><h2>House rules</h2><div class="note">Fake money only, $1,000 for the game, no refills. Lines move with ESPN's per-play probabilities, and fresh DraftKings moves nudge them. The DraftKings number is shown under the game line for reference. Picks lock at the price shown, after a two-second live delay. Your bankroll in the header is live value: cash plus what your open picks are worth right now. Grading: exact number pushes, overtime counts on game lines, the box score settles props. Count stats and points settle the moment they clear the line; yardage props wait for the final because yards can come back. Cash out pays your live win chance on the full payout, minus 6%. Same game parlays price below the straight multiple. SIM players are computer players that bet every snap on the same real plays. When you lock a pick, the SIM player nearest you takes the other side for the same stake, and that result moves them on the ladder.</div><button id="mu" class="vbtn" style="margin-top:8px">${ST.mute?'Sound off':'Sound on'}</button></section>`;
+ h+=`<section><h2>House rules</h2><div class="note">Fake money only, $1,000 for the game, no refills. Main spread, total and moneyline use DraftKings live prices from ESPN's push feed. If a score lands before DraftKings updates, ESPN's live probabilities price them until it does. Alternate lines, props and drive markets are priced by this game's own model around those numbers. Picks lock at the price shown, after a short live delay. Your bankroll in the header is live value: cash plus what your open picks are worth right now. Grading: exact number pushes, overtime counts on game lines, the box score settles props. Count stats and points settle the moment they clear the line; yardage props wait for the final because yards can come back. Cash out pays your live win chance on the full payout, minus 6%. Same game parlays price below the straight multiple. SIM players are computer players that bet every snap on the same real plays. When you lock a pick, the SIM player nearest you takes the other side for the same stake, and that result moves them on the ladder.</div><button id="mu" class="vbtn" style="margin-top:8px">${ST.mute?'Sound off':'Sound on'}</button></section>`;
  return h}
 function renderMain(){const v={now:vNow,board:vBoard,props:vProps,bets:vBets,field:vField}[tab]();const m=$('main');if(document.activeElement&&document.activeElement.id==='hn')return;if(m._h!==v){m.innerHTML=v;m._h=v}}
 function renderHead(){const s=G.score;$('sA').textContent=s.A;$('sH').textContent=s.H;const off=offense();$('tA').classList.toggle('pos',off==='A');$('tH').classList.toggle('pos',off==='H');const qn=G.period>4?'OT':['1st','2nd','3rd','4th'][G.period-1],mm=Math.floor(G.clock/60),ss=String(Math.floor(G.clock%60)).padStart(2,'0');$('clk').textContent=G.state==='post'?'FINAL':/half/i.test(G.detail)?'Halftime':G.state==='in'?`${mm}:${ss} - ${qn}`:G.detail||'Loading';
@@ -457,14 +493,14 @@ function renderParlay(){const el=$('slip'),legs=parLegs(),good=legs.filter(Boole
 function placeParlay(){const legs=parLegs();if(legs.some(l=>!l)||legs.length<2||placing)return;const odds=parlayOdds(legs),stake=Math.min(slip.stake,ST.cash,100);if(stake<1)return;placing=true;renderSlip();
  setTimeout(()=>{placing=false;Rm=build();const now=parLegs();if(!slip)return;if(now.some(l=>!l)||parlayOdds(now)!==odds){toast('A leg moved during the delay','Check the new price.');renderSlip();return}
   const b={t:'parlay',id:Date.now().toString(36),lbl:`${now.length}-leg parlay`,mkt:'Same game parlay',odds,stake:round2(stake),status:'open',at:Date.now(),pay:0,g:'parlay',sid:'p',legs:now.map(l=>{const x=Object.assign({},l,{status:'open'});delete x.was;delete x.p;if(x.t==='next')x.seq=G.seq;return x})};
-  ST.cash=round2(ST.cash-b.stake);ST.bets.push(b);ST.par=[];slip=null;save();toast(`Locked ${b.lbl} ${fo(odds)}`,`${money(b.stake)} to win ${money(toWin(b.stake,odds))}`);render()},2000)}
+  ST.cash=round2(ST.cash-b.stake);ST.bets.push(b);ST.par=[];slip=null;save();toast(`Locked ${b.lbl} ${fo(odds)}`,`${money(b.stake)} to win ${money(toWin(b.stake,odds))}`);render()},1500)}
 function render(){if(touching){pending=true;return}Rm=build();settleMaybe();renderHead();renderMain();renderSlip()}
 function settleMaybe(){G.boxFinal=G.state==='post'&&G.sumAt>0;const before=myRank();if(settle()){const after=myRank();if(after<before)toast(`Up to #${after}`,`Passed ${before-after} player${before-after>1?'s':''}`);renderHead()}}
 function toast(t,sub,c){const d=document.createElement('div');d.className='t '+(c||'');d.innerHTML=esc(t)+(sub?`<i>${esc(sub)}</i>`:'');const tb=$('toast');tb.appendChild(d);while(tb.children.length>2)tb.firstChild.remove();setTimeout(()=>d.remove(),c==='w'?4200:3000)}
 let ac=null;function beep(w){if(ST.mute)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext);const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type='triangle';o.frequency.value=w?660:180;if(w)o.frequency.exponentialRampToValueAtTime(1180,ac.currentTime+.16);g.gain.setValueAtTime(.12,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.28);o.start();o.stop(ac.currentTime+.3)}catch(e){}}
 function place(){const cur=M[slip.k];if(!cur||placing)return;slip.odds=cur.odds;const max=Math.min(ST.cash,cur.stakeMax||250);if(slip.stake>max)slip.stake=max;if(slip.stake<1)return;placing=true;renderSlip();const k=slip.k,odds=slip.odds,stake=slip.stake;
  setTimeout(()=>{placing=false;Rm=build();const now=M[k];if(!slip)return;if(!now||now.odds!==odds){if(now)toast('Odds moved during the delay',`${fo(odds)} is now ${fo(now.odds)}`);else toast('A new play landed','Pick was not placed. Re-quote it.');renderSlip();renderMain();return}
-  const useB=slip.boost&&(ST.boosts||0)>0;if(useB)ST.boosts--;const b=Object.assign({},now,{id:Date.now().toString(36),stake:round2(stake),status:'open',at:Date.now(),res:null,pay:0,boost:useB?1.25:0});b.seq=now.t==='play'||now.t==='next'?G.seq:b.seq;delete b.p;const lad=ladder(),mi=lad.findIndex(x=>x.me),opp=lad[mi-1]||lad[mi+1];if(opp&&opp.sim)b.vs={id:opp.id,name:opp.name};ST.cash=round2(ST.cash-b.stake);ST.bets.push(b);ST.last=b.stake;slip=null;save();toast(`Locked ${b.lbl} ${fo(b.odds)}`,b.vs?`${b.vs.name} took the other side for ${money(b.stake)}`:`${money(b.stake)} to win ${money(payOf(b))}`);render()},2000)}
+  const useB=slip.boost&&(ST.boosts||0)>0;if(useB)ST.boosts--;const b=Object.assign({},now,{id:Date.now().toString(36),stake:round2(stake),status:'open',at:Date.now(),res:null,pay:0,boost:useB?1.25:0});b.seq=now.t==='play'||now.t==='next'?G.seq:b.seq;delete b.p;const lad=ladder(),mi=lad.findIndex(x=>x.me),opp=lad[mi-1]||lad[mi+1];if(opp&&opp.sim)b.vs={id:opp.id,name:opp.name};ST.cash=round2(ST.cash-b.stake);ST.bets.push(b);ST.last=b.stake;slip=null;save();toast(`Locked ${b.lbl} ${fo(b.odds)}`,b.vs?`${b.vs.name} took the other side for ${money(b.stake)}`:`${money(b.stake)} to win ${money(payOf(b))}`);render()},1500)}
 let wl=null;async function wake(){try{if(navigator.wakeLock&&!wl&&!document.hidden){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}}catch(e){}}
 document.addEventListener('pointerdown',e=>{wake();if(e.target.closest('main'))touching=true});
 const rel=()=>{touching=false;if(pending){pending=false;setTimeout(render,60)}};document.addEventListener('pointerup',rel);document.addEventListener('pointercancel',rel);
@@ -486,10 +522,11 @@ document.addEventListener('click',e=>{const t=e.target;const k=t.closest('[data-
 document.addEventListener('change',e=>{if(e.target.id==='hn'){ST.handle=e.target.value.trim().slice(0,18);save();e.target.blur();render()}});
 
 /* ---------- polling, at the ESPN cache windows ---------- */
-function loop(fn,ms){let busy=false;const run=async()=>{if(busy)return;busy=true;try{const ch=await fn();G.lastOk=Date.now();G.fails=0;if(ch)render()}catch(e){G.fails++;renderHead()}busy=false};run();setInterval(run,ms);return run}
-const runs=[loop(pollProb,3000),loop(pollSit,4000),loop(pollStatus,4000),loop(pollPlays,5000),loop(pollSummary,10000),loop(pollOdds,60000)];
+function loop(fn,ms){let busy=false;const run=async()=>{if(busy||FC.up)return;busy=true;try{const ch=await fn();G.lastOk=Date.now();G.fails=0;if(ch)render()}catch(e){G.fails++;renderHead()}busy=false};run();setInterval(run,ms);return run}
+const runs=[loop(pollProb,2500),loop(pollSit,2500),loop(pollStatus,3000),loop(pollPlays,2500),loop(pollSummary,8000),loop(pollOdds,60000)];
+fcConnect();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){wake();runs.forEach(r=>r())}});
-setInterval(()=>{const age=G.lastOk?Math.round((Date.now()-G.lastOk)/1000):null;const a=$('age');a.textContent=age==null?'connecting':age<=6?'LIVE':age+'s behind';a.className='live'+(age==null||age>12?' bad':'');const lp=lastPlay();const pa=$('pa');if(pa&&lp&&lp.wallclock)pa.textContent=Math.max(0,Math.round((Date.now()-Date.parse(lp.wallclock))/1000))+'s ago';if(slip||Rm.snapLock||G.snapAt&&Date.now()-G.snapAt<2500)render()},1000);
+setInterval(()=>{const age=G.lastOk?Math.round((Date.now()-G.lastOk)/1000):null;const a=$('age');const lg=G.lag?Math.round(G.lag.ms/1000):null;a.textContent=age==null?'connecting':age>12?age+'s no data':`${FC.up?'PUSH':'POLL'}${FC.net!=null&&FC.up?' '+(FC.net/1000).toFixed(1)+'s':''}${lg!=null?' / PLAY '+lg+'s':''}`;a.className='live'+(age==null||age>12||!FC.up?' bad':'');const lp=lastPlay();const pa=$('pa');if(pa&&lp&&lp.wallclock)pa.textContent=Math.max(0,Math.round((Date.now()-Date.parse(lp.wallclock))/1000))+'s ago';if(slip||Rm.snapLock||G.snapAt&&Date.now()-G.snapAt<2500)render()},1000);
 $('vb').textContent=VER;render();
 window.__G=G;window.__S=()=>ST;window.__M=()=>M;
 </script>
