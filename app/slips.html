@@ -41,13 +41,13 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 #g-nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(18,26,35,.9);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:.5px solid #2C3B4A;padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
 #g-nav a{padding:9px 0 8px;text-align:center;font:600 11px var(--f);color:#5E6E80;text-decoration:none;min-height:44px}
 #g-nav a.on{color:var(--acc)}#g-nav svg{display:block;width:24px;height:24px;margin:0 auto 2px}
-#toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:rgba(26,37,48,.96);border-radius:14px;padding:12px 16px;font-weight:600;z-index:20;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+#g-toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:rgba(26,37,48,.96);border-radius:14px;padding:12px 16px;font-weight:600;z-index:20;box-shadow:0 10px 30px rgba(0,0,0,.45)}
 </style>
 </head>
 <body>
 <div class="g-wrap" id="slips"></div>
 <nav id="g-nav"></nav>
-<div id="toast" hidden></div>
+<div id="g-toast" hidden></div>
 <script src="shared/state.js"></script>
 <script src="shared/nav.js"></script>
 <script src="gold-store.js"></script>
@@ -58,7 +58,7 @@ const F=Rush.fmt,PATHS={nfl:'football/nfl',nba:'basketball/nba',nhl:'hockey/nhl'
 const odds=o=>F&&F.odds?F.odds(o):(o>0?'+':'')+o,dec=o=>F&&F.dec?F.dec(o):(o>0?1+o/100:1+100/Math.abs(o));
 const ST={open:['Open',''],won:['Hit','up'],lost:['Miss','dn'],push:['Push',''],void:['No action',''],cashed:['Closed','']};
 let tab='open',PAR=[],stake=25,UP=[];
-function toast(t){const el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,1800)}
+function toast(t){const el=$('g-toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,1800)}
 function pickCard(p){const[w,c]=ST[p.status]||[p.status,''];const pnl=p.status==='won'?(p.pay||p.stake+p.win)-p.stake:p.status==='lost'?-p.stake:p.status==='cashed'?(p.pay||0)-p.stake:0;const legs=p.legs?`<div class="s">${p.legs.map(l=>`${esc(l.label)} ${odds(l.odds)}${l.st&&l.st!=='open'?' · '+esc((ST[l.st]||[l.st])[0]):''}`).join('<br>')}</div>`:'';
   return`<div class="pk ${p.status}"><div class="a"><b><span class="lg">${esc((p.league||'multi').toUpperCase())}</span>${esc(p.label)}</b><em>${odds(p.odds)}</em></div><div class="s">${esc(p.game||'')}</div>${legs}<div class="s"><span class="st ${c}">${w.toUpperCase()}</span> · ${GS.fmt(p.stake)} staked${p.status==='open'?' · '+(p.win/10).toFixed(1)+' Units if it hits':pnl?' · '+(pnl>0?'+':'')+(pnl/10).toFixed(1)+' Units':''}</div></div>`}
 function parlayView(){const legs=PAR,ok=legs.length>=2,d=legs.reduce((a,l)=>a*dec(l.odds),1),am=ok?Math.round(d>=2?(d-1)*100:-100/(d-1)):null,me=GS.me(),max=me.stack,st=Math.min(stake,max);

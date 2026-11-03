@@ -20,7 +20,7 @@
     field() { return R.field().map(r => ({ rank: r.rank, name: r.me ? (r.name || 'You') : r.name, sim: !!r.sim, you: !!r.me, units: r.units })); },
     fmt(n) { return R.fmt && R.fmt.stack ? R.fmt.stack(n) : Math.round(n).toLocaleString('en-US'); },
     nav(active) {
-      if (window.RushNav && typeof window.RushNav.mount === 'function') { try { window.RushNav.mount(active); return; } catch (e) {} }
+      if (window.Rush && window.Rush.nav) { const own = document.getElementById('g-nav'); if (own) own.remove(); try { window.Rush.nav.refresh(); } catch (e) {} return; }
       const el = document.getElementById('g-nav'); if (!el) return;
       el.innerHTML = NAV.map(([k, href, t, path]) => `<a class="${k === active ? 'on' : ''}" href="${href}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${path}</svg>${t}</a>`).join('');
     }

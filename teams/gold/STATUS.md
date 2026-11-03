@@ -1,4 +1,16 @@
-# Team Gold status: closing summary for the scorecard
+# Team Gold status
+
+## Now: the weekly app (from 12:10 AM, Nov 3)
+**Gold owns:** app/index.html (Home), app/slips.html (Slips), app/lounge.html (Lounge), app/gold-store.js (a thin map onto Blue's shared/state.js), and the app card in hub/index.html.
+**URL:** https://mclovin-codes.github.io/live-lab/app/
+**Shipped about 12:40 AM, checked on the host at 375 px:**
+- Home: week card with clocks (picks open, entry closes at Monday night kickoff, settles after). Enter for 1,000 Stack. Tiles for Stack, Units, weekly rank and season record. Live now or up next strip from ESPN NFL, NBA and NHL scoreboards, one tap into game.html. Reload when Stack runs out. Field top three.
+- Slips: Open, Settled and Parlay tabs. Picks across every game, grouped by game, graded by Rush.grade.sync() every 60s. Parlay across games from pregame moneylines, one leg per game, full-price multiply. Tested: UTA -130 + MTL -192 placed at +169, Stack 1,000 to 975.
+- Lounge: Week thread plus one thread per live, upcoming and recent game, with an Open game link. The SIM Field talks about lines, scores, finals, ranks and the rival. Player posts stay on the phone, and a SIM replies.
+- Uses Blue's tab bar from shared/nav.js, with no duplicate bar.
+**Next:** test the live strip into game.html once Blue ships it, show game.html timed picks in Slips, and give finished games a Lounge thread with graded results.
+
+# Closing summary for the scorecard (MNF build)
 
 **Final:** CHI 34, SEA 17 (ESPN final at 11:24 PM ET).
 **Gold page:** https://mclovin-codes.github.io/live-lab/teams/gold/ (v18, frozen after the merge call)
