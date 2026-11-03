@@ -28,7 +28,8 @@
  *                pay, note, settled, live (true when placed while the game was in progress),
  *                legs?:[{league, gameId, game, spec, label, odds, st}]}
  *   Rush.place(pick)           -> deducts stake, stores pick, returns stored pick or null (no Stack / entry closed / not entered)
- *   Rush.picks(filter?)        -> array, newest first. filter: {status, league, gameId, week}
+ *   Rush.picks(filter?)        -> array, newest first. filter: {status, league, gameId, week, contest}. The Rush only unless
+ *                                 contest is given (an id, or "*" for every contest). See CONTESTS below.
  *   Rush.settle(id, result, note, pay?) -> result 'won'|'lost'|'push'|'void'; pay defaults to stake+win, stake, 0
  *   Rush.cashOut(id, value)    -> "Close pick" at value, Stack credited
  *   Rush.updatePick(id, patch)
@@ -56,10 +57,35 @@
  *                                 spec.side and spec.team use 'home' | 'away' (game.html maps ESPN team ids).
  *   Rush.grade.sync() grades weekly and contest picks alike.
  *
- * CONTESTS: the pages (contests.html, contest.html, Home) use Team Red's app/contest-kit.js (window.RC,
- * localStorage "rush-contests-v1"). A contest there is a filter over your weekly Slip: sports, days, markets
- * (pick.live drives its "live" rule). Rush.contests (plural) is deliberately not provided, so RC keeps its own
- * store. Rush.contest below is a separate wallet-per-contest model no page uses yet; its ?c= link is not RC's.
+ * CONTESTS: ONE PLAYER, SEVERAL CONTESTS (3:05 AM addendum)
+ * Contest definitions (name, schedule, rules, entrants, Ranks) live in Team Red's app/contest-kit.js (window.RC,
+ * localStorage "rush-contests-v1"). This store keeps each contest's own Stack and Slip. Every pick belongs to exactly
+ * one contest. The Rush weekly is the contest with id 'rush', always first. Its picks are the weekly picks above.
+ * Stacks are never summed: each contest's Stack, clocks and Ranks stand alone.
+ *   Rush.wallet.list()         -> [entry, ...], The Rush first, then every RC contest you own or joined (not archived or removed)
+ *     entry = {id, name, color ('#00BFFF' for The Rush; each contest keeps its colour for good), weekly, owner,
+ *              stack, units, rank, of, entered, opens, entryClose (ms or null), settles (ms),
+ *              sports:['nfl',..], days:['YYYYMMDD',..] ([] = every day), phase:'upcoming'|'open'|'settled', open (open picks), canReload}
+ *     A contest's clocks come from its own days: opens 00:00 ET on the first day, settles 4 AM ET after the last day.
+ *     Days empty means the Rush week's clocks. entryClose is the contest's join deadline (null = open while it runs).
+ *   Rush.wallet.get(id)        -> one entry, or null
+ *   Rush.wallet.active()       -> the active contest id ('rush' by default, and if the active contest is gone)
+ *   Rush.wallet.setActive(id)  -> true/false. Fires Rush.on, so every page redraws inside the new contest.
+ *   Rush.wallet.current()      -> entry of the active contest
+ *   Rush.wallet.color(id)      -> the contest's dot colour
+ *   Rush.wallet.covers(id, {league, start}) -> {ok} or {ok:false, why}: does the contest cover this game?
+ *                                 why: "Friends League: Thursday only", "Office Hoops: NBA only", "Friends League: has ended"
+ *                                 The Board shows only games that covers(active, game).ok.
+ *   Rush.wallet.allows(id, pick) -> covers() plus markets (live picks, parlays, player props, game lines),
+ *                                 Rush.rules limits and the contest's Stack. pick = {league, gameId, start, spec, live, odds,
+ *                                 label, legs?, stake?}. Without a stake, stake limits and Stack are skipped (for greying rows).
+ *   Rush.wallet.place(id, pick) -> {ok, pick} or {ok:false, why}. 'rush' goes through Rush.place; a contest pick is stored
+ *                                 with pick.contest = id and paid from that contest's Stack.
+ *   Rush.wallet.placeMany([{id, stake}], pick) -> [{id, ok, pick?, why?}]: one confirm, several contests.
+ *   Rush.wallet.picks(id, filter?) -> that contest's picks ('rush' = the weekly picks). filter as Rush.picks.
+ *   Rush.wallet.reload(id)     -> The Rush: the weekly Reload. A contest: once, under 50 Stack, if its rules allow Reload.
+ *   Rush.picks() stays The Rush only. Rush.picks({contest:id}) is one contest; Rush.picks({contest:'*'}) is every pick.
+ *   Rush.grade.sync() grades every contest's picks and credits each contest's own Stack.
  *
  * CONTEST RULES (store side of the 2:55 AM addendum; RC keeps these on c.rules, Red's forms set them)
  *   Rush.rules.norm(r)   -> clamped copy: {stakeMin (0 = none), stakeMax (null = No max), lineMin, lineMax, slipMin, slipMax
@@ -70,9 +96,7 @@
  *   Rush.rules.check(r, pick) -> {ok} or {ok:false, why}. pick = {stake, odds, label, legs?:[{odds, label}]}. Stake against
  *                           stakeMin/stakeMax; each line (a single, or every parlay leg) against lineMin/lineMax; the slip's
  *                           total odds against slipMin/slipMax. why reads like "Stake over the 50 maximum".
- *   At placement game.html runs check() for every RC contest the pick would count in (sport, day, markets) and shows
- *   "Counts in X" or "Not counted in X: why" on the Slip as you type. The pick still goes on the weekly Slip;
- *   it is stamped pick.ex = {contestId: why} for each contest it misses, and RC must not count it there.
+ *   Rush.wallet.allows() and place() run check() for the contest; the pick sheet greys a contest out with the reason.
  *   Rush.rules.result(r, pick) -> {status, units, note?}: the pick's result inside a contest. With injury protection a
  *                           player prop (prop, td) whose player left injured and did not return is void, units 0
  *                           (h1: left before halftime; full: any time). In a parlay that leg is dropped and the rest
@@ -91,32 +115,6 @@
  *   Rush.joiner.card(contestId, f, allowed) -> code a joiner sends the commissioner (no backend);
  *   Rush.joiner.readCard(code, allowed)     -> {contest, name, fields:{note?}, at} cleaned, or null.
  *
- * Rush.contest (commissioner mode). No backend: a contest lives in each member's browser, and the invite link carries
- * the whole contest (name, schedule, rules) inside the URL, so a friend's phone builds the same contest from the link.
- * Each member sees their own picks plus the contest's SIM Field (seeded by the contest id, identical on every phone)
- * plus any result cards friends share with them. On screen a contest's table is its Ranks; its players are the Field.
- *   Contest shape: {id, code (6 letters), name, vis:'public'|'private', owner, created,
- *     schedule:{from, to, entryClose (ms), days:[0..6] (empty = every day), sports:['nfl','nba','nhl'], games:[{league,id}] (empty = all)},
- *     rules:{stack (Stack per entry), markets:[Rush.contest.MARKETS subset], reload (bool), scoring:'units'|'record',
- *            ties:'split' (shared rank) | 'units' (Units break a record tie) | 'earliest' (earliest entry wins), fill (SIM players, 0..40)}}
- *   Markets: ml, spread, total, tt, alt, periods (quarters, halves, periods), props (incl. TD scorer), parlay, timed (next play, drive, next score).
- *   Rush.contest.create(spec)          -> contest + .link. You are owner and member. spec uses the shape above; missing fields get defaults.
- *   Rush.contest.join(codeOrLinkOrObj) -> {ok, contest, already} or {ok:false, why}. Accepts the 6-letter code of a contest on this
- *                                         phone or a public one, the full invite link, the encoded part after ?c=, or a contest object.
- *   Rush.contest.leave(id)             -> only while you have no picks in it.
- *   Rush.contest.list()                -> your contests with .phase ('open'|'locked'|'closed'), .mine, .owner, .link
- *   Rush.contest.publicList()          -> house public contests for this week plus public ones you made; .joined, .phase, .link
- *   Rush.contest.get(id)               -> one contest with .phase, .joined, .mine, .link
- *   Rush.contest.allows(id, pick)      -> {ok} or {ok:false, why}: membership, dates, days, sports, games, markets.
- *                                         pick = {league, gameId, start (ms), spec}
- *   Rush.contest.place(id, pick)       -> {ok, pick} or {ok:false, why}. Same pick shape as Rush.place, stored with pick.contest = id,
- *                                         paid from the contest's own Stack. Rush.picks({contest:id}) lists them; Rush.picks() stays weekly only.
- *   Rush.contest.reload(id)            -> if the contest allows Reload: once, when under 50 Stack.
- *   Rush.contest.me(id)                -> {stack, units, w, l, open, settled, reloaded}
- *   Rush.contest.ranks(id)             -> rows [{id, name, sim|friend|me, units, w, l, record, rank}] sorted by the contest's scoring and ties
- *   Rush.contest.results(id)           -> {final, closedAt, winners, rows, csv, filename}: the results sheet; csv for tracking off the app
- *   Rush.contest.card(id)              -> your result card code; Rush.contest.importCard(code) adds a friend's row to your Ranks
- *   Rush.contest.encode(c) / decode(code) / link(c) -> the invite encoding: contest.html?c=<base64url JSON>
  */
 (function () {
   const KEY = 'rush-app-v1', DAY = 864e5;
@@ -165,7 +163,7 @@
     const pick = Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), week: wk.id, at: Date.now(), status: 'open' }, p, { stake, win: fmt.toWin(stake, p.odds) });
     w.cash -= stake; w.picks.unshift(pick); save(); return pick;
   }
-  const wallets = () => Object.values(S.weeks).concat(Object.values(S.contests || {}));
+  const wallets = () => Object.values(S.weeks).concat(Object.values(S.contests || {}), Object.values(S.cw || {}));
   function picks(f) { f = f || {}; const out = []; wallets().forEach(w => (w.picks || []).forEach(p => out.push(p))); return out.filter(p => ((!f.status || p.status === f.status) && (!f.league || p.league === f.league) && (!f.gameId || p.gameId == f.gameId) && (!f.week || p.week === f.week) && (f.contest === undefined ? !p.contest : f.contest === '*' || p.contest === f.contest))).sort((a, b) => b.at - a.at); }
   function findPick(id) { for (const w of wallets()) { const p = (w.picks || []).find(x => x.id === id); if (p) return [w, p]; } return [null, null]; }
   function settle(id, result, note, pay) { const [w, p] = findPick(id); if (!p || p.status !== 'open') return false; p.status = result; p.note = note || ''; p.settled = Date.now(); p.pay = pay != null ? pay : result === 'won' ? p.stake + p.win : (result === 'push' || result === 'void') ? p.stake : 0; w.cash += p.pay; save(); return true; }
@@ -236,53 +234,87 @@
     return n;
   }
 
-  /* ---------- contests (commissioner mode): player-made contests with their own schedule, rules, Field and Ranks ---------- */
-  const MK = ['ml', 'spread', 'total', 'tt', 'alt', 'periods', 'props', 'parlay', 'timed'];
-  const SPORTS = ['nfl', 'nba', 'nhl'];
+  /* ---------- contests: one wallet (Stack and Slip) per contest the player is in; The Rush weekly is contest 'rush' ----------
+     Contest definitions (name, schedule, rules, entrants) live in Red's app/contest-kit.js (window.RC, localStorage
+     rush-contests-v1). This store keeps each contest's own Stack and picks, the active contest and each contest's colour. */
   const b64 = { enc: s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''), dec: s => decodeURIComponent(escape(atob(String(s).replace(/-/g, '+').replace(/_/g, '/')))) };
-  const marketOf = sp => { if (!sp) return 'ml'; if (sp.k === 'parlay') return 'parlay'; if (['next', 'go', 'fd', 'drive', 'ns', 'wm'].includes(sp.k)) return 'timed'; if (sp.k === 'qt' || sp.k === 'qs') return 'periods'; if (sp.k === 'prop' || sp.k === 'td') return 'props'; return sp.k; };
-  function normContest(c) {
-    const now = Date.now(), wk = week(), sch = c.schedule || {}, ru = c.rules || {};
-    const out = {
-      id: String(c.id || ('c' + now.toString(36) + Math.random().toString(36).slice(2, 6))).replace(/[^a-z0-9]/gi, '').slice(0, 16),
-      name: String(c.name || 'My contest').slice(0, 40), vis: c.vis === 'public' ? 'public' : 'private', owner: c.owner || S.handle || 'You', created: +c.created || now,
-      schedule: { from: +sch.from || now, to: +sch.to || wk.settles, entryClose: +sch.entryClose || +sch.to || wk.entryCloses, days: Array.isArray(sch.days) ? sch.days.filter(d => d >= 0 && d <= 6) : [], sports: (Array.isArray(sch.sports) && sch.sports.length ? sch.sports : SPORTS).filter(s => SPORTS.includes(s)), games: Array.isArray(sch.games) ? sch.games.slice(0, 40).map(g => ({ league: SPORTS.includes(g.league) ? g.league : 'nfl', id: String(g.id).replace(/\D/g, '') })) : [] },
-      rules: { stack: Math.max(100, Math.min(100000, +ru.stack || 1000)), markets: (Array.isArray(ru.markets) && ru.markets.length ? ru.markets : MK).filter(m => MK.includes(m)), reload: ru.reload !== false, scoring: ru.scoring === 'record' ? 'record' : 'units', ties: ['split', 'units', 'earliest'].includes(ru.ties) ? ru.ties : 'split', fill: Math.max(0, Math.min(40, ru.fill == null ? 11 : +ru.fill)) },
-    };
-    out.code = out.id.slice(-6).toUpperCase(); return out;
+  const SPORTS = ['nfl', 'nba', 'nhl'], RCKEY = 'rush-contests-v1', RUSH_COLOR = '#00BFFF';
+  const PALETTE = ['#F5A524', '#A78BFA', '#34D399', '#F472B6', '#FB923C', '#60A5FA', '#FACC15', '#F87171', '#2DD4BF', '#C084FC'];
+  const DOW = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const ETD = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
+  const ETH = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: 'numeric', hour12: false });
+  const etDay = ms => ETD.format(new Date(ms)).replace(/-/g, '');
+  /* 00:00 ET on a YYYYMMDD day */
+  const dayStart = d => { const s = String(d), noon = Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8), 12); const [h, m] = ETH.format(new Date(noon)).split(':').map(Number); return noon - ((h % 24) * 60 + m) * 6e4; };
+  const dayName = d => DOW[new Date(dayStart(d) + 12 * 36e5).getUTCDay()];
+  const dayLabel = d => { const s = String(d); return MON[+s.slice(4, 6) - 1] + ' ' + +s.slice(6, 8); };
+  const ok = { ok: true }, no = why => ({ ok: false, why });
+  const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  function defs() {
+    let a = null; try { if (window.RC && typeof window.RC.list === 'function') a = window.RC.list(); } catch (e) {}
+    if (!a) { try { a = Object.values((JSON.parse(localStorage.getItem(RCKEY) || '{}') || {}).c || {}); } catch (e) { a = []; } }
+    return (a || []).filter(c => c && c.id && (c.owner || c.joined) && c.status !== 'archived' && !(c.removed || []).includes('me'));
   }
-  function contestPhase(c) { const t = Date.now(); return t < c.schedule.entryClose ? 'open' : t < c.schedule.to ? 'locked' : 'closed'; }
-  /* the invite link carries the whole contest, so a friend's phone builds the same contest with no server */
-  function encodeContest(c) { const x = normContest(c); return b64.enc(JSON.stringify({ v: 1, i: x.id, n: x.name, p: x.vis, o: x.owner, c: x.created, s: [x.schedule.from, x.schedule.to, x.schedule.entryClose, x.schedule.days, x.schedule.sports, x.schedule.games.map(g => g.league + ':' + g.id)], r: [x.rules.stack, x.rules.markets, x.rules.reload ? 1 : 0, x.rules.scoring, x.rules.ties, x.rules.fill] })); }
-  function decodeContest(code) { try { const j = JSON.parse(b64.dec(code)); if (!j || j.v !== 1) return null; return normContest({ id: j.i, name: j.n, vis: j.p, owner: j.o, created: j.c, schedule: { from: j.s[0], to: j.s[1], entryClose: j.s[2], days: j.s[3], sports: j.s[4], games: (j.s[5] || []).map(x => { const [league, id] = String(x).split(':'); return { league, id }; }) }, rules: { stack: j.r[0], markets: j.r[1], reload: !!j.r[2], scoring: j.r[3], ties: j.r[4], fill: j.r[5] } }); } catch (e) { return null; } }
-  const inviteLink = c => { const base = (typeof location !== 'undefined' ? location.href.replace(/[^/]*([?#].*)?$/, '') : ''); return base + 'contest.html?c=' + encodeContest(c); };
-  /* house public contests, the same on every phone; any contest you make public is listed for you and shared by its link */
-  function publicContests() { const wk = week(); const mk = (id, name, sports, from, to, extra) => normContest(Object.assign({ id: id + wk.n, name, vis: 'public', owner: 'Rush', created: wk.opens, schedule: { from, to, entryClose: to - 4 * 36e5, sports }, rules: { stack: 1000, fill: 24 } }, extra || {})); const out = [mk('hnfl', 'NFL ' + wk.label + ' Sprint', ['nfl'], wk.opens, wk.settles), mk('hnba', 'NBA Nights', ['nba'], wk.opens, wk.settles - 36e5), mk('hnhl', 'Puck Week', ['nhl'], wk.opens, wk.settles - 36e5), mk('hrec', 'Record Week: most wins', SPORTS, wk.opens, wk.settles, { rules: { stack: 500, scoring: 'record', reload: false, fill: 24 } })]; Object.values(S.contests || {}).forEach(m => { if (m.contest.vis === 'public' && !out.some(x => x.id === m.contest.id)) out.push(m.contest); }); return out; }
-  function CW(id) { return (S.contests || {})[id] || null; }
-  function create(spec) { const c = normContest(Object.assign({}, spec, { owner: S.handle || 'You', created: Date.now() })); S.contests = S.contests || {}; S.contests[c.id] = { contest: c, joined: Date.now(), cash: c.rules.stack, s0: c.rules.stack, debt: 0, reloaded: false, picks: [], cards: {}, owner: true }; save(); return Object.assign({}, c, { link: inviteLink(c) }); }
-  function join(x) { let c = null; if (x && typeof x === 'object') c = normContest(x); else { const s = String(x || '').trim(), m = s.match(/[?&]c=([^&#]+)/), code = m ? m[1] : s; c = publicContests().find(p => p.id === code || p.code === code.toUpperCase()) || (CW(code) && CW(code).contest) || Object.values(S.contests || {}).map(w => w.contest).find(k => k.code === code.toUpperCase()) || decodeContest(code); } if (!c) return { ok: false, why: 'That code or link is not a contest.' }; if (CW(c.id)) return { ok: true, contest: c, already: true }; if (contestPhase(c) !== 'open') return { ok: false, why: 'Entry for this contest is closed.' }; S.contests = S.contests || {}; S.contests[c.id] = { contest: c, joined: Date.now(), cash: c.rules.stack, s0: c.rules.stack, debt: 0, reloaded: false, picks: [], cards: {} }; save(); return { ok: true, contest: c }; }
-  function leave(id) { const w = CW(id); if (!w || w.picks.length) return false; delete S.contests[id]; save(); return true; }
-  function allows(id, p) { const w = CW(id); if (!w) return { ok: false, why: 'Join the contest first.' }; const c = w.contest, t = Date.now(); if (t > c.schedule.to) return { ok: false, why: 'This contest has closed.' }; if (c.schedule.sports.length && p.league && !c.schedule.sports.includes(p.league)) return { ok: false, why: 'This contest does not cover ' + String(p.league).toUpperCase() + '.' }; if (c.schedule.games.length && !c.schedule.games.some(g => g.league === p.league && g.id == p.gameId)) return { ok: false, why: 'This game is not in the contest.' }; if (p.start && (p.start < c.schedule.from || p.start > c.schedule.to)) return { ok: false, why: 'This game is outside the contest dates.' }; if (p.start && c.schedule.days.length && !c.schedule.days.includes(new Date(p.start).getDay())) return { ok: false, why: 'This game is not on a contest day.' }; const mk = marketOf(p.spec); if (!c.rules.markets.includes(mk) && !(mk === 'spread' && p.spec && p.spec.alt && c.rules.markets.includes('alt'))) return { ok: false, why: 'This contest does not allow that market.' }; return { ok: true }; }
-  function cplace(id, p) { const w = CW(id); const a = allows(id, p); if (!a.ok) return { ok: false, why: a.why }; const stake = Math.round(+p.stake * 100) / 100; if (!(stake > 0) || stake > w.cash + 1e-9 || p.odds == null) return { ok: false, why: 'Not enough Stack in this contest.' }; const pick = Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), contest: id, at: Date.now(), status: 'open' }, p, { stake, win: fmt.toWin(stake, p.odds), contest: id }); w.cash -= stake; w.picks.unshift(pick); save(); return { ok: true, pick }; }
-  function creload(id) { const w = CW(id); if (!w || !w.contest.rules.reload || w.reloaded || w.cash >= 50 || contestPhase(w.contest) === 'closed') return false; w.reloaded = true; w.debt += w.s0; w.cash += w.s0; save(); return true; }
-  function cmine(id) { const w = CW(id); if (!w) return null; const open = w.picks.filter(p => p.status === 'open'), done = w.picks.filter(p => p.status !== 'open' && p.status !== 'void'); return { stack: Math.round(w.cash * 100) / 100, units: Math.round(w.cash + open.reduce((a, p) => a + p.stake, 0) - w.debt - w.s0) / 10, w: done.filter(p => p.status === 'won').length, l: done.filter(p => p.status === 'lost').length, open: open.length, settled: done.length, reloaded: w.reloaded }; }
-  /* SIM members fill the contest's Field, seeded by the contest id and its schedule, so every member sees the same rows */
-  function simMember(c, i, t) { const name = NAMES[(i + Math.floor(hash(c.id) * NAMES.length)) % NAMES.length], end = Math.min(t, c.schedule.to), hours = Math.max(0, (end - c.schedule.from) / 36e5), act = .2 + hash(c.id + name + 'a') * .3; let u = 0, w = 0, l = 0; for (let h = 1; h <= hours; h++) { const r = hash(c.id + name + h); if (r < act) { const win = hash('w' + c.id + name + h) < .48 + (hash('k' + name) - .5) * .1; const amt = (2 + hash('m' + c.id + name + h) * 8) * c.rules.stack / 1000; if (win) { u += amt * .91; w++; } else { u -= amt; l++; } } } return { id: 'cs' + i, name, sim: true, units: Math.round(u * 10) / 10, w, l }; }
-  /* a member's result card: a friend pastes it to see your row in their Ranks (as of the card's time) */
-  function card(id) { const w = CW(id), m = cmine(id); if (!w) return null; return b64.enc(JSON.stringify({ v: 1, c: id, n: S.handle || 'Player', u: Math.round(m.units * 10) / 10, w: m.w, l: m.l, t: Date.now() })); }
-  function importCard(code) { try { const j = JSON.parse(b64.dec(code)); const w = CW(j.c); if (!w) return { ok: false, why: 'Join that contest first.' }; const key = 'f' + hash(j.n + j.c).toString(36).slice(2, 8); w.cards[key] = { id: key, name: String(j.n).slice(0, 18), units: +j.u || 0, w: +j.w || 0, l: +j.l || 0, at: +j.t || Date.now(), friend: true }; save(); return { ok: true, row: w.cards[key] }; } catch (e) { return { ok: false, why: 'That is not a result card.' }; } }
-  function cranks(id) {
-    const w = CW(id) || null, c = w ? w.contest : publicContests().find(p => p.id === id); if (!c) return [];
-    const t = Date.now(), rows = []; for (let i = 0; i < c.rules.fill; i++) rows.push(simMember(c, i, t));
-    if (w) { Object.values(w.cards || {}).forEach(r => rows.push(Object.assign({}, r))); const m = cmine(id); rows.push({ id: 'me', name: S.handle || 'You', me: true, units: m.units, w: m.w, l: m.l, at: w.joined }); }
-    const key = c.rules.scoring === 'record' ? (a, b) => (b.w - b.l) - (a.w - a.l) || b.w - a.w : (a, b) => b.units - a.units;
-    const tie = c.rules.ties === 'units' ? (a, b) => b.units - a.units : c.rules.ties === 'earliest' ? (a, b) => (a.at || 0) - (b.at || 0) : () => 0;
-    rows.sort((a, b) => key(a, b) || tie(a, b));
-    rows.forEach((r, i) => { const prev = rows[i - 1]; r.rank = prev && c.rules.ties === 'split' && key(prev, r) === 0 ? prev.rank : i + 1; r.record = r.w + '-' + r.l; });
-    return rows;
+  const def = id => defs().find(c => c.id === id) || null;
+  const cname = c => String((c && c.name) || 'Contest').slice(0, 40);
+  function color(id) {
+    if (id === 'rush') return RUSH_COLOR; S.colors = S.colors || {}; if (S.colors[id]) return S.colors[id];
+    const used = new Set(Object.values(S.colors)); const c = PALETTE.find(x => !used.has(x)) || PALETTE[Object.keys(S.colors).length % PALETTE.length];
+    S.colors[id] = c; save(); return c;
   }
-  function results(id) { const w = CW(id), c = w ? w.contest : publicContests().find(p => p.id === id); if (!c) return null; const rows = cranks(id), final = contestPhase(c) === 'closed', top = rows.filter(r => r.rank === 1); const csv = ['rank,name,sim,units,wins,losses'].concat(rows.map(r => [r.rank, '"' + String(r.name).replace(/"/g, '""') + '"', r.sim ? 'yes' : r.friend ? 'friend card' : 'you', r.units, r.w, r.l].join(','))).join('\n'); return { contest: c, final, closedAt: c.schedule.to, winners: final ? top.map(r => r.name) : [], rows, csv, filename: c.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-results.csv' }; }
-  function contests() { return Object.values(S.contests || {}).map(w => Object.assign({}, w.contest, { phase: contestPhase(w.contest), mine: cmine(w.contest.id), owner: !!w.owner, link: inviteLink(w.contest) })).sort((a, b) => a.schedule.to - b.schedule.to); }
+  /* a contest's wallet, made the first time it is needed, with that contest's Stack per entry */
+  function cw(id) {
+    if (id === 'rush') return W(); const c = def(id); if (!c) return null; S.cw = S.cw || {};
+    if (!S.cw[id]) { const st = Math.round(numIn((c.rules || {}).stack, 1, 1e6, 1000)); S.cw[id] = { cash: st, s0: st, debt: 0, reloaded: false, picks: [], joined: Date.now() }; save(); }
+    return S.cw[id];
+  }
+  function span(c) { const ds = ((c.schedule || {}).days || []).slice().sort(); if (!ds.length) { const wk = week(); return { opens: wk.opens, settles: wk.settles }; } return { opens: dayStart(ds[0]), settles: dayStart(ds[ds.length - 1]) + DAY + 4 * 36e5 }; }
+  function entryOf(id) {
+    if (id === 'rush') { const wk = week(), m = me(); return { id, name: 'The Rush', color: RUSH_COLOR, weekly: true, owner: false, stack: m.stack, units: m.units, rank: m.entered ? m.rank : null, of: field().length, entered: m.entered, opens: wk.opens, entryClose: wk.entryCloses, settles: wk.settles, sports: SPORTS.slice(), days: [], phase: wk.phase, open: picks({ status: 'open' }).length, canReload: canReload() }; }
+    const c = def(id); if (!c) return null; const w = cw(id), sp = span(c), open = w.picks.filter(p => p.status === 'open'), t = Date.now(); let rank = null, of = null;
+    try { if (window.RC && window.RC.standings) { const st = window.RC.standings(c), r = st.find(x => x.me); if (r) { rank = r.finish; of = st.length; } } } catch (e) {}
+    return { id, name: cname(c), color: color(id), weekly: false, owner: !!c.owner, stack: Math.round(w.cash * 100) / 100, units: Math.round(w.cash + open.reduce((a, p) => a + p.stake, 0) - w.debt - w.s0) / 10, rank, of, entered: true,
+      opens: sp.opens, entryClose: +(c.schedule || {}).entryClose || null, settles: sp.settles, sports: ((c.schedule || {}).leagues || SPORTS).filter(s => SPORTS.includes(s)), days: ((c.schedule || {}).days || []).slice(),
+      phase: c.status === 'closed' || t > sp.settles ? 'settled' : t < sp.opens ? 'upcoming' : 'open', open: open.length, canReload: !!(c.rules || {}).reload && !w.reloaded && w.cash < 50 };
+  }
+  function walletList() { return [entryOf('rush')].concat(defs().map(c => entryOf(c.id))).filter(Boolean); }
+  function active() { const a = S.active; return a && a !== 'rush' && def(a) ? a : 'rush'; }
+  function setActive(id) { if (id !== 'rush' && !def(id)) return false; S.active = id; save(); return true; }
+  /* does this contest cover this game? g = {league, start (ms)} */
+  function covers(id, g) {
+    g = g || {}; if (id === 'rush') return week().phase === 'settled' ? no('The Rush: this week has settled') : ok;
+    const c = def(id); if (!c) return no('You are not in that contest'); const nm = cname(c), sch = c.schedule || {}, lg = (sch.leagues || SPORTS).filter(s => SPORTS.includes(s));
+    if (c.status === 'closed') return no(nm + ': closed');
+    if (g.league && lg.length && !lg.includes(g.league)) return no(nm + ': ' + lg.map(x => x.toUpperCase()).join(' and ') + ' only');
+    const ds = (sch.days || []).slice().sort();
+    if (g.start && ds.length && !ds.includes(etDay(g.start))) { const names = [...new Set(ds.map(dayName))]; return no(nm + ': ' + (ds.length <= 2 || names.length === 1 ? names.join(' and ') + ' only' : dayLabel(ds[0]) + ' to ' + dayLabel(ds[ds.length - 1]))); }
+    if (Date.now() > span(c).settles) return no(nm + ': has ended');
+    return ok;
+  }
+  /* can this pick go in this contest? p = {league, start, spec, live, stake?, odds, label, legs?}. Without a stake, stake limits are skipped. */
+  function allowsIn(id, p) {
+    const cv = covers(id, p); if (!cv.ok) return cv;
+    if (id === 'rush') { const w = W(); if (!w.entered) return no('The Rush: enter the week first'); if (week().phase === 'settled') return no('The Rush: this week has settled'); if (p.stake != null && +p.stake > w.cash + 1e-9) return no('The Rush: only ' + fmt.stack(w.cash) + ' Stack left'); return ok; }
+    const c = def(id), nm = cname(c), m = (c.rules || {}).markets || {}, k = (p.spec && p.spec.k) || '', props = /^(prop|td)$/;
+    if (p.live && m.live === false) return no(nm + ': live picks are off');
+    if (k === 'parlay') { if (m.parlays === false) return no(nm + ': parlays are off'); if (m.props === false && (p.legs || []).some(l => l.spec && props.test(l.spec.k))) return no(nm + ': player props are off'); }
+    else if (props.test(k)) { if (m.props === false) return no(nm + ': player props are off'); }
+    else if (m.lines === false) return no(nm + ': game lines are off');
+    const r = checkRules(c.rules, p, p.stake == null); if (!r.ok) return no(nm + ': ' + r.why);
+    const w = cw(id); if (p.stake != null && +p.stake > w.cash + 1e-9) return no(nm + ': only ' + fmt.stack(w.cash) + ' Stack left');
+    return ok;
+  }
+  function placeIn(id, p) {
+    const a = allowsIn(id, p); if (!a.ok) return { ok: false, why: a.why };
+    if (id === 'rush') { const pk = place(p); return pk ? { ok: true, pick: pk } : { ok: false, why: 'The Rush: entry is closed' }; }
+    const w = cw(id), stake = Math.round(+p.stake * 100) / 100; if (!(stake > 0) || p.odds == null) return { ok: false, why: cname(def(id)) + ': enter a stake' };
+    const pick = Object.assign({ id: rid(), at: Date.now(), status: 'open' }, p, { stake, win: fmt.toWin(stake, p.odds), contest: id }); delete pick.ex;
+    w.cash -= stake; w.picks.unshift(pick); save(); return { ok: true, pick };
+  }
+  /* one confirm, several contests: targets = [{id, stake}] */
+  function placeMany(targets, p) { return (targets || []).map(t => Object.assign({ id: t.id }, placeIn(t.id, Object.assign({}, p, { stake: t.stake })))); }
+  function reloadIn(id) { if (id === 'rush') return reload(); const e = entryOf(id); if (!e || !e.canReload || e.phase === 'settled') return false; const w = cw(id); w.reloaded = true; w.debt += w.s0; w.cash += w.s0; save(); return true; }
+  const walletPicks = (id, f) => picks(Object.assign({}, f || {}, { contest: id === 'rush' ? undefined : id }));
 
   /* ---------- contest rules for Red's contest-kit.js: stake and odds limits, injury protection, joiner fields ---------- */
   const amer = x => { if (x === null || x === undefined || x === '') return null; const n = Math.round(+x); return isFinite(n) && Math.abs(n) >= 100 && Math.abs(n) <= 100000 ? n : null; };
@@ -301,10 +333,10 @@
     return o;
   }
   /* min odds = the shortest price allowed (-200 refuses -250), max odds = the longest (+500 refuses +600); compared as decimals */
-  function checkRules(r, p) {
+  function checkRules(r, p, noStake) {
     r = normRules(r); const no = why => ({ ok: false, why }), st = +p.stake || 0, fo = fmt.odds, dec = fmt.dec;
-    if (st < r.stakeMin - 1e-9) return no('Stake under the ' + fmt.stack(r.stakeMin) + ' minimum');
-    if (r.stakeMax != null && st > r.stakeMax + 1e-9) return no('Stake over the ' + fmt.stack(r.stakeMax) + ' maximum');
+    if (!noStake && st < r.stakeMin - 1e-9) return no('Stake under the ' + fmt.stack(r.stakeMin) + ' minimum');
+    if (!noStake && r.stakeMax != null && st > r.stakeMax + 1e-9) return no('Stake over the ' + fmt.stack(r.stakeMax) + ' maximum');
     for (const l of (p.legs && p.legs.length ? p.legs : [p])) {
       if (l.odds == null) continue; const d = dec(l.odds), lab = l.label || 'A line';
       if (r.lineMin != null && d < dec(r.lineMin) - 1e-9) return no(lab + ' at ' + fo(l.odds) + ' is shorter than the ' + fo(r.lineMin) + ' line limit');
@@ -368,6 +400,6 @@
     joiner: { FIELDS: JFIELDS.map(f => Object.assign({}, f)), NOTE: 'Your note is shared with the commissioner.',
       get: () => cleanFields(S.joiner || {}), set: f => { S.joiner = cleanFields(f); save(); return Object.assign({}, S.joiner); },
       clean: cleanFields, card: joinerCard, readCard: readJoinerCard },
-    contest: { MARKETS: MK, SPORTS, create, join, leave, list: contests, publicList: () => publicContests().map(c => Object.assign({}, c, { phase: contestPhase(c), joined: !!CW(c.id), link: inviteLink(c) })), get: id => { const w = CW(id), c = w ? w.contest : publicContests().find(p => p.id === id); return c ? Object.assign({}, c, { phase: contestPhase(c), joined: !!w, mine: cmine(id), link: inviteLink(c) }) : null; }, allows, place: cplace, reload: creload, me: cmine, ranks: cranks, results, card, importCard, encode: encodeContest, decode: decodeContest, link: inviteLink, marketOf },
+    wallet: { list: walletList, get: entryOf, active, setActive, current: () => entryOf(active()), color, covers, allows: allowsIn, place: placeIn, placeMany, reload: reloadIn, picks: walletPicks, etDay },
   };
 })();

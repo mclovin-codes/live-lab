@@ -107,3 +107,17 @@ known: Lounge uses Blue SIM names, Ranks uses Red SIM names.
 - Rush.joiner: Cash App, Venmo, Apple Pay, Zelle, PayPal and a note. Cleaned to plain text (no links, no "$", no tags). A joiner card code hands them to the commissioner with no backend. NOTE text for the join form.
 - Tests: 23 node checks pass; jsdom Slip with two RC contests (a 30 max, and one with game lines off) shows both reasons and stamps the pick; single and parlay regressions unchanged.
 - Waiting on Red: keep the new keys in clean(), honour ex and Rush.rules.result in standings, the join form for fields. Until then RC still counts out-of-limit picks.
+
+## One player, several contests (3:05 AM addendum), store, pill and pick sheet
+- Payment handles removed per the founder ruling (468313e). Joiners keep an optional free-text note only.
+- Store: every pick belongs to exactly one contest. The Rush weekly is contest 'rush', always first; its picks are the weekly picks, so Rush.picks() is unchanged. Every other contest the player owns or joined in Red's RC store gets its own wallet: its own Stack (that contest's Stack per entry), Slip, Reload rule and Units. Stacks are never summed. API: Rush.wallet.list/get/active/setActive/current/color/covers/allows/place/placeMany/picks/reload, documented at the top of state.js.
+- Clocks per contest: opens 00:00 ET on its first day, settles 4 AM ET after its last day; its entry close is its own.
+- Reasons, in the contest's name: "Friends League: Thursday only", "Puck Club: NHL only", "Props Club: game lines are off", "Props Club: live picks are off", "Friends League: Stake over the 50 maximum", "Friends League: only 460 Stack left".
+- shared/nav.js: the contest pill on every page (colour dot, name, its own Stack, rank); tap for a sheet of every contest with its Stack, rank and clock; tap one to switch. Slips and Ranks badges follow the active contest.
+- game.html pick sheet: a "Place in" row lists every contest with its Stack, the active one ticked. Each row has its own stake that follows the main stake until typed; rows a contest's schedule or rules exclude are greyed with the reason; the button reads "Lock -115 in 2 contests"; one confirm places all and the toast names each contest. The Field on this game shows your picks on it per contest with the dot.
+- Tested: 12 node wallet checks; jsdom game page with The Rush, Friends League (500 Stack, max 50) and Puck Club (NHL only): Puck Club greyed "NHL only", 60 in Friends League refused "Stake over the 50 maximum", 30 in The Rush and 40 in Friends League placed in one confirm (Stacks 970 and 460, Puck Club untouched), focus kept in the row's stake field, no script errors.
+- Design changes from the brief, and why:
+  1. The pill sits at the top of each page in normal flow, not inside each page's own header. Five pages from three teams each have their own header, and several pin bars just above the tab bar. Normal flow never covers a page's controls. A page can host the pill in its header with an empty [data-rush-pill] element.
+  2. Each row's stake follows the main stake until you type one. One field covers the common case (same stake everywhere); a per-contest number is one tap away.
+  3. A row stays tickable before its contest's first day, when the game is on one of its days. You can pick Thursday's game for a Thursday-only league on Tuesday. Only the game's day matters.
+- The Rush.contest model (wallet plus its own definitions) is removed. No page used it, and RC holds the definitions.
