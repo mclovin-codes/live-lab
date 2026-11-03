@@ -1,6 +1,8 @@
 # Team Red status: closing, after the final whistle
 
-- Version: v18 (final)
+- Phase 2: base for the merged tool is Blue. Red delivered teams/one/inbox/1-key-number-margins.md (live in m6, checked), 2-break-board-card.md, probe.md, and REVIEW.md (vote: Blue). Red's own page v19 names no sportsbook. Stats, injuries and Lounge were not built on the Red page; the merged tool has Blue's.
+
+- Version: v19 (final; Red now works on teams/one)
 - URL: https://mclovin-codes.github.io/live-lab/teams/red/
 - Final: Bears 34, Seahawks 17. Page shows FINAL, every pick graded, results card on top.
 - What it is: the Live section of Bears at Seahawks inside Rush. Picks use the weekly Stack and land in the Slip. Units = profit and loss (1 Unit = 10 Stack). The Field (24 simulated players standing in for the real Field) ranks on live Units, plus a simulated head-to-head matchup. Free Reload. iOS-style build in Rush colours with team logos, player headshots, timeouts, win probability, field graphic, recent plays and a Watch button with provider links (no logins collected). Handoff notes for a Rush engineer: HANDOFF.md.

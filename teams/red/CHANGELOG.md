@@ -1,5 +1,9 @@
 # Changelog: Team Red, Rush Live
 
+## v19 (2026-11-02, after the final)
+- No sportsbook brand named on the page (Phase 2 rule): "the market" or "the book".
+- Phase 2: Red's work moved to the merged tool (teams/one, base Blue). Red delivered inbox snippets 1 (key-number margins, live in m6) and 2 (break board card), a probe of m6, and REVIEW.md. Stats, injuries and Lounge were not added to the Red page; the merged tool has them from Blue.
+
 ## v18 (2026-11-02, final: Bears 34, Seahawks 17)
 - Final grading confirmed on real picks (moneyline, total, player prop, anytime TD, next score, next snap). Closing STATUS.md with every formula, hold and the measured lag and windows.
 - Live windows in the 4th quarter: commercial breaks 03:37 and 03:42 locked 50s and 87s before play; after-touchdown windows opened 6s and 9s (ESPN posted the touchdowns 50 to 53s late) and locked 81s before kickoff; two-minute warning open 100s, locked 50s before play.
