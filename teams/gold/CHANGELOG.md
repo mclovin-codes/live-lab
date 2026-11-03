@@ -1,5 +1,14 @@
 # Team Gold changelog
 
+## v14
+- New look per the 9:58 PM addendum: Rush tokens (#00BFFF on #0B1118, cards #121A23 and #1A2530), SF system type, team logos in the scorebug, field and lines, player headshots on props and anytime TD, avatars on the Field, and timeout bars.
+- Navigation: segmented control (Live, Lines, Props, Field) under the scorebug, and the Slip as a floating pill. Sheets slide up with a grabber. Toasts drop from the top.
+- Every live market card shows a countdown chip: "Locks in 12s" on timed markets, "Open till snap ~12s" on lines and props, and "Closes at kickoff ~9:40" at halftime. Locked lines stay visible with a lock icon.
+- Stoppage windows use rulebook durations from the NFL seat: halftime 760s, two-minute warning 130s, end of quarter 115s, timeout 90s, after a score 150s, after a punt or turnover 40s, after a kickoff 30s.
+- Game lines lock for 12s after a score or turnover while they reprice, per the sportsbook seat.
+- Drive card on Live with the current drive line and the last 3 plays.
+- Watch door with links to ESPN, ABC, YouTube TV, Hulu + Live TV, Sling, Fubo and NFL+. It never asks for a login.
+
 ## v13
 - Player props and anytime TD use a fitted in-game model (nflverse 2023-2025, 16,018 player-games). The pregame number is the player's 2026 season-to-date average from ESPN.
 - Main prop line is the half-point closest to a 50/50 over, so prices sit near -110 like a book.
