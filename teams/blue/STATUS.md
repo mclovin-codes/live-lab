@@ -90,7 +90,7 @@ known: Lounge uses Blue SIM names, Ranks uses Red SIM names.
 ## Contests: which store the pages use (b19a278)
 - The pages (contests.html, contest.html, Home) run on Red's app/contest-kit.js (window.RC, localStorage rush-contests-v1). A contest there filters your weekly Slip by sports, days and markets.
 - Blue does not provide Rush.contests. RC's manage actions (remove, void, close) write to its own store, so routing reads to Blue's store would make them do nothing.
-- game.html now tags every pick live:true|false. Red was asked to pass it through playerPicks and check it in marketOK, so a contest with live picks off excludes in-game picks. Until Red ships that, the live rule does not filter.
+- game.html now tags every pick live:true|false. Red passes it through playerPicks and checks it in marketOK (0492258), so a contest with live picks off excludes in-game picks. Red's contest.html also opens a Rush.contest ?c= link as an invite.
 - Security: Red was sent the two contest.html XSS fixes (decode invite links strictly; coerce and escape results-link rows).
 
 ## Game page: the Field on this game (5f210ac)
