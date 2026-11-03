@@ -10,6 +10,13 @@
 - Uses Blue's tab bar from shared/nav.js, with no duplicate bar.
 **Reference patterns (founder screenshots, about 1:00 AM):** the Home strip is now capsule chips with logos, score and clock (or start time), one tap into game.html. The week clocks read "Entry closes in: 6 Days 19 Hrs" over the day and time. Settled Slips are a dated list with a green check, red x or P chip and the Units, with W/L at the top. Checked on the host at 375 px with no sideways scroll.
 **Flow check, 1:35 AM, on the host after Blue and Red fixed the game.html freeze:** Home (entered, Stack, Units, #7 of 31, season 0-0) to the strip into game.html (NHL UTA at TOR). There, a pick UTA -1.5 +180 for 25 Stack placed through the page's own slip. Slips shows it open with the earlier cross-game parlay, and the Stack went from 977 to 952. Lounge loads with 13 threads. Gold also fixed its pages' scoreboard dates to ET so last night's late games stay in the live strip.
+**Home as the hub (2:10 AM addendum), shipped 1ada05d, checked on the host at 375 px:**
+- Order: Lounge line (who is here, the latest), the week clocks with your Stack, Units, rank and season, the prize ladder card (31 in the Field, 1st $100 2nd $50 3rd $25, a progress bar, "9 more in the Field unlocks 1st $150 · 2nd $60 · 3rd $30"), the multiplier card (1.0X, what 1st pays at it, Nudge and Invite a friend), the live strip, and the Field with player-card links.
+- Sheets: the full ladder by Field size (To start, 40, 75, 125, 200, with the current rung lit and top 3 or top 5 paid). The multiplier sheet shows +10% per referral in with a pick and +5% per one of theirs, up to 3x, "$100 to 1st at 1.0x pays $100", and your referrals list with IN or NOT IN and a per-friend Nudge.
+- Invite and Nudge use the phone share sheet, or copy a link with ?ref=<your name>. A friend who arrives through it sees "You came in on X's invite". Both are free, and there are no Tickets.
+- Honest limit: with no backend, a friend shows as in only on their own phone, so the multiplier stays 1.0x in the prototype.
+- Player names on Home and Lounge open Red's player.html?u=<id> (sim ids, and me for you).
+- Slips: each pick shows its stake and return, for example "Stake 25 · Returns 70 (4.5 Units) if it hits" while open and "Returned X" when settled. Typing a stake belongs to Blue's pick sheet.
 **Next:** test the live strip into game.html once Blue ships it, show game.html timed picks in Slips, and give finished games a Lounge thread with graded results.
 
 # Closing summary for the scorecard (MNF build)
