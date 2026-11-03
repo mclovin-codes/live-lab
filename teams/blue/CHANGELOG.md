@@ -1,5 +1,11 @@
 # Team blue changelog
 
+## v6
+- Connected ESPN FastCast websocket from the browser (no key, works on GitHub Pages). It pushes JSON patches, including real DraftKings live moneyline, spread and total prices about every 2 seconds.
+- Main markets show and lock the exact DraftKings live price. Alts, team totals, quarters and props reprice from those lines. When DraftKings pulls a price the button locks.
+- All ESPN reads cache-busted. Measured on tonight plays: situation busted 20 to 25s after wallclock, unbusted 25 to 35s, summary 33 to 45s. Situation polled every 1.5s, push triggers immediate reads.
+- True lag on the header, median of last 8 plays, tap for detail. Snap clock on Next play. Snap bets lock 4s after a sharp line jump to limit past-posting.
+
 ## v5
 - Moment cards reorder the Live tab: 4th down go or kick (new market), 3rd down conversion, red zone, crunch time in the last 5 minutes of a one-score game.
 - Three races at once: game, this quarter, this drive. Quarter wins counted, each quarter a fresh race.
