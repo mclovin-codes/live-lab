@@ -1,5 +1,12 @@
 # Changelog: Team Red, Rush Live
 
+## v8 (2026-11-02, end of Q2)
+- Fair play, per the founder's 9:40 and 9:50 rules. Next snap markets removed: free data cannot lock them before the snap.
+- Break board: drive, next score and player markets open only during stoppages ESPN marks (TV timeout, end of quarter, two-minute warning, halftime) and close 100 seconds after the stoppage began (10 minutes at halftime). Shortest such stoppage measured tonight: 135 seconds. A new live play or a DraftKings move closes it at once.
+- Game lines refuse a pick when DraftKings has just moved; placement fails, no void after the fact.
+- LOCK in the header: median of how long before the next snap the break board closed.
+- A void-after-the-snap rule was built and dropped before shipping, because the founder ruled out voiding picks after the fact.
+
 ## v7 (2026-11-02, Q2)
 - Early signal: a DraftKings price jump locks next snap and drive markets at once. A large jump shows an alert. One play measured: DraftKings moved about 10 seconds after play time, ESPN posted the play at 22.
 - Header PLAY lag is now the median of the last 5 plays. Correction: the 11 second figure reported with v5 was one unrepresentative sample. Six plays over push measured 19 to 49 seconds, median about 28.
