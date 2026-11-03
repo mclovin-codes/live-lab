@@ -1,5 +1,9 @@
 # Changelog: Team Red, Rush Live
 
+## v11 (2026-11-02, start of Q3)
+- Player props fitted to nflverse 2023 to 2025 player games: rest-of-game mean and variance by stat, role (team rank by pass attempts, rush attempts or targets so far), checkpoint (25, 50, 75% played) and pace, scaled to the exact time left. Gamma distribution, line at the median. Hold 7% on props, 10% on milestones, 15% on anytime TD.
+- Anytime TD: share of players in that role who scored a rushing or receiving TD the rest of the way (at halftime: top rusher 26%, WR1 17%), combined for players who both run and catch.
+
 ## v10 (2026-11-02, halftime)
 - Key numbers: alternate spreads, winning margin and overtime use a live margin distribution weighted by how often regulation margins land on each number, fitted from 855 games (nflverse 2023 to 2025). Margin 3 is 2.05 times the normal curve, 7 is 1.54, ties 1.74, 14 is 1.25, 17 is 1.51; 9 and 11 about 0.4.
 - Overtime priced from the chance of a tie at the end of regulation (6.7% at halftime, +1100 / -1800).
