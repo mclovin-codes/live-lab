@@ -1,5 +1,10 @@
 # Team Gold changelog
 
+## v4
+- Fixed field position: ESPN counts yardLine from the SEA goal line. Seattle drives were mispriced and the ball was drawn on the wrong side.
+- Fourth-down prices now expect a kick.
+- Over and Under SIM players bet totals only.
+
 ## v3
 - Standalone static page for the new host. No artifact capabilities, so the field is all labeled SIM players.
 - Parlays with a same-game price.

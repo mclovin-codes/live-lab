@@ -1,8 +1,12 @@
 # Team Gold status
 
-**Version:** v3
+**Version:** v4
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Hashmark Live
+
+## What changed in v4
+- Fixed field position. ESPN counts `yardLine` from the SEA goal line, so Seattle drives were mispriced and the ball was drawn on the wrong side.
+- Fourth-down prices expect a kick. Over and Under SIM players bet totals only.
 
 ## What changed in v3
 - Standalone page: doctype, html, head, body. Shared store and all `claude.use` calls removed.
@@ -14,7 +18,7 @@
 All 12 rivals are labeled SIM. They replay from ESPN's probabilities and plays, so every phone sees the same field. There are no real players without a backend.
 
 ## Tested
-- Mobile preset, local file, live ESPN: score, clock, situation, board, parlay placed, no horizontal scroll, no console errors.
+- Mobile preset on the Pages host, live ESPN: score, clock, situation, board, parlay placed, no horizontal scroll, no console errors.
 - Grading on 31 fixtures: moneyline, spread, total and prop pushes, team totals, quarter, half, void prop, next snap, snapped-before-pick void, punt void, first down, next score, parlay win, loss and payout. All pass.
 
 ## Not tested
