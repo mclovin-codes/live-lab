@@ -73,7 +73,8 @@
  *   Rush.wallet.setActive(id)  -> true/false. Fires Rush.on, so every page redraws inside the new contest.
  *   Rush.wallet.current()      -> entry of the active contest
  *   Rush.wallet.color(id)      -> the contest's dot colour
- *   Rush.wallet.covers(id, {league, start}) -> {ok} or {ok:false, why}: does the contest cover this game?
+ *   Rush.wallet.covers(id, {league, start, legs?}) -> {ok} or {ok:false, why}: does the contest cover this game? A parlay
+ *                                 (league "multi" too) is covered when every leg is; why names the leg ("(leg 2: BOS at TOR)").
  *                                 why: "Friends League: Thursday only", "Office Hoops: NBA only", "Friends League: has ended"
  *                                 The Board shows only games that covers(active, game).ok.
  *   Rush.wallet.allows(id, pick) -> covers() plus markets (live picks, parlays, player props, game lines),
@@ -282,7 +283,15 @@
   function setActive(id) { if (id !== 'rush' && !def(id)) return false; S.active = id; save(); return true; }
   /* does this contest cover this game? g = {league, start (ms)} */
   function covers(id, g) {
-    g = g || {}; if (id === 'rush') return week().phase === 'settled' ? no('The Rush: this week has settled') : ok;
+    g = g || {};
+    /* a parlay (any league, "multi" included) is covered when every leg's game is; refuse with the first leg that is not */
+    if (Array.isArray(g.legs) && g.legs.length) {
+      for (let i = 0; i < g.legs.length; i++) { const l = g.legs[i] || {}, same = String(l.gameId) === String(g.gameId) && l.league === g.league;
+        const r = covers(id, { league: l.league || (g.league !== 'multi' ? g.league : undefined), start: l.start || (same ? g.start : undefined) });
+        if (!r.ok) return no(r.why + ' (leg ' + (i + 1) + (l.game ? ': ' + String(l.game).slice(0, 30) : '') + ')'); }
+      return ok;
+    }
+    if (id === 'rush') return week().phase === 'settled' ? no('The Rush: this week has settled') : ok;
     const c = def(id); if (!c) return no('You are not in that contest'); const nm = cname(c), sch = c.schedule || {}, lg = (sch.leagues || SPORTS).filter(s => SPORTS.includes(s));
     if (c.status === 'closed') return no(nm + ': closed');
     if (g.league && lg.length && !lg.includes(g.league)) return no(nm + ': ' + lg.map(x => x.toUpperCase()).join(' and ') + ' only');
