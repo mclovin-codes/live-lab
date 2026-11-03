@@ -1,5 +1,11 @@
 # Team blue changelog
 
+## v3
+- Same-game parlays from any game line, alt, quarter line or prop. Payout trimmed 8% for related legs. Each leg tracks live, losing leg ends it, pushed leg drops out and the price resets. Cash out works.
+- Open picks strip on top of the Live tab with live profit on each pick.
+- Full-screen touchdown and field goal alerts, queued with win and loss stamps.
+- Last play banner skips timeouts and quarter breaks.
+
 ## v2, GitHub Pages
 - Complete standalone document, no artifact capabilities. Field is now 30 labelled simulated players, the same on every phone. Real-player sync removed per the brief change.
 - Fixed stale feed: the browser was serving minutes-old ESPN plays under stale-while-revalidate. All fetches now skip the browser cache, and the newest play is pulled from the situation feed as soon as it appears.

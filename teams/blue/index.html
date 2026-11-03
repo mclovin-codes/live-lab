@@ -112,6 +112,17 @@ h2{margin:0;font:700 14px/1.2 var(--num);letter-spacing:.09em;text-transform:upp
 #tabs button{min-height:56px;font:700 15px/1 var(--num);letter-spacing:.07em;color:var(--dim);border-top:2px solid transparent}
 #tabs button.on{color:var(--ink);border-top-color:var(--blue)}
 #tabs small{display:block;font:500 11px/1.3 var(--body);letter-spacing:0;color:var(--dim)}
+.strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.sw{min-height:48px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 8px;display:grid;gap:1px;text-align:left;min-width:0}
+.sw span{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sw b{font:700 17px/1.1 var(--num);font-variant-numeric:tabular-nums}
+.sw.g{border-color:rgba(57,227,154,.55)}.sw.r{border-color:rgba(255,97,104,.5)}
+#plbar{position:fixed;left:0;right:0;bottom:calc(57px + env(safe-area-inset-bottom,0px));z-index:7;padding-block:6px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:linear-gradient(transparent,var(--turf) 30%)}
+#plbar button{width:100%;min-height:46px;border-radius:8px;background:var(--blue2);color:var(--ink);font:700 17px/1 var(--num);display:flex;justify-content:space-between;align-items:center;padding-inline:14px}
+.legs{display:grid;gap:4px;font-size:13px}
+.leg{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;min-height:30px}
+.leg .x{min-width:40px;min-height:36px;border:1px solid var(--line);border-radius:5px;color:var(--dim)}
+.leg.won{color:var(--win)}.leg.lost{color:var(--loss);text-decoration:line-through}.leg.push{color:var(--dim)}
 #scrim{position:fixed;inset:0;background:rgba(2,7,14,.7);z-index:20}
 #sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--panel);border-top:2px solid var(--blue);border-radius:12px 12px 0 0;padding-block:14px calc(14px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:12px;max-height:80%;overflow:auto}
 #sheet h3{margin:0;font:700 20px/1.15 var(--num)}
@@ -123,7 +134,7 @@ h2{margin:0;font:700 14px/1.2 var(--num);letter-spacing:.09em;text-transform:upp
 .go[disabled]{background:var(--line);color:var(--dim)}
 .ghost{min-height:44px;border-radius:8px;border:1px solid var(--line);color:var(--dim);font-weight:600}
 input[type=text]{width:100%;min-height:48px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font:600 17px var(--body);padding:0 12px}
-#toast{position:fixed;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;gap:6px;padding-inline:16px;pointer-events:none}
+#toast{position:fixed;left:0;right:0;bottom:calc(112px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;gap:6px;padding-inline:16px;pointer-events:none}
 .ts{background:var(--panel2);border:1px solid var(--blue2);border-radius:8px;padding:9px 12px;font-weight:600;font-size:14px;animation:tin .22s}
 @keyframes tin{from{transform:translateY(-8px);opacity:0}}
 #burst{position:fixed;inset:0;z-index:25;display:grid;place-items:center;pointer-events:none;text-align:center}
@@ -138,6 +149,7 @@ ul.cl{margin:0;padding-left:18px;color:var(--ink);font-size:14px;display:grid;ga
 <body>
 <div id="hdr"></div>
 <main id="view"></main>
+<div id="plbar" hidden></div>
 <nav id="tabs"></nav>
 <div id="scrim" hidden></div>
 <div id="sheet" hidden></div>
@@ -145,8 +157,8 @@ ul.cl{margin:0;padding-left:18px;color:var(--ink);font-size:14px;display:grid;ga
 <div id="burst" hidden></div>
 
 <script>
-const VERSION='v2';
-const CHANGES=[['v2',['Runs as a plain page on any host','Plays arrive up to a minute sooner: fixed a stale browser cache and now read the newest play directly','Field grew to 30 simulated players','Drive Duel: beat the field on every drive','Rank alerts name who you passed','One rebuy per quarter if you bust, charged against your score']],['v1',['Live pick board fed by ESPN every 3 to 10 seconds','Next-snap markets: next play, move the chains, drive result, next score','Game lines, alts, team totals, quarter lines, player props anchored on real DraftKings targets','Cash out, live sweats, ladder with labelled bots and any real players']]];
+const VERSION='v3';
+const CHANGES=[['v3',['Same-game parlays from any game line or prop, with leg tracking and cash out','Your open picks now sit on top of the Live tab','Touchdown and field goal alerts fill the screen','Last play skips timeouts and quarter breaks']],['v2',['Runs as a plain page on any host','Plays arrive up to a minute sooner: fixed a stale browser cache and now read the newest play directly','Field grew to 30 simulated players','Drive Duel: beat the field on every drive','Rank alerts name who you passed','One rebuy per quarter if you bust, charged against your score']],['v1',['Live pick board fed by ESPN every 3 to 10 seconds','Next-snap markets: next play, move the chains, drive result, next score','Game lines, alts, team totals, quarter lines, player props anchored on real DraftKings targets','Cash out, live sweats, ladder with labelled bots and any real players']]];
 const E='401873036',HOME='26',AWAY='3',BUDGET=1000;
 const CORE=`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${E}/competitions/${E}`;
 const SITE='https://site.api.espn.com/apis/site/v2/sports/football/nfl';
@@ -224,6 +236,7 @@ function nextScoreP(m,M){const d=driveP(m),n0=.66,td0=.19,fg0=.15,opp=1/(1+n0),o
 
 /* ---------- quote: every market prices through here ---------- */
 function fair(sp,M){const m=sp.k;
+  if(m==='parlay'){let w=1;sp.legs.forEach(l=>{if(l.st==='lost')w=0;else if(l.st==='open'){const fr=fair(l.spec,M);w*=fr?fr.w/Math.max(.02,1-fr.pu):.5}});return{w,pu:0}}
   if(m==='ml'){const w=sp.side===HOME?M.hw:1-M.hw-M.tie;return{w,pu:M.tie}}
   if(m==='spread'){const x=sp.side===HOME?overUnder(M.mu,M.sm,-sp.line):overUnder(M.mu,M.sm,sp.line);return{w:sp.side===HOME?x.o:x.u,pu:x.p}}
   if(m==='total'){const x=overUnder(M.tm,M.st,sp.line);return side(x,sp.side,M.sum,sp.line)}
@@ -256,6 +269,15 @@ const spanName=sp=>sp.from===1&&sp.to===2?'1st half':'Q'+sp.from;
 function suspended(M){if(!M.g.live)return M.g.state==='post'?'Final':'Not live';const now=Date.now();if(!S.ok.probs||now-S.ok.probs>25000||!S.ok.plays||now-S.ok.plays>25000)return'Feed paused';if(now-S.newPlayAt<1500)return'Repricing';return null}
 function quote(sp,M){M=M||model();const label=labelOf(sp);const sus=suspended(M);if(sus)return{ok:false,why:sus,label};const fr=fair(sp,M);if(!fr)return{ok:false,why:'Off the board',label};const pn=fr.w/Math.max(.02,1-fr.pu),o=price(pn,HOLD[sp.k]||.05);if(o==null)return{ok:false,why:'Off the board',label};return{ok:true,odds:o,label,fr}}
 
+/* ---------- parlays ---------- */
+const MICRO=['next','fd','drive','ns'];const dec=o=>o>0?1+o/100:1+100/-o;let pl=[];
+function decToAm(d){let a=d>=2?(d-1)*100:-100/(d-1);const s=Math.abs(a)<500?5:Math.abs(a)<2000?10:50;a=Math.round(a/s)*s;return a}
+const SGP=.92;function plOdds(ods){const d=ods.reduce((x,o)=>x*dec(o),1);return decToAm(1+(d-1)*SGP)}
+function plQuote(M){const qs=pl.map(sp=>quote(sp,M));if(pl.length<2||qs.some(q=>!q.ok))return{ok:false,qs};return{ok:true,qs,odds:plOdds(qs.map(q=>q.odds))}}
+function plConflict(sp){return pl.some(x=>{if(x.k!==sp.k)return false;if(sp.k==='ml')return true;if(sp.k==='spread')return true;if(sp.k==='total')return true;if(sp.k==='tt')return x.team===sp.team;if(sp.k==='prop')return x.aid===sp.aid&&x.t===sp.t;if(sp.k==='td')return x.aid===sp.aid;if(sp.k==='qt'||sp.k==='qs')return x.from===sp.from&&x.to===sp.to;return false})}
+function placeParlay(stake){const M=model(),q=plQuote(M);if(!q.ok){toast('A leg moved off the board. Remove it to continue.');return false}if(stake>me.cash||stake<=0)return false;const legs=pl.map((sp,i)=>({spec:sp,odds:q.qs[i].odds,label:q.qs[i].label,st:'open'}));const label=legs.length+'-leg parlay';const b={id:Date.now().toString(36)+'p',spec:{k:'parlay',legs},label,odds:q.odds,stake,win:toWin(stake,q.odds),at:Date.now(),seq:S.lastSeq,status:'open',clock:game().detail};me.cash-=stake;me.bets.unshift(b);pl=[];save();blip(620,.06);buzz(15);toast(label+' '+fo(q.odds)+' locked for '+money(stake));render();return true}
+function gradeParlay(b,M){const legs=b.spec.legs;let ch=false;legs.forEach(l=>{if(l.st!=='open')return;const r=gradeBet({spec:l.spec},M);if(r&&r.r){l.st=r.r;ch=true}});if(ch)save();if(legs.some(l=>l.st==='lost'))return{r:'lost'};if(legs.some(l=>l.st==='open'))return null;const won=legs.filter(l=>l.st==='won');if(!won.length)return{r:'push',note:'All legs pushed'};if(won.length===1){b.odds=won[0].odds}else b.odds=plOdds(won.map(l=>l.odds));b.win=toWin(b.stake,b.odds);return{r:'won',note:won.length<legs.length?'Pushed legs removed':''}}
+
 /* ---------- player state ---------- */
 let me={handle:'',cash:BUDGET,bets:[],w:0,l:0,streak:0,best:0,rev:0};
 const LS='blue42-'+E;
@@ -276,6 +298,7 @@ function gradeFinal(sp,hs,as){const mg=hs-as,sum=hs+as;const cmp=(x,L,s)=>x===L?
   if(sp.k==='tt')return cmp(sp.team===HOME?hs:as,sp.line,sp.side);
   return null}
 function gradeBet(b,M){const sp=b.spec,g=M.g,k=sp.k;
+  if(k==='parlay')return gradeParlay(b,M);
   if(k==='ml'||k==='spread'||k==='total'||k==='tt'){if(g.done)return{r:gradeFinal(sp,g.hs,g.as)};if(k==='total'&&M.sum>sp.line)return{r:sp.side==='o'?'won':'lost'};if(k==='tt'){const c=sp.team===HOME?M.hs:M.as;if(c>sp.line)return{r:sp.side==='o'?'won':'lost'}}return null}
   if(k==='qt'||k==='qs'){const closed=g.done||hdrComp()&&hdrComp().status.period>sp.to;const q=qStats(M,sp.from,sp.to);if(k==='qt'&&q.pts>sp.line)return{r:sp.side==='o'?'won':'lost'};if(!closed)return null;if(k==='qt')return{r:q.pts===sp.line?'push':(sp.side==='o'?q.pts>sp.line:q.pts<sp.line)?'won':'lost'};const x=(sp.side===HOME?q.mg:-q.mg)+sp.line;return{r:x===0?'push':x>0?'won':'lost'}}
   if(k==='prop'){const c=propCur(sp.aid,sp.t);if(c>sp.line)return{r:sp.side==='o'?'won':'lost'};if(!g.done)return null;if(!S.box[sp.aid])return{r:'void',note:'Did not play'};return{r:c===sp.line?'push':(sp.side==='o'?c>sp.line:c<sp.line)?'won':'lost'}}
@@ -328,7 +351,8 @@ let tab='live',boardTab='game',propTab='pass',slip=null,sheetMode=null,prevOdds=
 let audioCtx=null;function blip(f,d,delay){try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime+(delay||0);o.frequency.value=f;o.type='triangle';g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(audioCtx.destination);o.start(t);o.stop(t+d)}catch(e){}}
 function buzz(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
 function toast(msg){const d=document.createElement('div');d.className='ts';d.textContent=msg;$('toast').appendChild(d);setTimeout(()=>d.remove(),3200)}
-function burst(big,small,color){const b=$('burst');b.hidden=false;b.innerHTML=`<div style="color:${color}">${esc(big)}<small>${esc(small)}</small></div>`;clearTimeout(burst.t);burst.t=setTimeout(()=>b.hidden=true,1750)}
+const bq=[];let bOn=false;function burst(big,small,color){bq.push([big,small,color]);if(!bOn)nextBurst()}
+function nextBurst(){const n=bq.shift(),b=$('burst');if(!n){bOn=false;b.hidden=true;return}bOn=true;b.hidden=false;b.innerHTML=`<div style="color:${n[2]}">${esc(n[0])}<small>${esc(n[1])}</small></div>`;setTimeout(nextBurst,1750)}
 const REG={};
 function spKey(sp){return JSON.stringify(sp)}
 function oBtn(sp,top,M,act){const k=spKey(sp);REG[k]=sp;const q=quote(sp,M);const mine=me.bets.some(b=>b.status==='open'&&spKey(b.spec)===k);const prev=prevOdds[k];let cl='';if(q.ok&&prev!=null&&prev!==q.odds)cl=toProb(q.odds)>toProb(prev)?' flash-up':' flash-dn';if(q.ok)prevOdds[k]=q.odds;return`<button class="o${q.ok?'':' off'}${mine?' mine':''}${cl}" data-a="${act||'slip'}" data-k="${esc(k)}"><small>${esc(top)}</small><b>${q.ok?fo(q.odds):(q.why==='Off the board'?'OTB':'LOCK')}</b></button>`}
@@ -343,6 +367,7 @@ function vHdr(M){const g=M.g,c=hdrComp(),mm=micro(),off=mm&&mm.off;const last=S.
   <div class="field"><i class="ez"></i>${ball!=null?`<i class="fd" style="left:${fdm}%"></i><i class="ball" style="left:${ball}%"></i>`:''}</div>
   <div class="hrow"><span class="dd">${esc(mm?teamAb(mm.off)+' ball, '+mm.text:(last&&last.type?last.type.text:'Waiting for the next snap'))}</span><span class="live"><i class="dot${bad?' bad':''}"></i>${age==null?'connecting':age+'s'}${S.lag!=null?' · feed +'+Math.round(S.lag)+'s':''}</span><button class="stamp" data-a="changes">${VERSION}</button></div>
   <div class="bank"><div><span class="v">${money(val)}</span> <span class="d ${d>=0?'up':'dn'}">${d>=0?'+':'-'}${money(Math.abs(d))}</span></div><div class="rk">#${myR.rank} of ${rows.length}<small>${money(me.cash)} free</small></div></div>`}
+let lastSc=null;function scoreAlert(M){if(!S.sum)return;const sc=[M.hs,M.as];if(lastSc){const dh=sc[0]-lastSc[0],da=sc[1]-lastSc[1];if(dh>0||da>0){const v=Math.max(dh,da),t=dh>0?'SEA':'CHI';burst(v>=6?'TOUCHDOWN':v===3?'FIELD GOAL':'POINTS',`${t} scores. CHI ${M.as}, SEA ${M.hs}`,dh>0?'var(--win)':'var(--sweat)');buzz([50,40,50]);blip(520,.12)}}lastSc=sc}
 function curDriveId(){const d=S.sum&&S.sum.drives;return d&&d.current&&d.current.id||null}
 function duel(M){const id=curDriveId();if(!id||!M.g.live&&!M.g.done)return;const rows=ladder(M),snap={};rows.forEach(r=>{if(!r.me)snap[r.id]=r.value});const val=myValue(M),d=me.duel;
   if(!d||d.id!==id){if(d){const r=duelRows(d,rows,val);const mine=r.find(x=>x.me),won=mine.rank===1&&mine.delta>0;if(won){me.duelW=(me.duelW||0)+1;burst('DRIVE WON','+'+money(mine.delta)+' beat the field of '+r.length,'var(--blue)');buzz([30,30,30])}else if(mine.delta!==0)toast(`Drive over. You finished #${mine.rank} of ${r.length}.`);me.duelN=(me.duelN||0)+(mine.delta!==0?1:0)}me.duel={id,my:val,bots:snap,team:(S.sum.drives.current.team||{}).abbreviation||''};save()}}
@@ -351,7 +376,8 @@ function vDuel(M,rows){const d=me.duel;if(!d)return'';const r=duelRows(d,rows,my
 function vLive(M){const g=M.g,mm=micro(),last=S.plays[S.plays.length-1];const rows=ladder(M),mine=rows.find(r=>r.me),above=rows[mine.rank-2],below=rows[mine.rank];let h='';
   if(S.err&&!S.ok.probs)h+=`<div class="notice">ESPN did not respond (${esc(S.err)}). Betting stays locked until the feed is back.</div>`;
   if(me.cash<5&&!me.bets.some(b=>b.status==='open')){const used=me.rebuyQ===g.period;h+=`<div class="notice">You are out of chips.${used?' Your rebuy returns next quarter.':''}${used?'':' <button class="tail" data-a="rebuy">Rebuy $250</button> It comes off your score.'}</div>`}
-  h+=`<div class="last">${esc(last?(last.shortText||last.text||''):'Loading the last play')}<small>${last&&last.clock?'Q'+last.period.number+' '+last.clock.displayValue:''}</small></div>`;
+  const real=[...S.plays].reverse().find(p=>cls(p)!=='skip')||last;h+=`<div class="last">${esc(real?(real.shortText||real.text||''):'Loading the last play')}<small>${real&&real.clock?'Q'+real.period.number+' '+real.clock.displayValue:''}</small></div>`;
+  h+=vStrip(M);
   h+=`<section class="sec"><header><h2>Tap a price to lock it</h2><small>one tap, no slip</small></header><div class="chips">${[10,25,50,100,250].map(v=>`<button class="chip${defaultStake===v?' on':''}" data-a="stake" data-v="${v}">$${v}</button>`).join('')}</div>`;
   if(mm){const op=mm.off==HOME?AWAY:HOME,oa=teamAb(mm.off),da=teamAb(op);
    h+=`<div class="snap"><div class="q">Next play<small>${esc(mm.text)}</small></div><div class="opts">${oBtn({k:'next',c:'pass'},'Pass',M,'snap')}${oBtn({k:'next',c:'run'},'Run',M,'snap')}</div></div>`;
@@ -362,12 +388,12 @@ function vLive(M){const g=M.g,mm=micro(),last=S.plays[S.plays.length-1];const ro
   h+=`</section>`;
   h+=vDuel(M,rows);
   h+=`<section class="sec"><header><h2>Your race</h2><small>${me.w}-${me.l}${me.streak>1?' · '+me.streak+' straight':''}</small></header><div class="rival">${above?`<div>${Math.round(above.value-mine.value)===0?`<b>Level</b> with`:`<b class="dn">${money(above.value-mine.value)}</b> behind`} ${esc(above.name)}${above.bot?'<span class="tag">BOT</span>':''} at #${above.rank}</div>`:'<div><b class="up">You lead the ladder</b></div>'}${below?`<div class="fieldline"><span>${esc(below.name)} is ${money(mine.value-below.value)} behind you</span></div>`:''}</div></section>`;
-  const open=me.bets.filter(b=>b.status==='open');
-  h+=`<section class="sec"><header><h2>Sweating now</h2><small>${open.length} open</small></header>${open.length?open.map(b=>betCard(b,M)).join(''):'<div class="empty">No live picks. Tap any price above.</div>'}</section>`;
   h+=`<section class="sec"><header><h2>Field action</h2><small>tap to tail at today's price</small></header>${vTicker(rows)}</section>`;
   return h}
+function vStrip(M){const open=me.bets.filter(b=>b.status==='open');if(!open.length)return'';const shown=open.slice(0,6);return'<div class="strip">'+shown.map(b=>{const v=betVal(b,M),d=v-b.stake,micro_=MICRO.includes(b.spec.k),c=micro_?'':d>=0?'g':'r';return`<button class="sw ${c}" data-a="goPicks"><span>${esc(b.label)}</span><b class="${micro_?'':d>=0?'up':'dn'}">${micro_?'live':(d>=0?'+':'-')+money(Math.abs(d))}</b></button>`}).join('')+(open.length>6?`<button class="sw" data-a="goPicks"><span>more</span><b>+${open.length-6}</b></button>`:'')+'</div>'}
 function vTicker(rows){const items=[];rows.forEach(r=>{(r.feed||[]).slice(-4).forEach(f=>items.push({...f,who:r.name,bot:r.bot}))});items.sort((a,b)=>(b.t||0)-(a.t||0));const top=items.slice(0,8);if(!top.length)return'<div class="empty">Field picks appear after the next snap.</div>';return top.map(f=>{const k=spKey(f.spec);REG[k]=f.spec;return`<div class="tk"><div>${esc(f.label)} <span class="n">${fo(f.odds)}</span><small>${esc(f.who)}${f.bot?'<span class="tag">BOT</span>':''} · ${money(f.stake)}</small></div><button class="tail" data-a="slip" data-k="${esc(k)}">TAIL</button></div>`}).join('')}
 function sweat(b,M){const sp=b.spec,k=sp.k;let txt='',pct=null,c='';
+  if(k==='parlay'){const n=sp.legs.length,w=sp.legs.filter(l=>l.st==='won').length;txt=`${w} of ${n} legs hit`;pct=w/n*100;c='g'}
   if(k==='prop'){const cu=propCur(sp.aid,sp.t);pct=clamp(cu/sp.line*100,0,100);txt=`${cu} of ${sp.line} ${PT[sp.t].n}`;c=sp.side==='o'?'':'r'}
   else if(k==='total'){pct=clamp(M.sum/sp.line*100,0,100);txt=`${M.sum} points, line ${sp.line}, projected ${M.tm.toFixed(1)}`}
   else if(k==='tt'){const s=sp.team===HOME?M.hs:M.as;pct=clamp(s/sp.line*100,0,100);txt=`${teamAb(sp.team)} has ${s}, line ${sp.line}`}
@@ -379,7 +405,7 @@ function sweat(b,M){const sp=b.spec,k=sp.k;let txt='',pct=null,c='';
   else if(k==='next')txt='Waiting on the snap';else if(k==='fd')txt='Live on this set of downs';else if(k==='drive')txt='Live until this drive ends';else if(k==='ns')txt='Waiting on the next points';
   return{txt,pct,c}}
 function betCard(b,M){const s=sweat(b,M),v=betVal(b,M),noCo=['next','fd','drive','ns'].includes(b.spec.k),co=Math.round(v*.96),pnl=v-b.stake;
-  return`<div class="bet"><div class="t"><span>${esc(b.label)}</span><span class="od">${fo(b.odds)}</span></div>${s.pct!=null?`<div class="prog"><i class="${s.c}" style="width:${s.pct}%"></i></div>`:''}<div class="s"><span>${esc(s.txt)}</span><span>${money(b.stake)} to win ${money(b.win)}</span></div>${noCo?'':`<button class="co" data-a="cash" data-id="${b.id}">Cash out ${money(co)} <span class="${pnl>=0?'up':'dn'}">${pnl>=0?'+':'-'}${money(Math.abs(co-b.stake))}</span></button>`}</div>`}
+  return`<div class="bet"><div class="t"><span>${esc(b.label)}</span><span class="od">${fo(b.odds)}</span></div>${s.pct!=null?`<div class="prog"><i class="${s.c}" style="width:${s.pct}%"></i></div>`:''}${b.spec.k==='parlay'?`<div class="legs">${b.spec.legs.map(l=>`<div class="leg ${l.st}"><span>${esc(l.label)}</span><span class="n">${fo(l.odds)}</span><span></span></div>`).join('')}</div>`:''}<div class="s"><span>${esc(s.txt)}</span><span>${money(b.stake)} to win ${money(b.win)}</span></div>${noCo?'':`<button class="co" data-a="cash" data-id="${b.id}">Cash out ${money(co)} <span class="${pnl>=0?'up':'dn'}">${pnl>=0?'+':'-'}${money(Math.abs(co-b.stake))}</span></button>`}</div>`}
 function vBoard(M){const tabs=[['game','Game'],['alts','Alts'],['team','Team'],['q','Quarter'],['props','Props']];let h=`<div class="chips">${tabs.map(t=>`<button class="chip${boardTab===t[0]?' on':''}" data-a="board" data-v="${t[0]}">${t[1]}</button>`).join('')}</div>`;
   const main=-half(M.mu),mt=half(M.tm);
   if(boardTab==='game'){const bots=runBots(M),sp=fieldSplit(null,bots),pc=a=>a[0]+a[1]?Math.round(a[0]/(a[0]+a[1])*100):50;const dk=S.odds;
@@ -409,20 +435,22 @@ function vPicks(M){const open=me.bets.filter(b=>b.status==='open'),done=me.bets.
   h+=`<section class="sec"><header><h2>Graded</h2><small>${me.w}-${me.l} · best streak ${me.best||0}</small></header>${done.length?done.map(b=>{const net=(b.pay||0)-b.stake,tag={won:'WON',lost:'LOST',push:'PUSH',void:'VOID',cashed:'CASHED'}[b.status];return`<div class="bet ${b.status==='won'?'won':b.status==='lost'?'lost':''}"><div class="t"><span>${esc(b.label)}</span><span class="od">${fo(b.odds)}</span></div><div class="s"><span>${tag}${b.note?' · '+esc(b.note):''}</span><span class="${net>=0?'up':'dn'}">${net>=0?'+':'-'}${money(Math.abs(net))}</span></div></div>`}).join(''):'<div class="empty">Your graded picks land here.</div>'}</section>`;
   return h}
 function vLadder(M){const rows=ladder(M);return`<section class="sec"><header><h2>Live ladder</h2><small>value = cash + open picks at live price</small></header><div>${rows.map(r=>{const d=r.value-BUDGET;return`<div class="row${r.me?' me':''}"><div class="rn">${r.rank}</div><div class="nm">${esc(r.name)}${r.bot?'<span class="tag">BOT</span>':r.me?'<span class="tag">YOU</span>':''}<small>${r.last?esc(r.last.label)+' '+fo(r.last.odds):(r.open?r.open+' open':'no picks yet')}</small></div><div class="val">${money(r.value)}<small class="${d>=0?'up':'dn'}" style="display:block;font-size:13px">${d>=0?'+':'-'}${money(Math.abs(d))}</small></div></div>`}).join('')}</div><div class="empty">Everyone tagged BOT is a simulated player on the same prices and grading, replayed from ESPN plays, so the field is the same on every phone.</div></section>`}
+function vPlBar(M){if(!pl.length)return'';const q=plQuote(M);return`<button data-a="plopen"><span>Parlay · ${pl.length} leg${pl.length>1?'s':''}</span><span>${q.ok?fo(q.odds):pl.length<2?'add 1 more':'locked'}</span></button>`}
 function vTabs(M){const rows=ladder(M),r=rows.find(x=>x.me),o=me.bets.filter(b=>b.status==='open').length;return[['live','LIVE',''],['board','BOARD',''],['picks','PICKS',o?o+' open':''],['ladder','LADDER','#'+r.rank]].map(t=>`<button class="${tab===t[0]?'on':''}" data-a="tab" data-v="${t[0]}">${t[1]}${t[2]?`<small>${t[2]}</small>`:''}</button>`).join('')}
 function vSheet(M){if(sheetMode==='name')return`<h3>Blue 42</h3><p>You get ${money(BUDGET)} of fake money for this game. No real money, ever. Lock prices on every snap, cash out or sweat, and climb the ladder.</p><input type="text" id="hn" maxlength="18" placeholder="Your name on the ladder" autocomplete="off"><button class="go" data-a="setname">Start with ${money(BUDGET)}</button>`;
   if(sheetMode==='changes')return`<h3>What changed</h3>${CHANGES.map(c=>`<div><b class="n">${c[0]}</b><ul class="cl">${c[1].map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('')}<p>Lines are priced from ESPN win and total probabilities after every play, anchored on DraftKings numbers. Fake money only.</p><button class="ghost" data-a="close">Close</button>`;
-  if(sheetMode==='slip'&&slip){const q=quote(slip.sp,M),st=slip.stake,win=q.ok?toWin(st,q.odds):0,moved=q.ok&&slip.o0!=null&&q.odds!==slip.o0;return`<div class="slipodds"><h3>${esc(q.label)}</h3><b>${q.ok?fo(q.odds):'LOCK'}</b></div>${moved?`<p class="up">Price moved from ${fo(slip.o0)}. You lock what you see.</p>`:''}<div class="slipodds"><span class="stake">${money(st)}</span><span>to win <b class="n up" style="color:var(--win);font-size:22px">${money(win)}</b></span></div><div class="chips">${[10,25,50,100,250].map(v=>`<button class="chip" data-a="add" data-v="${v}">+${v}</button>`).join('')}<button class="chip" data-a="max">MAX</button><button class="chip" data-a="clr">CLR</button></div><button class="go" data-a="confirm"${q.ok&&st>0&&st<=me.cash?'':' disabled'}>${q.ok?(st>me.cash?'Only '+money(me.cash)+' left':'Lock at '+fo(q.odds)):esc(q.why)}</button><button class="ghost" data-a="close">Cancel</button>`}
+  if(sheetMode==='slip'&&slip){const q=quote(slip.sp,M),st=slip.stake,win=q.ok?toWin(st,q.odds):0,moved=q.ok&&slip.o0!=null&&q.odds!==slip.o0;return`<div class="slipodds"><h3>${esc(q.label)}</h3><b>${q.ok?fo(q.odds):'LOCK'}</b></div>${moved?`<p class="up">Price moved from ${fo(slip.o0)}. You lock what you see.</p>`:''}<div class="slipodds"><span class="stake">${money(st)}</span><span>to win <b class="n up" style="color:var(--win);font-size:22px">${money(win)}</b></span></div><div class="chips">${[10,25,50,100,250].map(v=>`<button class="chip" data-a="add" data-v="${v}">+${v}</button>`).join('')}<button class="chip" data-a="max">MAX</button><button class="chip" data-a="clr">CLR</button></div><button class="go" data-a="confirm"${q.ok&&st>0&&st<=me.cash?'':' disabled'}>${q.ok?(st>me.cash?'Only '+money(me.cash)+' left':'Lock at '+fo(q.odds)):esc(q.why)}</button>${MICRO.includes(slip.sp.k)?'':`<button class="ghost" data-a="addleg">Add to parlay${pl.length?' ('+pl.length+' so far)':''}</button>`}<button class="ghost" data-a="close">Cancel</button>`}
+  if(sheetMode==='parlay'){slip=slip||{stake:Math.min(defaultStake,me.cash)};const q=plQuote(M),st=slip.stake,win=q.ok?toWin(st,q.odds):0;return`<div class="slipodds"><h3>${pl.length}-leg parlay</h3><b>${q.ok?fo(q.odds):'--'}</b></div><div class="legs">${pl.map((sp,i)=>{const lq=q.qs[i];return`<div class="leg"><span>${esc(lq.label)}</span><span class="n">${lq.ok?fo(lq.odds):'LOCK'}</span><button class="x" data-a="rmleg" data-v="${i}">X</button></div>`}).join('')}</div><p>Same-game price: legs are related, so the payout is trimmed 8% from straight multiplication. Any losing leg loses the parlay. A pushed leg drops out.</p><div class="slipodds"><span class="stake">${money(st)}</span><span>to win <b class="n" style="color:var(--win);font-size:22px">${money(win)}</b></span></div><div class="chips">${[10,25,50,100].map(v=>`<button class="chip" data-a="add" data-v="${v}">+${v}</button>`).join('')}<button class="chip" data-a="max">MAX</button><button class="chip" data-a="clr">CLR</button></div><button class="go" data-a="plgo"${q.ok&&st>0&&st<=me.cash?'':' disabled'}>${pl.length<2?'Add at least 2 legs':q.ok?'Lock parlay at '+fo(q.odds):'A leg is locked'}</button><button class="ghost" data-a="close">Keep building</button>`}
   return''}
 
 /* ---------- render ---------- */
 let html={},rankToast=0;const BOOT=Date.now();
 function put(id,h){if(html[id]!==h){html[id]=h;$(id).innerHTML=h}}
-function render(){const M=model();put('hdr',vHdr(M));put('view',tab==='live'?vLive(M):tab==='board'?vBoard(M):tab==='picks'?vPicks(M):vLadder(M));put('tabs',vTabs(M));const open=!!sheetMode;$('scrim').hidden=!open;$('sheet').hidden=!open;if(open&&sheetMode==='slip')put('sheet',vSheet(M));
+function render(){const M=model();put('hdr',vHdr(M));put('view',tab==='live'?vLive(M):tab==='board'?vBoard(M):tab==='picks'?vPicks(M):vLadder(M));put('tabs',vTabs(M));const open=!!sheetMode;$('scrim').hidden=!open;$('sheet').hidden=!open;if(open&&(sheetMode==='slip'||sheetMode==='parlay'))put('sheet',vSheet(M));put('plbar',vPlBar(M));$('plbar').hidden=!pl.length;
   const r=ladder(M).find(x=>x.me).rank;if(lastRank&&r!==lastRank&&me.handle&&Date.now()-BOOT>20000&&Date.now()-rankToast>9000){rankToast=Date.now();const rs=ladder(M);if(r<lastRank){const u=rs[r];toast(`Up to #${r}. You passed ${u?u.name:'the field'}.`)}else{const u=rs[r-2];toast(`Down to #${r}. ${u?u.name:'Someone'} passed you.`)}}lastRank=r}
 function openSheet(m){sheetMode=m;html.sheet=null;$('sheet').innerHTML=vSheet(model());html.sheet=$('sheet').innerHTML;$('scrim').hidden=false;$('sheet').hidden=false}
 function closeSheet(){sheetMode=null;slip=null;$('scrim').hidden=true;$('sheet').hidden=true}
-let tickT=0;function tick(){if(tickT)return;tickT=setTimeout(()=>{tickT=0;const M=model();settle(M);duel(M);render()},60)}
+let tickT=0;function tick(){if(tickT)return;tickT=setTimeout(()=>{tickT=0;const M=model();scoreAlert(M);settle(M);duel(M);render()},60)}
 
 /* tap handling survives re-renders: act on the element under pointerdown */
 let dn=null;
@@ -440,8 +468,13 @@ function act(d){switch(d.a){
   case'add':slip.stake=Math.min(me.cash,slip.stake+ +d.v);render();break;
   case'max':slip.stake=Math.floor(me.cash);render();break;
   case'clr':slip.stake=0;render();break;
+  case'goPicks':tab='picks';window.scrollTo(0,0);render();break;
   case'confirm':if(place(slip.sp,slip.stake))closeSheet();break;
   case'cash':cashOut(d.id);break;
+  case'addleg':{if(plConflict(slip.sp)){toast('That market is already in your parlay.');break}pl.push(slip.sp);closeSheet();render();break}
+  case'rmleg':pl.splice(+d.v,1);if(!pl.length)closeSheet();render();break;
+  case'plopen':slip={stake:Math.min(defaultStake,me.cash)};openSheet('parlay');break;
+  case'plgo':if(placeParlay(slip.stake))closeSheet();break;
   case'rebuy':{const p=game().period;if(me.rebuyQ===p||me.cash>=5)break;me.rebuyQ=p;me.debt=(me.debt||0)+250;me.cash+=250;save();toast('Rebuy: $250 added, $250 off your score');render();break}
   case'changes':openSheet('changes');break;
   case'close':closeSheet();break;

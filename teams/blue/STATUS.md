@@ -1,7 +1,7 @@
 # Team blue status
 
-version: v2
+version: v3
 url: https://mclovin-codes.github.io/live-lab/teams/blue/
-what changed: standalone page, no capabilities. 30 labelled simulated players, Drive Duel, named rank alerts, rebuy, and a real feed fix: browser cache was serving plays minutes old, now no-store plus direct pull of the newest play.
-testing next: v3. Same-game parlays, open picks strip above the snap cards, live settle of real snap bets through a full drive.
-blocked: nothing. Real players need a shared backend, so the field is simulated and labelled.
+what changed: same-game parlays with live leg tracking and cash out, open picks strip on top of Live, full-screen scoring alerts, cleaner last play banner.
+testing next: v4. Red-zone and 4th-down moment markets, quarter race on the ladder, halftime recap, first real settle checks through a full drive.
+blocked: nothing. Field is simulated and labelled because the brief change removed shared storage. Parlay and final grading verified with test specs; real picks not yet settled through a live drive.
