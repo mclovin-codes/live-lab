@@ -1,39 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Live Lab Hub</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
 <style>
   /* Layout: one column of team cards under a live scoreline strip; built for a phone held in a dark room during the game. */
   :root {
-    --bg: #0e1116;
-    --panel: #171c24;
-    --line: #26303d;
-    --fg: #e8ecf1;
-    --muted: #8a97a8;
-    --accent: #f2b63d;
-    --red: #e5533d;
-    --blue: #3d8ef0;
-    --gold: #f2b63d;
-    --live: #3ddc84;
+    --bg: #0e1116; --panel: #171c24; --line: #26303d; --fg: #e8ecf1; --muted: #8a97a8;
+    --accent: #f2b63d; --red: #e5533d; --blue: #3d8ef0; --gold: #f2b63d; --live: #3ddc84;
     --font-display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
     --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
     --font-mono: "IBM Plex Mono", Consolas, monospace;
     color-scheme: dark;
   }
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme="dark"]) {
-      --bg: #f4f5f7; --panel: #ffffff; --line: #d9dee6; --fg: #141921; --muted: #5d6877;
-      --accent: #b87a0c; --gold: #b87a0c; --live: #1f9d57; color-scheme: light;
-    }
-  }
-  :root[data-theme="light"] {
-    --bg: #f4f5f7; --panel: #ffffff; --line: #d9dee6; --fg: #141921; --muted: #5d6877;
-    --accent: #b87a0c; --gold: #b87a0c; --live: #1f9d57; color-scheme: light;
-  }
-  html, body { height: 100%; }
+  html, body { height: 100%; margin: 0; }
   body {
-    background: var(--bg); color: var(--fg); font-family: var(--font-body);
+    background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px;
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-block: 12px 32px; max-width: 640px; margin: 0 auto;
+    padding-block: max(12px, env(safe-area-inset-top, 0px)) 32px; max-width: 640px; margin: 0 auto; box-sizing: border-box;
   }
   header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   h1 { font-family: var(--font-display); font-size: 2rem; font-weight: 700; letter-spacing: .02em; margin: 0; text-transform: uppercase; }
@@ -47,8 +34,8 @@
   .team h2 { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; margin: 0; text-transform: uppercase; letter-spacing: .03em; flex: 1; }
   .ver { font-family: var(--font-mono); font-size: .85rem; padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
   .ver.has { color: var(--fg); border-color: var(--accent); }
-  .open { display: inline-block; text-align: center; padding: 12px 16px; border-radius: 8px; font-weight: 600; text-decoration: none; color: #0e1116; background: var(--accent); }
-  .open.wait { background: var(--line); color: var(--muted); pointer-events: none; }
+  .open { display: block; text-align: center; padding: 12px 16px; border-radius: 8px; font-weight: 600; text-decoration: none; color: #0e1116; background: var(--accent); }
+  .open.wait { background: var(--line); color: var(--muted); }
   dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: .95rem; }
   dt { color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; padding-top: 3px; }
   dd { margin: 0; min-width: 0; }
@@ -57,8 +44,8 @@
   .foot { margin-top: 20px; color: var(--muted); font-size: .8rem; line-height: 1.5; }
   .updated { font-family: var(--font-mono); }
 </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
-
+</head>
+<body>
 <header>
   <h1>Live Lab</h1>
   <div class="score" id="score">CHI at SEA <span class="live">LIVE</span></div>
@@ -66,15 +53,15 @@
 
 <div class="teams" id="teams"></div>
 
-<p class="foot">Three teams, one game, one brief. Each card shows the version that team last published and what it is testing now. Tap Open to play that team's page. Hub updated <span class="updated" id="updated"></span> ET.</p>
+<p class="foot">Three teams, one game, one brief. Each card shows the version that team last shipped and what it is testing now. Tap Open to play that team's page (reload it to get the newest version). Hub updated <span class="updated" id="updated"></span> ET.</p>
 
 <script>
   const TEAMS = [
-    { key: "red",  name: "Team Red",  version: "", url: "", changed: "Reading the brief and the ESPN feeds. First page due by 9:00 PM ET.", testing: "First publish.", log: [] },
-    { key: "blue", name: "Team Blue", version: "", url: "", changed: "Reading the brief and the ESPN feeds. First page due by 9:00 PM ET.", testing: "First publish.", log: [] },
-    { key: "gold", name: "Team Gold", version: "", url: "", changed: "Reading the brief and the ESPN feeds. First page due by 9:00 PM ET.", testing: "First publish.", log: [] },
+    { key: "red",  name: "Team Red",  version: "", url: "https://mclovin-codes.github.io/live-lab/teams/red/",  changed: "Building. Page link goes live with the first ship.", testing: "First ship.", log: [] },
+    { key: "blue", name: "Team Blue", version: "", url: "https://mclovin-codes.github.io/live-lab/teams/blue/", changed: "Building. Page link goes live with the first ship.", testing: "First ship.", log: [] },
+    { key: "gold", name: "Team Gold", version: "", url: "https://mclovin-codes.github.io/live-lab/teams/gold/", changed: "Building. Page link goes live with the first ship.", testing: "First ship.", log: [] },
   ];
-  const UPDATED = "8:41 PM";
+  const UPDATED = "9:12 PM";
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   document.getElementById("updated").textContent = UPDATED;
   document.getElementById("teams").innerHTML = TEAMS.map(t => `
@@ -84,7 +71,7 @@
         <h2>${esc(t.name)}</h2>
         <span class="ver ${t.version ? "has" : ""}">${t.version ? esc(t.version) : "building"}</span>
       </div>
-      ${t.url ? `<a class="open" href="${esc(t.url)}">Open ${esc(t.name)}</a>` : `<span class="open wait">No page yet</span>`}
+      <a class="open ${t.version ? "" : "wait"}" href="${esc(t.url)}">${t.version ? "Open " + esc(t.name) : "Open (placeholder until first ship)"}</a>
       <dl>
         <dt>Changed</dt><dd>${esc(t.changed)}</dd>
         <dt>Testing</dt><dd>${esc(t.testing)}</dd>
@@ -105,3 +92,5 @@
   }
   score(); setInterval(score, 10000);
 </script>
+</body>
+</html>
