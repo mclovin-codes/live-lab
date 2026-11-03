@@ -120,17 +120,30 @@ ul{margin:0;padding-left:20px}li{margin:6px 0}li::marker{color:var(--acc)}
   </section>
 
   <section class="card" id="survey">
-    <h2>What the simulated Field said</h2>
-    <p class="note" id="surveyText">Survey results from the chief of staff go here.</p>
+    <h2>What the Field and the board said</h2>
+    <div class="num">
+      <div class="n"><b>4.33</b><span>Blue, mean score on "I would stay during the fourth quarter" (7 of 12 simulated players picked it)</span></div>
+      <div class="n"><b>3.92</b><span>Gold (4 of 12)</span></div>
+      <div class="n"><b>2.83</b><span>Red (1 of 12)</span></div>
+    </div>
+    <ul>
+      <li><b>Brings players back:</b> the path to #1 with fresh quarter and drive races, one-tap next snap on every play, alt-line steppers, the storylines rail, the Stats tab and the Lounge.</li>
+      <li><b>Drives players off:</b> markets locked during live play (5 of 12), picks declined after the tap (2), a simulated Field with no real rivals (2).</li>
+      <li><b>Neutral board:</b> the product head and design seat voted Red, the sportsbook seat and skeptic voted Blue. Blue became the base because it refuses at placement and never voids.</li>
+      <li><b>Merged from each team:</b> Red's key-number margins, stoppage break board and five-tab bar. Blue's placement check, line steppers and win probability chart. Gold's countdown chip, storylines rail, odds-change setting and one-second feed check.</li>
+    </ul>
+    <p class="note">Source: reviews/BOARD-AND-SURVEY.md. Pages were judged from code and status files, not on a phone.</p>
   </section>
 
   <section class="card">
     <h2>Gaps still open</h2>
     <ul>
-      <li><b>Data speed is the ceiling.</b> ESPN's free feed lands about 20s after the play, so next-play markets often cannot open after a run or catch. The book's own feed beats ESPN but still arrived about 14s after the snap tonight.</li>
-      <li><b>The Field is simulated.</b> SIM players stand in for real players. Shared picks, chat and ranks need the Rush backend.</li>
-      <li><b>Props lean on models.</b> The fits beat a baseline on 2025 data, but yards overs read slightly low. Book prop prices would be better.</li>
-      <li><b>No real-phone test yet.</b> Checked at phone size in a browser, not on an iPhone in the hand.</li>
+      <li><b>Data speed is the ceiling.</b> ESPN's free feed lands about 20s after the play, so next-play markets often cannot open after a run or catch. Game lines stay beatable 9 to 18s after a snap until the book's tick lands. No free signal fixes it; a licensed feed is a pending business decision.</li>
+      <li><b>The Field is simulated.</b> No shared Stack, Slip or Field, and nothing wired to the Rush engine yet.</li>
+      <li><b>Pricing is short of a book's method in places.</b> Missing: key numbers on totals, correlation blocks on parlays, and anytime TD holds at book levels.</li>
+      <li><b>Copy needs a full Rush lexicon pass</b> before anything touches the app.</li>
+      <li><b>Brand type and colour drift.</b> Fonts and the danger red need matching to the app's current tokens.</li>
+      <li><b>No real-phone test yet</b> by any team.</li>
     </ul>
   </section>
 
