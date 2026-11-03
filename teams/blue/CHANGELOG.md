@@ -1,5 +1,11 @@
 # Team blue changelog
 
+## v15 (Phase 2)
+- Stats tab: team box score side by side, and passing, rushing, receiving, defense and kicking for both teams with headshots, live from the push-fed game doc.
+- Injuries: pregame designations from the injuries block, and in-game injuries parsed from play text ("was injured during the play", plus questionable/doubtful/out to return when stated). Each shows Returned with the time of the first play he is back in, Has not returned, or Did not return at the final. A toast fires on a new in-game injury.
+- The Lounge: the simulated Field (labelled SIM) posts about real plays, scores, turnovers, the clock and their own picks; the player can post and the Field replies. Unread badge on the tab.
+- No book brand names anywhere a player sees. Tabs now Live, Board, Stats, Lounge, Slip; Ranks opens from the header rank pill.
+
 ## v14
 - Bug: since v7 a CSS rule for the matchup tail and fade buttons (.two) also matched every two-column price grid (.tbl.two), turning alt spreads, alt totals, team totals, quarter lines and props into one long row of tiny buttons. Renamed it; grids are two columns again at phone and desktop widths.
 - Pick your own number: a stepper (minus, line, plus, half-point steps, reset to main) for alt spread, alt total, and each team total, live during the game. Both sides reprice on every tick at the chosen line. Below it, the ladder in readable rows: line, then the two prices.
