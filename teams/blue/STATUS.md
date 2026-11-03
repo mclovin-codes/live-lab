@@ -1,8 +1,8 @@
 # Team blue status
 
-version: v12
+version: v13
 url: https://mclovin-codes.github.io/live-lab/teams/blue/
-what changed: iOS rebuild in Rush colours from three consultant reports: logos, headshots, icon tab bar, segmented Board, sliding sheets, locked lines with last price, countdown bar on every timed market, 10 minute halftime window, timeout pips, trailing-team needs line, Watch sheet.
+what changed: collapsing scoreboard; winning margin market (1-6, 7-12, 13+, tie; OT counts; 10% hold; gated).
 testing now: a probe in a test browser tries a 1-Stack chains pick every 3 seconds through the second half to count how often the window is open, how often placement fails and why, and whether any accepted pick lands after a snap.
 
 ## Fair play
@@ -29,6 +29,7 @@ Hold convention: each side's fair probability p is scaled to p x (1 + hold) and 
 | Moves the chains | nflverse fit series_convert by down, distance, field position. | 6% |
 | 4th down go or kick | nflverse fit fourth_go by distance, field position, late-and-trailing. | 6% |
 | This drive TD, FG, no score | nflverse fit drive_result by down, distance, field position, half time left. | 7% |
+| Winning margin (1-6, 7-12, 13+, tie) | Band probability from the alt-spread margin model with half-point continuity. | 10% |
 | Next score (team and TD/FG, or none) | nflfastR next-score model probabilities averaged by state (next_score fit). | 10% |
 
 Timed markets (next play, 4th down, chains, this drive, next score, anytime TD, player props) are open only inside the fair window and only after a placement check passes; see the fair-play section.

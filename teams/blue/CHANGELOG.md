@@ -1,5 +1,9 @@
 # Team blue changelog
 
+## v13
+- Scoreboard collapses to a slim bar on scroll (iOS large-title pattern from the UI seat).
+- Winning margin market from the NFL seat: each team by 1-6, 7-12, 13+, or tie, overtime included. Priced from the same normal margin model as alt spreads (DK-anchored mean and sd), 10% hold, gated by the fair window. Shown on Board and on Live in the 4th quarter.
+
 ## v12
 - Founder 9:58 PM. Three consulting subagents (NFL, sportsbook, gaming iOS UI) reported; this version takes their top items.
 - Rush colours (#00BFFF on #0B1118, cards #121A23 and #1A2530), iOS system font, borderless 16px cards, sentence-case headings.
