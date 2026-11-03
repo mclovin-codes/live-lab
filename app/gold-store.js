@@ -30,13 +30,15 @@
   GS.card = (id, name) => `<a class="g-plink" href="player.html?u=${encodeURIComponent(id)}">${escH(name)}</a>`;
   GS.idOf = name => { const r = R.field().find(x => x.name === name); return r ? r.id : null; };
   // Commissioner mode: Red's pages and Blue's store. Page names live here so one edit retargets every door.
-  GS.CPAGE = { create: 'contest-new.html', list: 'contests.html', one: id => 'contest.html?c=' + encodeURIComponent(id), join: code => 'contests.html?join=' + encodeURIComponent(code) };
-  const C = () => R.contests || null;
+  GS.CPAGE = { create: 'contests.html?new=1', list: 'contests.html', one: id => 'contest.html?c=' + encodeURIComponent(id), invite: i => 'contest.html?i=' + encodeURIComponent(i) };
+  // Red's contest kit (app/contest-kit.js, window.RC) first; Blue's Rush.contests if the kit is not on the page.
+  const C = () => window.RC || R.contests || null;
   const arr = v => Array.isArray(v) ? v : [];
   GS.contests = {
     ready() { return !!C(); },
-    mine() { const c = C(); if (!c) return []; try { return arr(c.mine ? c.mine() : c.list ? c.list().filter(x => x.joined || x.mine || x.owner === 'me' || x.commish) : []); } catch (e) { return []; } },
-    open() { const c = C(); if (!c) return []; try { return arr(c.public ? c.public() : c.list ? c.list().filter(x => x.public || x.visibility === 'public') : []); } catch (e) { return []; } },
+    mine() { const c = C(); if (!c) return []; try { return arr(c.list ? c.list() : []).filter(x => x.status !== 'archived'); } catch (e) { return []; } },
+    open() { const c = C(); if (!c) return []; try { return arr(c.publicList ? c.publicList() : []); } catch (e) { return []; } },
+    join(code) { const c = C(); if (!c || !c.join) return null; try { return c.join(code); } catch (e) { return null; } },
     name(x) { return x.name || x.title || 'Contest'; },
     count(x) { return x.entrants ? (Array.isArray(x.entrants) ? x.entrants.length : x.entrants) : (x.field ? arr(x.field).length : null); }
   };

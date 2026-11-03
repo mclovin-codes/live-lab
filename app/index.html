@@ -89,6 +89,8 @@ a{color:inherit}
 <div id="g-scrim" hidden></div><div id="g-sheet" hidden></div><div id="g-flash" hidden></div>
 <nav id="g-nav"></nav>
 <script src="shared/state.js"></script>
+<script src="week-games.js"></script>
+<script src="contest-kit.js"></script>
 <script src="shared/nav.js"></script>
 <script src="gold-store.js"></script>
 <script>
@@ -130,7 +132,11 @@ function contestsCard(){const P=GS.CPAGE,mine=GS.contests.mine(),open=GS.contest
   ${mine.slice(0,3).map(x=>`<a class="g-ref" href="${P.one(x.id)}" style="text-decoration:none"><b>${esc(GS.contests.name(x))}</b><small>${x.public||x.visibility==='public'?'PUBLIC':'PRIVATE'}${GS.contests.count(x)!=null?' · '+GS.contests.count(x)+' IN':''}</small></a>`).join('')}
   ${open.length?`<div class="g-eyebrow">Open to join</div>${open.map(x=>`<a class="g-ref" href="${P.one(x.id)}" style="text-decoration:none"><b>${esc(GS.contests.name(x))}</b><small>${GS.contests.count(x)!=null?GS.contests.count(x)+' IN':'PUBLIC'}</small></a>`).join('')}`:''}
   <div class="g-note">Pick the sports, days, Stack, markets and scoring. Public contests list here. Private ones join by code or link.</div></div>`}
-document.addEventListener('submit',e=>{if(e.target.id!=='g-joinf')return;e.preventDefault();let v=(($('g-code')||{}).value||'').trim();if(!v)return;const m=v.match(/[?&](?:join|c|code)=([^&#]+)/);if(/^https?:/i.test(v)&&!m){location.href=v;return}const code=m?decodeURIComponent(m[1]):v;const C=window.Rush&&Rush.contests;if(C&&C.join){try{const r=C.join(code);if(r&&r.id){location.href=GS.CPAGE.one(r.id);return}}catch(err){}}location.href=GS.CPAGE.join(code)});
+document.addEventListener('submit',e=>{if(e.target.id!=='g-joinf')return;e.preventDefault();const v=(($('g-code')||{}).value||'').trim();if(!v)return;
+  const inv=v.match(/[?&]i=([^&#\s]+)/);if(inv){location.href=GS.CPAGE.invite(decodeURIComponent(inv[1]));return}
+  const cid=v.match(/[?&]c=([^&#\s]+)/);if(cid){location.href=GS.CPAGE.one(decodeURIComponent(cid[1]));return}
+  const r=GS.contests.join(v.toUpperCase());if(r&&r.id){location.href=GS.CPAGE.one(r.id);return}
+  flash('No contest with that code on this phone yet. Ask for the invite link.')});
 function render(){const ae=document.activeElement;if(ae&&(ae.id==='g-code'||ae.id==='g-name'||ae.id==='g-refname'))return;const me=GS.me(),now=Date.now(),entered=GS.entered();const live=GAMES.filter(g=>g.state==='in'),next=GAMES.filter(g=>g.state==='pre').slice(0,8);
   let h=`<div class="g-top"><h1>Rush</h1><span class="g-chip">Week ${W.n}</span>${entered?`<span class="g-stack">${GS.fmt(me.stack)} <small>Stack</small></span>`:''}</div>`;
   h+=loungeLine();
