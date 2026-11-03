@@ -43,3 +43,17 @@ What this means:
 4. Navigation and flow: the team may redesign; keep the five Rush tabs as the frame unless the redesign is clearly better, and say why in STATUS.md.
 
 Roles: Blue the Slip and pick sheet in game.html and the shared nav; Gold Home as the hub and slips.html; Red the player card (player.html) and its links from Ranks, with Gold and Blue linking from their pages.
+
+## Addendum, 2026-11-03 2:20 AM ET (founder, verbatim): commissioner mode
+
+"We also need to make space for where the commissioner mode will live and how exactly a user can create their own contest public or private that they get their own settings schedule rules to choose from and a leaderboard and final results sheet if they want to track anything off app."
+
+What this means (Rush words on screen: a contest's table is its Ranks, never "leaderboard"; the Field, never "pool"):
+1. A place for it. The team decides where commissioner mode lives (a door on Home, a Contests area, a tab); say why in STATUS.md.
+2. Create a contest: name, public or private (private joins by code or link), schedule (which days, sports or games of the week it covers, when entry closes), rules to choose from (Stack per entry, markets allowed: game lines only, props, parlays, live picks; Reload allowed or not; scoring on Units or on record; ties), and who can see it.
+3. Join: public contests listed and joinable; private by code or link. In this static app the contest's settings travel inside the invite link so a friend's phone can open it with no backend; the Field inside a contest is simulated and labelled until the Rush engine hosts it.
+4. The contest's Ranks: standings on the contest's own scoring, live during games, with the week and the final.
+5. Final results sheet: a results page per contest at the close (every entrant, picks settled, Units, finish) that the commissioner can share as a link, save as a CSV, or print, for tracking off the app.
+6. Commissioner tools: edit settings before entry closes, remove an entrant, void a pick with a reason, close the contest, archive it.
+
+Roles: Blue extends the shared store with contests (create, join, settings, scoring, results) and the invite-link encoding; Red builds the commissioner and contest pages (create, manage, Ranks, results sheet with CSV and print); Gold places the doors on Home and gives each contest a Lounge thread.
