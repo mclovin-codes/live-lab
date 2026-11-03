@@ -61,6 +61,38 @@
  * (pick.live drives its "live" rule). Rush.contests (plural) is deliberately not provided, so RC keeps its own
  * store. Rush.contest below is a separate wallet-per-contest model no page uses yet; its ?c= link is not RC's.
  *
+ * CONTEST RULES (store side of the 2:55 AM addendum; RC keeps these on c.rules, Red's forms set them)
+ *   Rush.rules.norm(r)   -> clamped copy: {stakeMin (0 = none), stakeMax (null = No max), lineMin, lineMax, slipMin, slipMax
+ *                           (American odds or null = no limit; min = shortest price allowed, -200 refuses -250; max = longest,
+ *                           +500 refuses +600; min and max swap if typed the wrong way round), injury:'none'|'h1'|'full',
+ *                           fields:[joiner field keys], showFields:'commish'|'contest', size (typed Field size, 2..1000),
+ *                           stack (typed Stack per entry, 1..1,000,000)}. Call it on create, update and decode.
+ *   Rush.rules.check(r, pick) -> {ok} or {ok:false, why}. pick = {stake, odds, label, legs?:[{odds, label}]}. Stake against
+ *                           stakeMin/stakeMax; each line (a single, or every parlay leg) against lineMin/lineMax; the slip's
+ *                           total odds against slipMin/slipMax. why reads like "Stake over the 50 maximum".
+ *   At placement game.html runs check() for every RC contest the pick would count in (sport, day, markets) and shows
+ *   "Counts in X" or "Not counted in X: why" on the Slip as you type. The pick still goes on the weekly Slip;
+ *   it is stamped pick.ex = {contestId: why} for each contest it misses, and RC must not count it there.
+ *   Rush.rules.result(r, pick) -> {status, units, note?}: the pick's result inside a contest. With injury protection a
+ *                           player prop (prop, td) whose player left injured and did not return is void, units 0
+ *                           (h1: left before halftime; full: any time). In a parlay that leg is dropped and the rest
+ *                           rescored. Game lines are never protected. The weekly Slip result does not change.
+ *   pick.inj (and leg.inj on parlays) = {exit:true, half:1|2, at:'Q2 3:10', returned, who}: set by grade.sync on props
+ *                           whose player had an injury exit. Rush.grade.injuryExits(summary, league) is the parser.
+ *                           NFL play text says "SEA-L.Williams was injured during the play" and "Injury Update: CHI-J.Johnson
+ *                           has returned to the game"; any later play naming him also counts as a return. NBA and NHL feeds
+ *                           rarely say "injured", so there protection only applies when the text does.
+ *
+ * JOINER FIELDS (optional handles a joiner shares with the commissioner; text only, never a link, no "$" shown)
+ *   Rush.joiner.FIELDS   -> [{k:'cashapp',label:'Cash App'}, venmo, applepay, zelle, paypal, {k:'note',label:'Note'}]
+ *   Rush.joiner.NOTE     -> "Handles are shared with the commissioner. Rush moves no money." (show it on the join form)
+ *   Rush.joiner.clean(f, allowed) -> only allowed keys; handles drop a leading $ or @, links, tags and odd characters
+ *                           (60 chars); note drops tags and "$" (140 chars). Run on every value before storing or showing.
+ *   Rush.joiner.get() / set(f)    -> this phone's saved handles, to prefill the join form.
+ *   Rush.joiner.card(contestId, f, allowed) -> code a joiner sends the commissioner (no backend);
+ *   Rush.joiner.readCard(code, allowed)     -> {contest, name, fields, at} cleaned, or null.
+ *   The app never links to a payment, never computes a payout and never says "pay".
+ *
  * Rush.contest (commissioner mode). No backend: a contest lives in each member's browser, and the invite link carries
  * the whole contest (name, schedule, rules) inside the URL, so a friend's phone builds the same contest from the link.
  * Each member sees their own picks plus the contest's SIM Field (seeded by the contest id, identical on every phone)
@@ -186,16 +218,22 @@
     const r = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${SPORT[league]}/summary?event=${id}&_=${Date.now()}`, { cache: 'no-store' }); const s = await r.json();
     const c = s.header && s.header.competitions[0]; if (!c) return null; const st = c.status.type, side = x => c.competitors.find(t => t.homeAway === x) || {};
     const ls = t => (t.linescores || []).map(l => +(l.displayValue || l.value || 0));
-    return { done: !!st.completed, hs: +side('home').score || 0, as: +side('away').score || 0, line: { home: ls(side('home')), away: ls(side('away')) }, box: parseBox(s) };
+    let exits = {}; try { exits = injuryExits(s, league); } catch (e) {}
+    return { done: !!st.completed, hs: +side('home').score || 0, as: +side('away').score || 0, line: { home: ls(side('home')), away: ls(side('away')) }, box: parseBox(s), exits };
   }
+  /* injury exit facts on a graded prop (pick or leg), read by contests with injury protection */
+  const tagInj = (x, f) => { if (f && f.done && isProp(x.spec) && x.spec.aid && f.exits && f.exits[x.spec.aid]) x.inj = f.exits[x.spec.aid]; };
   async function sync() {
     const open = picks({ status: 'open', contest: '*' }); const games = new Map();
-    open.forEach(p => (p.legs || [p]).forEach(x => { if (x.league && x.gameId) games.set(x.league + ':' + x.gameId, [x.league, x.gameId]); }));
+    // parlays settled lost early still grade their open legs, so a contest's injury protection can rescore them
+    const tail = picks({ contest: '*' }).filter(p => p.status !== 'open' && p.legs && p.legs.some(l => !l.st || l.st === 'open'));
+    open.concat(tail).forEach(p => (p.legs || [p]).forEach(x => { if (x.league && x.gameId) games.set(x.league + ':' + x.gameId, [x.league, x.gameId]); }));
     const finals = {}; for (const [k, [lg, id]] of games) { try { finals[k] = await finalOf(lg, id); } catch (e) {} }
     let n = 0;
+    tail.forEach(p => { let ch = false; p.legs.forEach(l => { if (l.st && l.st !== 'open') return; const f = finals[l.league + ':' + l.gameId], r = finalGrade(l.spec, f); if (r) { l.st = r; tagInj(l, f); ch = true; } }); if (ch) save(); });
     open.forEach(p => {
-      if (p.legs) { let ch = false; p.legs.forEach(l => { if (l.st && l.st !== 'open') return; const r = finalGrade(l.spec, finals[l.league + ':' + l.gameId]); if (r) { l.st = r; ch = true; } }); if (ch) save(); if (p.legs.some(l => l.st === 'lost')) { settle(p.id, 'lost'); n++; return; } if (p.legs.some(l => !l.st || l.st === 'open')) return; const won = p.legs.filter(l => l.st === 'won'); if (!won.length) { settle(p.id, 'push', 'All legs pushed'); n++; return; } const d = won.reduce((a, l) => a * fmt.dec(l.odds), 1), odds = d >= 2 ? Math.round((d - 1) * 100) : Math.round(-100 / (d - 1)); settle(p.id, 'won', won.length < p.legs.length ? 'Pushed legs removed' : '', p.stake + fmt.toWin(p.stake, odds)); n++; return; }
-      const r = finalGrade(p.spec, finals[p.league + ':' + p.gameId]); if (r) { settle(p.id, r, r === 'void' ? 'Did not play' : 'Final'); n++; }
+      if (p.legs) { let ch = false; p.legs.forEach(l => { if (l.st && l.st !== 'open') return; const f = finals[l.league + ':' + l.gameId], r = finalGrade(l.spec, f); if (r) { l.st = r; tagInj(l, f); ch = true; } }); if (ch) save(); if (p.legs.some(l => l.st === 'lost')) { settle(p.id, 'lost'); n++; return; } if (p.legs.some(l => !l.st || l.st === 'open')) return; const won = p.legs.filter(l => l.st === 'won'); if (!won.length) { settle(p.id, 'push', 'All legs pushed'); n++; return; } const d = won.reduce((a, l) => a * fmt.dec(l.odds), 1), odds = d >= 2 ? Math.round((d - 1) * 100) : Math.round(-100 / (d - 1)); settle(p.id, 'won', won.length < p.legs.length ? 'Pushed legs removed' : '', p.stake + fmt.toWin(p.stake, odds)); n++; return; }
+      const f = finals[p.league + ':' + p.gameId], r = finalGrade(p.spec, f); if (r) { tagInj(p, f); settle(p.id, r, r === 'void' ? 'Did not play' : 'Final'); n++; }
     });
     return n;
   }
@@ -248,12 +286,90 @@
   function results(id) { const w = CW(id), c = w ? w.contest : publicContests().find(p => p.id === id); if (!c) return null; const rows = cranks(id), final = contestPhase(c) === 'closed', top = rows.filter(r => r.rank === 1); const csv = ['rank,name,sim,units,wins,losses'].concat(rows.map(r => [r.rank, '"' + String(r.name).replace(/"/g, '""') + '"', r.sim ? 'yes' : r.friend ? 'friend card' : 'you', r.units, r.w, r.l].join(','))).join('\n'); return { contest: c, final, closedAt: c.schedule.to, winners: final ? top.map(r => r.name) : [], rows, csv, filename: c.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-results.csv' }; }
   function contests() { return Object.values(S.contests || {}).map(w => Object.assign({}, w.contest, { phase: contestPhase(w.contest), mine: cmine(w.contest.id), owner: !!w.owner, link: inviteLink(w.contest) })).sort((a, b) => a.schedule.to - b.schedule.to); }
 
+  /* ---------- contest rules for Red's contest-kit.js: stake and odds limits, injury protection, joiner fields ---------- */
+  const amer = x => { if (x === null || x === undefined || x === '') return null; const n = Math.round(+x); return isFinite(n) && Math.abs(n) >= 100 && Math.abs(n) <= 100000 ? n : null; };
+  const numIn = (x, lo, hi, d) => { if (x === null || x === undefined || x === '') return d; const n = +x; return isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
+  const INJ = ['none', 'h1', 'full'];
+  const JFIELDS = [{ k: 'cashapp', label: 'Cash App' }, { k: 'venmo', label: 'Venmo' }, { k: 'applepay', label: 'Apple Pay' }, { k: 'zelle', label: 'Zelle' }, { k: 'paypal', label: 'PayPal' }, { k: 'note', label: 'Note' }];
+  function normRules(r) {
+    r = r || {}; const fk = JFIELDS.map(f => f.k);
+    const o = { stakeMin: Math.round(numIn(r.stakeMin, 0, 1e6, 0) * 100) / 100, stakeMax: r.stakeMax == null || r.stakeMax === '' ? null : Math.round(numIn(r.stakeMax, 1, 1e6, 1e6) * 100) / 100,
+      lineMin: amer(r.lineMin), lineMax: amer(r.lineMax), slipMin: amer(r.slipMin), slipMax: amer(r.slipMax),
+      injury: INJ.includes(r.injury) ? r.injury : 'none',
+      fields: Array.isArray(r.fields) ? fk.filter(k => r.fields.includes(k)) : [], showFields: r.showFields === 'contest' ? 'contest' : 'commish',
+      size: Math.round(numIn(r.size, 2, 1000, 12)), stack: Math.round(numIn(r.stack, 1, 1e6, 1000)) };
+    if (o.stakeMax != null && o.stakeMax < o.stakeMin) o.stakeMax = o.stakeMin;
+    [['lineMin', 'lineMax'], ['slipMin', 'slipMax']].forEach(([a, b]) => { if (o[a] != null && o[b] != null && fmt.dec(o[a]) > fmt.dec(o[b])) { const t = o[a]; o[a] = o[b]; o[b] = t; } });
+    return o;
+  }
+  /* min odds = the shortest price allowed (-200 refuses -250), max odds = the longest (+500 refuses +600); compared as decimals */
+  function checkRules(r, p) {
+    r = normRules(r); const no = why => ({ ok: false, why }), st = +p.stake || 0, fo = fmt.odds, dec = fmt.dec;
+    if (st < r.stakeMin - 1e-9) return no('Stake under the ' + fmt.stack(r.stakeMin) + ' minimum');
+    if (r.stakeMax != null && st > r.stakeMax + 1e-9) return no('Stake over the ' + fmt.stack(r.stakeMax) + ' maximum');
+    for (const l of (p.legs && p.legs.length ? p.legs : [p])) {
+      if (l.odds == null) continue; const d = dec(l.odds), lab = l.label || 'A line';
+      if (r.lineMin != null && d < dec(r.lineMin) - 1e-9) return no(lab + ' at ' + fo(l.odds) + ' is shorter than the ' + fo(r.lineMin) + ' line limit');
+      if (r.lineMax != null && d > dec(r.lineMax) + 1e-9) return no(lab + ' at ' + fo(l.odds) + ' is longer than the ' + fo(r.lineMax) + ' line limit');
+    }
+    if (p.odds != null) { const d = dec(p.odds);
+      if (r.slipMin != null && d < dec(r.slipMin) - 1e-9) return no('The slip at ' + fo(p.odds) + ' is shorter than the ' + fo(r.slipMin) + ' slip limit');
+      if (r.slipMax != null && d > dec(r.slipMax) + 1e-9) return no('The slip at ' + fo(p.odds) + ' is longer than the ' + fo(r.slipMax) + ' slip limit'); }
+    return { ok: true };
+  }
+  /* a pick's result inside a contest: injury protection voids a player prop (or a parlay leg) whose player left injured
+     and did not return (h1: left before halftime; full: any time). Weekly Slip results are not changed. */
+  const isProp = sp => !!sp && (sp.k === 'prop' || sp.k === 'td');
+  function contestResult(r, p) {
+    r = normRules(r); const prot = x => r.injury !== 'none' && isProp(x.spec) && x.inj && x.inj.exit && !x.inj.returned && (r.injury === 'full' || x.inj.half === 1);
+    const plain = () => ({ status: p.status, units: p.status === 'open' ? null : ((p.pay || 0) - p.stake) / 10 });
+    const why = x => 'Injury protection: ' + (x.inj.who || 'the player') + ' left injured in ' + x.inj.at + ' and did not return';
+    if (!p.legs) return p.status !== 'open' && prot(p) ? { status: 'void', units: 0, note: why(p) } : plain();
+    const hit = p.legs.filter(prot); if (!hit.length) return plain();
+    const legs = p.legs.map(l => prot(l) ? Object.assign({}, l, { st: 'void' }) : l), note = why(hit[0]);
+    if (legs.some(l => l.st === 'lost')) return { status: 'lost', units: -p.stake / 10, note };
+    if (legs.some(l => !l.st || l.st === 'open')) return { status: 'open', units: null, note };
+    const won = legs.filter(l => l.st === 'won'); if (!won.length) return { status: 'void', units: 0, note };
+    return { status: 'won', units: p.stake * (won.reduce((a, l) => a * fmt.dec(l.odds), 1) - 1) / 10, note };
+  }
+  /* injury exits from the play feed. NFL writes "SEA-L.Williams was injured during the play." and
+     "** Injury Update: CHI-J.Johnson has returned to the game."; a later play naming the player also counts as a return.
+     NBA and NHL feeds rarely say "injured", so there protection only applies when the text does. */
+  const nn = s => String(s || '').toLowerCase().replace(/[^a-z]/g, '');
+  function injuryExits(sum, league) {
+    const byTeam = {}, byName = {}, out = {};
+    // play text names players "L.Williams"; the box has displayName "Leonard Williams", so key on initial + last name (with and without Jr/Sr/II)
+    const keysOf = at => { const d = String(at.displayName || ''), i = d.indexOf(' '), last = i > 0 ? d.slice(i + 1) : d, ini = d.charAt(0); return [nn(at.shortName), nn(d), nn(ini + last), nn(ini + last.replace(/\s+(jr|sr|ii|iii|iv|v)\.?$/i, ''))]; };
+    ((sum.boxscore && sum.boxscore.players) || []).forEach(t => { const ab = t.team && t.team.abbreviation; (t.statistics || []).forEach(g => (g.athletes || []).forEach(a => { const at = a.athlete; if (!at || !at.id) return; new Set(keysOf(at)).forEach(k => { if (!k) return; if (ab) byTeam[ab + ':' + k] = at; (byName[k] = byName[k] || new Set()).add(at); }); })); });
+    const short = at => { if (at.shortName) return at.shortName; const d = String(at.displayName || ''), i = d.indexOf(' '); return i > 0 ? d.charAt(0) + '. ' + d.slice(i + 1) : d; };
+    const find = (ab, raw) => { const k = nn(raw); if (ab && byTeam[ab + ':' + k]) return byTeam[ab + ':' + k]; const s = byName[k]; return s && s.size === 1 ? [...s][0] : null; };
+    const plays = ((sum.drives && sum.drives.previous) || []).flatMap(d => d.plays || []).concat(sum.plays || []);
+    const half = p => { const n = (p.period && p.period.number) || 0; if (league !== 'nhl') return n <= 2 ? 1 : 2; const c = String(p.clock && p.clock.displayValue || '0:00').split(':'); return n === 1 || (n === 2 && (+c[0] * 60 + (+c[1] || 0)) > 600) ? 1 : 2; };
+    const per = p => { const n = (p.period && p.period.number) || 0; return (league === 'nhl' ? 'P' : 'Q') + n + ' ' + ((p.clock && p.clock.displayValue) || ''); };
+    plays.forEach(p => {
+      const t = String(p.text || ''); let m;
+      Object.values(out).forEach(x => { if (!x.returned && x.raw && t.includes(x.raw)) x.returned = true; }); // a new injury line below resets it
+      const rx = /(?:([A-Z]{2,4})-)?([A-Z][A-Za-z.'\-]*(?: [A-Z][A-Za-z.'\-]+)?) (?:was|is) injured/g; while ((m = rx.exec(t))) { const at = find(m[1], m[2]); if (at) out[at.id] = { exit: true, half: half(p), at: per(p).trim(), returned: false, who: short(at), raw: m[2] }; }
+      const rr = /Injury Update: (?:([A-Z]{2,4})-)?([A-Z][A-Za-z.'\-]*(?: [A-Z][A-Za-z.'\-]+)?) has returned/g; while ((m = rr.exec(t))) { const at = find(m[1], m[2]); if (at && out[at.id]) out[at.id].returned = true; }
+    });
+    Object.values(out).forEach(x => delete x.raw); return out;
+  }
+  /* joiner fields: handles a joiner chooses to share with the commissioner. Text only, never a link; no "$" shown. */
+  const cleanField = (k, v) => { let s = String(v == null ? '' : v).replace(/[\u0000-\u001f<>"`]/g, '').replace(/[a-z]+:\/\/|www\./gi, '').trim(); if (k !== 'note') s = s.replace(/^[$@]+/, '').replace(/[^A-Za-z0-9 ._@+\-()]/g, '').slice(0, 60); else s = s.replace(/\$/g, '').slice(0, 140); return s; };
+  function cleanFields(f, allowed) { const keys = JFIELDS.map(x => x.k).filter(k => !allowed || allowed.includes(k)), o = {}; keys.forEach(k => { const v = cleanField(k, f && f[k]); if (v) o[k] = v; }); return o; }
+  function joinerCard(contestId, fields, allowed) { return b64.enc(JSON.stringify({ v: 1, c: String(contestId || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40), n: String(S.handle || 'Player').slice(0, 18), f: cleanFields(fields, allowed), t: Date.now() })); }
+  function readJoinerCard(code, allowed) { try { const j = JSON.parse(b64.dec(String(code).slice(0, 4000))); if (!j || j.v !== 1) return null; return { contest: String(j.c || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40), name: String(j.n || 'Player').replace(/[<>"`]/g, '').slice(0, 18), fields: cleanFields(j.f || {}, allowed), at: +j.t || Date.now() }; } catch (e) { return null; } }
+
   window.Rush = {
     week, weekOf, clock, me, enter, setHandle: n => { S.handle = String(n || '').slice(0, 18); save(); }, stack: () => W().cash, units, reload, canReload,
     place, picks, settle, cashOut, updatePick, field, rival, season, closeWeek,
     settings: () => Object.assign({}, S.settings, { handle: S.handle }), set: (k, v) => { if (k === 'handle') S.handle = v; else S.settings[k] = v; save(); },
     on: fn => { subs.push(fn); return () => subs.splice(subs.indexOf(fn), 1); },
-    fmt, grade: { sync, final: finalGrade, finalOf }, SPORT, _raw: () => S,
+    fmt, grade: { sync, final: finalGrade, finalOf, injuryExits }, SPORT, _raw: () => S,
+    rules: { norm: normRules, check: checkRules, result: contestResult, INJURY: INJ.slice() },
+    joiner: { FIELDS: JFIELDS.map(f => Object.assign({}, f)), NOTE: 'Handles are shared with the commissioner. Rush moves no money.',
+      get: () => Object.assign({}, S.joiner || {}), set: f => { S.joiner = cleanFields(f); save(); return Object.assign({}, S.joiner); },
+      clean: cleanFields, card: joinerCard, readCard: readJoinerCard },
     contest: { MARKETS: MK, SPORTS, create, join, leave, list: contests, publicList: () => publicContests().map(c => Object.assign({}, c, { phase: contestPhase(c), joined: !!CW(c.id), link: inviteLink(c) })), get: id => { const w = CW(id), c = w ? w.contest : publicContests().find(p => p.id === id); return c ? Object.assign({}, c, { phase: contestPhase(c), joined: !!w, mine: cmine(id), link: inviteLink(c) }) : null; }, allows, place: cplace, reload: creload, me: cmine, ranks: cranks, results, card, importCard, encode: encodeContest, decode: decodeContest, link: inviteLink, marketOf },
   };
 })();
