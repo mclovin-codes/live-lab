@@ -1,5 +1,9 @@
 # Team blue changelog
 
+## app, Nov 3 (b19a278)
+- app/game.html: every pick stores live:true|false, so contests can refuse in-game picks when the commissioner turns live picks off.
+- app/shared/state.js: the docs now say the contest pages use Red's RC store (app/contest-kit.js), and that Rush.contests is deliberately not provided.
+
 ## v15 (Phase 2)
 - Stats tab: team box score side by side, and passing, rushing, receiving, defense and kicking for both teams with headshots, live from the push-fed game doc.
 - Injuries: pregame designations from the injuries block, and in-game injuries parsed from play text ("was injured during the play", plus questionable/doubtful/out to return when stated). Each shows Returned with the time of the first play he is back in, Has not returned, or Did not return at the final. A toast fires on a new in-game injury.

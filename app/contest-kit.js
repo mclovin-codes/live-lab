@@ -17,7 +17,27 @@ const unb64=s=>JSON.parse(decodeURIComponent(escape(atob(s.replace(/-/g,'+').rep
 
 const DEFAULT_RULES={stack:1000,markets:{lines:true,props:true,parlays:true,live:true},reload:true,scoring:'units',ties:'split'};
 function weekDays(){const w=RW.week();return RW.days(w)}
-function normalize(c){c.rules=Object.assign({},DEFAULT_RULES,c.rules||{});c.rules.markets=Object.assign({},DEFAULT_RULES.markets,(c.rules||{}).markets||{});c.schedule=Object.assign({days:weekDays(),leagues:['nfl','nba','nhl'],entryClose:null},c.schedule||{});c.entrants=c.entrants||[];c.voids=c.voids||[];c.removed=c.removed||[];c.status=c.status||'open';c.code=c.code||codeOf(c.id);return c}
+/* Any contest from a link or from storage is untrusted: rebuild it from a fixed schema, coerce every field, drop unknown keys. */
+const LG=['nfl','nba','nhl'],VIS=['public','private'],SC=['units','record'],TI=['split','units'],ST=['open','closed','archived'];
+const str=(x,n)=>String(x==null?'':x).replace(/[\u0000-\u001f<>]/g,'').slice(0,n);
+const int=(x,lo,hi,d)=>{const v=Math.round(+x);return isFinite(v)?Math.max(lo,Math.min(hi,v)):d};
+const numOrNull=x=>{const v=+x;return x!=null&&x!==''&&isFinite(v)?v:null};
+const idOK=x=>String(x==null?'':x).slice(0,48).replace(/[^A-Za-z0-9_-]/g,'');
+function cleanFinal(f){return Array.isArray(f)?f.slice(0,100).map(r=>({finish:int(r&&r.finish,1,999,0),name:str(r&&r.name,40),sim:!!(r&&r.sim),me:!!(r&&r.me),w:int(r&&r.w,0,999,0),l:int(r&&r.l,0,999,0),p:int(r&&r.p,0,999,0),units:Math.round((+(r&&r.units)||0)*10)/10,voided:int(r&&r.voided,0,999,0),settled:Array.isArray(r&&r.settled)?r.settled.slice(0,200).map(q=>({game:str(q&&q.game,40),label:str(q&&q.label,60),market:str(q&&q.market,30),odds:int(q&&q.odds,-100000,100000,0),status:['won','lost','push','void','cashed'].includes(q&&q.status)?q.status:'void',units:q&&q.units!=null?Math.round((+q.units||0)*10)/10:null})):[]})):undefined}
+function clean(c){c=c&&typeof c==='object'?c:{};const r=c.rules&&typeof c.rules==='object'?c.rules:{},m=r.markets&&typeof r.markets==='object'?r.markets:{},sc=c.schedule&&typeof c.schedule==='object'?c.schedule:{};
+ const days=Array.isArray(sc.days)?sc.days.map(d=>String(d).slice(0,8)).filter(d=>/^\d{8}$/.test(d)).slice(0,14):[];const leagues=Array.isArray(sc.leagues)?LG.filter(k=>sc.leagues.includes(k)):[];
+ const out={id:idOK(c.id)||'c'+rid(),name:str(c.name,40)||'Contest',visibility:VIS.includes(c.visibility)?c.visibility:'private',week:int(c.week,1,30,RW.week().n),size:int(c.size,2,30,12),host:str(c.host,24),
+  schedule:{days:days.length?days:weekDays(),leagues:leagues.length?leagues:LG.slice(),entryClose:numOrNull(sc.entryClose)},
+  rules:{stack:int(r.stack,100,100000,1000),markets:{lines:m.lines!==false,props:m.props!==false,parlays:m.parlays!==false,live:m.live!==false},reload:r.reload!==false,scoring:SC.includes(r.scoring)?r.scoring:'units',ties:TI.includes(r.ties)?r.ties:'split'}};
+ if(!Object.values(out.rules.markets).some(Boolean))out.rules.markets.lines=true;
+ out.owner=c.owner===true;out.joined=c.joined===true;out.created=numOrNull(c.created);out.joinedAt=numOrNull(c.joinedAt);out.status=ST.includes(c.status)?c.status:'open';out.closedAt=numOrNull(c.closedAt);
+ out.entrants=Array.isArray(c.entrants)?c.entrants.slice(0,40).map(e=>({id:idOK(e&&e.id),name:str(e&&e.name,24),sim:!!(e&&e.sim)})).filter(e=>e.id):[];
+ out.removed=Array.isArray(c.removed)?c.removed.map(idOK).filter(Boolean).slice(0,40):[];
+ out.voids=Array.isArray(c.voids)?c.voids.slice(0,200).map(v=>({key:String(v&&v.key||'').slice(0,200),reason:str(v&&v.reason,140),at:numOrNull(v&&v.at)})):[];
+ const f=cleanFinal(c.final);if(f)out.final=f;out.code=codeOf(out.id);return out}
+/* fields an invite may carry; everything else on a joined contest is created on this phone */
+function fromInvite(d){const c=clean(d);c.owner=false;c.joined=false;c.status='open';c.entrants=[];c.removed=[];c.voids=[];delete c.final;c.closedAt=null;c.created=null;c.joinedAt=null;return c}
+function normalize(c){c=clean(c);c.rules=Object.assign({},DEFAULT_RULES,c.rules||{});c.rules.markets=Object.assign({},DEFAULT_RULES.markets,(c.rules||{}).markets||{});c.schedule=Object.assign({days:weekDays(),leagues:['nfl','nba','nhl'],entryClose:null},c.schedule||{});c.entrants=c.entrants||[];c.voids=c.voids||[];c.removed=c.removed||[];c.status=c.status||'open';c.code=c.code||codeOf(c.id);return c}
 
 /* the simulated Field inside a contest: a seeded slice of the week's Field, labelled SIM */
 function simEntrants(c){const n=c.size||12,pool=RW.FIELD.slice(),out=[];let i=0;while(out.length<Math.min(n,pool.length)){const k=Math.floor(RW.hash(c.id+'e'+i)*pool.length);const b=pool.splice(k,1)[0];if(b)out.push({id:b.id,name:b.name,sim:true});i++}return out}
@@ -28,11 +48,12 @@ function put(c){const s=load();s.c[c.id]=c;save(s);return c}
 function create(cfg){if(B())return B().create(cfg);const c=normalize(Object.assign({id:'c'+rid(),owner:true,created:Date.now(),week:RW.week().n,size:12},cfg));c.entrants=[{id:'me',name:(window.Rush&&Rush.me?Rush.me().handle:'You')||'You'},...simEntrants(c)];return put(c)}
 function update(id,patch){if(B())return B().update(id,patch);const c=get(id);if(!c)return null;if(!editable(c)&&(patch.rules||patch.schedule))return null;Object.assign(c,patch);if(patch.rules)c.rules=Object.assign({},c.rules,patch.rules);return put(normalize(c))}
 function editable(c){return c.owner&&c.status==='open'&&!(c.schedule.entryClose&&Date.now()>c.schedule.entryClose)}
-function join(x){if(B())return B().join(x);if(typeof x==='string'){const s=load();const c=Object.values(s.c).find(k=>k.id===x||k.code===String(x).toUpperCase());if(c){c.joined=true;return put(normalize(c))}const p=publicList().find(k=>k.id===x||k.code===String(x).toUpperCase());if(p)return join(p);return null}
- const c=normalize(Object.assign({},x,{owner:false,joined:true,joinedAt:Date.now()}));if(c.schedule.entryClose&&Date.now()>c.schedule.entryClose)return null;if(!c.entrants.some(e=>e.id==='me'))c.entrants=[{id:'me',name:(window.Rush&&Rush.me?Rush.me().handle:'You')||'You'},...(c.entrants.length?c.entrants:simEntrants(c))];return put(c)}
+function join(x){if(B())return B().join(x);if(typeof x==='string'){const s=load();const c=Object.values(s.c).find(k=>k.id===x||k.code===String(x).toUpperCase());if(c){c.joined=true;return put(normalize(c))}const p=publicList().find(k=>k.id===x||k.id===String(x).toLowerCase()||k.code===String(x).toUpperCase());if(p)return join(p);return null}
+ const c=fromInvite(x);c.joined=true;c.joinedAt=Date.now();if(c.schedule.entryClose&&Date.now()>c.schedule.entryClose)return null;c.entrants=[{id:'me',name:str((window.Rush&&Rush.me?Rush.me().handle:'You')||'You',24)},...simEntrants(c)];return put(c)}
 function leave(id){if(B())return B().leave(id);const s=load();delete s.c[id];save(s)}
 function inviteLink(id){const c=get(id);if(!c)return'';const lite={id:c.id,name:c.name,visibility:c.visibility,week:c.week,size:c.size,schedule:c.schedule,rules:c.rules,host:(window.Rush&&Rush.me?Rush.me().handle:'')||'A friend'};const base=location.href.replace(/[^/]*$/,'');return`${base}contest.html?i=${b64(lite)}`}
-function decode(s){try{return normalize(unb64(s))}catch(e){return null}}
+function decode(s){try{return fromInvite(unb64(String(s).slice(0,6000)))}catch(e){return null}}
+function decodeResults(s){try{const d=unb64(String(s).slice(0,20000));if(!d||!Array.isArray(d.x))return null;return{n:str(d.n,40)||'Contest',w:int(d.w,1,30,RW.week().n),s:SC.includes(d.s)?d.s:'units',t:numOrNull(d.t),x:d.x.slice(0,100).filter(Array.isArray).map(x=>({finish:int(x[0],1,999,0),name:str(x[1],40),sim:!!x[2],w:int(x[3],0,999,0),l:int(x[4],0,999,0),p:int(x[5],0,999,0),units:Math.round((+x[6]||0)*10)/10,settled:[]}))}}catch(e){return null}}
 function removeEntrant(id,eid){const c=get(id);if(!c||!c.owner||eid==='me')return null;if(!c.removed.includes(eid))c.removed.push(eid);return put(c)}
 function restoreEntrant(id,eid){const c=get(id);if(!c||!c.owner)return null;c.removed=c.removed.filter(x=>x!==eid);return put(c)}
 function voidPick(id,key,reason){const c=get(id);if(!c||!c.owner||c.status==='closed'||c.status==='archived')return null;if(!c.voids.some(v=>v.key===key))c.voids.push({key,reason:String(reason||'').slice(0,140),at:Date.now()});return put(c)}
@@ -58,5 +79,5 @@ function csv(c,res){const q=x=>{const s=String(x==null?'':x);return/[",\n]/.test
 function resultsLink(c,res){const base=location.href.replace(/[^/]*$/,'');return`${base}contest.html?r=${b64({n:c.name,w:c.week,s:c.rules.scoring,t:c.closedAt||Date.now(),x:res.map(r=>[r.finish,r.name,r.sim?1:0,r.w,r.l,r.p,r.units])})}`}
 function on(f){subs.push(f);addEventListener('storage',e=>{if(e.key===KEY)f()});if(B()&&window.Rush.on)window.Rush.on(f)}
 
-window.RC={list:all,get,create,update,editable,join,leave,inviteLink,decode,removeEntrant,restoreEntrant,voidPick,close,archive,reopen,publicList,standings,results,csv,resultsLink,entrantPicks,on,unb64,b64,codeOf,shared:()=>!!B()};
+window.RC={decodeResults,clean,list:all,get,create,update,editable,join,leave,inviteLink,decode,removeEntrant,restoreEntrant,voidPick,close,archive,reopen,publicList,standings,results,csv,resultsLink,entrantPicks,on,unb64,b64,codeOf,shared:()=>!!B()};
 })();

@@ -86,3 +86,9 @@ known: Lounge uses Blue SIM names, Ranks uses Red SIM names.
 - Rush.picks() stays weekly only; Rush.picks({contest:id}) lists a contest; grade.sync grades both.
 - Tested in node: weekly flow unchanged; create; invite link decodes to the same contest; sport and market rules refuse picks with a reason; contest pick paid from its own Stack and graded; Ranks and CSV; a second phone joins from the link and imports a result card.
 - Limit: no backend, so members see each other only through result cards; the rules and the SIM Field are identical everywhere.
+
+## Contests: which store the pages use (b19a278)
+- The pages (contests.html, contest.html, Home) run on Red's app/contest-kit.js (window.RC, localStorage rush-contests-v1). A contest there filters your weekly Slip by sports, days and markets.
+- Blue does not provide Rush.contests. RC's manage actions (remove, void, close) write to its own store, so routing reads to Blue's store would make them do nothing.
+- game.html now tags every pick live:true|false. Red was asked to pass it through playerPicks and check it in marketOK, so a contest with live picks off excludes in-game picks. Until Red ships that, the live rule does not filter.
+- Security: Red was sent the two contest.html XSS fixes (decode invite links strictly; coerce and escape results-link rows).
