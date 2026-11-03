@@ -66,7 +66,7 @@ function publicList(){const w=RW.week(),days=weekDays(),T=[['NFL Sunday Showdown
  return T.map(([n,lg,mk,sc],i)=>normalize({id:'pub'+w.n+'-'+i,name:n,visibility:'public',week:w.n,size:14+Math.floor(RW.hash(n+w.n)*30),host:RW.FIELD[i*3].name,schedule:{days,leagues:lg,entryClose:null},rules:{stack:1000,markets:mk,reload:i!==4,scoring:sc,ties:'split'},owner:false,status:'open'}))}
 
 /* picks inside a contest: only the contest's sports, days and allowed markets; voided picks drop out */
-const marketOK=(r,p)=>{const k=p.t||'';if(p.market&&/parlay/i.test(p.market))return r.markets.parlays;if(/^(prop|td)$/.test(k))return r.markets.props;if(/^(next|go|fd|drive|ns)$/.test(k))return r.markets.live;return r.markets.lines};
+const marketOK=(r,p)=>{if(p.live&&!r.markets.live)return false;const k=p.t||'';if(k==='parlay'||(p.market&&/parlay/i.test(p.market)))return r.markets.parlays;if(/^(prop|td)$/.test(k))return r.markets.props;if(/^(next|go|fd|drive|ns)$/.test(k))return r.markets.live;return r.markets.lines};
 function pickKey(eid,p){return eid+'|'+p.league+'|'+p.gameId+'|'+(p.label||'')+'|'+(p.at||'')}
 function entrantPicks(c,eid,games){const ps=RW.playerPicks(eid,games)||[];const days=new Set(c.schedule.days),lg=new Set(c.schedule.leagues);
  return ps.filter(p=>lg.has(p.league)&&(!p.g||days.has(RW.etDay(p.g.date)))&&marketOK(c.rules,p)).map(p=>{const key=pickKey(eid,p),v=c.voids.find(x=>x.key===key);return Object.assign({},p,{key,voided:v||null})})}
