@@ -1,5 +1,11 @@
 # Team Gold changelog
 
+## v3
+- Standalone static page for the new host. No artifact capabilities, so the field is all labeled SIM players.
+- Parlays with a same-game price.
+- First-down market on every set.
+- SIM players call every snap, so the leaderboard moves on each play. Added rank alerts and a SIM field vote on the next snap.
+
 ## v2
 - Replaced ESPN logo images with team colors because the viewer blocks outside images.
 - Added an on-page message when ESPN can't be reached.

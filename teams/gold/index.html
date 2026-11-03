@@ -1,7 +1,9 @@
-<title>Hashmark Live</title>
+<!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="claude:viewport-fit-sides" content="cover">
+<title>Hashmark Live</title>
 <link rel="preconnect" href="https://fonts.gstatic.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
 <style>
@@ -14,12 +16,13 @@
   --disp:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --body:Barlow,system-ui,-apple-system,"Segoe UI",sans-serif;
 }
+*,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{height:100%;overflow:hidden;margin:0}
 body{background:var(--night);color:var(--fg);font:15px/1.3 var(--body);font-variant-numeric:tabular-nums;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
-#app{height:100%;display:flex;flex-direction:column;min-height:0}
+#app{height:100%;padding-top:env(safe-area-inset-top,0px);display:flex;flex-direction:column;min-height:0}
 .band{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
 /* Scorebug */
 #bug{background:var(--deck);border-bottom:1px solid var(--line);flex:none}
@@ -107,6 +110,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
 .fd{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
 .fd .t{min-width:0;flex:1;font-size:13.5px}
 .fd .t small{display:block;color:var(--mute);font-size:12px}
+#pbar{flex:none;display:flex;justify-content:space-between;align-items:center;padding-block:10px;background:var(--gold);color:var(--gold-ink);font:700 17px var(--disp);width:100%}
 /* Nav */
 #nav{flex:none;display:grid;grid-template-columns:repeat(5,1fr);background:var(--deck);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
 #nav button{padding:11px 0 12px;font:700 15px/1 var(--disp);letter-spacing:.05em;color:var(--mute);text-transform:uppercase;position:relative}
@@ -133,7 +137,8 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
 #toast span{display:block;margin-top:5px;font-size:14px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-
+</head>
+<body>
 <div id="app">
   <div id="bug">
     <div class="band">
@@ -148,6 +153,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
     <button id="rib" class="band" data-go="field"></button>
   </div>
   <div id="main" class="band"></div>
+  <button id="pbar" class="band" hidden data-popen="1"></button>
   <div id="nav"></div>
 </div>
 <div id="scrim" hidden></div>
@@ -156,9 +162,9 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
 <div id="toast" hidden></div>
 
 <script>
-const VERSION='v2';
+const VERSION='v3';
 const BOOT=Date.now();
-const CHANGES=[['v2','Team colors replace logos, which this viewer cannot load. The page now says plainly if it cannot reach ESPN, and reports its feed health so the team can check it from here.'],['v1','First whistle. Live board repriced after every play, next-snap markets that settle in seconds, drive and next-score markets, player props with milestones, cash out on every ticket, a sweat meter on every ticket, and a field of sim players plus any real player who opens this page. Tap any pick in the field to tail it.']];
+const CHANGES=[['v3','Now a standalone page on an open host, so the ESPN feed reaches your phone. Parlays with a same-game price. First-down market on every set. SIM players now call every snap, so the leaderboard moves on each play, and you get an alert when you pass someone or get passed.'],['v2','Team colors replace logos. The page says plainly if it cannot reach ESPN.'],['v1','First whistle. Live board repriced after every play, next-snap markets that settle in seconds, drive and next-score markets, player props with milestones, cash out and a sweat meter on every ticket, and a field of sim players. Tap any pick in the field to tail it.']];
 const E='401873036',HOME='26',AWAY='3',BUDGET=10000;
 const CORE=`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${E}/competitions/${E}`;
 const SITE=`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${E}`;
@@ -176,7 +182,7 @@ const offense=()=>{const t=G.sit&&G.sit.team&&G.sit.team.$ref;if(!t)return null;
 
 async function j(url){try{const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);G.err=null;return await r.json()}catch(e){G.err=String(e&&e.message||e);throw e}}
 const seq=p=>+p.sequenceNumber||0;
-async function pollProb(){try{const d=await j(`${CORE}/probabilities?limit=1000`);G.prob=(d.items||[]).sort((a,b)=>seq(a)-seq(b));if(!G.ok.prob)dirty=true;G.ok.prob=Date.now();model();tickAll()}catch(e){}}
+async function pollProb(){try{const d=await j(`${CORE}/probabilities?limit=1000`);G.prob=(d.items||[]).sort((a,b)=>seq(a)-seq(b));G.ok.prob=Date.now();model();tickAll()}catch(e){}}
 async function pollSit(){try{const[d,st]=await Promise.all([j(`${CORE}/situation`),j(`${CORE}/status`)]);G.sit=d;readStatus(st);G.ok.sit=Date.now();tickAll()}catch(e){}}
 function readStatus(s){if(!s)return;G.period=s.period||G.period;if(typeof s.clock==='number')G.clockVal=s.clock;G.clock=s.displayClock||G.clock;const t=s.type||{};if(t.state)G.state=t.state;G.detail=t.detail||t.shortDetail||G.detail}
 async function pollPlays(){try{const d=await j(`${CORE}/plays?limit=400`);const items=(d.items||[]).sort((a,b)=>seq(a)-seq(b));const had=G.plays.length,lastSeq=had?seq(G.plays[had-1]):-1;G.plays=items;G.ok.plays=Date.now();const l=items[items.length-1];if(l){if(l.homeScore!=null){G.hs=Math.max(G.hs,l.homeScore);G.as=Math.max(G.as,l.awayScore)}if(had&&seq(l)>lastSeq){const fresh=items.filter(p=>seq(p)>lastSeq);if(fresh.some(p=>p.scoringPlay||p.isTurnover))G.lastBig=Date.now();onNewPlay(l)}else if(!had)G.lastPlay=l}tickAll()}catch(e){}}
@@ -221,17 +227,18 @@ function playerPool(){const out=[];if(!G.box)return out;for(const t of G.box.pla
 
 /* ---------- drive and play micro tables ---------- */
 function driveProbs(){const y=G.sit&&G.sit.yardLine>0?G.sit.yardLine:75,tab=[[3,.75,.17],[10,.62,.27],[20,.55,.3],[40,.38,.3],[60,.27,.2],[80,.19,.14],[100,.12,.08]];let td=.2,fg=.14;for(let i=0;i<tab.length;i++){if(y<=tab[i][0]){const a=tab[Math.max(0,i-1)],b=tab[i],f=i?(y-a[0])/(b[0]-a[0]):0;td=a[1]+(b[1]-a[1])*f;fg=a[2]+(b[2]-a[2])*f;break}}const d=G.sit&&G.sit.down||1,dist=G.sit&&G.sit.distance||10,k=[1,1,.92,dist>4?.62:.82,dist>2?.32:.62][d]||1;td*=k;if(d===4&&y<=38&&dist>2)fg=Math.min(.85,fg+.5);return{TD:td,FG:fg,none:1-td-fg}}
+function setProb(){const d=G.sit&&G.sit.down||1,x=G.sit&&G.sit.distance||10;if(d===1)return x>10?.5:.68;if(d===2)return x<=3?.76:x<=7?.56:.4;if(d===3)return x<=1?.68:x<=3?.54:x<=7?.38:.22;return x<=2?.55:.3}
 function playProbs(){const d=G.sit&&G.sit.down||1,x=G.sit&&G.sit.distance||10,y=G.sit&&G.sit.yardLine||50;let pass=d===1?.56:d===2?(x>=7?.66:.5):d===3?(x>=4?.86:.52):(x>=3?.82:.5);if(y<=3)pass=.42;const curM=(offense()==='home'?1:-1)*(G.hs-G.as);if(curM<-8&&remSecs()<1800)pass=Math.min(.92,pass+.14);if(curM>8&&remSecs()<900)pass-=.2;const short=y<5?.2:1;return{pass,y5:clamp(.42*short+(y<5?.1:0),.1,.6),y10:clamp(.17*(y<10?.3:1),.04,.3)}}
 
 /* ---------- market definitions ---------- */
-const HOLD=1.05,MICRO=1.07;
+const HOLD=1.05,MICRO=1.07,SGP=.9;
 const tName=s=>s==='home'?'SEA':'CHI';
 function teamMean(side){const h=(M.mT+M.mu)/2,a=(M.mT-M.mu)/2;return side==='home'?Math.max(h,G.hs):Math.max(a,G.as)}
 const qScore=(side,n)=>{const a=side==='home'?G.lines.h:G.lines.a;return a[n-1]||0};
 function qModel(n){const qRem=n<G.period?0:n===G.period?G.clockVal:900,f=qRem/Math.max(remSecs(),1),rt=Math.max(M.mT-G.hs-G.as,0),extra=rt*f*(n===G.period?1:1),mu=M.mu-(G.hs-G.as),s=Math.max(1.2,7*Math.sqrt(qRem/900));return{meanT:qScore('home',n)+qScore('away',n)+extra,meanM:qScore('home',n)-qScore('away',n)+mu*f,s}}
 function hModel(){const secs=G.period>=3?0:(2-G.period)*900+G.clockVal,f=secs/Math.max(remSecs(),1),h1=[0,1].map(i=>(G.lines.h[i]||0)),a1=[0,1].map(i=>(G.lines.a[i]||0)),cur=h1[0]+h1[1]+a1[0]+a1[1],rt=Math.max(M.mT-G.hs-G.as,0);return{meanT:cur+rt*f,s:Math.max(1.3,9.5*Math.sqrt(secs/1800)),cur}}
 /* Probabilities for a market definition: w is win, p is push. */
-function probs(m){const lineNoNull=m.line;
+function probs(m){
   switch(m.k){
     case'ml':return m.side==='home'?{w:M.wp,p:M.tie}:{w:1-M.wp-M.tie,p:M.tie};
     case'spread':{const mu=m.side==='home'?M.mu:-M.mu;return gt(-m.line,mu,M.sM)}
@@ -246,8 +253,10 @@ function probs(m){const lineNoNull=m.line;
     case'drive':{const d=driveProbs();return{w:d[m.sel],p:0}}
     case'playtype':{const q=playProbs();return{w:m.sel==='pass'?q.pass:1-q.pass,p:0}}
     case'yds':{const q=playProbs(),y=m.yd===5?q.y5:q.y10;return{w:m.sel==='yes'?y:1-y,p:0}}
+    case'fd':{const y=setProb();return{w:m.sel==='yes'?y:1-y,p:0}}
+    case'parlay':{let w=1;for(const l of m.legs){const g=grade(l);if(g==='loss')return{w:0,p:0};if(g)continue;const o=probs(l);w*=o.w/Math.max(1e-6,1-o.p)}return{w,p:0}}
   }return{w:.5,p:0}}
-const isMicro=m=>m.k==='playtype'||m.k==='yds'||m.k==='drive';
+const isMicro=m=>m.k==='playtype'||m.k==='yds'||m.k==='drive'||m.k==='fd';
 function quote(m){const o=probs(m),q=o.w/Math.max(1e-6,1-o.p),h=isMicro(m)||m.k==='next'?MICRO:HOLD;return american(q*h)}
 const mkKey=m=>[m.k,m.side,m.ou,m.sel,m.line,m.aid,m.stat,m.n,m.yd].filter(x=>x!=null).join('|');
 function mkLabel(m){switch(m.k){
@@ -264,6 +273,8 @@ function mkLabel(m){switch(m.k){
   case'drive':return'This drive: '+({TD:'Touchdown',FG:'Field goal',none:'No score'}[m.sel]);
   case'playtype':return'Next snap: '+(m.sel==='pass'?'Pass':'Run');
   case'yds':return'Next snap '+m.yd+'+ yds: '+(m.sel==='yes'?'Yes':'No');
+  case'fd':return'This set moves the chains: '+(m.sel==='yes'?'Yes':'No');
+  case'parlay':return m.legs.length+'-leg parlay';
 }return m.k}
 
 /* ---------- grading, the same way a book grades ---------- */
@@ -272,8 +283,7 @@ function playsAfter(a){return G.plays.filter(p=>seq(p)>a)}
 const SKIP=/timeout|end |coin toss|two-minute|penalty|end of/i;
 function cls(p){const t=p.type&&p.type.text||'';if(SKIP.test(t)||/no play/i.test(p.text||''))return null;if(/pass|sack|interception/i.test(t))return'pass';if(/rush/i.test(t))return'rush';if(/fumble/i.test(t))return p.text&&/pass/i.test(p.text)?'pass':'rush';return'other'}
 function grade(b){const hs=G.hs,as=G.as,fin=CLOSED();
-  const lose=!1;
-  switch(b.k){
+    switch(b.k){
     case'ml':if(!fin)return null;if(hs===as)return'push';return(hs>as)===(b.side==='home')?'win':'loss';
     case'spread':{if(!fin)return null;const x=(b.side==='home'?hs-as:as-hs)+b.line;return x>0?'win':x<0?'loss':'push'}
     case'total':{const t=hs+as;if(b.ou==='o'&&t>b.line)return'win';if(b.ou==='u'&&t>b.line)return'loss';if(!fin)return null;return t===b.line?'push':b.ou==='o'?'loss':'win'}
@@ -286,14 +296,16 @@ function grade(b){const hs=G.hs,as=G.as,fin=CLOSED();
     case'next':{let h=b.h0,a=b.a0;for(const p of playsAfter(b.anchor)){if(p.homeScore==null)continue;if(p.homeScore>h)return b.sel==='home'?'win':'loss';if(p.awayScore>a)return b.sel==='away'?'win':'loss'}if(hs>h)return b.sel==='home'?'win':'loss';if(as>a)return b.sel==='away'?'win':'loss';return fin?(b.sel==='none'?'win':'loss'):null}
     case'drive':{const d=[...G.prevDrives,G.drive].filter(Boolean).find(x=>x.id==b.driveId);if(!d){return fin?'void':null}if(!d.result)return fin?'void':null;const r=String(d.result).toUpperCase();if(r==='TD'||/^TOUCHDOWN/.test(r))return b.sel==='TD'?'win':'loss';if(r==='FG')return b.sel==='FG'?'win':'loss';return b.sel==='none'?'win':'loss'}
     case'playtype':case'yds':{for(const p of playsAfter(b.anchor)){const c=cls(p);if(!c)continue;if(p.wallclock&&Date.parse(p.wallclock)<b.t-2000)return'void';if(c==='other')return'void';if(b.k==='playtype')return(c==='pass')===(b.sel==='pass')?'win':'loss';const hit=(p.statYardage||0)>=b.yd;return hit===(b.sel==='yes')?'win':'loss'}return fin?'void':null}
+    case'fd':{let first=true;for(const p of playsAfter(b.anchor)){const c=cls(p);if(!c)continue;if(first&&p.wallclock&&Date.parse(p.wallclock)<b.t-2000)return'void';first=false;const st=p.start&&p.start.team&&p.start.team.$ref||'',en=p.end&&p.end.team&&p.end.team.$ref||'',off=st.includes('teams/'+b.offId),same=en.includes('teams/'+b.offId);if(!off)return b.sel==='no'?'win':'loss';if(c==='other'||p.isTurnover)return b.sel==='no'?'win':'loss';if(p.scoringPlay||(same&&p.end&&p.end.down===1))return b.sel==='yes'?'win':'loss'}return fin?'void':null}
+    case'parlay':{let pend=false,live=0;for(const l of b.legs){const g=grade(l);if(g==='loss')return'loss';if(!g)pend=true;else if(g==='win')live++}if(pend)return null;return live?'win':'push'}
   }return null}
 const ST={k:'hashmark_gold_v1'};
 let S={cash:BUDGET,bets:[],seq:0};
 try{const x=JSON.parse(localStorage.getItem(ST.k)||'null');if(x&&x.bets)S=x}catch(e){}
-function save(){try{localStorage.setItem(ST.k,JSON.stringify(S))}catch(e){}dirty=true}
-let dirty=false;
+function save(){try{localStorage.setItem(ST.k,JSON.stringify(S))}catch(e){}}
 
-function payoutFor(b){return +(b.stake*dec(b.odds)).toFixed(2)}
+function parlayDec(legs){const ds=legs.map(l=>dec(l.odds));return ds.reduce((a,x)=>a*x,1)*(legs.length>1?SGP:1)}
+function payoutFor(b){if(b.k==='parlay'){const live=b.legs.filter(l=>grade(l)!=='push'&&grade(l)!=='void');return +(b.stake*(live.length?parlayDec(live):1)).toFixed(2)}return +(b.stake*dec(b.odds)).toFixed(2)}
 function settleAll(){let anyWin=null;for(const b of S.bets){if(b.st!=='open')continue;const r=grade(b);if(!r)continue;b.st=r;b.at=Date.now();b.pay=r==='win'?payoutFor(b):(r==='push'||r==='void')?b.stake:0;S.cash=+(S.cash+b.pay).toFixed(2);showToast(r,b)}save()}
 function cashValue(b){const o=probs(b);return Math.max(0,+(b.stake*(o.w*dec(b.odds)+o.p)*.95).toFixed(2))}
 function equity(){let e=S.cash;for(const b of S.bets)if(b.st==='open')e+=isMicro(b)?b.stake:cashValue(b);return +e.toFixed(2)}
@@ -301,8 +313,9 @@ function equity(){let e=S.cash;for(const b of S.bets)if(b.st==='open')e+=isMicro
 /* ---------- field of simulated players, replayed from ESPN's own probability feed ---------- */
 const BOTS=[['Chalk Charlie','fav',.05],['Dog Walker','dog',.05],['Over Olivia','over',.06],['Under Ulysses','under',.06],['12th Man Mo','sea',.07],['Da Bears Dee','chi',.07],['Sharp Sal','mom',.05],['Fade Fay','anti',.05],['Random Ray','rand',.04],['Steady Ed','fav',.02],['Yolo Yara','rand',.14],['Late Lou','late',.09]];
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0)/4294967296}
-let simCache={n:-1,rows:[],feed:[],splits:{}};
-function simField(){const pr=G.prob;if(simCache.n===pr.length)return simCache;
+let simCache={n:'',rows:[],feed:[],splits:{}};
+function simField(){const pr=G.prob,ck=pr.length+'/'+G.plays.length+'/'+G.state;if(simCache.n===ck)return simCache;
+  const snaps=G.plays.map(p=>({p,c:cls(p)})).filter(x=>x.c==='pass'||x.c==='rush');
   const rows=[],feed=[],splits={ml:{home:0,away:0},spread:{home:0,away:0},total:{o:0,u:0}};const now=lastProb(),over=now?now.totalOverProb:.5,cover=now?now.spreadCoverProbHome:.5,wp=now?now.homeWinPercentage:.5,fin=CLOSED();
   const sp=dkSpreadHome(),tot=dkTotal();
   for(const[name,per,size]of BOTS){let cash=BUDGET;const open=[];
@@ -311,20 +324,14 @@ function simField(){const pr=G.prob;if(simCache.n===pr.length)return simCache;
       else if(per==='fav')side=x.homeWinPercentage>.5?'home':'away';else if(per==='dog')side=x.homeWinPercentage>.5?'away':'home';else if(per==='sea')side='home';else if(per==='chi')side='away';else if(per==='mom')side=mom>=0?'home':'away';else if(per==='anti')side=mom>=0?'away':'home';else side=hash(name+'s'+i)<.5?'home':'away';
       const ph=type==='ml'?x.homeWinPercentage:type==='spread'?x.spreadCoverProbHome/Math.max(.01,1-x.spreadPushProb):x.totalOverProb,p=(side==='home'||side==='o')?ph:1-ph;if(p<.06||p>.94)return;const odds=american(p*HOLD),stake=Math.round(cash*size/10)*10;if(stake<10)return;cash-=stake;
       const line=type==='spread'?(side==='home'?sp:-sp):type==='total'?tot:null;const b={type,side,odds,stake,line,bot:name};open.push(b);feed.push({who:name,sim:true,seq:+x.sequenceNumber,m:type==='ml'?{k:'ml',side}:type==='spread'?{k:'spread',side,line}:{k:'total',ou:side,line},odds,stake});splits[type][side]++});
+    for(const{p,c}of snaps){const a=hash(name+'snap'+p.sequenceNumber);if(a>.45)continue;const pick=hash(name+'call'+p.sequenceNumber)<.6?'pass':'rush',s=Math.max(10,Math.round(BUDGET*.015/10)*10);cash+=pick===c?s*.9:-s}
     let eq=cash;for(const b of open){const ph=b.type==='ml'?wp:b.type==='spread'?cover:over,p=(b.side==='home'||b.side==='o')?ph:1-ph;eq+=b.stake*dec(b.odds)*p*(fin?1:.95)}
     rows.push({name,sim:true,eq:Math.round(eq),cash:Math.round(cash),n:open.length})}
-  feed.sort((a,b)=>b.seq-a.seq);simCache={n:pr.length,rows,feed,splits};return simCache}
+  feed.sort((a,b)=>b.seq-a.seq);simCache={n:ck,rows,feed,splits};return simCache}
 
-/* ---------- real players, via the artifact's shared store ---------- */
-let db=null,user=null,me=null,humans={},names={},playerCol=null;
-(async()=>{try{if(!window.claude)return;user=await claude.use('user');db=await claude.use('db');if(user&&user.id)me=await user.id();if(db&&me){const doc=db.collection('players').doc(me);try{const d=await doc.get();const dat=d&&d.data&&d.data();if(dat&&dat.bets&&dat.bets.length>S.bets.length){S={cash:dat.cash,bets:dat.bets,seq:dat.seq||dat.bets.length};save()}}catch(e){}
-  db.collection('players').onSnapshot(sn=>{const next={};for(const d of sn.docs){const v=d.data();next[d.id]=v}humans=next;resolveNames();tickAll()},()=>{});
-  setInterval(pushMe,6000);pushMe()}}catch(e){}})();
-async function resolveNames(){if(!user||!user.profiles)return;try{names=await user.profiles(Object.keys(humans))}catch(e){}}
-let lastPush=0;
-function pushMe(){if(!db||!me)return;const eq=equity();if(!dirty&&Date.now()-lastPush<30000)return;dirty=false;lastPush=Date.now();db.collection('players').doc(me).set({eq,cash:S.cash,seq:S.seq,bets:S.bets.slice(-150),t:Date.now(),v:VERSION,feedOk:!!G.ok.prob,feedErr:G.err||null,feedAge:G.ok.prob?Date.now()-G.ok.prob:null}).catch(()=>{})}
-function board(){const sim=simField(),rows=sim.rows.slice();rows.push({name:'You',you:true,eq:Math.round(equity()),n:S.bets.filter(b=>b.st==='open').length});const now=Date.now();for(const id of Object.keys(humans)){if(id===me)continue;const h=humans[id];if(now-(h.t||0)>20*60*1000)continue;rows.push({name:(names[id]&&names[id].name)||'Player '+id.slice(-4),real:true,eq:Math.round(h.eq||BUDGET),n:(h.bets||[]).filter(b=>b.st==='open').length})}rows.sort((a,b)=>b.eq-a.eq);rows.forEach((r,i)=>r.rank=i+1);return rows}
-function allFeed(){const sim=simField().feed.slice(0,40).map(f=>({...f,when:null}));const h=[];for(const id of Object.keys(humans)){if(id===me)continue;const u=humans[id];for(const b of (u.bets||[]).slice(-6))h.push({who:(names[id]&&names[id].name)||'Player '+id.slice(-4),seq:b.anchor||0,m:b,odds:b.odds,stake:b.stake})}return[...h,...sim].sort((a,b)=>b.seq-a.seq).slice(0,30)}
+/* ---------- field ---------- */
+function board(){const sim=simField(),rows=sim.rows.slice();rows.push({name:'You',you:true,eq:Math.round(equity()),n:S.bets.filter(b=>b.st==='open').length});rows.sort((a,b)=>b.eq-a.eq);rows.forEach((r,i)=>r.rank=i+1);return rows}
+function allFeed(){return simField().feed.slice(0,30)}
 
 /* ---------- ui ---------- */
 let tab='now';
@@ -335,11 +342,13 @@ function P(m,top,opts={}){const key=mkKey(m);MK[key]=m;const g=grade({...m,t:Dat
 
 /* The summary feed lags the play feed by up to 10 s, so the newest play names the live drive. */
 function liveDriveId(){const l=G.plays[G.plays.length-1],r=l&&l.drive&&l.drive.$ref,m=r&&r.match(/drives\/(\d+)/),id=m?m[1]:(G.drive&&!G.drive.result?G.drive.id:null);if(!id)return null;const done=[...G.prevDrives,G.drive].filter(Boolean).find(d=>d.id==id);return done&&done.result?null:id}
+function snapVote(){const l=G.plays[G.plays.length-1];if(!l)return'';const q=playProbs().pass,v=clamp(q+(hash('v'+l.sequenceNumber)-.5)*.3,.1,.95),pc=Math.round(v*100);return pc>=50?`SIM field: ${pc}% Pass.`:`SIM field: ${100-pc}% Run.`}
 function viewNow(){const off=offense(),d=G.sit&&G.sit.down>0,sit=G.sit&&G.sit.downDistanceText;const noSnap=!d;const open=S.bets.filter(b=>b.st==='open');let h='';
   h+=`<div class="sec"><div class="sh">Next snap<small>${sit?esc(sit):'Between plays'}</small></div>${noSnap?'<div class="note">Reopens when the offense lines up.</div>':''}
   <div class="row">${P({k:'playtype',sel:'pass'},'Pass',{off:noSnap})}${P({k:'playtype',sel:'rush'},'Run',{off:noSnap})}</div>
   <div class="row">${P({k:'yds',yd:5,sel:'yes'},'5+ yds',{off:noSnap})}${P({k:'yds',yd:5,sel:'no'},'Under 5',{off:noSnap})}${P({k:'yds',yd:10,sel:'yes'},'10+ yds',{off:noSnap})}${P({k:'yds',yd:10,sel:'no'},'Under 10',{off:noSnap})}</div>
-  <div class="note">Settles on the next snap ESPN reports. Snapped before your pick means void and your stake comes back. Max $500.</div></div>`;
+  <div class="row">${P({k:'fd',sel:'yes'},'Moves chains',{off:noSnap})}${P({k:'fd',sel:'no'},'Stopped',{off:noSnap})}</div>
+  <div class="note">${snapVote()} Settles on the next snap ESPN reports. Snapped before your pick means void, stake back. Max $500.</div></div>`;
   const did=liveDriveId(),dteam=off?tName(off):'';
   h+=`<div class="sec"><div class="sh">This drive<small>${dteam?dteam+' ball':''}</small></div><div class="row">${P({k:'drive',sel:'TD'},'Touchdown',{off:!did||noSnap})}${P({k:'drive',sel:'FG'},'Field goal',{off:!did||noSnap})}${P({k:'drive',sel:'none'},'No score',{off:!did||noSnap})}</div></div>`;
   h+=`<div class="sec"><div class="sh">Next score</div><div class="row">${P({k:'next',sel:'away'},'CHI')}${P({k:'next',sel:'home'},'SEA')}${P({k:'next',sel:'none'},'No more')}</div></div>`;
@@ -380,6 +389,8 @@ function sweatLine(b){switch(b.k){
   case'prop':return`${boxStat(b.aid,b.stat)||0} of ${b.line} ${STATS[b.stat][2]}`;
   case'atd':return`${boxTD(b.aid)||0} TD so far`;
   case'playtype':case'yds':return'Waiting on the next snap';
+  case'fd':return G.sit&&G.sit.downDistanceText||'Waiting on the set';
+  case'parlay':{const hit=b.legs.filter(l=>grade(l)==='win').length;return b.legs.map(l=>(grade(l)==='win'?'[hit] ':'')+l.label).join(' + ')+' · '+hit+' of '+b.legs.length+' hit'}
   case'drive':return G.sit&&G.sit.downDistanceText?G.sit.downDistanceText:'Drive in progress';
   case'next':return'Waiting on the next score';
   case'qt':case'qml':return`Q${b.n}: CHI ${qScore('away',b.n)} · SEA ${qScore('home',b.n)}`;
@@ -391,34 +402,46 @@ function viewBets(){const open=S.bets.filter(b=>b.st==='open').reverse(),done=S.
   return`<div class="sec"><div class="sh">Bankroll<small>${w}-${l}${streak>1?' · '+streak+' straight':''}</small></div><div class="note">${money(S.cash)} cash · ${money(equity())} with open tickets at cash-out value · Budget ${money(BUDGET)}</div></div>
   <div class="sec"><div class="sh">Open<small>${open.length}</small></div>${open.map(ticket).join('')||'<div class="note">No open tickets. The next snap is a few seconds away.</div>'}</div>
   <div class="sec"><div class="sh">Settled<small>${done.length}</small></div>${done.slice(0,30).map(ticket).join('')||'<div class="note">Settled tickets land here.</div>'}</div>`}
-function feedRow(f){const lab=mkLabel(f.m);MK['t|'+lab]=f.m;return`<div class="fd"><div class="t">${esc(f.who)} ${f.sim?'<span class="pill">SIM</span>':'<span class="pill real">LIVE</span>'}<small>${esc(lab)} ${fmtOdds(f.odds)} · ${money(f.stake)}</small></div><button class="btn" data-tail="${esc('t|'+lab)}">Tail</button></div>`}
-function viewField(){const rows=board();const you=rows.find(r=>r.you);return`<div class="sec"><div class="sh">Leaderboard<small>Cash plus open tickets at cash-out value</small></div>${rows.map(r=>`<div class="fr${r.you?' me':''}"><div class="r">${r.rank}</div><b>${esc(r.name)} ${r.you?'<span class="pill you">YOU</span>':r.real?'<span class="pill real">LIVE</span>':'<span class="pill">SIM</span>'}</b><span class="note">${r.n} open</span><span class="v ${r.eq>=BUDGET?'up':'dn'}">${money(r.eq)}</span></div>`).join('')}<div class="note">SIM players place real-priced picks off ESPN's per-play probabilities. Everyone sees the same SIM field. LIVE players are real people on this page.</div></div>
+function feedRow(f){const lab=mkLabel(f.m);MK['t|'+lab]=f.m;return`<div class="fd"><div class="t">${esc(f.who)} <span class="pill">SIM</span><small>${esc(lab)} ${fmtOdds(f.odds)} · ${money(f.stake)}</small></div><button class="btn" data-tail="${esc('t|'+lab)}">Tail</button></div>`}
+function viewField(){const rows=board();const you=rows.find(r=>r.you);return`<div class="sec"><div class="sh">Leaderboard<small>Cash plus open tickets at cash-out value</small></div>${rows.map(r=>`<div class="fr${r.you?' me':''}"><div class="r">${r.rank}</div><b>${esc(r.name)} ${r.you?'<span class="pill you">YOU</span>':'<span class="pill">SIM</span>'}</b><span class="note">${r.n} open</span><span class="v ${r.eq>=BUDGET?'up':'dn'}">${money(r.eq)}</span></div>`).join('')}<div class="note">SIM players place real-priced picks off ESPN's per-play probabilities. Everyone sees the same SIM field.</div></div>
   <div class="sec"><div class="sh">Field picks<small>Tail at today's price</small></div>${allFeed().map(feedRow).join('')||'<div class="note">Picks appear after the next play.</div>'}</div>`}
 
 function renderMain(){const main=$('main'),rails={};main.querySelectorAll('.rail').forEach(r=>rails[r.dataset.r]=r.scrollLeft);const top=main.scrollTop;const v={now:viewNow,game:viewGame,props:viewProps,bets:viewBets,field:viewField}[tab];const down=!G.ok.prob&&Date.now()-BOOT>8000?`<div class="tk"><div class="a"><b class="dn">Can't reach ESPN from this view</b></div><div class="s">Betting stays closed until the live feed connects. ${esc(G.err||'')}</div></div>`:'';main.innerHTML=down+v();main.querySelectorAll('.rail').forEach(r=>{if(rails[r.dataset.r]!=null)r.scrollLeft=rails[r.dataset.r]});main.scrollTop=top}
 function renderNav(){const n=S.bets.filter(b=>b.st==='open').length;$('nav').innerHTML=SHOW.map(([k,t])=>`<button class="${tab===k?'on':''}" data-tab="${k}">${t}${k==='bets'&&n?`<sup>${n}</sup>`:''}</button>`).join('')}
 let eqAfterPlay=null,eqDelta=0;
 function onNewPlay(p){G.lastPlay=p;const t=$('tick');t.classList.remove('new');void t.offsetWidth;t.classList.add('new');const e=equity();if(eqAfterPlay!=null)eqDelta=e-eqAfterPlay;eqAfterPlay=e}
+let lastRank=0;
 function renderBug(){$('sA').textContent=G.as;$('sH').textContent=G.hs;const per=G.period>4?'OT':G.period?('Q'+G.period):'';$('clk').innerHTML=G.state==='post'?'Final':G.state==='pre'?'Pregame':esc(per+' '+G.clock);const off=offense();$('tA').classList.toggle('pos',off==='away'&&G.state==='in');$('tH').classList.toggle('pos',off==='home'&&G.state==='in');
   const age=Math.round((Date.now()-Math.max(G.ok.prob||0,G.ok.sit||0))/1000),stale=!G.ok.prob||age>25;$('dd').innerHTML=`<span id="stamp" class="${stale?'stale':''}" role="button" data-pan="1"><i></i>${stale?'RECONNECTING':'LIVE '+age+'s'} <u>${VERSION}</u></span>`;
   const y=G.sit&&G.sit.yardLine,b=$('ball'),fd=$('fd');if(off&&y>0&&G.sit.down>0){const pct=off==='away'?100-y:y,x=8.33+pct*.8334;b.hidden=false;b.style.left=x+'%';const dist=G.sit.distance||0,gy=off==='away'?pct+dist:pct-dist;fd.hidden=!dist;fd.style.left=(8.33+clamp(gy,0,100)*.8334)+'%'}else{b.hidden=true;fd.hidden=true}
   const lp=[...G.plays].reverse().find(p=>cls(p))||G.lastPlay;const tick=$('tick');tick.textContent=(G.sit&&G.sit.downDistanceText?G.sit.downDistanceText+' · ':'')+(lp?(lp.shortText||lp.text||''):'');
-  const rows=board(),you=rows.find(r=>r.you),above=rows[you.rank-2],below=rows[you.rank];const e=equity(),pl=e-BUDGET;const dl=eqDelta?`<span class="dl ${eqDelta>0?'up':'dn'}">${money(eqDelta,true)}</span>`:'';
+  const rows=board(),you=rows.find(r=>r.you),above=rows[you.rank-2],below=rows[you.rank];if(lastRank&&you.rank!==lastRank&&S.bets.length){if(you.rank<lastRank)showFlash('Up to #'+you.rank,'You passed '+(rows[you.rank]?rows[you.rank].name:'the field'));else showFlash('Down to #'+you.rank,(above?above.name:'Someone')+' passed you')}lastRank=you.rank;const e=equity(),pl=e-BUDGET;const dl=eqDelta?`<span class="dl ${eqDelta>0?'up':'dn'}">${money(eqDelta,true)}</span>`:'';
   $('rib').innerHTML=`<span class="eq">${money(e)}</span><span class="dl ${pl>=0?'up':'dn'}">${money(pl,true)}</span>${dl}<span class="rv"><b>#${you.rank}</b> of ${rows.length}${above?` · ${money(above.eq-you.eq)} behind ${esc(above.name)}`:below?` · ${money(you.eq-below.eq)} up on ${esc(below.name)}`:''}</span>`}
 
 /* Slip */
-const SL={m:null,stake:100};
+const SL={m:null,stake:100,par:false};
+const PAR={legs:[]};
+function legConflict(m){return PAR.legs.some(l=>l.k===m.k&&(l.aid||'')===(m.aid||'')&&(l.stat||'')===(m.stat||'')&&(l.n||'')===(m.n||''))}
+function parlayOdds(legs){const d=parlayDec(legs);return Math.round(d>=2?(d-1)*100:-100/(d-1))}
+function renderPbar(){const el=$('pbar');if(!PAR.legs.length){el.hidden=true;return}el.hidden=false;const legs=PAR.legs.map(l=>({...l,odds:quote(l)}));el.innerHTML=`<span>Parlay · ${legs.length} leg${legs.length>1?'s':''}</span><span>${legs.length>1?fmtOdds(parlayOdds(legs)):'Add one more'}</span>`}
 function openSlip(m){SL.m=m;SL.stake=Math.min(SL.stake,isMicro(m)?500:Infinity,S.cash)||0;wake();renderSlip();renderMain()}
-function closeSlip(){SL.m=null;$('slip').hidden=true;$('scrim').hidden=$('panel').hidden;renderMain()}
+function closeSlip(){SL.m=null;SL.par=false;$('slip').hidden=true;$('scrim').hidden=$('panel').hidden;renderMain()}
 function fieldPct(m){const s=simField().splits;let a=0,T=0;if(m.k==='ml'){a=s.ml[m.side];T=s.ml.home+s.ml.away}else if(m.k==='spread'){a=s.spread[m.side];T=s.spread.home+s.spread.away}else if(m.k==='total'){a=s.total[m.ou];T=s.total.o+s.total.u}else return null;return T?Math.round(a/T*100):null}
-function renderSlip(){const el=$('slip'),m=SL.m;if(!m){el.hidden=true;return}el.hidden=false;$('scrim').hidden=false;const o=quote(m),g=grade({...m,t:Date.now(),anchor:Infinity,h0:G.hs,a0:G.as}),sus=suspended()||g;const cap=isMicro(m)?500:Infinity,stake=Math.min(SL.stake,S.cash,cap),win=stake*(dec(o)-1),pct=fieldPct(m);const ch=[50,100,250,500];
+function renderParlay(){const el=$('slip');el.hidden=false;$('scrim').hidden=false;const legs=PAR.legs.map(l=>({...l,odds:quote(l)})),ok=legs.length>=2,o=ok?parlayOdds(legs):0,sus=suspended()||legs.some(l=>grade({...l,t:Date.now(),anchor:Infinity,h0:G.hs,a0:G.as})),stake=Math.min(SL.stake,S.cash),ch=[25,50,100,250];
+  el.innerHTML=`<div class="sl-h"><b>${legs.length}-leg parlay</b><em>${ok&&!sus?fmtOdds(o):'—'}</em></div>${legs.map((l,i)=>`<div class="sl-m"><span>${esc(mkLabel(l))} ${fmtOdds(l.odds)}</span><button class="btn" data-rmleg="${i}">Remove</button></div>`).join('')}<div class="note">${ok?'Same-game price: legs multiply, less 10% for correlation. A pushed or void leg drops out and the rest pay.':'Add at least two legs from different markets.'}</div>
+  <div class="chips">${ch.map(c=>`<button class="${SL.stake===c?'on':''}" data-stake="${c}">$${c}</button>`).join('')}<button data-stake="max">MAX</button></div>
+  <div class="sl-m"><span>Stake <b>${money(stake)}</b></span><span>To win <b class="up">${ok?money(stake*(dec(o)-1)):'—'}</b></span><span>Cash <b>${money(S.cash)}</b></span></div>
+  <button id="lock" data-plock="1"${!ok||sus||stake<=0?' disabled':''}>${!ok?'Add another leg':sus?'Market suspended':'Lock '+money(stake)+' at '+fmtOdds(o)}</button><button class="btn" data-closeslip="1">Close</button>`}
+function placeParlay(){if(PAR.legs.length<2||suspended())return;const stake=Math.min(SL.stake,S.cash);if(stake<=0)return;const last=G.plays[G.plays.length-1],anchor=last?seq(last):0,t=Date.now(),legs=PAR.legs.map(l=>({...cleanM(l),label:mkLabel(l),odds:quote(l),t,anchor,h0:G.hs,a0:G.as})),o=parlayOdds(legs),b={k:'parlay',legs,id:'b'+(++S.seq)+'-'+t.toString(36),label:legs.length+'-leg parlay',odds:o,stake,t,anchor,st:'open'};S.cash=+(S.cash-stake).toFixed(2);S.bets.push(b);PAR.legs=[];SL.par=false;save();beep(660,.08);$('slip').hidden=true;$('scrim').hidden=true;renderAll();showFlash('Locked '+fmtOdds(o),b.label)}
+function renderSlip(){if(SL.par)return renderParlay();const el=$('slip'),m=SL.m;if(!m){el.hidden=true;return}el.hidden=false;$('scrim').hidden=false;const o=quote(m),g=grade({...m,t:Date.now(),anchor:Infinity,h0:G.hs,a0:G.as}),sus=suspended()||g;const cap=isMicro(m)?500:Infinity,stake=Math.min(SL.stake,S.cash,cap),win=stake*(dec(o)-1),pct=fieldPct(m);const ch=[50,100,250,500];
   el.innerHTML=`<div class="sl-h"><b>${esc(mkLabel(m))}</b><em>${sus?'—':fmtOdds(o)}</em></div>
   <div class="note">${pct!=null?pct+'% of the field is on this side. ':''}Your price locks when you tap.</div>
   <div class="chips">${ch.map(c=>`<button class="${SL.stake===c?'on':''}" data-stake="${c}">$${c}</button>`).join('')}<button data-stake="max" class="${SL.stake>=Math.min(S.cash,cap)&&!ch.includes(SL.stake)?'on':''}">MAX</button></div>
   <div class="sl-m"><span>Stake <b>${money(stake)}</b></span><span>To win <b class="up">${money(win)}</b></span><span>Cash <b>${money(S.cash)}</b></span></div>
   <button id="lock" data-lock="1"${sus||stake<=0?' disabled':''}>${sus?'Market suspended':'Lock '+money(stake)+' at '+fmtOdds(o)}</button>
+  ${isMicro(m)?'':`<button class="btn" data-addleg="1"${legConflict(m)||sus?' disabled':''}>${legConflict(m)?'Already a leg from this market':'Add to parlay'}</button>`}
   <button class="btn" data-closeslip="1">Close</button>`}
-function placeBet(){const m=SL.m;if(!m||suspended())return;const o=quote(m),cap=isMicro(m)?500:Infinity,stake=Math.min(SL.stake,S.cash,cap);if(stake<=0)return;const last=G.plays[G.plays.length-1];const b={...m,id:'b'+(++S.seq)+'-'+Date.now().toString(36),label:mkLabel(m),odds:o,stake,t:Date.now(),anchor:last?seq(last):0,h0:G.hs,a0:G.as,st:'open'};if(m.k==='drive')b.driveId=liveDriveId();S.cash=+(S.cash-stake).toFixed(2);S.bets.push(b);save();beep(660,.08);SL.m=null;$('slip').hidden=true;$('scrim').hidden=true;renderAll();showFlash('Locked '+fmtOdds(o),b.label)}
+function placeBet(){const m=SL.m;if(!m||suspended())return;const o=quote(m),cap=isMicro(m)?500:Infinity,stake=Math.min(SL.stake,S.cash,cap);if(stake<=0)return;const last=G.plays[G.plays.length-1];const b={...m,id:'b'+(++S.seq)+'-'+Date.now().toString(36),label:mkLabel(m),odds:o,stake,t:Date.now(),anchor:last?seq(last):0,h0:G.hs,a0:G.as,st:'open'};if(m.k==='drive')b.driveId=liveDriveId();if(m.k==='fd')b.offId=offense()==='home'?HOME:AWAY;S.cash=+(S.cash-stake).toFixed(2);S.bets.push(b);save();beep(660,.08);SL.m=null;$('slip').hidden=true;$('scrim').hidden=true;renderAll();showFlash('Locked '+fmtOdds(o),b.label)}
 /* Toast */
 let toastQ=[],toastT=null;
 function showToast(r,b){const pnl=r==='win'?b.pay-b.stake:r==='loss'?-b.stake:0;toastQ.push({c:r==='win'?'win':r==='loss'?'loss':'',h:r==='win'?money(pnl,true):r==='loss'?money(pnl):r.toUpperCase(),s:b.label+(r==='void'?' (stake back)':'')});if(r==='win')beep(880,.15);if(r==='loss')beep(180,.18);try{navigator.vibrate&&navigator.vibrate(r==='win'?[60,40,60]:40)}catch(e){}pumpToast()}
@@ -428,12 +451,16 @@ function pumpToast(){if(toastT||!toastQ.length)return;const t=toastQ.shift(),el=
 let ac=null;function beep(f,d){if(!ac)return;try{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}}
 let waked=false;function wake(){if(!ac)try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}if(!waked){waked=true;try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}}}
 /* Events */
-document.addEventListener('click',ev=>{const t=ev.target.closest('[data-m],[data-tab],[data-go],[data-stake],[data-lock],[data-closeslip],[data-cash],[data-tail],[data-pan],[data-closepan]');if(!t){if(ev.target.id==='scrim'){closeSlip();$('panel').hidden=true;$('scrim').hidden=true}return}wake();const d=t.dataset;
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-m],[data-tab],[data-go],[data-stake],[data-lock],[data-closeslip],[data-cash],[data-tail],[data-pan],[data-closepan],[data-popen],[data-addleg],[data-rmleg],[data-plock]');if(!t){if(ev.target.id==='scrim'){closeSlip();$('panel').hidden=true;$('scrim').hidden=true}return}wake();const d=t.dataset;
   if(d.m){const m=MK[d.m];if(m)openSlip(m)}
   else if(d.tail){const m=MK[d.tail];if(m){const mm={...m};delete mm.st;openSlip(cleanM(mm))}}
   else if(d.tab){tab=d.tab;renderAll();$('main').scrollTop=0}
   else if(d.go){tab=d.go;renderAll();$('main').scrollTop=0}
-  else if(d.stake){SL.stake=d.stake==='max'?Math.min(S.cash,isMicro(SL.m)?500:S.cash):+d.stake;renderSlip()}
+  else if(d.stake){SL.stake=d.stake==='max'?(SL.m&&isMicro(SL.m)?Math.min(S.cash,500):S.cash):+d.stake;renderSlip()}
+  else if(d.popen){SL.par=true;SL.m=null;renderSlip()}
+  else if(d.addleg){if(SL.m&&!legConflict(SL.m)){PAR.legs.push(cleanM(SL.m));SL.m=null;$('slip').hidden=true;$('scrim').hidden=true;renderAll()}}
+  else if(d.rmleg){PAR.legs.splice(+d.rmleg,1);if(PAR.legs.length){renderSlip()}else closeSlip();renderPbar()}
+  else if(d.plock)placeParlay();
   else if(d.lock)placeBet();
   else if(d.closeslip)closeSlip();
   else if(d.cash){const b=S.bets.find(x=>x.id===d.cash);if(b&&b.st==='open'&&!suspended()){const v=cashValue(b);b.st='cashed';b.pay=v;b.at=Date.now();S.cash=+(S.cash+v).toFixed(2);save();beep(520,.1);showFlash('Cashed '+money(v),b.label);renderAll()}}
@@ -445,7 +472,9 @@ function showPanel(){const el=$('panel');el.innerHTML=`<div class="sl-h"><b>Hash
 /* Loop */
 let raf=null;
 function tickAll(){settleAll();renderAll()}
-function renderAll(){if(raf)return;raf=setTimeout(()=>{raf=null;renderBug();renderNav();if(!document.querySelector('.rail:active'))renderMain();if(SL.m)renderSlip()},60)}
+function renderAll(){if(raf)return;raf=setTimeout(()=>{raf=null;renderBug();renderNav();renderPbar();if(!document.querySelector('.rail:active'))renderMain();if(SL.m||SL.par)renderSlip()},60)}
 function start(){model();renderAll();pollSummary();pollOdds();pollProb();pollPlays();pollSit();setInterval(pollProb,3000);setInterval(pollSit,4000);setInterval(pollPlays,5000);setInterval(pollSummary,10000);setInterval(pollOdds,137000);setInterval(renderBug,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){pollProb();pollSit();pollPlays();pollSummary();pollOdds()}})}
 start();
 </script>
+</body>
+</html>

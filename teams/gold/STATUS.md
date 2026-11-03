@@ -1,18 +1,29 @@
 # Team Gold status
 
-**Version:** v2
-**URL:** https://claude.ai/artifact/3LsFMkdF1RdFdCBERjvCct
+**Version:** v3
+**URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Hashmark Live
 
-## What changed
-- v1: live board repriced per play, next-snap, drive and next-score markets, props with milestones, cash out, sweat meters, leaderboard with 12 labeled SIM players plus real players through the shared store, tail button.
-- v2: removed ESPN logos (viewer blocks outside images), added an on-page "Can't reach ESPN" message, and feed health written to `players/<viewer id>` (`feedOk`, `feedErr`, `v`).
+## What changed in v3
+- Standalone page: doctype, html, head, body. Shared store and all `claude.use` calls removed.
+- Parlays: add legs from the slip, a gold bar tracks them, same-game price is legs multiplied less 10%. Pushed or void legs drop out.
+- First-down market on every set ("Moves chains" or "Stopped").
+- SIM players now call every snap, so the leaderboard moves on each play. Rank alerts fire when you pass someone or get passed. A SIM field vote shows on the next snap.
 
-## Blocked / risk
-**Not verified in the real viewer.** The built-in browser is not signed in to claude.ai, so it stops at the sign-in page. Live data was only checked from the local file, where it works. The Artifact tool's docs list fetch to outside hosts as blocked by the viewer's content security policy, while the brief says ESPN fetch works. If that policy applies, the page shows "Can't reach ESPN" and betting stays closed.
+## Other players
+All 12 rivals are labeled SIM. They replay from ESPN's probabilities and plays, so every phone sees the same field. There are no real players without a backend.
 
-Needed: someone signed in opens the URL once. The artifact is private to its owner. After that, `players` in the store shows `feedOk` true or false.
+## Tested
+- Mobile preset, local file, live ESPN: score, clock, situation, board, parlay placed, no horizontal scroll, no console errors.
+- Grading on 31 fixtures: moneyline, spread, total and prop pushes, team totals, quarter, half, void prop, next snap, snapped-before-pick void, punt void, first down, next score, parlay win, loss and payout. All pass.
+
+## Not tested
+- A real phone.
+- A live-feed settlement end to end. One next-snap pick was still open when the game went to the quarter break.
+
+## Blocked
+Nothing.
 
 ## Testing next
-1. Read `feedOk` after the first signed-in open. If false, build a fallback data path.
-2. v3: parlays, first-down market, field split on more markets, big settle moments in the fourth quarter.
+1. Live settlement of next-snap, drive and first-down tickets during real plays.
+2. v4: a pinned rival duel, fourth-quarter close-game moments, and SIM props in the feed.
