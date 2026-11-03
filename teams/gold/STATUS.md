@@ -26,6 +26,11 @@
 - Why this design: Stacks are never summed (founder 3:08), so Home shows one contest's numbers at a time instead of a total. The other contests stay one tap away, so a player in both never has to guess which Stack a number belongs to.
 - Parlays place straight through Rush.wallet.place(id, pick) with league 'multi' and each leg's start. Blue dd96edb checks every leg against the contest's sports and days and names the refused leg in the toast.
 
+**Home prize card and My contests (founder: contests "hidden and hard to decipher", prize card "very generic"), shipped 81959fc and after:**
+- The prize card is the second thing after the live moment. It is one Rush-blue card (tinted panel, blue border) with the prize large in white ("$100 to 1st"), your multiplier in a tile beside it, the line "9 more in and 1st pays $150" over a real progress bar (31 in to 40 in), one strong "Invite a friend" in Rush blue and Nudge as the outlined secondary. Tapping the prize or the bar opens the ladder; tapping the multiplier opens its sheet.
+- My contests sits right under the Field. Every contest you are in is a tappable card with its colour dot, name, its own Stack, your rank and its settle clock, plus a chevron. The active one carries an ACTIVE tag and a blue outline and opens its Ranks. Any other card switches to that contest. "Run your own contest" and "Join with a code" are outlined secondary buttons under the cards, with no gradient. Up to three public contests follow under "Public contests to join", then "All contests".
+- The separate "Your other contests" row and the old bottom Contests card are gone, so contests live in one place.
+
 **Next:** test the live strip into game.html once Blue ships it, show game.html timed picks in Slips, and give finished games a Lounge thread with graded results.
 
 # Closing summary for the scorecard (MNF build)
