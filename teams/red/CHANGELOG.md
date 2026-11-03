@@ -1,5 +1,10 @@
 # Changelog: Team Red, Rush Live
 
+## v18 (2026-11-02, final: Bears 34, Seahawks 17)
+- Final grading confirmed on real picks (moneyline, total, player prop, anytime TD, next score, next snap). Closing STATUS.md with every formula, hold and the measured lag and windows.
+- Live windows in the 4th quarter: commercial breaks 03:37 and 03:42 locked 50s and 87s before play; after-touchdown windows opened 6s and 9s (ESPN posted the touchdowns 50 to 53s late) and locked 81s before kickoff; two-minute warning open 100s, locked 50s before play.
+- Header DK lag sign fixed.
+
 ## v17 (2026-11-02, Q4)
 - Commercial-break window 95s, down from 110s. Real break after the blocked field goal: marker 03:31:41, posted 15s late, picks open 03:31:57 to 03:33:31 (72 markets), next snap 03:33:41, only 10s margin. That break lasted 120s, shorter than the 135s minimum seen earlier.
 
