@@ -1,8 +1,9 @@
 # Team Red status
 
-- Version: v11
+- Version: v12
 - URL: https://mclovin-codes.github.io/live-lab/teams/red/
-- What changed: Player props and anytime TD fitted to three seasons of nflverse player games, lines set at the median.
+- What changed: Game lines lock on the first DraftKings tick after a play. Halftime board 720s. Header shows game-line lock delay.
+- Real-snap proof so far (second half, monitor on hosted page): halftime break board closed 02:52:07, kickoff snapped 02:56:17, so the board shut 250s before play. Kickoff: DraftKings first ticked 18s after the snap, ESPN posted it 63s after. First scrimmage play: DraftKings ticked 9s after, ESPN posted 19s after. So game lines lock 9 to 18s after a snap; a viewer whose broadcast runs less than that behind the field could see a play before they lock. Timed markets (drive, next score, props) are never open while the ball can be snapped. No TV-timeout window seen yet in the second half.
 - Fairness: free data cannot see a snap in time (DraftKings moves about 10s after it, ESPN posts it about 25s after). Next snap markets are not offered. Drive, next score and player markets open only on a break board during ESPN-marked stoppages and close 100s after the stoppage began (600s at halftime). Stoppage start to next live ball measured tonight: TV timeout 135 to 161s, end of quarter 206s, two-minute warning 168s. So the board shuts at least 35s before play can resume. A new live play or a DraftKings move shuts it at once. Game lines refuse a pick (placement fails) when DraftKings has just moved. No pick is voided after the fact.
 - Lag: push delivery 0.1 to 0.3s. ESPN posts plays 19 to 49s after play time (median about 28).
 - Market formulas and holds:
@@ -14,6 +15,6 @@
   - Player props (pass yards, completions, rush yards, receiving yards, catches): current box score plus a rest-of-game gamma distribution whose mean and variance come from nflverse 2023 to 2025 player games, by stat, role rank, checkpoint and pace, scaled to time left. Line at the median. Hold 7%. Milestones from the same distribution, hold 10%.
   - Anytime TD: share of players in that role (rush attempts or targets rank) who scored the rest of the way, nflverse 2023 to 2025, scaled to time left. Hold 15%.
 - SportsGameOdds: would use it only for live player prop lines from real books, to replace the modelled props, through a small proxy the founder provisions (a static page cannot hold a key). Not requested yet.
-- Testing next (v12): break board and DraftKings lock against real second-half snaps (monitor running), fourth quarter pricing check.
+- Testing next (v13): break board on second-half TV timeouts, DK lock lag over more snaps, fourth quarter pricing check.
 - Blocked: nothing.
 - Known limits: ESPN lags TV, so someone watching TV can see a snap before the page does; next snap stakes are limited to 100 Stack.

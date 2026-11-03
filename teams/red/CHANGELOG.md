@@ -1,5 +1,10 @@
 # Changelog: Team Red, Rush Live
 
+## v12 (2026-11-02, Q3)
+- Game lines lock on the first DraftKings tick after a play (any change to live moneyline, spread or total), not on a 1.2% move, and stay locked until ESPN posts that play or 40 seconds pass. On the second-half kickoff the old threshold flagged 30s after the snap; the first tick came at 18s.
+- Halftime break board runs 720s (measured halftime tonight: End of Half 02:42:07 to kickoff 02:56:17, 850s).
+- Header: BOARD (break board close vs next snap) and DK (snap to game-line lock).
+
 ## v11 (2026-11-02, start of Q3)
 - Player props fitted to nflverse 2023 to 2025 player games: rest-of-game mean and variance by stat, role (team rank by pass attempts, rush attempts or targets so far), checkpoint (25, 50, 75% played) and pace, scaled to the exact time left. Gamma distribution, line at the median. Hold 7% on props, 10% on milestones, 15% on anytime TD.
 - Anytime TD: share of players in that role who scored a rushing or receiving TD the rest of the way (at halftime: top rusher 26%, WR1 17%), combined for players who both run and catch.
