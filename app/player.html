@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B1118">
+<title>Player · Rush</title>
+<link rel="stylesheet" href="shared/rush.css">
+<style>
+/* Player card: hero card (avatar, rank, Units, record), head-to-head bar against you, then Open picks as sealed teasers that open at game start, then Settled picks in full. */
+:root{--pc-bg:#0B1118;--pc-card:#121A23;--pc-card2:#1A2530;--pc-line:rgba(255,255,255,.07);--pc-fg:#fff;--pc-mut:#9AA8B6;--pc-dim:#66768A;--pc-acc:#00BFFF;--pc-win:#10B981;--pc-loss:#D95151;--pc-warn:#F59E0B;--pc-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Inter,Roboto,system-ui,sans-serif;color-scheme:dark}
+html,body{margin:0}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
+body{background:var(--pc-bg);color:var(--pc-fg);font:15px/1.38 var(--pc-font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+.pc-wrap{max-width:620px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 10px) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+.pc-back{display:inline-flex;align-items:center;gap:4px;color:var(--pc-acc);text-decoration:none;font:600 15px var(--pc-font);padding:6px 0 10px;background:none;border:0;cursor:pointer}
+.pc-hero{position:relative;border-radius:20px;padding:18px;overflow:hidden;background:linear-gradient(150deg,var(--pc-c1,#163246) 0%,#121A23 70%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);margin-bottom:14px}
+.pc-hero .row1{display:flex;align-items:center;gap:14px}
+.pc-av{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font:800 26px var(--pc-font);color:#fff;flex:none;box-shadow:0 0 0 3px rgba(255,255,255,.12)}
+.pc-hero h1{margin:0;font:800 26px/1.1 var(--pc-font);letter-spacing:-.02em}
+.pc-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.pc-tag{font:600 11px var(--pc-font);padding:3px 8px;border-radius:99px;background:rgba(255,255,255,.1);color:var(--pc-mut)}.pc-tag.you{background:var(--pc-acc);color:#002233}.pc-tag.rk{background:rgba(0,191,255,.18);color:var(--pc-acc)}
+.pc-big{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:16px}
+.pc-big b{font:800 40px/1 var(--pc-font);letter-spacing:-.02em}.pc-big b.up{color:var(--pc-win)}.pc-big b.dn{color:var(--pc-loss)}.pc-big span{color:var(--pc-mut);font-size:13px;text-align:right}
+.pc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}
+.pc-grid div{background:rgba(11,17,24,.45);border-radius:12px;padding:9px 8px}.pc-grid b{display:block;font:700 17px var(--pc-font)}.pc-grid i{font-style:normal;font-size:11.5px;color:var(--pc-mut)}
+.pc-mix{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:12px;background:rgba(255,255,255,.08)}.pc-mix i{display:block}
+.pc-mixl{display:flex;gap:12px;margin-top:6px;font-size:12px;color:var(--pc-mut)}.pc-mixl span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;background:var(--c)}
+.pc-sec{background:var(--pc-card);border-radius:16px;padding:14px;margin-bottom:14px}
+.pc-sec h2{margin:0 0 10px;font:700 18px/1.2 var(--pc-font);display:flex;justify-content:space-between;align-items:baseline;gap:8px}.pc-sec h2 span{font:500 13px var(--pc-font);color:var(--pc-mut)}
+.pc-vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}.pc-vs b{display:block;font:800 24px var(--pc-font)}.pc-vs i{font-style:normal;font-size:12px;color:var(--pc-mut)}.pc-vs .r{text-align:right}.pc-vs em{font:600 12px var(--pc-font);font-style:normal;color:var(--pc-acc);text-align:center}
+.pc-vsbar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:10px;background:var(--pc-card2)}.pc-vsbar i{display:block;background:var(--pc-acc)}.pc-vsbar u{display:block;background:#7B61FF;text-decoration:none}
+.pc-pk{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;padding:12px;border-radius:12px;background:var(--pc-card2);margin-top:8px;text-decoration:none;color:inherit}
+.pc-pk:first-of-type{margin-top:0}
+.pc-gm{display:flex;align-items:center;gap:7px;min-width:0;font:600 14px var(--pc-font)}.pc-gm img{width:22px;height:22px;object-fit:contain}.pc-gm .at{color:var(--pc-dim);font-weight:500}
+.pc-lg{font:700 10px var(--pc-font);letter-spacing:.06em;padding:2px 6px;border-radius:99px;background:rgba(0,191,255,.14);color:var(--pc-acc)}
+.pc-mk{font-size:13px;color:var(--pc-mut);grid-column:1}
+.pc-sealed{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 8px,rgba(255,255,255,.07) 8px 16px);color:var(--pc-mut);font-size:13px}
+.pc-sealed svg{width:18px;height:18px;flex:none;color:var(--pc-warn)}.pc-sealed b{color:var(--pc-fg);font-weight:600}
+.pc-when{text-align:right;font:600 12.5px var(--pc-font);color:var(--pc-mut);white-space:nowrap}.pc-when.live{color:#FF8A8A}
+.pc-pick{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;gap:8px;font:600 15px var(--pc-font)}.pc-pick span{color:var(--pc-acc)}
+.pc-res{font:700 12px var(--pc-font);letter-spacing:.04em;padding:3px 8px;border-radius:99px}.pc-res.won{background:rgba(16,185,129,.18);color:var(--pc-win)}.pc-res.lost{background:rgba(217,81,81,.16);color:#FF8A8A}.pc-res.push,.pc-res.void,.pc-res.cashed{background:rgba(255,255,255,.08);color:var(--pc-mut)}
+.pc-u{font:700 15px var(--pc-font)}.pc-u.up{color:var(--pc-win)}.pc-u.dn{color:var(--pc-loss)}
+.pc-tail{grid-column:1/-1;display:flex;justify-content:flex-end}.pc-tail span{font:600 13px var(--pc-font);color:var(--pc-acc)}
+.pc-empty{color:var(--pc-mut);font-size:14px}
+.pc-note{color:var(--pc-dim);font-size:12.5px;margin:-4px 2px 16px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-tab="ranks">
+<div class="pc-wrap">
+ <button class="pc-back" id="pc-back">&lsaquo; Back</button>
+ <div id="pc-main"><div class="pc-sec"><div class="pc-empty">Loading the player.</div></div></div>
+</div>
+<script src="shared/state.js"></script>
+<script src="week-games.js"></script>
+<script src="shared/nav.js"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const U=n=>(n<0?'-':'+')+(Math.round(Math.abs(n)*10)/10).toFixed(1);
+const fo=o=>o==null?'':(o>0?'+':'')+o;
+const uid=new URLSearchParams(location.search).get('u')||'me';
+const R=window.Rush&&typeof Rush.field==='function'?Rush:null;
+let games=RW.cached()||[];
+const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const START={nfl:'kickoff',nba:'tip-off',nhl:'puck drop'};
+const hue=id=>Math.floor(RW.hash(id+'c')*360);
+const left=ms=>{const s=Math.max(0,Math.round((ms-Date.now())/1000)),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return d?`${d}d ${h}h`:h?`${h}h ${m}m`:`${m}m`};
+const when=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'numeric',minute:'2-digit'}).format(new Date(ms))+' ET';
+$('pc-back').onclick=()=>{if(history.length>1)history.back();else location.href='ranks.html'};
+
+function fieldRows(){let rows;if(R){rows=R.field().map(r=>({...r}));}else rows=RW.field(games);if(!rows.some(r=>r.me)){const m=R?R.me():{handle:'You',units:0};rows.push({id:'me',name:m.handle||'You',me:true,units:0,out:true})}rows.sort((a,b)=>b.units-a.units);rows.forEach(r=>r.rank=1+rows.filter(x=>x.units>r.units+1e-9).length);return rows}
+function gameLine(g,fallback){if(!g)return`<span class="pc-gm">${esc(fallback||'')}</span>`;return`<span class="pc-gm"><span class="pc-lg">${RW.LEAGUES[g.league].name}</span><img src="${esc(g.away.logo)}" alt="" width="22" height="22" loading="lazy">${esc(g.away.abbr)}<span class="at">at</span><img src="${esc(g.home.logo)}" alt="" width="22" height="22" loading="lazy">${esc(g.home.abbr)}</span>`}
+function openCard(p,mine){const g=p.g,started=g&&g.state!=='pre',href=g?`game.html?league=${g.league}&id=${encodeURIComponent(g.id)}`:'board.html';
+ const w=!g?'':g.state==='in'?`<span class="pc-when live">${esc(g.detail)}</span>`:g.state==='post'?`<span class="pc-when">Final, grading</span>`:`<span class="pc-when">${esc(when(g.date))}</span>`;
+ if(!mine&&!started)return`<a class="pc-pk" href="${href}">${gameLine(g,p.game)}${w}<span class="pc-mk">${esc(p.market)}</span><span class="pc-when">in ${left(g?g.date:Date.now())}</span><div class="pc-sealed">${LOCK}<span><b>Pick sealed.</b> Side and line show at ${START[p.league]||'game start'}.</span></div><div class="pc-tail"><span>Make your own pick &rsaquo;</span></div></a>`;
+ return`<a class="pc-pk" href="${href}">${gameLine(g,p.game)}${w}<span class="pc-mk">${esc(p.market)}${!mine&&started?' &middot; revealed at '+(START[p.league]||'start'):''}</span><span></span><div class="pc-pick"><b>${esc(p.label)}</b><span>${fo(p.odds)}</span></div><div class="pc-tail"><span>${started?'Tail it live on the game':'Open the game'} &rsaquo;</span></div></a>`}
+function doneCard(p){const g=p.g,res={won:'HIT',lost:'MISS',push:'PUSH',void:'NO ACTION',cashed:'CLOSED'}[p.status]||p.status.toUpperCase();
+ return`<div class="pc-pk">${gameLine(g,p.game)}<span class="pc-res ${p.status}">${res}</span><div class="pc-pick"><b>${esc(p.label)} <span>${fo(p.odds)}</span></b>${p.units!=null?`<b class="pc-u ${p.units>0?'up':p.units<0?'dn':''}">${U(p.units)} U</b>`:''}</div><span class="pc-mk">${esc(p.market)}${g&&g.home.score!=null?` &middot; final ${g.away.abbr} ${g.away.score}, ${g.home.abbr} ${g.home.score}`:''}</span></div>`}
+function render(){const rows=fieldRows(),row=rows.find(r=>String(r.id)===uid)||(uid==='me'?rows.find(r=>r.me):null);
+ if(!row){$('pc-main').innerHTML='<div class="pc-sec"><div class="pc-empty">This player is not in this week\'s Field.</div></div>';return}
+ const mine=!!row.me,picks=RW.playerPicks(mine?'me':row.id,games)||[];
+ const open=picks.filter(p=>p.status==='open').sort((a,b)=>(a.g?a.g.date:a.at)-(b.g?b.g.date:b.at));
+ const done=picks.filter(p=>p.status!=='open').sort((a,b)=>(b.g?b.g.date:b.at)-(a.g?a.g.date:a.at));
+ const w=done.filter(p=>p.status==='won').length,l=done.filter(p=>p.status==='lost').length;
+ const best=done.filter(p=>p.status==='won').sort((a,b)=>b.units-a.units)[0];
+ const mix={nfl:0,nba:0,nhl:0};picks.forEach(p=>{if(mix[p.league]!=null)mix[p.league]++});const tot=Math.max(1,mix.nfl+mix.nba+mix.nhl);
+ const C={nfl:'#00BFFF',nba:'#F59E0B',nhl:'#7B61FF'};
+ const name=row.name||'Player';document.title=`${name} · Rush`;
+ let h=`<div class="pc-hero" style="--pc-c1:hsl(${mine?205:hue(row.id)} 45% 22%)"><div class="row1"><span class="pc-av" style="background:${mine?'linear-gradient(135deg,#00C0FF,#0080FF)':`hsl(${hue(row.id)} 50% 36%)`}">${esc(name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span><div><h1>${esc(name)}</h1><div class="pc-tags">${mine?'<span class="pc-tag you">YOU</span>':'<span class="pc-tag">SIM</span>'}${row.out?'<span class="pc-tag">Not entered</span>':`<span class="pc-tag rk">#${row.rank} of ${rows.length}</span>`}${row.rank<=3&&!row.out?'<span class="pc-tag rk">Prize spot</span>':''}</div></div></div>
+  <div class="pc-big"><b class="${row.units>0?'up':row.units<0?'dn':''}">${U(row.units)}</b><span>Units this week<br>Week ${RW.week().n}</span></div>
+  <div class="pc-grid"><div><b>${w}-${l}</b><i>Record</i></div><div><b>${w+l?Math.round(100*w/(w+l))+'%':'-'}</b><i>Hit rate</i></div><div><b>${open.length}</b><i>Open</i></div><div><b>${best?U(best.units):'-'}</b><i>Best hit</i></div></div>
+  ${picks.length?`<div class="pc-mix">${['nfl','nba','nhl'].map(k=>`<i style="width:${100*mix[k]/tot}%;background:${C[k]}"></i>`).join('')}</div><div class="pc-mixl">${['nfl','nba','nhl'].filter(k=>mix[k]).map(k=>`<span style="--c:${C[k]}">${RW.LEAGUES[k].name} ${Math.round(100*mix[k]/tot)}%</span>`).join('')}</div>`:''}</div>`;
+ if(!mine){const me=rows.find(r=>r.me),d=(me?me.units:0)-row.units,a=Math.max(.01,Math.abs(me?me.units:0)),b=Math.max(.01,Math.abs(row.units));h+=`<div class="pc-sec"><h2>You and ${esc(name.split(' ')[0])} <span>This week</span></h2><div class="pc-vs"><div><b>${U(me?me.units:0)}</b><i>You${me&&!me.out?` &middot; #${me.rank}`:''}</i></div><em>${d>0?'You lead':d<0?'They lead':'Level'}${d?' by '+Math.abs(d).toFixed(1):''}</em><div class="r"><b>${U(row.units)}</b><i>#${row.rank}</i></div></div><div class="pc-vsbar"><i style="width:${100*a/(a+b)}%"></i><u style="width:${100*b/(a+b)}%"></u></div></div>`}
+ h+=`<div class="pc-sec"><h2>Open picks <span>${open.length?open.length+' open':''}</span></h2>${open.length?open.map(p=>openCard(p,mine)).join(''):`<div class="pc-empty">${mine?'No open picks. Find a game on the Board.':'Nothing open right now.'}</div>`}</div>`;
+ if(!mine&&open.some(p=>p.g&&p.g.state==='pre'))h+=`<div class="pc-note">Other players' picks stay sealed until that game starts, so nobody can copy a line before it moves.</div>`;
+ h+=`<div class="pc-sec"><h2>Settled <span>${w}-${l}</span></h2>${done.length?done.slice(0,40).map(doneCard).join(''):'<div class="pc-empty">No settled picks yet this week.</div>'}</div>`;
+ const m=$('pc-main');if(m._h!==h){m.innerHTML=h;m._h=h}}
+async function refresh(){try{games=await RW.load()}catch(e){}render()}
+render();refresh();setInterval(refresh,30000);setInterval(render,15000);
+if(R&&R.on)R.on(()=>render());
+</script>
+</body>
+</html>

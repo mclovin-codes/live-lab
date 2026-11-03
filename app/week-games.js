@@ -44,9 +44,21 @@ function grade(p){const g=p.g;if(!g.done||g.home.score==null)return null;const H
 let inField=false;
 function field(games){const nested=inField;inField=true;try{return fieldRows(games,nested)}finally{inField=nested}}
 let botMemo={g:null,n:-1,day:"",rows:null};
-function botRows(games){const td=etDay(Date.now()),n=games.reduce((a,g)=>a+(g.done?1:0)+(g.state==="in"?1000:0),0);if(botMemo.g===games&&botMemo.n===n&&botMemo.day===td)return botMemo.rows.map(r=>({...r}));const rows=FIELD.map(b=>{let pl=0,w=0,l=0,open=0,today=0;for(const g of games){const p=botPick(b,g);if(!p)continue;let r=grade(p);if(r==='won'||r==='lost'){/* a small, seeded skill edge: sharper players flip a few losses */if(r==='lost'&&hash(b.id+g.id+'x')<Math.max(0,b.edge))r='won';if(r==='won'&&hash(b.id+g.id+'y')<Math.max(0,-b.edge))r='lost'}
+function botRows(games){const td=etDay(Date.now()),n=games.reduce((a,g)=>a+(g.done?1:0)+(g.state==="in"?1000:0),0);if(botMemo.g===games&&botMemo.n===n&&botMemo.day===td)return botMemo.rows.map(r=>({...r}));const rows=FIELD.map(b=>{let pl=0,w=0,l=0,open=0,today=0;for(const g of games){const p=botPick(b,g);if(!p)continue;const r=botResult(b,g,p);/* botResult carries the seeded skill edge */
    if(!r){open++;continue}if(r==='push')continue;const d=r==='won'?toWin(p.stake,p.odds):-p.stake;pl+=d;if(etDay(g.date)===td)today+=d;r==='won'?w++:l++}
   return{id:b.id,name:b.name,units:pl/10,today:today/10,w,l,open,sim:true}});botMemo={g:games,n,day:td,rows};return rows.map(r=>({...r}))}
+/* one bot's result on one game, the same rule the Field uses */
+function botResult(b,g,p){let r=grade(p);if(r==='won'||r==='lost'){if(r==='lost'&&hash(b.id+g.id+'x')<Math.max(0,b.edge))r='won';if(r==='won'&&hash(b.id+g.id+'y')<Math.max(0,-b.edge))r='lost'}return r}
+/* every pick a player has this week, unified: {league, gameId, g, market, t, side, line, odds, stake, label, status, units} */
+const MKT={ml:'Moneyline',spread:'Spread',total:'Total'};
+function marketName(t,league){if(t==='spread'&&league==='nhl')return'Puck line';if(t==='spread'&&league==='nba')return'Spread';return MKT[t]||t}
+function pickLabel(p,g){const fl=x=>(x>0?'+':'')+x;if(!g)return p.label||'';if(p.t==='ml')return`${(p.side==='home'?g.home:g.away).abbr} to win`;if(p.t==='spread')return`${(p.side==='home'?g.home:g.away).abbr} ${fl(p.line)}`;if(p.t==='total')return`${p.side==='o'?'Over':'Under'} ${p.line}`;return p.label||''}
+function playerPicks(id,games){games=games||cached()||[];const out=[];
+ if(id==='me'){const s=RS();if(!s||typeof s.picks!=='function')return out;let ps=[];try{ps=s.picks({week:s.week().id})}catch(e){ps=s.picks()}
+  for(const p of ps){const g=games.find(x=>x.league===p.league&&String(x.id)===String(p.gameId));const k=p.spec&&p.spec.k||'';out.push({league:p.league,gameId:p.gameId,g,game:p.game,market:p.legs?`${p.legs.length}-leg parlay`:marketName(k,p.league)||k,t:k,label:p.label,odds:p.odds,stake:p.stake,status:p.status,units:p.status==='open'?null:((p.pay||0)-p.stake)/10,at:p.at})}return out}
+ const b=FIELD.find(x=>x.id===id);if(!b)return null;
+ for(const g of games){const p=botPick(b,g);if(!p)continue;const r=botResult(b,g,p);out.push({league:g.league,gameId:g.id,g,game:`${g.away.abbr} at ${g.home.abbr}`,market:marketName(p.t,g.league),t:p.t,label:pickLabel(p,g),odds:p.odds,stake:p.stake,status:r||'open',units:r==='won'?toWin(p.stake,p.odds)/10:r==='lost'?-p.stake/10:r==='push'?0:null,at:g.date})}
+ return out}
 function fieldRows(games,nested){const rows=botRows(games);
  if(nested){rows.sort((a,b)=>b.units-a.units);return rows}/* called from the shared store while it builds its own Field: bots only, no me(), or the two would recurse */
  const m=me();rows.push({id:'me',name:m.name,units:m.units,today:m.today||0,w:m.w,l:m.l,open:m.open,me:true});rows.sort((a,b)=>b.units-a.units||(a.me?-1:b.me?1:0));rows.forEach(r=>r.rank=1+rows.filter(x=>x.units>r.units+1e-9).length);return rows}
@@ -79,5 +91,5 @@ function stripHTML(games,league,id){const now=Date.now(),td=etDay(now);const liv
  const pill=g=>{const lv=g.state==='in',cl=lv?(g.clock&&g.period?`<span>${esc(g.clock)}</span><span>${esc(g.detail.replace(/^.*-\s*/,''))}</span>`:`<span>${esc(g.detail)}</span>`):`<span>${esc(t(g.date))}</span><span>${esc(LEAGUES[g.league].name)}</span>`;return`<a class="rw-pill${g.league===league&&String(g.id)===String(id)?' cur':''}" href="game.html?league=${g.league}&id=${esc(g.id)}"><img src="${esc(g.away.logo)}" alt="${esc(g.away.abbr)}" width="24" height="24"><span class="s">${lv?esc(g.away.score):''}</span><span class="c${lv?' live':''}">${cl}</span><span class="s">${lv?esc(g.home.score):''}</span><img src="${esc(g.home.logo)}" alt="${esc(g.home.abbr)}" width="24" height="24"></a>`};
  let h='';if(live.length)h+=lab('Live')+live.slice(0,12).map(pill).join('');if(next.length)h+=lab('Today')+next.slice(0,12).map(pill).join('');if(rest.length)h+=lab('Next up')+rest.map(pill).join('');return h}
 function mountStrip(el,league,id){if(!el)return;if(!document.getElementById('rw-strip-css')){const st=document.createElement('style');st.id='rw-strip-css';st.textContent=STRIP_CSS;document.head.appendChild(st)}el.classList.add('rw-strip');const paint=gs=>{const h=stripHTML(gs||[],league,id);if(el._h!==h){el.innerHTML=h;el._h=h;const c=el.querySelector('.cur');if(c&&!el._scrolled){el._scrolled=1;el.scrollLeft=Math.max(0,c.offsetLeft-16)}}el.hidden=!h};paint(cached());const tick=()=>load().then(paint).catch(()=>{}).finally(()=>setTimeout(tick,(cache||[]).some(g=>g.state==='in')?20000:60000));tick()}
-window.RW={norm,LEAGUES,week,days,load,cached,field,season,me,opponent,etDay,hash,liveCount,badge,mountStrip,stripHTML,STRIP_CSS};
+window.RW={playerPicks,marketName,FIELD,norm,LEAGUES,week,days,load,cached,field,season,me,opponent,etDay,hash,liveCount,badge,mountStrip,stripHTML,STRIP_CSS};
 })();
