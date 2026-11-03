@@ -8,6 +8,7 @@
 - Shared state: reads window.RushState (Blue's shared/state.js) when it exists for your Stack, Units, picks and season record; until then shows a fresh entry. Tab bar: shared/nav.js when present, otherwise a matching fallback.
 - r2: Ranks reads Blue's shared store (Rush.field, Rush.rival, Rush.season, Rush.me) so rank, matchup and season match Home and the tab badge; a Join the Field card shows before entry. Board and Ranks use Blue's nav.js tab bar. Red's own Field (graded on real finals) remains as a fallback when the store is missing.
 - r3 (from the founder's reference screens): strip of other games above the Board (live first with score and clock, then today's next games), live-count badge on the Board tab (on Red pages now; shared/nav.js can read localStorage rw.live), channel names removed from rows. RW.mountStrip(el, league, id) in app/week-games.js gives Blue the same strip for the top of game.html.
+- r4 (pregame NFL references): NFL Week schedule cards on the Board (away and home logos, records, WK, date and time, NEXT on the next kickoff, spread and O/U; live and final states), strip grouped under Live, Today, Next up labels.
 - Not yet: duels beyond the weekly matchup; Blue's Field units are time-driven, not graded on real finals (Red offered week-games.js RW.field as a source).
 
 # Team Red status: closing, after the final whistle
