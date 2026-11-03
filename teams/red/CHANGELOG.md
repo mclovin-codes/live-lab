@@ -1,5 +1,9 @@
 # Changelog: Team Red, Rush Live
 
+## v14 (2026-11-02, Q3)
+- Board and Props use iOS segmented controls (Game, Alternates, Totals, Finish; Bears or Seahawks).
+- Real commercial breaks measured on the hosted page (v11 rules): two breaks after punts, ESPN posted the marker 12 to 14s late, picks open 85 to 87s, board closed 51s and 55s before the next snap.
+
 ## v13 (2026-11-02, Q3)
 - Rebuilt look per the founder's 9:58 note and three consulting experts (NFL, sportsbook, iOS UI): Rush colours (#00BFFF on #0B1118), system iOS type, frosted header and tab bar with icons, bottom sheets with grabber, header that compacts on scroll.
 - Team logos in the score card, game lines and player sections; player headshots on props and anytime TD; timeouts left; win probability bar; field with ball, line of scrimmage and line to gain; recent plays list with the drive summary.
