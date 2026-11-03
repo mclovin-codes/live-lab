@@ -6,7 +6,7 @@
 const SB='https://site.api.espn.com/apis/site/v2/sports/';
 const LEAGUES={nfl:{path:'football/nfl',name:'NFL'},nba:{path:'basketball/nba',name:'NBA'},nhl:{path:'hockey/nhl',name:'NHL'}};
 const ET='America/New_York';
-const etDay=ms=>new Intl.DateTimeFormat('en-CA',{timeZone:ET,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(ms)).replace(/-/g,'');
+const ETF=new Intl.DateTimeFormat('en-CA',{timeZone:ET,year:'numeric',month:'2-digit',day:'2-digit'});const etDay=ms=>ETF.format(new Date(ms)).replace(/-/g,'');
 const RS=()=>window.RushState||window.Rush||null;
 
 /* The contest week: Tuesday to the end of Monday Night Football. Week 9 opens Tue 2026-11-03. */
@@ -25,7 +25,7 @@ async function load(force){if(!force&&cache&&Date.now()-cacheAt<15000)return cac
  for(const lg of['nba','nhl'])for(const d of ds)jobs.push(J(`${SB}${LEAGUES[lg].path}/scoreboard?dates=${d}`).then(r=>(r.events||[]).map(e=>norm(lg,e))).catch(()=>[]));
  const all=(await Promise.all(jobs)).flat(),seen=new Set,games=[];for(const g of all){const k=g.league+g.id;if(seen.has(k))continue;seen.add(k);if(g.date>=w.start-6*36e5&&g.date<=w.end)games.push(g)}
  games.sort((a,b)=>a.date-b.date);cache=games;cacheAt=Date.now();try{localStorage.setItem('rw.games',JSON.stringify({at:cacheAt,w:w.n,games}));localStorage.setItem('rw.live',JSON.stringify({n:games.filter(g=>g.state==='in').length,at:cacheAt}))}catch(e){}badge();return games}
-function cached(){try{const j=JSON.parse(localStorage.getItem('rw.games')||'null');if(j&&j.w===week().n)return j.games}catch(e){}return null}
+let cRaw=null,cVal=null;function cached(){try{const raw=localStorage.getItem('rw.games');if(raw!==cRaw){cRaw=raw;const j=JSON.parse(raw||'null');cVal=j&&j.w===week().n?j.games:null}return cVal}catch(e){}return null}
 
 /* ---------- the simulated Field: 30 players who pick every game of the week, graded on real finals ---------- */
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}h^=h>>>13;h=Math.imul(h,1597334677);return((h^(h>>>16))>>>0)/4294967296}
@@ -41,9 +41,14 @@ function grade(p){const g=p.g;if(!g.done||g.home.score==null)return null;const H
  else if(p.t==='spread'){const m=(p.side==='home'?H-A:A-H)+p.line;r=m===0?'push':m>0?'won':'lost'}
  else{const tot=H+A;r=tot===p.line?'push':(p.side==='o')===(tot>p.line)?'won':'lost'}
  return r}
-function field(games){const rows=FIELD.map(b=>{let pl=0,w=0,l=0,open=0,today=0;const td=etDay(Date.now());for(const g of games){const p=botPick(b,g);if(!p)continue;let r=grade(p);if(r==='won'||r==='lost'){/* a small, seeded skill edge: sharper players flip a few losses */if(r==='lost'&&hash(b.id+g.id+'x')<Math.max(0,b.edge))r='won';if(r==='won'&&hash(b.id+g.id+'y')<Math.max(0,-b.edge))r='lost'}
+let inField=false;
+function field(games){const nested=inField;inField=true;try{return fieldRows(games,nested)}finally{inField=nested}}
+let botMemo={g:null,n:-1,day:"",rows:null};
+function botRows(games){const td=etDay(Date.now()),n=games.reduce((a,g)=>a+(g.done?1:0)+(g.state==="in"?1000:0),0);if(botMemo.g===games&&botMemo.n===n&&botMemo.day===td)return botMemo.rows.map(r=>({...r}));const rows=FIELD.map(b=>{let pl=0,w=0,l=0,open=0,today=0;for(const g of games){const p=botPick(b,g);if(!p)continue;let r=grade(p);if(r==='won'||r==='lost'){/* a small, seeded skill edge: sharper players flip a few losses */if(r==='lost'&&hash(b.id+g.id+'x')<Math.max(0,b.edge))r='won';if(r==='won'&&hash(b.id+g.id+'y')<Math.max(0,-b.edge))r='lost'}
    if(!r){open++;continue}if(r==='push')continue;const d=r==='won'?toWin(p.stake,p.odds):-p.stake;pl+=d;if(etDay(g.date)===td)today+=d;r==='won'?w++:l++}
-  return{id:b.id,name:b.name,units:pl/10,today:today/10,w,l,open,sim:true}});
+  return{id:b.id,name:b.name,units:pl/10,today:today/10,w,l,open,sim:true}});botMemo={g:games,n,day:td,rows};return rows.map(r=>({...r}))}
+function fieldRows(games,nested){const rows=botRows(games);
+ if(nested){rows.sort((a,b)=>b.units-a.units);return rows}/* called from the shared store while it builds its own Field: bots only, no me(), or the two would recurse */
  const m=me();rows.push({id:'me',name:m.name,units:m.units,today:m.today||0,w:m.w,l:m.l,open:m.open,me:true});rows.sort((a,b)=>b.units-a.units||(a.me?-1:b.me?1:0));rows.forEach(r=>r.rank=1+rows.filter(x=>x.units>r.units+1e-9).length);return rows}
 
 /* ---------- season: weeks 1 to 8 already played, then this week live ---------- */
@@ -74,5 +79,5 @@ function stripHTML(games,league,id){const now=Date.now(),td=etDay(now);const liv
  const pill=g=>{const lv=g.state==='in',cl=lv?(g.clock&&g.period?`<span>${esc(g.clock)}</span><span>${esc(g.detail.replace(/^.*-\s*/,''))}</span>`:`<span>${esc(g.detail)}</span>`):`<span>${esc(t(g.date))}</span><span>${esc(LEAGUES[g.league].name)}</span>`;return`<a class="rw-pill${g.league===league&&String(g.id)===String(id)?' cur':''}" href="game.html?league=${g.league}&id=${esc(g.id)}"><img src="${esc(g.away.logo)}" alt="${esc(g.away.abbr)}" width="24" height="24"><span class="s">${lv?esc(g.away.score):''}</span><span class="c${lv?' live':''}">${cl}</span><span class="s">${lv?esc(g.home.score):''}</span><img src="${esc(g.home.logo)}" alt="${esc(g.home.abbr)}" width="24" height="24"></a>`};
  let h='';if(live.length)h+=lab('Live')+live.slice(0,12).map(pill).join('');if(next.length)h+=lab('Today')+next.slice(0,12).map(pill).join('');if(rest.length)h+=lab('Next up')+rest.map(pill).join('');return h}
 function mountStrip(el,league,id){if(!el)return;if(!document.getElementById('rw-strip-css')){const st=document.createElement('style');st.id='rw-strip-css';st.textContent=STRIP_CSS;document.head.appendChild(st)}el.classList.add('rw-strip');const paint=gs=>{const h=stripHTML(gs||[],league,id);if(el._h!==h){el.innerHTML=h;el._h=h;const c=el.querySelector('.cur');if(c&&!el._scrolled){el._scrolled=1;el.scrollLeft=Math.max(0,c.offsetLeft-16)}}el.hidden=!h};paint(cached());const tick=()=>load().then(paint).catch(()=>{}).finally(()=>setTimeout(tick,(cache||[]).some(g=>g.state==='in')?20000:60000));tick()}
-window.RW={LEAGUES,week,days,load,cached,field,season,me,opponent,etDay,hash,liveCount,badge,mountStrip,stripHTML,STRIP_CSS};
+window.RW={norm,LEAGUES,week,days,load,cached,field,season,me,opponent,etDay,hash,liveCount,badge,mountStrip,stripHTML,STRIP_CSS};
 })();
