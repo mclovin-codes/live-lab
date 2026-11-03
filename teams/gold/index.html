@@ -166,9 +166,9 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
 <div id="toast" hidden></div>
 
 <script>
-const VERSION='v12';
+const VERSION='v13';
 const BOOT=Date.now();
-const CHANGES=[['v12','Timed markets now price from real NFL data. Next-snap pass or run, 5+ and 10+ yards, moves the chains, this drive and next score come from tables fit on every snap of the 2023-2025 seasons, about 115,000 plays, by down, distance, field position, clock and score. Each market carries a stated hold.'],['v11','No more voids after the fact. Every live pick is pending until the feed confirms the ball was dead when you tapped, the way books accept in-play picks. If it was not, the pick is never accepted and the stake stays in your Stack. Timed picks wait for the next play to post. Other picks wait 16 seconds for DraftKings and are declined if it suspended or moved.'],['v10','Fair timed markets. Next snap, first down, this drive, next score and anytime touchdown open only in a short window after each play, with a countdown, and close before the next snap is likely. They also close the moment DraftKings suspends or jumps. A pick placed after the play it depends on started is void, stake back, and so is any prop picked after a play involving that player started. The panel shows how early or late the lock was on each play.'],['v9','Now the Live section of Bears at Seahawks inside Rush. Your weekly Stack of 1,000, your Slip, Units and the Field. Rush words everywhere. Early close-out is gone because Rush has none. A named head-to-head opponent on the Field tab, and a free Reload once your Stack runs low.'],['v8','Checks ESPN every second past the cache and uses whichever feed hears a play first.'],['v7','ESPN push feed, DraftKings live prices on the main lines, markets lock when DraftKings jumps, and your true lag in the header.'],['v6','One-tap picks, glowing open picks, beat-the-line readout, second-half markets, final recap.'],['v1-v5','Live Board, next-snap, drive and next-score markets, props, parlays, first-down market, SIM Field, rank alerts, self-update.']];
+const CHANGES=[['v13','Player props and anytime touchdown now price like a book: each player\'s 2026 season average from ESPN is the pregame number, and an in-game model fit on 2023-2025 play-by-play turns it, the current stat and the clock into over and under prices.'],['v12','Timed markets now price from real NFL data. Next-snap pass or run, 5+ and 10+ yards, moves the chains, this drive and next score come from tables fit on every snap of the 2023-2025 seasons, about 115,000 plays, by down, distance, field position, clock and score. Each market carries a stated hold.'],['v11','No more voids after the fact. Every live pick is pending until the feed confirms the ball was dead when you tapped, the way books accept in-play picks. If it was not, the pick is never accepted and the stake stays in your Stack. Timed picks wait for the next play to post. Other picks wait 16 seconds for DraftKings and are declined if it suspended or moved toward the pick.'],['v10','Fair timed markets. Next snap, first down, this drive, next score and anytime touchdown open only in a short window after each play, with a countdown, and close before the next snap is likely. They also close the moment DraftKings suspends or jumps. A pick placed after the play it depends on started is void, stake back, and so is any prop picked after a play involving that player started. The panel shows how early or late the lock was on each play.'],['v9','Now the Live section of Bears at Seahawks inside Rush. Your weekly Stack of 1,000, your Slip, Units and the Field. Rush words everywhere. Early close-out is gone because Rush has none. A named head-to-head opponent on the Field tab, and a free Reload once your Stack runs low.'],['v8','Checks ESPN every second past the cache and uses whichever feed hears a play first.'],['v7','ESPN push feed, DraftKings live prices on the main lines, markets lock when DraftKings jumps, and your true lag in the header.'],['v6','One-tap picks, glowing open picks, beat-the-line readout, second-half markets, final recap.'],['v1-v5','Live Board, next-snap, drive and next-score markets, props, parlays, first-down market, SIM Field, rank alerts, self-update.']];
 const E='401873036',HOME='26',AWAY='3',BUDGET=1000,MICROCAP=50,RIVAL='Da Bears Dee';
 const CORE=`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${E}/competitions/${E}`;
 const SITE=`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${E}`;
@@ -219,7 +219,7 @@ async function inflate(b64){const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(
 function applyOp(doc,op){const parts=op.path.split('/').slice(1).map(x=>x.replace(/~1/g,'/').replace(/~0/g,'~'));let o=doc;for(let i=0;i<parts.length-1;i++){o=o[parts[i]];if(o==null)return}const k=parts[parts.length-1];if(op.op==='remove'){if(Array.isArray(o))o.splice(+k,1);else delete o[k]}else if(op.op==='add'&&Array.isArray(o)){if(k==='-')o.push(op.value);else o.splice(+k,0,op.value)}else if(op.op==='add'||op.op==='replace')o[k]=op.value}
 G.dkLog=[];
 function readDK(){const pc=(FC.doc&&FC.doc.pickcenter||[])[0];if(!pc||!pc.moneyline)return;const n=v=>{const x=parseFloat(String(v==null?'':v).replace(/^[ou]/,''));return Number.isFinite(x)?x:null},L=(o,k)=>o&&o.live&&n(o.live[k]);const dk={mlH:L(pc.moneyline.home,'odds'),mlA:L(pc.moneyline.away,'odds'),spH:L(pc.pointSpread.home,'line'),spHo:L(pc.pointSpread.home,'odds'),spAo:L(pc.pointSpread.away,'odds'),tot:L(pc.total.over,'line'),oo:L(pc.total.over,'odds'),uo:L(pc.total.under,'odds')};dk.ok=Object.values(dk).every(v=>v!=null);const lastId=(G.plays[G.plays.length-1]||{}).id;if(!dk.ok&&Date.now()-BOOT>6000){G.tickLockT=Date.now();G.tickLockFor=lastId}const imp=o=>1/dec(o);if(dk.ok){const h=imp(dk.mlH),a=imp(dk.mlA);dk.wp=h/(h+a);const ch=imp(dk.spHo),ca=imp(dk.spAo);dk.cover=ch/(ch+ca);const ov=imp(dk.oo),un=imp(dk.uo);dk.over=ov/(ov+un);const was=G.dk&&G.dk.wp;if(was!=null&&Math.abs(dk.wp-was)>=.02&&Date.now()-BOOT>6000){G.tickLockT=Date.now();G.tickLockFor=lastId}
-    if(was!=null&&Math.abs(dk.wp-was)>=.035&&Date.now()-BOOT>6000){G.lastBig=Date.now();G.moveMsg=`DraftKings just moved: SEA ${fmtOdds(G.dk.mlH)} to ${fmtOdds(dk.mlH)}. Markets lock while ESPN posts the play.`;G.moveT=Date.now()}}G.dk=dk;G.dkLog.push({t:Date.now(),ok:dk.ok,wp:dk.ok?dk.wp:null});if(G.dkLog.length>400)G.dkLog.splice(0,100)}
+    if(was!=null&&Math.abs(dk.wp-was)>=.035&&Date.now()-BOOT>6000){G.lastBig=Date.now();G.moveMsg=`DraftKings just moved: SEA ${fmtOdds(G.dk.mlH)} to ${fmtOdds(dk.mlH)}. Markets lock while ESPN posts the play.`;G.moveT=Date.now()}}G.dk=dk;G.dkLog.push({t:Date.now(),ok:dk.ok,wp:dk.ok?dk.wp:null,cover:dk.ok?dk.cover:null,over:dk.ok?dk.over:null});if(G.dkLog.length>400)G.dkLog.splice(0,100)}
 const dkFresh=()=>G.dk&&G.dk.ok&&Date.now()-FC.dkT<120000;
 function syncDoc(ops,ts){const d=FC.doc;let st=false,sc=false,pl=false,dk=false,bx=false,dv=false;for(const op of ops){const p=op.path;try{applyOp(d,op)}catch(e){continue}if(p.startsWith('/header/competitions/0/status'))st=true;else if(p.startsWith('/header/competitions/0/competitors'))sc=true;else if(p.startsWith('/entities/plays/'))pl=true;else if(p.startsWith('/pickcenter/0'))dk=true;else if(p.startsWith('/boxscore'))bx=true;else if(p.startsWith('/drives'))dv=true}
   const c=d.header&&d.header.competitions[0];if(st&&c)readStatusFromHeader(c.status);if(sc&&c)for(const t of c.competitors){const s=+t.score||0,ls=(t.linescores||[]).map(x=>+x.displayValue||0);if(t.homeAway==='home'){G.hs=Math.max(G.hs,s);G.lines.h=mergeLines(G.lines.h,ls)}else{G.as=Math.max(G.as,s);G.lines.a=mergeLines(G.lines.a,ls)}}
@@ -267,7 +267,137 @@ const STATS={passYds:['passing','passingYards','pass yds',235,65],comp:['passing
 function boxStat(aid,stat){if(!G.box)return null;const def=STATS[stat];for(const t of G.box.players||[])for(const g of t.statistics||[]){if(g.name!==def[0])continue;const i=g.keys.indexOf(def[1]);const a=(g.athletes||[]).find(x=>x.athlete.id==aid);if(a&&i>=0){const v=a.stats[i];return parseFloat(String(v).split('/')[0])||0}}return null}
 function boxTD(aid){if(!G.box)return null;let seen=false,td=0;for(const t of G.box.players||[])for(const g of t.statistics||[]){if(g.name!=='rushing'&&g.name!=='receiving')continue;const key=g.name==='rushing'?'rushingTouchdowns':'receivingTouchdowns';const i=g.keys.indexOf(key);const a=(g.athletes||[]).find(x=>x.athlete.id==aid);if(a){seen=true;td+=parseFloat(a.stats[i])||0}}return seen?td:null}
 function propProj(cur,stat,rankPrior){const def=STATS[stat],fr=elapsedSecs()/3600,rem=1-fr,prior=rankPrior||def[3],w=Math.min(.75,fr/.5*.6),rate=(1-w)*prior+w*(cur/Math.max(fr,.08));return{mean:cur+rem*rate,sd:Math.max(def[4]*Math.sqrt(rem),stat.endsWith('Yds')?4:.7)}}
-function playerPool(){const out=[];if(!G.box)return out;for(const t of G.box.players||[]){const side=t.team.id==HOME?'home':'away',abbr=t.team.abbreviation;for(const g of t.statistics||[]){(g.athletes||[]).forEach((a,idx)=>{const name=a.athlete.displayName,id=a.athlete.id;const push=(stat,prior)=>out.push({id,name,side,abbr,stat,prior});
+/* NFL in-game player prop pricing. Fit on nflverse play-by-play 2023-2025 REG season. See PROPS-METHODS.md.
+ * stat: passYds | comp | rushYds | recYds | rec ; pos: QB | RB | WR | TE ; prior = season-to-date avg per game;
+ * current = stat so far; fracLeft = fraction of regulation remaining (0..1); line = prop line.
+ * Sample calls:
+ *   nflPropOver('recYds','WR',70,30,0.5,64.5) -> {"over":0.3764,"push":0}
+ *   nflPropOver('passYds','QB',240,110,0.5,249.5) -> {"over":0.3114,"push":0}
+ *   nflAnytimeTD('RB',0.7,0.5) -> 0.2434
+ *   nflPropMean('recYds','WR',70,35,0.5) -> 67.4907
+ *   nflPropOver('rec','TE',5,2,0.5,5) -> {"over":0.2152,"push":0.171}
+ *   nflPropOver('rushYds','RB',80,60,0.25,79.5) -> {"over":0.3649,"push":0}
+ */
+const NFLP = {"rEdges":[0.25,0.5,0.75,1,1.25,1.5,2,3],"stats":{"passYds":{"floor":20,"count":false,"fallbackPos":"QB","byPos":{"QB":{"pa":99.678,"pb":0.553,"k":[[1],[0.988,1.005,1.005,1.005,1.005,1.005,1.01,1.036,1.036],[0.931,1.018,1.018,1.039,1.052,1.052,1.052,1.052,1.073],[0.896,1.043,1.043,1.071,1.071,1.071,1.071,1.094,1.094],[0.832,1.034,1.065,1.065,1.065,1.1,1.1,1.111,1.111],[0.832,1.036,1.073,1.104,1.104,1.104,1.104,1.127,1.127],[0.646,0.96,0.96,1.009,1.009,1.009,1.009,1.009,1.009],[0.672,0.924,1.004,1.004,1.004,1.004,1.004,1.027,1.027],[0.696,0.924,1.026,1.027,1.027,1.027,1.027,1.034,1.034],[0.753,0.979,1.044,1.044,1.044,1.044,1.044,1.132,1.132],[0.763,0.942,1.084,1.084,1.084,1.084,1.084,1.123,1.123],[0.747,1.036,1.26,1.303,1.303,1.303,1.303,1.373,1.373]],"v":[[29.399,0],[29.948,0],[35.783,0]],"ype":11.059,"phi":1}}},"comp":{"floor":2,"count":true,"fallbackPos":"QB","byPos":{"QB":{"pa":9.238,"pb":0.532,"k":[[1],[0.972,0.987,1.011,1.011,1.011,1.011,1.011,1.025,1.082],[0.817,1.024,1.024,1.024,1.025,1.025,1.033,1.067,1.067],[0.863,1.033,1.033,1.053,1.053,1.053,1.076,1.076,1.076],[0.738,1.037,1.037,1.037,1.079,1.079,1.079,1.079,1.079],[0.767,1.026,1.043,1.095,1.102,1.102,1.102,1.102,1.102],[0.636,0.915,0.918,0.977,0.988,0.996,0.996,1.01,1.01],[0.621,0.925,0.925,1.008,1.008,1.008,1.008,1.037,1.037],[0.656,0.915,0.931,1.027,1.027,1.027,1.027,1.097,1.097],[0.715,0.9,0.998,1.065,1.065,1.065,1.065,1.142,1.142],[0.668,0.826,1.092,1.092,1.092,1.092,1.125,1.2,1.2],[0.712,0.875,1.108,1.28,1.333,1.333,1.403,1.418,1.418]],"v":[[2.196,0],[2.292,0],[2.714,0]]}}},"rushYds":{"floor":2,"count":false,"fallbackPos":"RB","byPos":{"QB":{"pa":4.454,"pb":0.746,"k":[[1],[0.977,1.002,1.002,1.002,1.002,1.002,1.002,1.002,1.215],[0.977,0.993,0.993,0.993,0.993,1.013,1.137,1.14,1.191],[0.982,0.987,0.987,0.987,1.114,1.114,1.114,1.196,1.196],[0.96,1.008,1.008,1.098,1.098,1.098,1.098,1.128,1.35],[0.977,0.977,1.092,1.092,1.092,1.156,1.156,1.173,1.357],[0.866,0.955,1.036,1.075,1.075,1.075,1.075,1.097,1.318],[0.852,0.971,1.019,1.121,1.121,1.121,1.121,1.174,1.272],[0.86,1.006,1.091,1.1,1.1,1.1,1.268,1.268,1.268],[0.886,1.005,1.005,1.164,1.164,1.164,1.354,1.354,1.356],[0.89,0.976,1.114,1.114,1.114,1.307,1.307,1.562,1.641],[1.014,1.256,1.263,1.263,1.381,1.587,1.951,2.162,2.247]],"v":[[15.278,0],[16.213,0],[15.577,0]],"ype":5.101,"phi":0.9},"RB":{"pa":8.827,"pb":0.819,"k":[[1],[0.941,0.977,0.977,0.977,0.977,0.977,0.986,1.029,1.187],[0.885,0.925,0.925,0.962,0.962,0.962,1.156,1.156,1.229],[0.869,0.908,0.915,0.915,1.034,1.034,1.133,1.133,1.309],[0.852,0.875,0.875,0.954,1.014,1.131,1.131,1.164,1.361],[0.825,0.825,0.908,0.998,1.058,1.058,1.125,1.254,1.546],[0.798,0.798,0.962,0.998,1.026,1.157,1.157,1.203,1.608],[0.775,0.775,0.836,0.972,1.03,1.073,1.092,1.209,1.64],[0.748,0.77,0.869,0.914,1.058,1.121,1.121,1.285,1.684],[0.747,0.768,0.859,0.879,1.013,1.175,1.175,1.262,1.876],[0.72,0.772,0.772,0.99,1.012,1.029,1.154,1.311,1.731],[0.711,0.841,0.841,1.008,1.008,1.072,1.263,1.571,2.001]],"v":[[21.426,0.00219],[18.44,0.05803],[14.995,0.30069]],"ype":2.591,"phi":0.6}}},"recYds":{"floor":2,"count":false,"fallbackPos":"WR","byPos":{"RB":{"pa":4.512,"pb":0.659,"k":[[1],[0.989,1.017,1.017,1.051,1.051,1.051,1.051,1.051,1.133],[0.967,1.069,1.069,1.069,1.069,1.099,1.099,1.099,1.197],[0.975,1.11,1.11,1.11,1.11,1.11,1.11,1.186,1.227],[0.998,1.108,1.108,1.108,1.108,1.108,1.128,1.128,1.257],[1.027,1.145,1.145,1.145,1.145,1.145,1.145,1.145,1.184],[0.938,1.062,1.062,1.062,1.062,1.062,1.062,1.062,1.214],[0.958,0.978,0.995,1.13,1.13,1.13,1.13,1.13,1.13],[0.939,1.096,1.096,1.096,1.096,1.096,1.096,1.096,1.096],[0.925,1.08,1.111,1.128,1.128,1.128,1.128,1.128,1.128],[0.931,0.953,1.16,1.16,1.16,1.16,1.16,1.16,1.163],[1.167,1.167,1.318,1.318,1.366,1.366,1.366,1.366,1.875]],"v":[[18.18,0],[18.23,0],[18.139,0]],"ype":7.461,"phi":1},"WR":{"pa":8.953,"pb":0.776,"k":[[1],[1.002,1.007,1.007,1.007,1.007,1.02,1.02,1.02,1.061],[0.992,1.019,1.019,1.062,1.062,1.062,1.062,1.101,1.101],[1,1,1.053,1.053,1.053,1.053,1.11,1.11,1.167],[1.001,1.052,1.052,1.052,1.109,1.147,1.147,1.147,1.147],[1.01,1.059,1.059,1.141,1.141,1.141,1.141,1.141,1.305],[0.914,0.965,0.965,1.027,1.027,1.027,1.027,1.084,1.115],[0.942,0.942,0.999,1.004,1.041,1.041,1.041,1.06,1.095],[0.986,0.986,1.024,1.024,1.063,1.112,1.112,1.112,1.173],[1.016,1.016,1.016,1.016,1.155,1.155,1.155,1.155,1.244],[1.081,1.081,1.084,1.084,1.174,1.228,1.228,1.228,1.404],[1.217,1.217,1.255,1.28,1.442,1.55,1.55,1.635,1.702]],"v":[[25.538,0.00435],[24.953,0],[24.348,0]],"ype":8.904,"phi":0.7},"TE":{"pa":6.569,"pb":0.84,"k":[[1],[0.959,0.959,0.959,0.969,0.969,0.969,0.969,1.081,1.101],[0.965,0.965,0.965,0.965,1.055,1.055,1.055,1.08,1.086],[1.021,1.027,1.027,1.035,1.035,1.069,1.069,1.097,1.097],[1.017,1.017,1.054,1.054,1.054,1.075,1.075,1.075,1.075],[1.024,1.024,1.083,1.083,1.083,1.083,1.083,1.083,1.126],[0.962,0.962,0.962,0.962,0.979,0.979,0.986,1.02,1.02],[0.966,0.966,0.966,0.971,0.971,0.971,0.971,1.019,1.019],[0.991,0.991,0.998,0.998,0.998,0.998,1.024,1.049,1.049],[1.052,1.052,1.052,1.052,1.052,1.052,1.052,1.052,1.435],[1.096,1.096,1.096,1.096,1.096,1.096,1.142,1.142,1.49],[1.225,1.225,1.225,1.24,1.24,1.24,1.471,1.471,1.491]],"v":[[16.992,0.05659],[19.139,0.00357],[19.268,0]],"ype":9.313,"phi":0.9}}},"rec":{"floor":0.3,"count":true,"fallbackPos":"WR","byPos":{"RB":{"pa":0.411,"pb":0.76,"k":[[1],[0.991,1.003,1.003,1.003,1.003,1.003,1.003,1.003,1.122],[0.976,1.011,1.011,1.011,1.011,1.011,1.065,1.092,1.174],[0.987,1.006,1.006,1.006,1.07,1.07,1.085,1.104,1.333],[0.986,1.015,1.015,1.127,1.127,1.127,1.16,1.16,1.184],[1.008,1.074,1.106,1.106,1.14,1.14,1.14,1.188,1.316],[0.916,0.931,0.931,1.036,1.036,1.036,1.036,1.136,1.217],[0.919,0.919,1.04,1.04,1.04,1.04,1.089,1.143,1.435],[0.971,0.981,1.025,1.042,1.042,1.104,1.111,1.203,1.218],[1.004,1.004,1.063,1.063,1.063,1.212,1.212,1.212,1.47],[1.02,1.02,1.02,1.02,1.184,1.307,1.307,1.307,1.432],[1.142,1.142,1.142,1.142,1.365,1.544,1.544,1.544,1.544]],"v":[[1.283,0],[1.291,0],[1.414,0]]},"WR":{"pa":0.531,"pb":0.819,"k":[[1],[0.987,1.002,1.002,1.002,1.002,1.002,1.002,1.033,1.057],[0.978,1.007,1.007,1.009,1.009,1.069,1.069,1.069,1.075],[1.011,1.012,1.012,1.019,1.019,1.019,1.029,1.09,1.209],[0.994,0.994,1.04,1.04,1.04,1.043,1.043,1.117,1.289],[1.023,1.036,1.036,1.036,1.073,1.075,1.14,1.171,1.401],[0.911,0.911,0.911,0.951,0.951,0.967,1.001,1.083,1.181],[0.909,0.909,0.909,0.978,0.978,0.98,1.048,1.048,1.32],[0.956,0.956,0.996,1.001,1.022,1.028,1.088,1.09,1.519],[0.987,0.987,1.042,1.055,1.055,1.055,1.125,1.258,1.608],[1.043,1.043,1.043,1.043,1.176,1.176,1.227,1.301,1.483],[1.183,1.183,1.183,1.349,1.358,1.385,1.418,1.62,2.022]],"v":[[1.23,0.01701],[1.185,0.04943],[1.283,0]]},"TE":{"pa":0.54,"pb":0.852,"k":[[1],[0.992,1.004,1.004,1.004,1.004,1.004,1.018,1.018,1.054],[0.997,1.022,1.022,1.04,1.04,1.049,1.049,1.058,1.068],[1.022,1.049,1.059,1.059,1.059,1.079,1.079,1.079,1.134],[1.039,1.039,1.06,1.06,1.074,1.074,1.074,1.09,1.09],[1.034,1.034,1.034,1.088,1.088,1.088,1.141,1.141,1.148],[0.95,0.95,0.95,0.95,0.95,1.019,1.028,1.054,1.054],[0.988,0.988,0.988,0.988,0.988,1.01,1.01,1.066,1.345],[1.011,1.011,1.011,1.011,1.011,1.011,1.08,1.18,1.311],[1.075,1.075,1.075,1.075,1.075,1.075,1.132,1.357,1.357],[1.101,1.101,1.101,1.101,1.101,1.108,1.318,1.374,1.377],[1.287,1.287,1.287,1.287,1.287,1.44,1.488,1.577,1.577]],"v":[[1.064,0.06044],[1.186,0.0739],[1.389,0]]}}}},"td":{"QB":{"a":0.085,"b":0.48,"mean":0.171,"g":[1,0.958,0.86,0.797,0.719,0.633,0.501,0.457,0.394,0.307,0.206,0.131,0]},"RB":{"a":0.155,"b":0.56,"mean":0.324,"g":[1,0.962,0.88,0.793,0.711,0.626,0.51,0.46,0.368,0.289,0.187,0.109,0]},"WR":{"a":0.15,"b":0.42,"mean":0.238,"g":[1,0.958,0.882,0.804,0.733,0.652,0.509,0.455,0.387,0.305,0.225,0.139,0]},"TE":{"a":0.153,"b":0.31,"mean":0.182,"g":[1,0.958,0.889,0.825,0.718,0.647,0.511,0.464,0.395,0.306,0.197,0.108,0]}}};
+function nflPropKey(stat, pos) {
+  var t = NFLP.stats[stat]; if (!t) return null;
+  if (t.byPos[pos]) return t.byPos[pos];
+  return t.byPos[t.fallbackPos];
+}
+function nflPropCell(stat, pos, prior, current, fracLeft) {
+  var t = nflPropKey(stat, pos); if (!t) return null;
+  var f = Math.max(0, Math.min(1, +fracLeft || 0));
+  var fl = NFLP.stats[stat].floor, m = Math.max(fl, t.pa + t.pb * Math.max(+prior || 0, fl));
+  var c = +current || 0;
+  var x = (1 - f) * 12, j0 = Math.floor(x), j1 = Math.min(11, j0 + 1), w = x - j0;
+  if (j0 >= 11) { j0 = 11; j1 = 11; w = 0; }
+  function kAt(j) {
+    if (j === 0) return t.k[0][0];
+    var r = c / (m * (j / 12)), e = NFLP.rEdges, b = 0;
+    while (b < e.length && r >= e[b]) b++;
+    return t.k[j][b];
+  }
+  var k = kAt(j0) * (1 - w) + kAt(j1) * w;
+  var g = f > 0.66 ? 0 : f > 0.33 ? 1 : 2;
+  return { t: t, f: f, m: m, c: c, k: k, a: t.v[g][0], b: t.v[g][1] };
+}
+function nflPropMean(stat, pos, prior, current, fracLeft) {
+  var z = nflPropCell(stat, pos, prior, current, fracLeft); if (!z) return null;
+  return z.c + Math.max(0, z.f * z.m * z.k);
+}
+// continuous-ized NB CDF: N spread uniformly over [n-0.5, n+0.5]; returns P(N <= x)
+function nflNbCdf(mu, r, x) {
+  if (x < -0.5) return 0;
+  if (mu <= 1e-9) return 1;
+  var n = Math.floor(x + 0.5), frac = x + 0.5 - n, p, s = 0, i;
+  if (r > 1e5) p = Math.exp(-mu); else p = Math.exp(r * Math.log(r / (r + mu)));
+  var q = r > 1e5 ? 0 : mu / (r + mu);
+  for (i = 0; i < n; i++) {
+    s += p;
+    p = r > 1e5 ? p * mu / (i + 1) : p * (i + r) / (i + 1) * q;
+    if (s > 1 - 1e-12) return 1;
+  }
+  return Math.min(1, s + p * frac);
+}
+function nflLnG(z) {
+  var c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+  var x = z, y = z, t = x + 5.5, s = 1.000000000190015, i;
+  t -= (x + 0.5) * Math.log(t);
+  for (i = 0; i < 6; i++) s += c[i] / ++y;
+  return -t + Math.log(2.5066282746310005 * s / x);
+}
+// regularized lower incomplete gamma P(s, x)
+function nflGamP(s, x) {
+  if (x <= 0) return 0;
+  var gl = nflLnG(s), i, sum, del, ap, b, c, d, h, an;
+  if (x < s + 1) {
+    ap = s; sum = del = 1 / s;
+    for (i = 0; i < 300; i++) { ap++; del *= x / ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-10) break; }
+    return Math.min(1, sum * Math.exp(-x + s * Math.log(x) - gl));
+  }
+  b = x + 1 - s; c = 1e300; d = 1 / b; h = d;
+  for (i = 1; i < 300; i++) {
+    an = -i * (i - s); b += 2; d = an * d + b; if (Math.abs(d) < 1e-300) d = 1e-300;
+    c = b + an / c; if (Math.abs(c) < 1e-300) c = 1e-300; d = 1 / d; del = d * c; h *= del; if (Math.abs(del - 1) < 1e-10) break;
+  }
+  return Math.max(0, 1 - Math.exp(-x + s * Math.log(x) - gl) * h);
+}
+// CDF of compound NB(lam, r) sum of Gamma(al, th) at x (point mass at 0)
+function nflTwCdf(lam, r, al, th, x) {
+  if (x < 0) return 0;
+  var pois = r > 1e5, q = pois ? 0 : lam / (r + lam);
+  var p = pois ? Math.exp(-lam) : Math.exp(r * Math.log(r / (r + lam)));
+  var s = p, tot = p, n, nMax = Math.ceil(lam + 12 * Math.sqrt(lam + lam * lam / r) + 30);
+  for (n = 1; n <= nMax; n++) {
+    p = pois ? p * lam / n : p * (n - 1 + r) / n * q;
+    tot += p;
+    s += p * nflGamP(n * al, x / th);
+    if (tot > 1 - 1e-10) break;
+  }
+  return Math.min(1, s);
+}
+function nflPropOver(stat, pos, prior, current, fracLeft, line) {
+  var z = nflPropCell(stat, pos, prior, current, fracLeft); if (!z) return null;
+  var L = +line, mu = Math.max(0, z.f * z.m * z.k);
+  var whole = Math.abs(L - Math.round(L)) < 1e-9;
+  if (z.f <= 0 || mu <= 1e-9) {
+    if (whole && z.c === L) return { over: 0, push: 1 };
+    return { over: z.c > L ? 1 : 0, push: 0 };
+  }
+  var F, v, rr;
+  if (NFLP.stats[stat].count) {
+    v = z.a * mu + z.b * mu * mu; rr = v > mu * 1.0001 ? mu * mu / (v - mu) : 1e9;
+    F = function (x) { return nflNbCdf(mu, rr, x); };
+  } else {
+    // compound NB-Gamma: N events ~ NB(lam, 1/b), each event's yards ~ Gamma(al, th), al*th = ype, th*(al+1) = a
+    var ype = z.t.ype, th = Math.max(z.a - ype, 0.5 * ype), al = ype / th, lam = mu / ype;
+    rr = z.b > 1e-6 ? 1 / z.b : 1e9;
+    F = function (x) { return nflTwCdf(lam, rr, al, th, x); };
+  }
+  // remaining R needed: final > L  <=>  R > L - c
+  var over, push = 0;
+  if (whole) { over = 1 - F(L - z.c + 0.5); push = F(L - z.c + 0.5) - F(L - z.c - 0.5); }
+  else over = 1 - F(L - z.c);
+  return { over: Math.max(0, Math.min(1, over)), push: Math.max(0, push) };
+}
+function nflAnytimeTD(pos, tdPerGame, fracLeft) {
+  var t = NFLP.td[pos] || NFLP.td.WR, f = Math.max(0, Math.min(1, +fracLeft || 0));
+  if (f <= 0) return 0;
+  var x = (1 - f) * 12, j0 = Math.floor(x), w = x - j0, g0 = t.g[Math.min(j0, 12)], g1 = t.g[Math.min(j0 + 1, 12)];
+  var g = g0 * (1 - w) + g1 * w;
+  var td = (tdPerGame === null || tdPerGame === undefined || isNaN(+tdPerGame)) ? t.mean : +tdPerGame;
+  var lam = t.a + t.b * td;
+  return 1 - Math.exp(-lam * g);
+}
+
+/* Season-to-date priors from ESPN, one fetch per player, cached for the page. */
+const PRIOR={},ATH='https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/athletes/',SEAS='https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2026/types/2/athletes/';
+async function loadPrior(id){if(id in PRIOR)return;PRIOR[id]=null;try{const[a,st]=await Promise.all([j(ATH+id),j(SEAS+id+'/statistics')]);const v={};for(const c of(st.splits&&st.splits.categories)||[])for(const x of c.stats||[])if(v[x.name]==null)v[x.name]=+x.value||0;const gp=v.gamesPlayed||0;if(gp<1)return;const ab=(a.position&&a.position.abbreviation)||'';const pos=ab==='QB'?'QB':ab==='TE'?'TE':(ab==='RB'||ab==='FB')?'RB':'WR';PRIOR[id]={pos,gp,passYds:v.passingYards/gp,comp:v.completions/gp,rushYds:v.rushingYards/gp,recYds:v.receivingYards/gp,rec:v.receptions/gp,td:((v.rushingTouchdowns||0)+(v.receivingTouchdowns||0))/gp};renderAll()}catch(e){}}
+const fracLeft=()=>clamp(remSecs()/3600,0,1);
+/* Main prop line: the half-point closest to a 50/50 over, the way books center a prop. */
+function evenLine(id,stat,mean,cur){const sp=priorFor(id,stat);let best=Math.max(nearHalf(mean),cur+.5);if(sp==null||typeof nflPropOver!=='function')return best;let bd=9;const step=stat.endsWith('Yds')?1:1;for(let l=Math.floor(mean)-6.5;l<=Math.floor(mean)+6.5;l+=step){if(l<=cur)continue;const d=Math.abs(nflPropOver(stat,PRIOR[id].pos,sp,cur,fracLeft(),l).over-.5);if(d<bd){bd=d;best=l}}return best}
+function priorFor(id,stat){const p=PRIOR[id];return p&&p[stat]>0?p[stat]:null}
+function playerPool(){const out=[];if(!G.box)return out;for(const t of G.box.players||[]){const side=t.team.id==HOME?'home':'away',abbr=t.team.abbreviation;for(const g of t.statistics||[]){(g.athletes||[]).forEach((a,idx)=>{const name=a.athlete.displayName,id=a.athlete.id;loadPrior(id);const push=(stat,prior)=>out.push({id,name,side,abbr,stat,prior});
   if(g.name==='passing'&&idx===0){push('passYds',235);push('comp',22)}
   if(g.name==='rushing'&&idx<3)push('rushYds',[62,28,14][idx]);
   if(g.name==='receiving'&&idx<5){push('recYds',[68,48,36,26,18][idx]);push('rec',[5.5,4,3,2.5,2][idx])}
@@ -363,8 +493,8 @@ function probs(m){
     case'ht':{const h=hModel(),o=gt(m.line,h.meanT,h.s);return m.ou==='o'?o:flip(o)}
     case'h2t':{const h=h2Model(),o=gt(m.line,h.meanT,h.s);return m.ou==='o'?o:flip(o)}
     case'h2s':{const h=h2Model();return gt(-m.line,m.side==='home'?h.meanM:-h.meanM,h.s)}
-    case'prop':{const cur=boxStat(m.aid,m.stat)||0,pr=propProj(cur,m.stat,m.prior),o=gt(m.line,pr.mean,pr.sd);return m.ou==='o'?o:flip(o)}
-    case'atd':{const f=remSecs()/3600,w=1-Math.exp(-(m.lam||.35)*f);return{w,p:0}}
+    case'prop':{const cur=boxStat(m.aid,m.stat)||0,sp=priorFor(m.aid,m.stat);if(sp!=null&&typeof nflPropOver==='function'){const o=nflPropOver(m.stat,PRIOR[m.aid].pos,sp,cur,fracLeft(),m.line),push=o.push||0;return m.ou==='o'?{w:o.over,p:push}:{w:Math.max(0,1-o.over-push),p:push}}const pr=propProj(cur,m.stat,m.prior),o=gt(m.line,pr.mean,pr.sd);return m.ou==='o'?o:flip(o)}
+    case'atd':{const p=PRIOR[m.aid];if(p&&typeof nflAnytimeTD==='function')return{w:nflAnytimeTD(p.pos,p.td,fracLeft()),p:0};const f=remSecs()/3600,w=1-Math.exp(-(m.lam||.35)*f);return{w,p:0}}
     case'next':{const ns=nflNextScore(mState()),off=offense(),pH=off==='home'?ns.off:off==='away'?ns.def:(1-ns.none)/2,pA=off==='home'?ns.def:off==='away'?ns.off:(1-ns.none)/2;return{w:m.sel==='none'?ns.none:m.sel==='home'?pH:pA,p:0}}
     case'drive':{const d=driveProbs();return{w:d[m.sel],p:0}}
     case'playtype':{const q=playProbs();return{w:m.sel==='pass'?q.pass:1-q.pass,p:0}}
@@ -438,6 +568,8 @@ function payoutFor(b){if(b.k==='parlay'){const live=b.legs.filter(l=>grade(l)!==
    posts started after the tap. Other picks wait ACCEPT_MS for DraftKings ticks and are declined if
    the market suspended or moved, or if a big play or a play naming the player had already started. */
 const ACCEPT_MS=16000;
+/* A move toward the picked side means the market learned something the page had not shown yet. A move away from it only hurts the player, so it is accepted. */
+function mvToward(b,ticks){const legs=b.k==='parlay'?b.legs:[b];for(const l of legs){const k=l.k,dir=(k==='ml'||k==='spread'||k==='h2s'||k==='qml')?(l.side==='home'?1:-1):(k==='total'||k==='tt'||k==='qt'||k==='ht'||k==='h2t')?(l.ou==='o'?1:-1):0;if(!dir)continue;const f=(k==='total'||k==='tt'||k==='qt'||k==='ht'||k==='h2t')?'over':k==='spread'||k==='h2s'?'cover':'wp',base=b[f+'0'];if(base==null)continue;if(ticks.some(x=>x[f]!=null&&(x[f]-base)*dir>=.02))return true}return false}
 function acceptCheck(b){const legs=b.k==='parlay'?b.legs:[b],after=playsAfter(b.anchor).filter(p=>p.wallclock),fin=CLOSED();
   const stale=after.some(p=>late(b,p)&&(isTimed(b)||p.scoringPlay||p.isTurnover||Math.abs(p.statYardage||0)>=15||legs.some(l=>l.name&&touched(l,p))));
   if(stale)return{r:'reject',why:'a play had already started when you tapped'};
@@ -445,7 +577,7 @@ function acceptCheck(b){const legs=b.k==='parlay'?b.legs:[b],after=playsAfter(b.
   if(Date.now()-b.t<ACCEPT_MS&&!fin)return null;
   const ticks=G.dkLog.filter(x=>x.t>b.t&&x.t<=b.t+ACCEPT_MS);
   if(ticks.some(x=>!x.ok))return{r:'reject',why:'DraftKings suspended the market'};
-  if(b.wp0!=null&&ticks.some(x=>x.wp!=null&&Math.abs(x.wp-b.wp0)>=.02))return{r:'reject',why:'the price moved'};
+  const toward=mvToward(b,ticks);if(toward)return{r:'reject',why:'the price moved toward your pick'};
   return{r:'accept'}}
 function settleAll(){let anyWin=null;for(const b of S.bets){if(b.st==='pending'){const a=acceptCheck(b);if(!a)continue;if(a.r==='reject'){b.st='rejected';b.at=Date.now();S.stack=+(S.stack+b.stake).toFixed(2);toastQ.push({c:'loss',h:'Not accepted',s:b.label+': '+a.why+'. Stake stays in your Stack.'});pumpToast();continue}b.st='open';b.acceptedAt=Date.now();toastQ.push({c:'',h:'Accepted '+fmtOdds(b.odds),s:b.label});pumpToast()}if(b.st!=='open')continue;const r=grade(b);if(!r)continue;b.st=r;b.at=Date.now();b.pay=r==='win'?payoutFor(b):(r==='push'||r==='void')?b.stake:0;S.stack=+(S.stack+b.pay).toFixed(2);showToast(r,b)}save()}
 function liveValue(b){const o=probs(b);return Math.max(0,+(b.stake*(o.w*dec(b.odds)+o.p)).toFixed(2))}
@@ -534,7 +666,7 @@ function viewGame(){const live=dkFresh(),lH=live?G.dk.spH:Math.round(-M.mu*2)/2,
   return h}
 
 function viewProps(){const pool=playerPool();if(!pool.length)return'<div class="note">Props open as soon as ESPN posts the first box score.</div>';let h='';const groups=[['passYds','Passing yards'],['comp','Completions'],['rushYds','Rushing yards'],['recYds','Receiving yards'],['rec','Receptions']];
-  for(const[st,title]of groups){const rows=pool.filter(p=>p.stat===st);if(!rows.length)continue;h+=`<div class="sec"><div class="sh">${title}</div>`;for(const r of rows){const cur=boxStat(r.id,st)||0,pr=propProj(cur,st,r.prior),l=Math.max(nearHalf(pr.mean),cur+.5);h+=`<div class="pl"><div class="nm"><b>${esc(r.name)}</b><small>${r.abbr} · ${cur} so far</small></div>${P({k:'prop',aid:r.id,stat:st,ou:'o',line:l,name:r.name,prior:r.prior},'O '+l)}${P({k:'prop',aid:r.id,stat:st,ou:'u',line:l,name:r.name,prior:r.prior},'U '+l)}</div>`;
+  for(const[st,title]of groups){const rows=pool.filter(p=>p.stat===st);if(!rows.length)continue;h+=`<div class="sec"><div class="sh">${title}</div>`;for(const r of rows){const cur=boxStat(r.id,st)||0,sp=priorFor(r.id,st),mean=sp!=null&&typeof nflPropMean==='function'?nflPropMean(st,PRIOR[r.id].pos,sp,cur,fracLeft()):propProj(cur,st,r.prior).mean,l=evenLine(r.id,st,mean,cur);h+=`<div class="pl"><div class="nm"><b>${esc(r.name)}</b><small>${r.abbr} · ${cur} so far${priorFor(r.id,st)!=null?' · avg '+Math.round(priorFor(r.id,st)*10)/10:''}</small></div>${P({k:'prop',aid:r.id,stat:st,ou:'o',line:l,name:r.name,prior:r.prior},'O '+l)}${P({k:'prop',aid:r.id,stat:st,ou:'u',line:l,name:r.name,prior:r.prior},'U '+l)}</div>`;
       if(st.endsWith('Yds')){const step=st==='passYds'?[200,225,250,275,300,350]:[25,40,50,60,75,100,125];const c=step.filter(x=>x>cur).map(x=>P({k:'prop',aid:r.id,stat:st,ou:'o',line:x-.5,name:r.name,prior:r.prior},x+'+')).join('');if(c)h+=`<div class="rail" data-r="ms${r.id}${st}">${c}</div>`}}h+='</div>'}
   const seen=new Set(),td=[];for(const r of pool){if(r.stat==='passYds'||r.stat==='comp'||seen.has(r.id))continue;seen.add(r.id);td.push(r)}
   h+=`<div class="sec"><div class="sh">Anytime touchdown</div>${td.map(r=>{const cur=boxTD(r.id)||0,lam=r.stat==='rushYds'?.5:.34;return`<div class="pl"><div class="nm"><b>${esc(r.name)}</b><small>${r.abbr} · ${cur} TD so far</small></div>${P({k:'atd',aid:r.id,name:r.name,lam},'Yes')}<div></div></div>`}).join('')}</div>`;
@@ -597,7 +729,7 @@ function renderParlay(){const el=$('slip');el.hidden=false;$('scrim').hidden=fal
   <div class="chips">${ch.map(c=>`<button class="${SL.stake===c?'on':''}" data-stake="${c}">${c}</button>`).join('')}<button data-stake="max">MAX</button></div>
   <div class="sl-m"><span>Stake <b>${fmtStack(stake)}</b></span><span>If it hits <b class="up">${ok?U(stake*(dec(o)-1)/10):'—'}</b></span><span>Stack <b>${fmtStack(S.stack)}</b></span></div>
   <button id="lock" data-plock="1"${!ok||sus||stake<=0?' disabled':''}>${!ok?'Add another leg':sus?'Market suspended':'Lock '+fmtStack(stake)+' at '+fmtOdds(o)}</button><button class="btn" data-closeslip="1">Close</button>`}
-function placeParlay(){if(PAR.legs.length<2||suspended())return;if(PAR.legs.some(l=>TIMED.has(l.k))&&!fairWindow().open){showFlash('Window closed','A timed leg reopens after the next play posts');return}const stake=Math.min(SL.stake,S.stack);if(stake<=0)return;const last=G.plays[G.plays.length-1],anchor=last?seq(last):0,t=Date.now(),legs=PAR.legs.map(l=>({...cleanM(l),label:mkLabel(l),odds:quote(l),t,anchor,h0:G.hs,a0:G.as})),o=parlayOdds(legs),b={k:'parlay',legs,id:'b'+(++S.seq)+'-'+t.toString(36),label:legs.length+'-leg parlay',odds:o,stake,t,anchor,st:'pending',wp0:G.dk&&G.dk.ok?G.dk.wp:null};S.stack=+(S.stack-stake).toFixed(2);S.bets.push(b);PAR.legs=[];SL.par=false;save();beep(660,.08);$('slip').hidden=true;$('scrim').hidden=true;renderAll();showFlash('Pending '+fmtOdds(o),'Checking the ball was dead when you tapped')}
+function placeParlay(){if(PAR.legs.length<2||suspended())return;if(PAR.legs.some(l=>TIMED.has(l.k))&&!fairWindow().open){showFlash('Window closed','A timed leg reopens after the next play posts');return}const stake=Math.min(SL.stake,S.stack);if(stake<=0)return;const last=G.plays[G.plays.length-1],anchor=last?seq(last):0,t=Date.now(),legs=PAR.legs.map(l=>({...cleanM(l),label:mkLabel(l),odds:quote(l),t,anchor,h0:G.hs,a0:G.as})),o=parlayOdds(legs),b={k:'parlay',legs,id:'b'+(++S.seq)+'-'+t.toString(36),label:legs.length+'-leg parlay',odds:o,stake,t,anchor,st:'pending',wp0:G.dk&&G.dk.ok?G.dk.wp:null,cover0:G.dk&&G.dk.ok?G.dk.cover:null,over0:G.dk&&G.dk.ok?G.dk.over:null};S.stack=+(S.stack-stake).toFixed(2);S.bets.push(b);PAR.legs=[];SL.par=false;save();beep(660,.08);$('slip').hidden=true;$('scrim').hidden=true;renderAll();showFlash('Pending '+fmtOdds(o),'Checking the ball was dead when you tapped')}
 function renderSlip(){if(SL.par)return renderParlay();const el=$('slip'),m=SL.m;if(!m){el.hidden=true;return}el.hidden=false;$('scrim').hidden=false;const o=quote(m),g=grade({...m,t:Date.now(),anchor:Infinity,h0:G.hs,a0:G.as}),sus=suspended()||g||(isTimed(m)&&!fairWindow().open);const cap=isMicro(m)?MICROCAP:Infinity,stake=Math.min(SL.stake,S.stack,cap),win=stake*(dec(o)-1),pct=fieldPct(m);const ch=[10,25,50,100];
   el.innerHTML=`<div class="sl-h"><b>${esc(mkLabel(m))}</b><em>${sus?'—':fmtOdds(o)}</em></div>
   <div class="note">${pct!=null?pct+'% of the Field is on this side. ':''}Your price locks when you tap.</div>
@@ -606,7 +738,7 @@ function renderSlip(){if(SL.par)return renderParlay();const el=$('slip'),m=SL.m;
   <button id="lock" data-lock="1"${sus||stake<=0?' disabled':''}>${sus?'Market suspended':'Lock '+fmtStack(stake)+' at '+fmtOdds(o)}</button>
   ${isMicro(m)?'':`<button class="btn" data-addleg="1"${legConflict(m)||sus?' disabled':''}>${legConflict(m)?'Already a leg from this market':'Add to parlay'}</button>`}
   <button class="btn" data-closeslip="1">Close</button>`}
-function placeBet(){const m=SL.m;if(!m||suspended())return;if(isTimed(m)&&!fairWindow().open){showFlash('Window closed','Timed picks reopen after the next play posts');renderAll();return}const o=quote(m),cap=isMicro(m)?MICROCAP:Infinity,stake=Math.min(SL.stake,S.stack,cap);if(stake<=0)return;const last=G.plays[G.plays.length-1];const b={...m,id:'b'+(++S.seq)+'-'+Date.now().toString(36),label:mkLabel(m),odds:o,stake,t:Date.now(),anchor:last?seq(last):0,h0:G.hs,a0:G.as,st:'pending',wp0:G.dk&&G.dk.ok?G.dk.wp:null};if(m.k==='drive')b.driveId=liveDriveId();if(m.k==='fd')b.offId=offense()==='home'?HOME:AWAY;S.stack=+(S.stack-stake).toFixed(2);S.bets.push(b);save();beep(660,.08);SL.m=null;$('slip').hidden=true;$('scrim').hidden=true;renderAll();showFlash('Pending '+fmtOdds(o),'Checking the ball was dead when you tapped')}
+function placeBet(){const m=SL.m;if(!m||suspended())return;if(isTimed(m)&&!fairWindow().open){showFlash('Window closed','Timed picks reopen after the next play posts');renderAll();return}const o=quote(m),cap=isMicro(m)?MICROCAP:Infinity,stake=Math.min(SL.stake,S.stack,cap);if(stake<=0)return;const last=G.plays[G.plays.length-1];const b={...m,id:'b'+(++S.seq)+'-'+Date.now().toString(36),label:mkLabel(m),odds:o,stake,t:Date.now(),anchor:last?seq(last):0,h0:G.hs,a0:G.as,st:'pending',wp0:G.dk&&G.dk.ok?G.dk.wp:null,cover0:G.dk&&G.dk.ok?G.dk.cover:null,over0:G.dk&&G.dk.ok?G.dk.over:null};if(m.k==='drive')b.driveId=liveDriveId();if(m.k==='fd')b.offId=offense()==='home'?HOME:AWAY;S.stack=+(S.stack-stake).toFixed(2);S.bets.push(b);save();beep(660,.08);SL.m=null;$('slip').hidden=true;$('scrim').hidden=true;renderAll();showFlash('Pending '+fmtOdds(o),'Checking the ball was dead when you tapped')}
 /* Toast */
 let toastQ=[],toastT=null;
 function showToast(r,b){const pnl=r==='win'?b.pay-b.stake:r==='loss'?-b.stake:0;toastQ.push({c:r==='win'?'win':r==='loss'?'loss':'',h:r==='win'||r==='loss'?U(pnl/10):r.toUpperCase(),s:(r==='win'?'Hit: ':r==='loss'?'Miss: ':'')+b.label+(r==='void'||r==='push'?' (no action, stake back)':'')});if(r==='win')beep(880,.15);if(r==='loss')beep(180,.18);try{navigator.vibrate&&navigator.vibrate(r==='win'?[60,40,60]:40)}catch(e){}pumpToast()}

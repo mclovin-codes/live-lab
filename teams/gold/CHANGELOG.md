@@ -1,5 +1,10 @@
 # Team Gold changelog
 
+## v13
+- Player props and anytime TD use a fitted in-game model (nflverse 2023-2025, 16,018 player-games). The pregame number is the player's 2026 season-to-date average from ESPN.
+- Main prop line is the half-point closest to a 50/50 over, so prices sit near -110 like a book.
+- Acceptance declines only when DraftKings moved toward the picked side by 2 points or more, for moneyline, spread, total and the derived markets. Moves away from the pick are accepted, because they only hurt the player.
+
 ## v12
 - Timed markets price from empirical tables fit on nflverse play-by-play for 2023-2025: 855 games, about 115,000 snaps. Fit on 2023-24 and scored on 2025, every table beats a constant on Brier score. Tables and methods are in `model/`.
 - Covers next-snap pass or run, 5+ and 10+ yards, moves the chains, this drive and next score. They replace the hand-written tables.

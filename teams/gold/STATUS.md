@@ -1,6 +1,6 @@
 # Team Gold status
 
-**Version:** v12
+**Version:** v13
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Rush Live
 
@@ -13,6 +13,17 @@ Lag is the play's `wallclock` versus when the page first has it.
 - The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
 - Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
 
+## What changed in v13
+- Props and anytime TD fit on nflverse play-by-play, with ESPN season averages as priors. Method and 2025 holdout calibration are in `model/PROPS-METHODS.md`.
+- Props center on a 50/50 line.
+- Acceptance is directional: a pick is declined only when DraftKings moved toward it.
+
+## Second half on v12, measured live in my test tab (Q3)
+- Next snap: 5 picks placed through the window, with 10-20s left on the countdown at placement. 2 hit, 1 no action on a kick, 2 still open at the check.
+- Lock lag: the window closed 5.1s and 0.1s before the next snap on the 2 snaps measured.
+- Moneyline: 2 picks declined. SEA win probability rose from 0.393 to 0.416 within 14s after the tap, toward the pick, so v13 still declines that case.
+- Play lag on the core feed: 18-30s, with one outlier at 55s.
+
 ## What changed in v12
 - Timed markets price from empirical NFL tables (nflverse 2023-2025, about 115,000 snaps). Method and calibration are in `model/METHODS.md`.
 
@@ -24,8 +35,8 @@ Holds are applied to the no-push win probability q. "x1.05" means the implied pr
 - **Team totals:** each team's mean is (muT +/- mu)/2, floored at its current score, with sd 0.72 sigma. x1.05.
 - **Quarter and halves:** current period points plus remaining expected points times that period's share of remaining time. sd is 7 x sqrt(quarter time left / 900), or 9.5 for a half. Tie pushes on quarter winner. x1.05.
 - **Next snap pass or run, 5+ or 10+ yards, moves the chains, this drive (TD, FG, no score), next score (CHI, SEA, none):** fitted nflverse tables by down, distance, yards to end zone, clock and score margin. Hold: q x 1.07 for q under 0.5, q + 0.035 at or above, about 7% overround on two-way markets and about 10% on three-way.
-- **Player props (yards, receptions, completions):** projection = current stat + time left x a blend of game pace and a positional prior. sd = prior sd x sqrt(time left). Line at the projection rounded to .5. x1.05. **Weakest market:** the priors are hand-set, not fit.
-- **Anytime TD:** 1 - exp(-lambda x time left), with lambda 0.5 for the lead rusher and 0.34 for others. Hand-set, also weak.
+- **Player props (yards, receptions, completions):** prior = the player's 2026 season-to-date per-game average from ESPN, shrunk as fitted. Remaining = fitted multiplier table over time left x pace ratio, times prior x time left. The spread is a fitted compound distribution (see model/PROPS-METHODS.md). The main line is the half-point with over closest to 50%, and alt milestones use the same model. x1.05. On 2025 holdout, Brier beats 50% at 0.20-0.24, but yards overs read 0.02-0.05 low.
+- **Anytime TD:** 1 - exp(-lambda x time left x adjustment), with lambda = the player's season rush plus rec TD rate shrunk toward his position mean. x1.05. Falls back to the hand-set rate when ESPN has no 2026 stats for the player.
 - **Parlays:** product of leg decimal odds x 0.90 for same-game correlation.
 
 ## SportsGameOdds (offered, not requested)
