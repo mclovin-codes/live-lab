@@ -1,10 +1,10 @@
 # One tool status (closing, final whistle 11:24 PM ET)
 
-version: m6
+version: m7
 url: https://mclovin-codes.github.io/live-lab/teams/one/
 final: CHI 34, SEA 17.
-base: Blue v15, integrated by Team Blue. Pulled from the inbox: 5 countdown chip, 6 storylines rail, 7 odds-change setting (Gold), 8 Gold 375 px fixes. Red snippet 1 (key-number margins) arrived after the whistle and is merged as m6; Red 2 to 4 pending.
-versions: m1 base plus 3s lock of game lines on any sharp book move; m2 chips and storylines; m3 odds-change setting; m4 phone fixes; m5 FINAL header and closed timed picks.; m6 key-number margins from Red.
+base: Blue v15, integrated by Team Blue. Pulled from the inbox: 5 countdown chip, 6 storylines rail, 7 odds-change setting (Gold), 8 Gold 375 px fixes. Red snippet 1 (key-number margins) arrived after the whistle and is merged as m6; Red 2 (break board) merged as m7; Red 3 and 4 pending.
+versions: m1 base plus 3s lock of game lines on any sharp book move; m2 chips and storylines; m3 odds-change setting; m4 phone fixes; m5 FINAL header and closed timed picks.; m6 key-number margins from Red.; m7 break board from Red, timedGate closed at final (Red probe finding).
 
 ## Final grading check
 - On the merged page at the final: game reads state post, Final; final card shows rank, Units, record; every market reports Final and refuses picks.
@@ -48,6 +48,6 @@ What we would do with it: a small server function (Vercel or Cloudflare Worker) 
 - Real Field and Slip need the Rush backend; tonight the Field and matchup are simulated and labelled SIM.
 - A paid official data feed would let the next-snap window open after live-ball plays.
 - Margin model now carries key-number weights (Red, m6); not yet tested against live book alt prices because the game had ended.
-- Red snippets 2 to 4 (break board, tab bar order, lock grammar) pending.
+- Red snippets 3 and 4 (tab bar order, lock grammar) pending.
 
 lift points for Rush engineers: FastCast doc plus polls fill S, player state in me, Field in ladder(), picks through placeChecked(), place() and placeParlay(), grading in settle() and gradeBet(), pricing in quote(), fitted tables in FT with tget(), fair window in timedGate() and closeAfter().
