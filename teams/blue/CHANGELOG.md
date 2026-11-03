@@ -1,5 +1,9 @@
 # Team blue changelog
 
+## v14
+- Bug: since v7 a CSS rule for the matchup tail and fade buttons (.two) also matched every two-column price grid (.tbl.two), turning alt spreads, alt totals, team totals, quarter lines and props into one long row of tiny buttons. Renamed it; grids are two columns again at phone and desktop widths.
+- Pick your own number: a stepper (minus, line, plus, half-point steps, reset to main) for alt spread, alt total, and each team total, live during the game. Both sides reprice on every tick at the chosen line. Below it, the ladder in readable rows: line, then the two prices.
+
 ## v13
 - Scoreboard collapses to a slim bar on scroll (iOS large-title pattern from the UI seat).
 - Winning margin market from the NFL seat: each team by 1-6, 7-12, 13+, or tie, overtime included. Priced from the same normal margin model as alt spreads (DK-anchored mean and sd), 10% hold, gated by the fair window. Shown on Board and on Live in the 4th quarter.

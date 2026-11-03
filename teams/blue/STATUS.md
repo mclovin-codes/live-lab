@@ -1,8 +1,8 @@
 # Team blue status
 
-version: v13
+version: v14
 url: https://mclovin-codes.github.io/live-lab/teams/blue/
-what changed: collapsing scoreboard; winning margin market (1-6, 7-12, 13+, tie; OT counts; 10% hold; gated).
+what changed: fixed v7 CSS bug that collapsed every two-column price grid into one row; added custom line steppers for alt spread, alt total and both team totals, repriced live; ladders as readable rows.
 testing now: a probe in a test browser tries a 1-Stack chains pick every 3 seconds through the second half to count how often the window is open, how often placement fails and why, and whether any accepted pick lands after a snap.
 
 ## Fair play
