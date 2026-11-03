@@ -19,7 +19,7 @@ Timed markets and player props open only during a stoppage and close at the 0.5t
 | Punt (between drives) | 6,257 | 42 s | 179 s | 39 s |
 | Injury | 2,512 | 38 s | 176 s | 35 s |
 | After a score | 10,973 | 38 s | 89 s | 35 s |
-| Commercial break, two-minute warning | tonight only | 135 s | | 132 s |
+| Commercial break, two-minute warning | 16 tonight (not in nflverse) | 181 s | 186 s | 150 s |
 | Kickoff return, incompletion, live ball | 104,920 | 17 to 31 s | 41 to 45 s | closed |
 
 With ESPN showing plays 15 to 25 s late, a timeout leaves about 17 to 27 s to pick and an injury or score about 10 to 20 s; reviews, quarter breaks, commercials and halftime leave minutes. Live-ball plays never open. Placement check and book OFF or price-move locks still apply on top.

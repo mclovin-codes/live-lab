@@ -377,13 +377,13 @@ const GAPDEF={half:603,live:16,incomplete:33,sack:33,kickoff:41,punt:57,timeout:
 function minGaps(){const sc=S.plays.filter(p=>p.wallclock&&p.period),m={};sc.forEach((p,i)=>{const nx=sc.slice(i+1).find(x=>cls(x)!=='skip');if(!nx)return;const g=(Date.parse(nx.wallclock)-Date.parse(p.wallclock))/1000,k=GAPKIND(p);if(g>0)m[k]=Math.min(m[k]==null?1e9:m[k],g)});return m}
 let gapMemo={n:-1,m:{}};function closeAfter(p,secsLeftHalf){if(gapMemo.n!==S.plays.length)gapMemo={n:S.plays.length,m:minGaps()};const k=GAPKIND(p),seen=gapMemo.m[k];let w=Math.min(GAPDEF[k],seen==null?1e9:seen)-3;if((k==='live'||k==='incomplete'||k==='sack')&&secsLeftHalf<=120)w=Math.min(w,8);return Math.max(0,w)}
 /* stoppage-only window. STOPW = 0.5th percentile restart gap (s) from the snap of the play before the stoppage to the next snap,
-   nflverse play-by-play 2023 to 2025 (time_of_day), minus 3 s. tv: commercial break and two-minute warning, anchored at their own stamp, tonight's shortest seen. */
-const STOPW={half:813,quarter:169,review:64,timeout:42,injury:35,score:35,turnover:47,punt:39};
+   nflverse play-by-play 2023 to 2025 (time_of_day), minus 3 s. tv: commercial break and two-minute warning are not in nflverse; tonight's 16 breaks restarted 181 to 276 s after the play before them, so 150 s. */
+const STOPW={tv:150,half:813,quarter:169,review:64,timeout:42,injury:35,score:35,turnover:47,punt:39};
 const STOPN={half:'Halftime',quarter:'End of the quarter',review:'Replay review',timeout:'Timeout',injury:'Injury stoppage',score:'After the score',turnover:'After the turnover',punt:'Between drives',tv:'Commercial break',twomin:'Two-minute warning'};
 function stopState(){let i=S.plays.length-1;const adm=[];while(i>=0&&cls(S.plays[i])==='skip'){adm.push(S.plays[i]);i--}const A=S.plays[i];if(!A||!A.wallclock)return null;const at=adm.map(p=>(p.type&&p.type.text||'')+' '+(p.text||'')).join(' | '),ta=(A.type&&A.type.text||'')+' '+(A.text||''),wall=Date.parse(A.wallclock);
   if(isHalf()||/end of half|halftime/i.test(at))return{k:'half',w:STOPW.half,anchor:wall};
   if(/end (of )?(quarter|period)/i.test(at))return{k:'quarter',w:STOPW.quarter,anchor:wall};
-  const tv=adm.find(p=>/official timeout|two-minute/i.test((p.type&&p.type.text||'')+' '+(p.text||'')));if(tv&&tv.wallclock){const seen=minGaps().break;return{k:/two-minute/i.test((tv.type&&tv.type.text||'')+(tv.text||''))?'twomin':'tv',w:Math.min(135,seen==null?135:seen)-3,anchor:Date.parse(tv.wallclock)}}
+  const tv=adm.find(p=>/official timeout|two-minute/i.test((p.type&&p.type.text||'')+' '+(p.text||'')));if(tv)return{k:/two-minute/i.test((tv.type&&tv.type.text||'')+(tv.text||''))?'twomin':'tv',w:STOPW.tv,anchor:wall};
   if(/review|challenge|replay/i.test(at+' '+ta))return{k:'review',w:STOPW.review,anchor:wall};
   if(/timeout/i.test(at))return{k:'timeout',w:STOPW.timeout,anchor:wall};
   if(/was injured/i.test(ta))return{k:'injury',w:STOPW.injury,anchor:wall};
