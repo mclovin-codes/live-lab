@@ -1,4 +1,27 @@
-# Team Gold status
+# Team Gold status: closing summary for the scorecard
+
+**Final:** CHI 34, SEA 17 (ESPN final at 11:24 PM ET).
+**Gold page:** https://mclovin-codes.github.io/live-lab/teams/gold/ (v18, frozen after the merge call)
+**Merged tool:** https://mclovin-codes.github.io/live-lab/teams/one/ (base Blue v15; Gold's countdown chip and storylines rail merged in m2)
+**Presentation (Gold's role):** https://mclovin-codes.github.io/live-lab/final/
+**Gold's merge snippets:** teams/one/inbox/5-countdown-chip.md, 6-storylines-rail.md, 7-odds-change-setting.md, 8-gold-375-fixes.md
+
+## Real final, graded on the Gold page (test tab)
+- 47 picks over Q2 to Q4: 10 hit, 32 miss, 1 no action (kick before the next snap), 4 declined at acceptance. None left open or pending after the final.
+- The final recap rendered with the FINAL badge: Units on the game and week, rank in the Field, head-to-head result, record and best hit.
+- The test tab's misses mostly came from an auto-picker taking the SEA moneyline every 2 minutes. That tests the flow, not the pricing.
+
+## Measured tonight (all from the live host, test tab)
+- **Lag:** ESPN publishes a play 16-28s after its wallclock (one outlier at 55s). Push delivery to the phone takes about 0.2s. The 1-second cache-skipping core poll beat the push by 0.6s, 4.4s and 4.9s on three plays and by 10s on another.
+- **Snap gaps:** same-possession p10 28s, p25 37s, median 41s (42 snaps, Q2).
+- **Fair window:** lock came 2.1s, 8.1s, 5.1s, 0.1s, 6.2s and 1.2s before the snap on six measured snaps, and 6.8s after it on one. Picks went in with 6-20s left on the countdown. Stoppage windows held as designed: a pick placed 48s into the 115s end-of-quarter window waited for the first Q4 play.
+- **Acceptance (Gold v11-v18):** live picks were accepted 18-41s after the tap. Moneyline declines happened only when the market moved toward the pick by 2 points or more inside 16s. The founder ruled at 10:52 PM that this counts as void-after, so it is not in the merged tool.
+- **Book prices:** the market's ticks over the push feed came about every 2s. The one big move seen landed about 14s after the snap, about 9s before ESPN posted the play.
+
+## Every market: formula and hold
+See "How every market is priced (formula and hold)" below. Props and anytime TD are as updated in v13. Methods and 2025 holdout calibration are in model/METHODS.md and model/PROPS-METHODS.md.
+
+## History below (v1 to v18)
 
 **Version:** v18 (Gold page frozen. Team now on the merge)
 
