@@ -74,3 +74,8 @@ known gap: Season table in state.js still uses Blue's own SIM names while the we
 - Fixed on the way: game.html froze after the roster loaded (every player-name lookup rescanned the whole summary; 779 props per render). Lookups are memoized now; page stays responsive.
 not yet checked: live mode and grading at a final on a real NBA or NHL game; first games tonight Tue Nov 3 from 7:00 PM ET.
 known: Lounge uses Blue SIM names, Ranks uses Red SIM names.
+
+## 2:10 AM addendum (Blue)
+- Slip rebuilt in game.html: typed stake field (keeps focus, digits and one decimal), +10 +25 +50 +100 Max Clear chips, Wins in Units, Returns and Stack after update as you type, capped at your Stack (button says how much is left), price-move banner with better or worse, the Ask me / Higher only / Any change setting in the sheet, Lock or Accept button with the price and stake. Parlays use the same sheet. Remembers your last stake. Tested in jsdom on the host page: focus kept while typing 137.5, returns 275 at +100, over-cap refused, 40 Stack pick placed.
+- Player names: The Field this week card on the game page (top 5, you, your matchup), each SIM name links to player.html?u=<id> (Red's page).
+- Navigation proposal: keep the five tabs in Rush's own order (Home, Board, Slips, Ranks, Lounge), because that is the app players already know and the brief asks the game page to live inside it. What changes is the frame around a game: the Board tab carries a live count, the game page opens with Back to Board and the strip of other games on top, and the Slip opens as a bottom sheet on the game instead of a separate trip. No Tickets anywhere.
