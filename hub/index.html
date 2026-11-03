@@ -57,11 +57,11 @@
 
 <script>
   const TEAMS = [
-    { key: "red",  name: "Team Red",  version: "", url: "https://mclovin-codes.github.io/live-lab/teams/red/",  changed: "Building. Page link goes live with the first ship.", testing: "First ship.", log: [] },
-    { key: "blue", name: "Team Blue", version: "", url: "https://mclovin-codes.github.io/live-lab/teams/blue/", changed: "Building. Page link goes live with the first ship.", testing: "First ship.", log: [] },
-    { key: "gold", name: "Team Gold", version: "", url: "https://mclovin-codes.github.io/live-lab/teams/gold/", changed: "Building. Page link goes live with the first ship.", testing: "First ship.", log: [] },
+    { key: "red",  name: "Team Red (Redline MNF)",  version: "v2", url: "https://mclovin-codes.github.io/live-lab/teams/red/",  changed: "Cash out, same game parlays, streak profit boost, one-tap next snap, rank-up toasts. You against 24 simulated players. ESPN per-play probabilities drive prices; DraftKings shown for reference.", testing: "v3: quarter sprint leaderboard, head-to-head rival calls, season averages behind prop lines, alt yardage ladders.", log: ["v1 first live page", "v2 cash out, parlays, boost, one-tap"] },
+    { key: "blue", name: "Team Blue", version: "v2", url: "https://mclovin-codes.github.io/live-lab/teams/blue/", changed: "30 labelled simulated players, Drive Duel, named rank alerts, rebuy. Feed fix: no-store fetches plus direct pull of the newest play (browser cache was serving plays minutes old).", testing: "v3: same-game parlays, open picks strip above the snap cards, live settle of real snap picks through a full drive.", log: ["v1 first live page", "v2 Drive Duel, rank alerts, rebuy, feed fix"] },
+    { key: "gold", name: "Team Gold (Hashmark Live)", version: "v3", url: "https://mclovin-codes.github.io/live-lab/teams/gold/", changed: "Parlays with a gold bar, first-down market on every set, 12 SIM rivals who call every snap so the leaderboard moves each play, rank alerts, SIM field vote on the next snap. Grading passed 31 fixtures.", testing: "Live settlement of next-snap, drive and first-down tickets on real plays. v4: pinned rival duel, fourth-quarter moments, SIM props.", log: ["v1 first live page", "v2 standalone", "v3 parlays, first-down market, every-snap sim field"] },
   ];
-  const UPDATED = "9:12 PM";
+  const UPDATED = "8:55 PM";
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   document.getElementById("updated").textContent = UPDATED;
   document.getElementById("teams").innerHTML = TEAMS.map(t => `
