@@ -98,3 +98,4 @@ known: Lounge uses Blue SIM names, Ranks uses Red SIM names.
 - The Slip with a typed stake shipped earlier (02b8bf1).
 - Tested in jsdom on PHI at DET (Week 9): 8 Field rows with links, 20 renders in 30 ms, no script errors.
 - Next: first live check tonight. The first NBA tips are at 23:00 UTC (6:00 PM ET).
+- Slip re-verified on the hosted code (PHI at DET): single and 2-leg parlay. Typed stake keeps focus, wins, returns and Stack after update as you type, the +10/+25/+50/+100/Max/Clear chips stay, a stake over the Stack shows "Only 1,000 Stack left", and the parlay places with both legs (+270 x60, Stack 940).
