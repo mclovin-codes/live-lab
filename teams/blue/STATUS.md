@@ -45,3 +45,15 @@ What we would do with it: a small server function (Vercel or Cloudflare Worker) 
 FastCast doc plus polls fill S, player state in me, Field in ladder(), picks through placeChecked(), place() and placeParlay(), grading in settle() and gradeBet(), pricing in quote(), fitted tables in FT with tget(), fair window in timedGate() and closeAfter().
 
 blocked: nothing. Field and matchup simulated and labelled SIM.
+
+## Weekly app (Blue role): status
+shipped: app/shared/state.js (store, API at top), app/shared/rush.css, app/shared/nav.js (five-tab bar). Next: app/game.html.
+
+## NBA live probe, PHX at GS (401909919), Q4 9:00 to 7:26, 170 s, 24 new plays
+- Works with the NFL shapes and the sport path swapped: core plays (wallclock, period, clock, possessionTeam, shootingPlay, scoreValue, coordinate), core probabilities (homeWinPercentage, spreadCoverProbHome, totalOverProb), site summary (boxscore, plays inline: 436, winprobability, pickcenter with live moneyline, spread and total).
+- Missing for NBA: core situation (404) and core odds (404). Live book lines come only from the summary pickcenter.
+- Lag, play wallclock to first seen: core plays median 43 s (min 2, max 95), probabilities 37 s (2 to 95), summary 44 s (21 to 96). ESPN posts NBA plays in bursts, so some land in 2 to 5 s and others wait 40 to 90 s.
+- Push: the FastCast socket from a node test errored (browser untested); no NBA push data measured yet.
+- What breaks if the NFL engine is pointed at NBA unchanged: no down and distance, so every next-snap, chains, drive and 4th-down market has no state; the fair window keyed on NFL play types never classifies a stoppage; propBets targets differ.
+- What that means for fairness: an NBA possession takes about 14 s and the feed is 37 to 44 s late, so per-possession timed markets (next basket, next possession) cannot be locked in time and are not offered. Only stoppage windows can work: timeouts, quarter breaks, halftime, and possibly free-throw sequences, each needing its own fitted restart gap.
+- Plan for NBA and NHL in game.html: game lines from the summary book block, alt spreads and totals and quarter or period lines from a margin model anchored on those lines and the probability feed, player props from the box score (points, rebounds, assists, threes; goals, shots), stoppage-only timed picks, graded on the final.
