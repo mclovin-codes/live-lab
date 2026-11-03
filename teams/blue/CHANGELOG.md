@@ -1,5 +1,8 @@
 # Team blue changelog
 
+## v4
+- Self-update: GitHub Pages caches the page for up to 10 minutes, so an open or reopened phone could sit on an old version. The page now checks every 45 seconds and reloads to the newest version, picks kept.
+
 ## v3
 - Same-game parlays from any game line, alt, quarter line or prop. Payout trimmed 8% for related legs. Each leg tracks live, losing leg ends it, pushed leg drops out and the price resets. Cash out works.
 - Open picks strip on top of the Live tab with live profit on each pick.

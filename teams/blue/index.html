@@ -157,8 +157,8 @@ ul.cl{margin:0;padding-left:18px;color:var(--ink);font-size:14px;display:grid;ga
 <div id="burst" hidden></div>
 
 <script>
-const VERSION='v3';
-const CHANGES=[['v3',['Same-game parlays from any game line or prop, with leg tracking and cash out','Your open picks now sit on top of the Live tab','Touchdown and field goal alerts fill the screen','Last play skips timeouts and quarter breaks']],['v2',['Runs as a plain page on any host','Plays arrive up to a minute sooner: fixed a stale browser cache and now read the newest play directly','Field grew to 30 simulated players','Drive Duel: beat the field on every drive','Rank alerts name who you passed','One rebuy per quarter if you bust, charged against your score']],['v1',['Live pick board fed by ESPN every 3 to 10 seconds','Next-snap markets: next play, move the chains, drive result, next score','Game lines, alts, team totals, quarter lines, player props anchored on real DraftKings targets','Cash out, live sweats, ladder with labelled bots and any real players']]];
+const VERSION='v4';
+const CHANGES=[['v4',['The page updates itself within a minute of a new version, your picks stay']],['v3',['Same-game parlays from any game line or prop, with leg tracking and cash out','Your open picks now sit on top of the Live tab','Touchdown and field goal alerts fill the screen','Last play skips timeouts and quarter breaks']],['v2',['Runs as a plain page on any host','Plays arrive up to a minute sooner: fixed a stale browser cache and now read the newest play directly','Field grew to 30 simulated players','Drive Duel: beat the field on every drive','Rank alerts name who you passed','One rebuy per quarter if you bust, charged against your score']],['v1',['Live pick board fed by ESPN every 3 to 10 seconds','Next-snap markets: next play, move the chains, drive result, next score','Game lines, alts, team totals, quarter lines, player props anchored on real DraftKings targets','Cash out, live sweats, ladder with labelled bots and any real players']]];
 const E='401873036',HOME='26',AWAY='3',BUDGET=1000;
 const CORE=`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${E}/competitions/${E}`;
 const SITE='https://site.api.espn.com/apis/site/v2/sports/football/nfl';
@@ -482,6 +482,9 @@ function act(d){switch(d.a){
 }}
 function wake(){try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}}
 
+/* hosts cache this page for minutes: check for a newer version and reload at a quiet moment */
+async function checkVersion(){if(document.hidden)return;try{const r=await fetch(location.pathname+'?t='+Date.now(),{cache:'no-store'}),t=await r.text(),m=t.match(/const VERSION='(vd+)'/);if(m&&m[1]!==VERSION){if(sheetMode){toast('New version '+m[1]+' loads when you close this.');return}location.replace(location.pathname+'?v='+m[1])}}catch(e){}}
+setInterval(checkVersion,45000);setTimeout(checkVersion,4000);
 /* ---------- boot ---------- */
 loadLocal();render();if(!me.handle)openSheet('name');
 loop(pollProbs,3000);loop(pollSit,4000);loop(pollPlays,5000);loop(pollSum,10000);loop(pollOdds,60000);loop(pollProps,380000);pollRoster().catch(()=>{});
