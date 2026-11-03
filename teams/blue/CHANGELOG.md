@@ -1,5 +1,11 @@
 # Team blue changelog
 
+## v8
+- BUG FIX: v7 dropped a helper during the Rush rewrite, which stopped picks from grading on the live page. Restored, and each update step now runs in isolation so one failure cannot stop grading. v7 picks settle on load in v8.
+- Measured snap-pick void rate on 48 real snaps: 0 to 2% at 15s lag, 2 to 4% at 20s, 4 to 10% at 25s, 8 to 15% at 30s, 19 to 77% at 40s. Median gap between snaps 42s.
+- Late-game lines stress tested at 9 forced Q4 and OT states. Fixed: spread stuck 3.5 off the real margin with a big lead, outcomes too narrow in the last 2 minutes, lines still open at 0:00, overtime clock falling back to Q4.
+- Line moved alert in header, This play impact on Units and rank, open picks show covering or needed, crunch time header, PK label.
+
 ## v7
 - Real time: found ESPN summary carries book prices stale by up to 40 cents (+119 versus real +151). Now the full game doc comes from the FastCast checkpoint, kept current by push patches, with a safety refresh every 20 seconds. Summary polling is only the fallback when push is down.
 - Rush frame: page is the Live section of Bears at Seahawks. Stack, Units (1 U = 10 Stack), Slip, Board, Ranks, the Field. Arrive with a chosen weekly Stack and Units. Field carries simulated week-to-date Units and its own Stack, labelled SIM.
