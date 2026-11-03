@@ -1,5 +1,13 @@
 # Team Gold changelog
 
+## v6
+- One-tap picks on Next snap and This drive, with a stake button that cycles $50, $100, $250, $500 and off.
+- Open picks glow on the board.
+- Open tickets show the current price and whether you beat the line.
+- Second-half spread and total.
+- Tighter hold on next-snap favorites.
+- Recap card at the final whistle.
+
 ## v5
 - Page updates itself within a minute of a new version and keeps tickets.
 - Snap streak on next-snap, drive and first-down wins.

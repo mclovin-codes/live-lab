@@ -1,8 +1,13 @@
 # Team Gold status
 
-**Version:** v5
+**Version:** v6
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Hashmark Live
+
+## What changed in v6
+- One-tap picks on Next snap and This drive. Open picks glow on the board.
+- Tickets show the current price and whether you beat the line.
+- Second-half spread and total, tighter next-snap hold, final recap card.
 
 ## What changed in v5
 - Self-update within a minute of a ship, because Pages caches the page for 10 minutes.
@@ -37,5 +42,5 @@ All 12 rivals are labeled SIM. They replay from ESPN's probabilities and plays, 
 Nothing.
 
 ## Testing next
-1. Self-update on the next ship, and first-down and drive settlement.
-2. v6: same-play moments in the fourth quarter, SIM props in the feed, tighter hold on next-snap favorites.
+1. First-down and drive settlement during real plays.
+2. v7: win probability chart, SIM props in the feed, fourth-quarter moments.

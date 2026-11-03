@@ -162,9 +162,9 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
 <div id="toast" hidden></div>
 
 <script>
-const VERSION='v5';
+const VERSION='v6';
 const BOOT=Date.now();
-const CHANGES=[['v5','The page now updates itself within a minute of a new version and keeps your tickets. Next-snap, drive and first-down wins build a snap streak. The Field tab opens on a head-to-head card with the player right above you.'],['v4','Fixed field position. Seattle drives were priced from the wrong end of the field and the ball was drawn on the wrong side, so drive, next-snap and next-score prices were off whenever Seattle had the ball. Fourth-down prices now expect a kick. Over and Under SIM players now only bet totals.'],['v3','Now a standalone page on an open host, so the ESPN feed reaches your phone. Parlays with a same-game price. First-down market on every set. SIM players now call every snap, so the leaderboard moves on each play, and you get an alert when you pass someone or get passed.'],['v2','Team colors replace logos. The page says plainly if it cannot reach ESPN.'],['v1','First whistle. Live board repriced after every play, next-snap markets that settle in seconds, drive and next-score markets, player props with milestones, cash out and a sweat meter on every ticket, and a field of sim players. Tap any pick in the field to tail it.']];
+const CHANGES=[['v6','One-tap picks on Next snap and This drive: tap a price and it locks at your set stake. Tap the 1-tap button to change the stake or turn it off. Your open picks glow on the board. Open tickets show the current price so you can see if you beat the line. Second-half spread and total added. Next-snap favorites are priced a little tighter. A recap card appears at the final whistle.'],['v5','The page now updates itself within a minute of a new version and keeps your tickets. Next-snap, drive and first-down wins build a snap streak. The Field tab opens on a head-to-head card with the player right above you.'],['v4','Fixed field position. Seattle drives were priced from the wrong end of the field and the ball was drawn on the wrong side, so drive, next-snap and next-score prices were off whenever Seattle had the ball. Fourth-down prices now expect a kick. Over and Under SIM players now only bet totals.'],['v3','Now a standalone page on an open host, so the ESPN feed reaches your phone. Parlays with a same-game price. First-down market on every set. SIM players now call every snap, so the leaderboard moves on each play, and you get an alert when you pass someone or get passed.'],['v2','Team colors replace logos. The page says plainly if it cannot reach ESPN.'],['v1','First whistle. Live board repriced after every play, next-snap markets that settle in seconds, drive and next-score markets, player props with milestones, cash out and a sweat meter on every ticket, and a field of sim players. Tap any pick in the field to tail it.']];
 const E='401873036',HOME='26',AWAY='3',BUDGET=10000;
 const CORE=`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${E}/competitions/${E}`;
 const SITE=`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${E}`;
@@ -239,6 +239,9 @@ function teamMean(side){const h=(M.mT+M.mu)/2,a=(M.mT-M.mu)/2;return side==='hom
 const qScore=(side,n)=>{const a=side==='home'?G.lines.h:G.lines.a;return a[n-1]||0};
 function qModel(n){const qRem=n<G.period?0:n===G.period?G.clockVal:900,f=qRem/Math.max(remSecs(),1),rt=Math.max(M.mT-G.hs-G.as,0),extra=rt*f*(n===G.period?1:1),mu=M.mu-(G.hs-G.as),s=Math.max(1.2,7*Math.sqrt(qRem/900));return{meanT:qScore('home',n)+qScore('away',n)+extra,meanM:qScore('home',n)-qScore('away',n)+mu*f,s}}
 function hModel(){const secs=G.period>=3?0:(2-G.period)*900+G.clockVal,f=secs/Math.max(remSecs(),1),h1=[0,1].map(i=>(G.lines.h[i]||0)),a1=[0,1].map(i=>(G.lines.a[i]||0)),cur=h1[0]+h1[1]+a1[0]+a1[1],rt=Math.max(M.mT-G.hs-G.as,0);return{meanT:cur+rt*f,s:Math.max(1.3,9.5*Math.sqrt(secs/1800)),cur}}
+function h2Model(){const h=hModel(),curM=G.hs-G.as,secs=G.period>=3?0:(2-G.period)*900+G.clockVal,f=secs/Math.max(remSecs(),1),h1M=G.period>=3?h1Margin():h1Margin()+(M.mu-curM)*f,left=clamp(remSecs()/1800,0,1);return{meanT:M.mT-h.meanT,meanM:M.mu-h1M,s:Math.max(1.3,G.period>=3?M.sT:9.5*Math.sqrt(left))}}
+const h1Pts=()=>qScore('home',1)+qScore('home',2)+qScore('away',1)+qScore('away',2);
+const h1Margin=()=>qScore('home',1)+qScore('home',2)-qScore('away',1)-qScore('away',2);
 /* Probabilities for a market definition: w is win, p is push. */
 function probs(m){
   switch(m.k){
@@ -249,6 +252,8 @@ function probs(m){
     case'qt':{const q=qModel(m.n),o=gt(m.line,q.meanT,q.s);return m.ou==='o'?o:flip(o)}
     case'qml':{const q=qModel(m.n),z=gt(0,q.meanM,q.s);return m.side==='home'?z:flip(z)}
     case'ht':{const h=hModel(),o=gt(m.line,h.meanT,h.s);return m.ou==='o'?o:flip(o)}
+    case'h2t':{const h=h2Model(),o=gt(m.line,h.meanT,h.s);return m.ou==='o'?o:flip(o)}
+    case'h2s':{const h=h2Model();return gt(-m.line,m.side==='home'?h.meanM:-h.meanM,h.s)}
     case'prop':{const cur=boxStat(m.aid,m.stat)||0,pr=propProj(cur,m.stat,m.prior),o=gt(m.line,pr.mean,pr.sd);return m.ou==='o'?o:flip(o)}
     case'atd':{const f=remSecs()/3600,w=1-Math.exp(-(m.lam||.35)*f);return{w,p:0}}
     case'next':{const rem=remSecs()/3600,none=Math.exp(-5.4*rem),off=offense(),d=driveProbs(),o=d.TD+d.FG+(1-d.TD-d.FG)*.42,ph=off==='home'?o:off==='away'?1-o:.5;const fav=(M.wp-.5)*.2,pH=clamp(ph+fav,.05,.95);return{w:m.sel==='none'?none:(1-none)*(m.sel==='home'?pH:1-pH),p:0}}
@@ -259,7 +264,7 @@ function probs(m){
     case'parlay':{let w=1;for(const l of m.legs){const g=grade(l);if(g==='loss')return{w:0,p:0};if(g)continue;const o=probs(l);w*=o.w/Math.max(1e-6,1-o.p)}return{w,p:0}}
   }return{w:.5,p:0}}
 const isMicro=m=>m.k==='playtype'||m.k==='yds'||m.k==='drive'||m.k==='fd';
-function quote(m){const o=probs(m),q=o.w/Math.max(1e-6,1-o.p),h=isMicro(m)||m.k==='next'?MICRO:HOLD;return american(q*h)}
+function quote(m){const o=probs(m),q=o.w/Math.max(1e-6,1-o.p);if(isMicro(m)||m.k==='next')return american(q<.5?q*MICRO:q+.035);return american(q*HOLD)}
 const mkKey=m=>[m.k,m.side,m.ou,m.sel,m.line,m.aid,m.stat,m.n,m.yd].filter(x=>x!=null).join('|');
 function mkLabel(m){switch(m.k){
   case'ml':return tName(m.side)+' Moneyline';
@@ -269,6 +274,8 @@ function mkLabel(m){switch(m.k){
   case'qt':return'Q'+m.n+(m.ou==='o'?' Over ':' Under ')+m.line;
   case'qml':return'Q'+m.n+' '+tName(m.side)+' Win';
   case'ht':return'1st Half'+(m.ou==='o'?' Over ':' Under ')+m.line;
+  case'h2t':return'2nd Half'+(m.ou==='o'?' Over ':' Under ')+m.line;
+  case'h2s':return'2nd Half '+tName(m.side)+' '+lineFmt(m.line);
   case'prop':return m.name+(m.ou==='o'?' Over ':' Under ')+m.line+' '+STATS[m.stat][2];
   case'atd':return m.name+' Anytime TD';
   case'next':return m.sel==='none'?'No more scoring':'Next score '+tName(m.sel);
@@ -293,6 +300,8 @@ function grade(b){const hs=G.hs,as=G.as,fin=CLOSED();
     case'qt':{const t=qScore('home',b.n)+qScore('away',b.n);if(b.ou==='o'&&t>b.line)return'win';if(b.ou==='u'&&t>b.line)return'loss';if(!(fin||G.period>b.n))return null;return t===b.line?'push':b.ou==='o'?'loss':'win'}
     case'qml':{if(!(fin||G.period>b.n))return null;const x=qScore('home',b.n)-qScore('away',b.n);if(!x)return'push';return(x>0)===(b.side==='home')?'win':'loss'}
     case'ht':{const t=qScore('home',1)+qScore('home',2)+qScore('away',1)+qScore('away',2);if(b.ou==='o'&&t>b.line)return'win';if(b.ou==='u'&&t>b.line)return'loss';if(!(fin||G.period>2))return null;return t===b.line?'push':b.ou==='o'?'loss':'win'}
+    case'h2t':{const t=hs+as-h1Pts();if(G.period>=3&&b.ou==='o'&&t>b.line)return'win';if(G.period>=3&&b.ou==='u'&&t>b.line)return'loss';if(!fin)return null;return t===b.line?'push':(t>b.line)===(b.ou==='o')?'win':'loss'}
+    case'h2s':{if(!fin)return null;const x=(b.side==='home'?1:-1)*(hs-as-h1Margin())+b.line;return x>0?'win':x<0?'loss':'push'}
     case'prop':{const v=boxStat(b.aid,b.stat);if(v!=null&&b.ou==='o'&&v>b.line)return'win';if(v!=null&&b.ou==='u'&&v>b.line)return'loss';if(!fin)return null;if(v==null)return'void';return v===b.line?'push':b.ou==='o'?'loss':'win'}
     case'atd':{const v=boxTD(b.aid);if(v>0)return'win';return fin?(v==null?'void':'loss'):null}
     case'next':{let h=b.h0,a=b.a0;for(const p of playsAfter(b.anchor)){if(p.homeScore==null)continue;if(p.homeScore>h)return b.sel==='home'?'win':'loss';if(p.awayScore>a)return b.sel==='away'?'win':'loss'}if(hs>h)return b.sel==='home'?'win':'loss';if(as>a)return b.sel==='away'?'win':'loss';return fin?(b.sel==='none'?'win':'loss'):null}
@@ -340,14 +349,20 @@ let tab='now';
 const SHOW=[['now','Now'],['game','Game'],['props','Props'],['bets','Bets'],['field','Field']];
 const MK={};let prevOdds={};
 function suspended(){return(G.state!=='in')||Date.now()-G.lastBig<6000||Date.now()-Math.max(G.ok.prob||0,G.ok.sit||0)>25000}
-function P(m,top,opts={}){const key=mkKey(m);MK[key]=m;const g=grade({...m,t:Date.now(),anchor:Infinity,h0:G.hs,a0:G.as});let o=null;try{o=quote(m)}catch(e){}const dead=suspended()||g||opts.off||Math.abs(o)>2500;const prev=prevOdds[key];let fl='';if(prev!=null&&o!==prev&&!dead){fl=dec(o)>dec(prev)?' f-up':' f-dn'}prevOdds[key]=o;const sel=SL.m&&mkKey(SL.m)===key?' sel':'';return`<button class="p${fl}${sel}" data-m="${esc(key)}"${dead?' disabled':''}><span>${esc(top)}</span><strong>${dead?(g?esc(g):'—'):fmtOdds(o)}</strong></button>`}
+function openKeys(){return new Set(S.bets.filter(b=>b.st==='open'&&b.k!=='parlay').map(mkKey))}
+function P(m,top,opts={}){const key=mkKey(m);MK[key]=m;const g=grade({...m,t:Date.now(),anchor:Infinity,h0:G.hs,a0:G.as});let o=null;try{o=quote(m)}catch(e){}const dead=suspended()||g||opts.off||Math.abs(o)>2500;const prev=prevOdds[key];let fl='';if(prev!=null&&o!==prev&&!dead){fl=dec(o)>dec(prev)?' f-up':' f-dn'}prevOdds[key]=o;const sel=(SL.m&&mkKey(SL.m)===key)||openKeys().has(key)?' sel':'';return`<button class="p${fl}${sel}" data-m="${esc(key)}"${dead?' disabled':''}><span>${esc(top)}</span><strong>${dead?(g?esc(g):'—'):fmtOdds(o)}</strong></button>`}
 
 /* The summary feed lags the play feed by up to 10 s, so the newest play names the live drive. */
 function liveDriveId(){const l=G.plays[G.plays.length-1],r=l&&l.drive&&l.drive.$ref,m=r&&r.match(/drives\/(\d+)/),id=m?m[1]:(G.drive&&!G.drive.result?G.drive.id:null);if(!id)return null;const done=[...G.prevDrives,G.drive].filter(Boolean).find(d=>d.id==id);return done&&done.result?null:id}
 function snapVote(){const l=G.plays[G.plays.length-1];if(!l)return'';const q=playProbs().pass,v=clamp(q+(hash('v'+l.sequenceNumber)-.5)*.3,.1,.95),pc=Math.round(v*100);return pc>=50?`SIM field: ${pc}% Pass.`:`SIM field: ${100-pc}% Run.`}
 function snapStreak(){let n=0;for(const b of S.bets.filter(b=>isMicro(b)&&b.st!=='open'&&b.st!=='void'&&b.st!=='push').sort((a,z)=>z.at-a.at)){if(b.st==='win')n++;else break}return n}
-function viewNow(){const off=offense(),d=G.sit&&G.sit.down>0,sit=G.sit&&G.sit.downDistanceText;const noSnap=!d;const open=S.bets.filter(b=>b.st==='open');let h='';
-  h+=`<div class="sec"><div class="sh">Next snap${snapStreak()>1?` <span class="pill you">${snapStreak()} STRAIGHT</span>`:''}<small>${sit?esc(sit):'Between plays'}</small></div>${noSnap?'<div class="note">Reopens when the offense lines up.</div>':''}
+const qsVal=()=>S.qs==null?100:S.qs;
+let lastQuick={k:'',t:0};
+function quickPick(m){const key=mkKey(m);if(lastQuick.k===key&&Date.now()-lastQuick.t<1500)return;lastQuick={k:key,t:Date.now()};SL.m=m;SL.stake=qsVal();placeBet()}
+function finalCard(){if(G.state!=='post')return'';const rows=board(),you=rows.find(r=>r.you),done=S.bets.filter(b=>b.st!=='open'),w=done.filter(b=>b.st==='win').length,l=done.filter(b=>b.st==='loss').length,best=done.reduce((a,b)=>{const p=(b.pay||0)-b.stake;return p>a.p?{p,l:b.label}:a},{p:0,l:''});return`<div class="tk win"><div class="a"><b>Final: CHI ${G.as}, SEA ${G.hs}</b></div><div class="a"><b>You finished #${you.rank} of ${rows.length}</b><em class="${you.eq>=BUDGET?'up':'dn'}">${money(you.eq)}</em></div><div class="s">${w}-${l} on settled tickets${best.l?` · Best hit ${esc(best.l)}, ${money(best.p,true)}`:''}</div></div>`}
+function viewNow(){const off=offense(),d=G.sit&&G.sit.down>0,sit=G.sit&&G.sit.downDistanceText;const noSnap=!d;const open=S.bets.filter(b=>b.st==='open');let h=finalCard();
+  h+=`<div class="sec"><button class="btn" data-qs="1" style="align-self:flex-start">${S.qs===0?'1-tap off':'1-tap '+money(qsVal())}</button>
+  <div class="sh">Next snap${snapStreak()>1?` <span class="pill you">${snapStreak()} STRAIGHT</span>`:''}<small>${sit?esc(sit):'Between plays'}</small></div>${noSnap?'<div class="note">Reopens when the offense lines up.</div>':''}
   <div class="row">${P({k:'playtype',sel:'pass'},'Pass',{off:noSnap})}${P({k:'playtype',sel:'rush'},'Run',{off:noSnap})}</div>
   <div class="row">${P({k:'yds',yd:5,sel:'yes'},'5+ yds',{off:noSnap})}${P({k:'yds',yd:5,sel:'no'},'Under 5',{off:noSnap})}${P({k:'yds',yd:10,sel:'yes'},'10+ yds',{off:noSnap})}${P({k:'yds',yd:10,sel:'no'},'Under 10',{off:noSnap})}</div>
   <div class="row">${P({k:'fd',sel:'yes'},'Moves chains',{off:noSnap})}${P({k:'fd',sel:'no'},'Stopped',{off:noSnap})}</div>
@@ -375,6 +390,7 @@ function viewGame(){const lH=Math.round(-M.mu*2)/2,tot=Math.max(Math.round(M.mT*
   for(const side of['away','home']){const m=teamMean(side),l=Math.max(nearHalf(m),(side==='home'?G.hs:G.as)+.5);h+=`<div class="sec"><div class="sh">${tName(side)} team total<small>${side==='home'?G.hs:G.as} now</small></div><div class="row">${P({k:'tt',side,ou:'o',line:l},'O '+l)}${P({k:'tt',side,ou:'u',line:l},'U '+l)}</div></div>`}
   const n=clamp(G.period||1,1,4),q=qModel(n),ql=Math.max(nearHalf(q.meanT),qScore('home',n)+qScore('away',n)+.5);
   h+=`<div class="sec"><div class="sh">Quarter ${n}<small>Tie pushes</small></div><div class="row">${P({k:'qml',n,side:'away'},'CHI wins Q')}${P({k:'qml',n,side:'home'},'SEA wins Q')}</div><div class="row">${P({k:'qt',n,ou:'o',line:ql},'O '+ql)}${P({k:'qt',n,ou:'u',line:ql},'U '+ql)}</div></div>`;
+  {const h2=h2Model(),h2cur=G.period>=3?G.hs+G.as-h1Pts():0,tl=Math.max(nearHalf(h2.meanT),h2cur+.5),sl=Math.round(-h2.meanM*2)/2||.5;h+=`<div class="sec"><div class="sh">Second half<small>Overtime counts</small></div><div class="row">${P({k:'h2s',side:'away',line:-sl},'CHI '+lineFmt(-sl))}${P({k:'h2s',side:'home',line:sl},'SEA '+lineFmt(sl))}</div><div class="row">${P({k:'h2t',ou:'o',line:tl},'O '+tl)}${P({k:'h2t',ou:'u',line:tl},'U '+tl)}</div></div>`}
   if(G.period<=2){const hm=hModel(),hl=Math.max(nearHalf(hm.meanT),hm.cur+.5);h+=`<div class="sec"><div class="sh">First half total</div><div class="row">${P({k:'ht',ou:'o',line:hl},'O '+hl)}${P({k:'ht',ou:'u',line:hl},'U '+hl)}</div></div>`}
   return h}
 
@@ -397,9 +413,12 @@ function sweatLine(b){switch(b.k){
   case'drive':return G.sit&&G.sit.downDistanceText?G.sit.downDistanceText:'Drive in progress';
   case'next':return'Waiting on the next score';
   case'qt':case'qml':return`Q${b.n}: CHI ${qScore('away',b.n)} · SEA ${qScore('home',b.n)}`;
-  case'ht':return`1st half: ${qScore('home',1)+qScore('home',2)+qScore('away',1)+qScore('away',2)} points`;
+  case'ht':return`1st half: ${h1Pts()} points`;
+  case'h2t':return`2nd half: ${G.period>=3?G.hs+G.as-h1Pts():0} points`;
+  case'h2s':return`2nd half: CHI ${G.period>=3?G.as-(qScore('away',1)+qScore('away',2)):0} · SEA ${G.period>=3?G.hs-(qScore('home',1)+qScore('home',2)):0}`;
 }return''}
-function ticket(b){if(b.st==='open'){const o=probs(b),w=Math.round((o.w+o.p/2)*100),cv=cashValue(b),canCash=!isMicro(b)&&!suspended();return`<div class="tk"><div class="a"><b>${esc(b.label)}</b><em>${fmtOdds(b.odds)}</em></div><div class="s">${esc(sweatLine(b))}</div><div class="meter"><i style="width:${w}%"></i></div><div class="c"><span class="s">${w}% to cash · ${money(b.stake)} to win ${money(payoutFor(b)-b.stake)}</span>${isMicro(b)?'':`<button class="btn g" style="margin-left:auto" data-cash="${esc(b.id)}"${canCash?'':' disabled'}>Cash out ${money(cv)}</button>`}</div></div>`}
+function clvText(b){if(isMicro(b)||b.k==='parlay'||b.k==='next'||suspended())return'';const n=quote(b);if(n===b.odds)return` · Now ${fmtOdds(n)}`;return dec(b.odds)>dec(n)?` · Now ${fmtOdds(n)}, you beat it`:` · Now ${fmtOdds(n)}, line moved away`}
+function ticket(b){if(b.st==='open'){const o=probs(b),w=Math.round((o.w+o.p/2)*100),cv=cashValue(b),canCash=!isMicro(b)&&!suspended();return`<div class="tk"><div class="a"><b>${esc(b.label)}</b><em>${fmtOdds(b.odds)}</em></div><div class="s">${esc(sweatLine(b))}${clvText(b)}</div><div class="meter"><i style="width:${w}%"></i></div><div class="c"><span class="s">${w}% to cash · ${money(b.stake)} to win ${money(payoutFor(b)-b.stake)}</span>${isMicro(b)?'':`<button class="btn g" style="margin-left:auto" data-cash="${esc(b.id)}"${canCash?'':' disabled'}>Cash out ${money(cv)}</button>`}</div></div>`}
   const pnl=b.st==='cashed'?b.pay-b.stake:b.st==='win'?b.pay-b.stake:b.st==='loss'?-b.stake:0;return`<div class="tk ${b.st==='win'?'win':b.st==='loss'?'loss':''}"><div class="a"><b>${esc(b.label)}</b><em class="${pnl>0?'up':pnl<0?'dn':''}">${money(pnl,true)}</em></div><div class="s">${b.st.toUpperCase()} at ${fmtOdds(b.odds)} · ${money(b.stake)} staked</div></div>`}
 function viewBets(){const open=S.bets.filter(b=>b.st==='open').reverse(),done=S.bets.filter(b=>b.st!=='open').reverse();const w=done.filter(b=>b.st==='win').length,l=done.filter(b=>b.st==='loss').length;let streak=0;for(const b of done){if(b.st==='win')streak++;else if(b.st==='loss')break}
   return`<div class="sec"><div class="sh">Bankroll<small>${w}-${l}${streak>1?' · '+streak+' straight':''}</small></div><div class="note">${money(S.cash)} cash · ${money(equity())} with open tickets at cash-out value · Budget ${money(BUDGET)}</div></div>
@@ -455,8 +474,9 @@ function pumpToast(){if(toastT||!toastQ.length)return;const t=toastQ.shift(),el=
 let ac=null;function beep(f,d){if(!ac)return;try{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.stop(ac.currentTime+d)}catch(e){}}
 let waked=false;function wake(){if(!ac)try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}if(!waked){waked=true;try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}}}
 /* Events */
-document.addEventListener('click',ev=>{const t=ev.target.closest('[data-m],[data-tab],[data-go],[data-stake],[data-lock],[data-closeslip],[data-cash],[data-tail],[data-pan],[data-closepan],[data-popen],[data-addleg],[data-rmleg],[data-plock]');if(!t){if(ev.target.id==='scrim'){closeSlip();$('panel').hidden=true;$('scrim').hidden=true}return}wake();const d=t.dataset;
-  if(d.m){const m=MK[d.m];if(m)openSlip(m)}
+document.addEventListener('click',ev=>{const t=ev.target.closest('[data-m],[data-tab],[data-go],[data-stake],[data-lock],[data-closeslip],[data-cash],[data-tail],[data-pan],[data-closepan],[data-qs],[data-popen],[data-addleg],[data-rmleg],[data-plock]');if(!t){if(ev.target.id==='scrim'){closeSlip();$('panel').hidden=true;$('scrim').hidden=true}return}wake();const d=t.dataset;
+  if(d.m){const m=MK[d.m];if(m){if(isMicro(m)&&qsVal()>0)quickPick(m);else openSlip(m)}}
+  else if(d.qs){const c=[50,100,250,500,0],i=c.indexOf(qsVal());S.qs=c[(i+1)%c.length];save();renderAll()}
   else if(d.tail){const m=MK[d.tail];if(m){const mm={...m};delete mm.st;openSlip(cleanM(mm))}}
   else if(d.tab){tab=d.tab;renderAll();$('main').scrollTop=0}
   else if(d.go){tab=d.go;renderAll();$('main').scrollTop=0}
