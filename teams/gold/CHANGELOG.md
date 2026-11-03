@@ -1,5 +1,9 @@
 # Team Gold changelog
 
+## v15
+- Odds-change setting in the Slip: Ask me, Higher only or Any change, as DraftKings, FanDuel and bet365 offer. If the price moves while the Slip is open, it shows the old and new price with a green or red arrow, and the button reads "Accept -590 and lock 25". A tap on a price that changed since it was drawn asks again unless the setting allows it.
+- Storylines rail at the top of Live: underdog, this drive or red zone, a player nearest a yardage milestone, scoring pace against the total, and a touchdown scorer. Each card has a logo or headshot and one price.
+
 ## v14
 - New look per the 9:58 PM addendum: Rush tokens (#00BFFF on #0B1118, cards #121A23 and #1A2530), SF system type, team logos in the scorebug, field and lines, player headshots on props and anytime TD, avatars on the Field, and timeout bars.
 - Navigation: segmented control (Live, Lines, Props, Field) under the scorebug, and the Slip as a floating pill. Sheets slide up with a grabber. Toasts drop from the top.

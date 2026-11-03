@@ -1,6 +1,6 @@
 # Team Gold status
 
-**Version:** v14
+**Version:** v15
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Rush Live
 
@@ -13,6 +13,10 @@ Lag is the play's `wallclock` versus when the page first has it.
 - The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
 - Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
 
+## What changed in v15
+- Odds-change setting (Ask me, Higher only, Any change) with move arrows in the Slip.
+- Storylines rail of five live angles on Live, each with logo or headshot and one price.
+
 ## What changed in v14
 - Rebuilt look in Rush blue: logos, headshots, segmented control, Slip pill, sheets. Countdown chip on every live market. Locked lines stay visible. Stoppage windows from rulebook durations. Drive card. Watch door.
 
@@ -20,7 +24,7 @@ Lag is the play's `wallclock` versus when the page first has it.
 - **NFL expert:** ranked score/clock, down and distance, timeouts, drive and win probability as what matters in Q4. Gave rulebook stoppage durations (halftime 780s, end of Q1/Q3 120s+, TV break ~140s, review ~128s). Said anytime TD is the top prop (24% of prop handle) and tackles and sacks are noise late.
 - **Sportsbook expert:** main lines should stay pickable every dead ball, since DraftKings kept them about 99% available in Super Bowl LVII. Books show suspended as grey or a lock icon, use green and red arrows on moves, and let players pick an odds-change preference. Next-drive and next-score quick markets matter.
 - **iOS UI expert:** recommended a segmented control over a tab bar (HIG), the Slip as a floating action, cards with logos and headshots, a 44pt minimum touch target, one-pulse odds flashes, and dropping table chrome.
-- Not built yet: odds-change preference (ask, higher only, always), a curated storylines rail, and a live parlay tab.
+- Built from their lists: odds-change setting and storylines rail (v15). Not built yet: a live parlay tab.
 
 ## What changed in v13
 - Props and anytime TD fit on nflverse play-by-play, with ESPN season averages as priors. Method and 2025 holdout calibration are in `model/PROPS-METHODS.md`.
@@ -119,6 +123,6 @@ All 12 rivals are labeled SIM stand-ins for the Field, with made-up Units from e
 Nothing.
 
 ## Testing next
-1. v14 on a real phone: chips, sheets, the segmented control.
-2. Odds-change preference in the Slip, per the sportsbook seat.
-3. Storylines rail with five live angles on the Live tab.
+1. Live acceptance, lock lag and decline rate on v15, in the fourth quarter.
+2. Live parlay tab in the Slip.
+3. v15 on a real phone.
