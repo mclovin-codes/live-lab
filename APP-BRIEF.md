@@ -57,3 +57,18 @@ What this means (Rush words on screen: a contest's table is its Ranks, never "le
 6. Commissioner tools: edit settings before entry closes, remove an entrant, void a pick with a reason, close the contest, archive it.
 
 Roles: Blue extends the shared store with contests (create, join, settings, scoring, results) and the invite-link encoding; Red builds the commissioner and contest pages (create, manage, Ranks, results sheet with CSV and print); Gold places the doors on Home and gives each contest a Lounge thread.
+
+## Addendum, 2026-11-03 2:55 AM ET (founder, verbatim): Home tone, contest limits, injury protection, payment fields
+
+"New Home Screen puts too much emphasis on the next game, the gold CTA on pool size and invite is a bit corny and AI heavy. But right idea. Contest mode should allow max and min bet limits to be customized with option for no max, min and max odds for a slip or line or no max, custom type option for pool size and stack amount. Then they need the ability to void a pick, or honor early exits based on player leaving because of injury and not returning for prop bets. This could be another setting (no injury protection, 1st half, full game) etc. and an optional field to collect cashapp, Venmo, applepay, Zelle etc. this could be a selection of collect payment method from users, select available optional fields for users joining, as long as no money is transferred through the app, they should have the ability to use the commissioner mode however they'd like."
+
+Screens he was looking at: reference/29 to 36 (create contest form, contest page, prop ladder, Home, Board).
+
+What this means:
+1. Home: keep the structure, lower the volume. The next-game hero smaller (one row, not a billboard); the prize card in the page's own blue and neutral panel, no gold glow, no gradient button; copy plain ("$100 to 1st. 9 more in and it pays $150."). Right idea, quieter hands.
+2. Contest settings, all customisable: stake per pick min and max with a No max option; odds min and max per line and per slip with a No max option; Field size and Stack per entry as a typed number beside the presets. On screen these are stake limits, never "bet limits".
+3. Commissioner actions: void any pick with a reason (already specified); injury protection as a contest setting for player props: None, 1st half (a player who leaves injured before halftime and does not return voids the prop, stake back), Full game (any injury exit without return voids the prop). Grading reads the box score and the injury and play feeds for the exit and the return.
+4. Joiner fields: the commissioner chooses which optional fields joiners fill when they enter: Cash App, Venmo, Apple Pay, Zelle, PayPal handles, a free text note. The app stores and shows them to the commissioner and, if the commissioner chooses, to the contest. No money ever moves through the app; the app never links to a payment, never computes a payout, never says "pay". A plain line on the join form: "Handles are shared with the commissioner. Rush moves no money."
+5. Chief of staff note, not a rule: collecting payment handles for settling a contest off the app is a compliance question for Rush itself (sweepstakes and contest law, the App Store's rules on real-money gaming). Fine in this prototype; before it enters the Rush app it goes to the Compliance seat and the founder as T1.
+
+Roles: Gold Home tone; Blue the store (limits enforced at placement, injury protection in grading, joiner fields on the contest); Red the create and manage forms and the join form.
