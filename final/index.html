@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rush Live: Monday Night Football build</title>
+<style>
+:root{--bg:#0B1118;--card:#121A23;--card2:#1A2530;--line:#22303D;--fg:#fff;--mute:#8C9BAD;--acc:#00BFFF;--grad:linear-gradient(135deg,#00C0FF,#0080FF);--win:#10B981;--loss:#D95151;--warn:#F59E0B;
+--f:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--f);-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 60px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px}
+h1{font-size:30px;line-height:1.15;margin:0;letter-spacing:-.02em;text-wrap:balance}
+h2{font-size:20px;margin:0 0 10px;letter-spacing:-.01em}
+.eyebrow{color:var(--acc);font:700 12px var(--f);letter-spacing:.08em;text-transform:uppercase}
+.lead{color:var(--mute);font-size:17px;margin:6px 0 0}
+.card{background:var(--card);border-radius:18px;padding:16px}
+.score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.tm{display:flex;align-items:center;gap:10px}.tm.r{flex-direction:row-reverse}
+.tm img{width:40px;height:40px}.tm b{font-size:34px;letter-spacing:-.02em}.tm span{color:var(--mute);font-weight:600;font-size:13px;display:block}
+.st{background:var(--card2);border-radius:999px;padding:5px 12px;font-weight:700;font-size:14px;text-align:center}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 18px;border-radius:14px;background:var(--grad);color:#fff;text-decoration:none;font-weight:700}
+.btn.s{background:var(--card2)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.f{background:var(--card2);border-radius:14px;padding:13px}
+.f b{display:block;margin-bottom:4px}.f p{margin:0;color:var(--mute);font-size:14px}
+.num{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.n{background:var(--card2);border-radius:14px;padding:12px}
+.n b{display:block;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.n span{color:var(--mute);font-size:13px}
+ul{margin:0;padding-left:20px}li{margin:6px 0}li::marker{color:var(--acc)}
+.flow{display:flex;flex-direction:column;gap:8px}
+.step{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.step i{width:34px;height:34px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-style:normal;font-weight:800}
+.step b{display:block}.step p{margin:0;color:var(--mute);font-size:14px}
+.cmp{width:100%;border-collapse:collapse;font-size:14px}
+.cmp th,.cmp td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.cmp th{color:var(--mute);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.cmp td:first-child{font-weight:600}
+.tbl{overflow-x:auto}
+.ok{color:var(--win)}.no{color:var(--loss)}.mid{color:var(--warn)}
+.note{color:var(--mute);font-size:13px}
+.tag{display:inline-block;background:rgba(0,191,255,.14);color:var(--acc);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Rush · Live Lab · Monday Night Football</div>
+    <h1>Rush Live: the in-game page for one event</h1>
+    <p class="lead">What a Bears at Seahawks event on the Board becomes once it kicks off. Same Stack, same Slip, same Field, priced like a book and graded like one, built live during the game by three teams and merged into one tool.</p>
+  </header>
+
+  <section class="card" id="game">
+    <div class="score">
+      <div class="tm"><img alt="" src="https://a.espncdn.com/i/teamlogos/nfl/500/chi.png"><div><span>CHI</span><b id="sA">-</b></div></div>
+      <div class="st" id="st">Loading</div>
+      <div class="tm r"><img alt="" src="https://a.espncdn.com/i/teamlogos/nfl/500/sea.png"><div><span>SEA</span><b id="sH">-</b></div></div>
+    </div>
+    <div class="cta">
+      <a class="btn" href="https://mclovin-codes.github.io/live-lab/teams/one/" target="_blank" rel="noopener">Open the product</a>
+      <a class="btn s" href="https://mclovin-codes.github.io/live-lab/teams/gold/" target="_blank" rel="noopener">Gold build</a>
+      <a class="btn s" href="https://mclovin-codes.github.io/live-lab/teams/blue/" target="_blank" rel="noopener">Blue build</a>
+      <a class="btn s" href="https://mclovin-codes.github.io/live-lab/teams/red/" target="_blank" rel="noopener">Red build</a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Best features</h2>
+    <div class="grid">
+      <div class="f"><b>Live from the push feed</b><p>ESPN's own websocket, plus a cache-skipping check every second, so a play lands the moment ESPN publishes it. Lag behind the real play is measured and shown on the page.</p></div>
+      <div class="f"><b>Fair by design</b><p>Timed markets open only in a window that closes before the next snap is likely. A pick places or fails at the tap. Nothing is voided after the fact.</p></div>
+      <div class="f"><b>Book-real prices</b><p>Game lines are the book's live prices. Alt lines, team totals, quarters, next play, drive and next score come from models fit on 2023-2025 play-by-play, each with a stated hold.</p></div>
+      <div class="f"><b>Every play is a decision</b><p>Next play, moves the chains, this drive and next score reopen after each snap, with a countdown chip on every market.</p></div>
+      <div class="f"><b>The Rush loop</b><p>Weekly Stack, Units, the Field ranked live, a named head-to-head rival, rank alerts when you pass someone.</p></div>
+      <div class="f"><b>Game context in one place</b><p>Scorebug with timeouts, field and drive, storylines rail, box score with headshots, injuries with returned or did-not-return, the Lounge.</p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The stickiest, with evidence</h2>
+    <div class="num">
+      <div class="n"><b>0</b><span>picks placed after a snap in the base page's probe (60 tries, 22 placed, 38 locked)</span></div>
+      <div class="n"><b>26s+</b><span>every placed timed pick came at least this long before the next snap</span></div>
+      <div class="n"><b>~20s</b><span>ESPN publishes a play 16 to 28s after it happens; delivery to the phone takes about 0.2s</span></div>
+      <div class="n"><b>10s</b><span>saved on one raced play by checking ESPN's core feed every second instead of waiting on the push</span></div>
+      <div class="n"><b>37s</b><span>25th-percentile gap between snaps tonight, the basis for the timed windows</span></div>
+      <div class="n"><b>760s</b><span>halftime window, with 130s at the two-minute warning and 115s at quarter ends, from rulebook durations</span></div>
+    </div>
+    <ul>
+      <li><b>Next-play markets with a countdown</b> bring the player back every snap. In Gold's Q3 test, picks went in with 6 to 19s left on the window.</li>
+      <li><b>Rank alerts and the rival card</b> turn every play into a standings change, because the Field moves on every snap.</li>
+      <li><b>The Lounge</b> reacts to real plays (touchdowns, turnovers, sacks, big gains) and to the Field's picks, so the page talks back.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>How a player moves through a game</h2>
+    <div class="flow">
+      <div class="step"><i>1</i><div><b>Board to event</b><p>Taps Bears at Seahawks on the Board. The event opens in Live with the remaining weekly Stack and open picks already in the Slip.</p></div></div>
+      <div class="step"><i>2</i><div><b>Read the moment</b><p>Scorebug, drive and the storylines rail say what matters now: the underdog, the red zone, a player 30 yards from a milestone.</p></div></div>
+      <div class="step"><i>3</i><div><b>Pick in two taps</b><p>Tap a price, set a stake, lock it. One-tap stakes for next play. A countdown says how long the market stays open.</p></div></div>
+      <div class="step"><i>4</i><div><b>Sweat it</b><p>The Slip shows a live meter and whether the price moved your way since you locked it.</p></div></div>
+      <div class="step"><i>5</i><div><b>Result and rank</b><p>Hit or miss lands seconds after ESPN posts the play. The Field reorders, the rival card updates, the Lounge reacts.</p></div></div>
+      <div class="step"><i>6</i><div><b>Next snap</b><p>The window reopens. The loop runs about every 40 seconds for three hours.</p></div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Why players stay here</h2>
+    <div class="tbl"><table class="cmp">
+      <tr><th></th><th>Rush Live</th><th>Sportsbook app</th><th>Score app</th></tr>
+      <tr><td>A reason to watch every snap</td><td class="ok">Next play, drive and next score reopen each snap</td><td class="mid">Yes, with real money at risk</td><td class="no">Watch only</td></tr>
+      <tr><td>Competition</td><td class="ok">The Field, ranks, weekly head-to-head</td><td class="no">You against the house</td><td class="no">None</td></tr>
+      <tr><td>Social</td><td class="ok">The Lounge and tailing the Field</td><td class="no">Little</td><td class="mid">Comments in some apps</td></tr>
+      <tr><td>Game context</td><td class="ok">Scorebug, drive, box score, injuries</td><td class="mid">Thin in the bet view</td><td class="ok">Deep</td></tr>
+      <tr><td>Cost to play</td><td class="ok">Free weekly Stack</td><td class="no">Deposits</td><td class="ok">Free</td></tr>
+    </table></div>
+    <p class="note">Growth: the Field and the weekly rival give a player a reason to invite friends, who join the same contest. The Prize Multiplier grows as invited friends make a first pick.</p>
+  </section>
+
+  <section class="card" id="survey">
+    <h2>What the simulated Field said</h2>
+    <p class="note" id="surveyText">Survey results from the chief of staff go here.</p>
+  </section>
+
+  <section class="card">
+    <h2>Gaps still open</h2>
+    <ul>
+      <li><b>Data speed is the ceiling.</b> ESPN's free feed lands about 20s after the play, so next-play markets often cannot open after a run or catch. The book's own feed beats ESPN but still arrived about 14s after the snap tonight.</li>
+      <li><b>The Field is simulated.</b> SIM players stand in for real players. Shared picks, chat and ranks need the Rush backend.</li>
+      <li><b>Props lean on models.</b> The fits beat a baseline on 2025 data, but yards overs read slightly low. Book prop prices would be better.</li>
+      <li><b>No real-phone test yet.</b> Checked at phone size in a browser, not on an iPhone in the hand.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>With more time</h2>
+    <ul>
+      <li>An official low-latency data feed (a Rush purchase decision), so markets lock off the snap itself and stay open after every play.</li>
+      <li>The real Field: shared picks, ranks and the Lounge on the Rush backend, with push notifications for rank changes and hits.</li>
+      <li>Book prop prices through SportsGameOdds behind a small server proxy that holds the key.</li>
+      <li>A live parlay builder and the Watch door wired into provider apps for casting.</li>
+    </ul>
+  </section>
+
+  <p class="note">Free to play. Stack and Units are virtual. Built and measured live on November 2, 2026. Numbers come from each team's STATUS.md.</p>
+</div>
+<script>
+// Live score and status from ESPN so the page reads Final the moment the game ends.
+async function score(){try{const r=await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=401873036&_='+Date.now());const d=await r.json();const c=d.header.competitions[0];for(const t of c.competitors){document.getElementById(t.homeAway==='home'?'sH':'sA').textContent=t.score}const s=c.status;document.getElementById('st').textContent=s.type.state==='post'?(s.period>4?'Final (OT)':'Final'):s.type.state==='in'?('Q'+(s.period>4?'OT':s.period)+' · '+s.displayClock):'Pregame'}catch(e){}}
+score();setInterval(score,15000);
+</script>
+</body>
+</html>
