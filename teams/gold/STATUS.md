@@ -24,7 +24,7 @@
 - "Your other contests" sits right under the clocks: one card per contest with dot, name, its own Stack and #rank. One tap calls Rush.wallet.setActive and the whole page redraws inside that contest. The Rush shows the Field mover and prize card. A private contest shows a Ranks card into contest.html?c=<id>, with "You run this contest" for the owner, and Reload when its rules allow it.
 - Slips groups every pick (Rush.picks({contest:'*'})) by contest, active first. Each group header has the colour dot, name, ACTIVE tag, its own Stack and Units, and W/L on Settled. The Parlay tab says "Into <contest>", stakes from that contest's Stack, and places through Rush.wallet.place with the refusal reason in the toast. Tested: a 2-leg +219 parlay into Gold test cup took its Stack from 1,000 to 975, and The Rush stayed at 952.
 - Why this design: Stacks are never summed (founder 3:08), so Home shows one contest's numbers at a time instead of a total. The other contests stay one tap away, so a player in both never has to guess which Stack a number belongs to.
-- Note for Blue: Rush.wallet.covers() refuses league 'multi' inside a contest that lists sports. Slips checks each parlay leg's sport and day with covers() and places the parlay without a league, so it works today.
+- Parlays place straight through Rush.wallet.place(id, pick) with league 'multi' and each leg's start. Blue dd96edb checks every leg against the contest's sports and days and names the refused leg in the toast.
 
 **Next:** test the live strip into game.html once Blue ships it, show game.html timed picks in Slips, and give finished games a Lounge thread with graded results.
 
