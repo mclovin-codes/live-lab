@@ -1,5 +1,10 @@
 # Team blue changelog
 
+## v10
+- No void after the fact (founder 9:50 PM). A gated pick is locked or it is not placed. Void-on-wallclock removed. Before a gated pick is accepted the page re-reads the newest play from ESPN situation (about 150 ms) and checks the book: if a play went in, the line jumped, or the window closed, placement fails with a message. Parlays with a gated leg follow the same window.
+- Window per kind of play = shortest snap gap seen tonight for that kind, minus 3s, learned live from the play feed (live ball 16s, incompletion 33s, kickoff 41s, punt 57s, timeout 51s, scores and breaks 74s and up so far). Hurry-up spots (last 2 minutes of a half) use 8s at most. With ESPN lag of 17 to 22s, a next-play market after a run or a catch usually does not open at all. That is intended.
+- Next play, chains, 4th down, drive result and next score now come from empirical tables fitted on nflverse play-by-play 2023 to 2025 (147,926 rows). Next score uses nflfastR next-score model outputs. Anytime TD and prop spreads from the same fit. Formulas and holds in STATUS.md.
+
 ## v9
 - Fair play (founder rule 9:40 PM). Timed markets (next play, 4th down, chains, this drive, next score, anytime TD) and player props now share one fair window. They close a set time after the last ESPN play, before the next snap can come: 25s after a run or catch, 32s after an incompletion, 14s in the last two minutes of a half, longer after timeouts, kicks and scores. Tonight that closes a median 15s before the snap, measured on 54 snaps; 2 snapped earlier and those picks void.
 - Void rule: any gated pick placed at or after the wallclock of a play the page had not seen yet voids and the stake returns. Pick time uses the server clock from the push feed, not the phone clock.
