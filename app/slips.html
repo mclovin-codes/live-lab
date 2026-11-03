@@ -95,7 +95,7 @@ function render(){const ws=wallets(),act=WAL()?WAL().active():'rush',cur=ws.find
       if(tab==='done'){const wn=ps.filter(p=>p.status==='won').length,l=ps.filter(p=>p.status==='lost').length;h+=`<div class="g-card">${head}<div class="g-note">W/L ${wn}-${l}</div><div class="rows">${ps.map(settledRow).join('')}</div></div>`}
       else h+=`<div class="g-card">${head}${ps.map(pickCard).join('')}</div>`}
     if(tab==='done'&&groups.length)h+=`<div class="key" style="padding:0 4px"><span><span class="chip w" style="min-width:0;padding:2px"><i>&#10003;</i></span>Hit</span><span><span class="chip l" style="min-width:0;padding:2px"><i>&#10005;</i></span>Miss</span><span><span class="chip p" style="min-width:0;padding:2px"><i>P</i></span>Push or no action</span></div>`}
-  $('slips').innerHTML=h;if(Rush.nav)try{Rush.nav.refresh()}catch(e){}}
+  $('slips').innerHTML=h;const bd=document.getElementById('rpill-band');if(bd)bd.remove();if(Rush.nav)try{Rush.nav.refresh()}catch(e){}}
 window.render=render;
 document.addEventListener('click',e=>{const t=e.target.closest('[data-tab],[data-leg],[data-stake],#lockpar');if(!t)return;const d=t.dataset;
   if(d.tab){tab=d.tab;render()}
