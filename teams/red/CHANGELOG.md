@@ -1,5 +1,11 @@
 # Changelog: Team Red, Rush Live
 
+## v10 (2026-11-02, halftime)
+- Key numbers: alternate spreads, winning margin and overtime use a live margin distribution weighted by how often regulation margins land on each number, fitted from 855 games (nflverse 2023 to 2025). Margin 3 is 2.05 times the normal curve, 7 is 1.54, ties 1.74, 14 is 1.25, 17 is 1.51; 9 and 11 about 0.4.
+- Overtime priced from the chance of a tie at the end of regulation (6.7% at halftime, +1100 / -1800).
+- Removed a leftover next snap note.
+- Verified on the real halftime stoppage: break board opened from ESPN's End of Half marker with about 9 minutes to run.
+
 ## v9 (2026-11-02, halftime)
 - Drive result and next score odds come from tables fitted offline to nflverse play-by-play, 2023 to 2025 (124,178 scrimmage plays), by field position, down, distance and time left in the half. Hold: 8% drive result, 12% next score.
 - Next score is now scoped to the half, matching the model (nflfastR next-score probabilities are per half). At halftime it is the second half's first score; receiving team unknown, so both orders are averaged.
