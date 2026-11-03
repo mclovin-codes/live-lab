@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Date: Tue, 03 Nov 2026 01:28:23 GMT
+Content-Type: application/json;charset=utf-8
+Content-Length: 5814
+Connection: keep-alive
+access-control-allow-origin: *
+via: 1.1 e89ca014b8b9 (Varnish/7.5)
+accept-ranges: bytes
+Cache-Control: max-age=137, stale-while-revalidate=7200
+vary: Accept-Encoding
+

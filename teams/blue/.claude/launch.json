@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "blue", "runtimeExecutable": "npx", "runtimeArgs": ["-y", "http-server", ".", "-p", "4142", "-c-1"], "port": 4142 }
+  ]
+}

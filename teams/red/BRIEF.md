@@ -1,0 +1,41 @@
+# Live Lab: the MNF build-off
+
+Date: 2026-11-02. Game: Chicago Bears at Seattle Seahawks, Monday Night Football. ESPN event id 401873036. Kickoff was 8:15 PM ET. The game is live right now.
+
+## The founder's words (verbatim intent, no edits)
+
+- "When I was using a stale slow app that was behind the live game."
+- "I want ... the best live betting experience based on live data and live picks made throughout the game. However, instead of exchanging money through on individual sport lines, they have a set fake money budget to use."
+- "I need the most live addicting game that will make a sports bettor not want to go on any other app on their phone during a MNF game."
+- "The odds themselves should be representative of what you'd see on a normal sports book, and would need to settle the same way a graded sportsbet would on any game line, total, prop bet, alt lines, that draftkings would typically offer."
+- "Maximize engagement for this to not just be the single sportsbook enthusiast or sports gambler to play by themselves, but all these would be placed and compared against other active players picks and they will be in competition with each other to some degree."
+- "I don't want any influence on what is built, but just giving context to the bigger game it will need to fit into."
+
+## The competition
+
+Three teams, Red, Blue and Gold, each in its own session with full freedom. Same brief, same game, same data. Each team ships a phone-first web page, then keeps shipping better versions for the rest of the game. The founder opens each team's page on a phone during the game and opens any team's session to watch and talk. Judge: the founder's gut tonight, plus a written scorecard after the final whistle.
+
+Nothing here tells a team what to build. The only requirements are the ones that keep the founder able to play and follow.
+
+## Hard requirements (the only ones)
+
+1. Phone first. One page, works in a phone browser, thumb reach, no horizontal scroll, readable in a dark room.
+2. Delivered as a claude.ai Artifact. Publish with the Artifact tool from the team's own file (`index.html` in the team folder). Republish the same file path every time so the URL never changes. First publish within 20 minutes of starting, however rough. Then iterate for the rest of the game.
+3. Live. The page fetches ESPN directly from the browser (every endpoint in the cheat sheet sends `Access-Control-Allow-Origin: *`). Poll at the cadence the cheat sheet gives. Never cache stale state longer than ESPN does.
+4. A visible version stamp on the page (v1, v2, ...) and a short "what changed" panel the founder can open, so a phone user can tell versions apart.
+5. Sportsbook-real pricing and grading. American odds. Lines a DraftKings user would recognize: spread, moneyline, total, alt spreads, alt totals, team totals, player props, and anything else the team wants. Every pick grades the way a sportsbook grades it, pushes included, from ESPN's box score, plays and final score. The cheat sheet shows where live DraftKings lines and ESPN's per-play cover and total probabilities live; how the team turns those into a full live board is the team's call.
+6. Fake money only. A fixed budget per player for the game. Never a real transaction, never a link to a sportsbook.
+7. Other players. The founder wants picks placed and compared against other active players, with some competition between them. How (a shared live field through the Artifact database capability, a simulated field of bots, a lobby, a ladder) is the team's call. The `artifact-capabilities` skill describes what a published page can do (shared state, identity, files).
+8. Keep `STATUS.md` in the team folder current after every publish: version, artifact URL, what changed, what the team is testing next, anything blocked. End the turn after each publish with a three-line report (version, URL, what changed). The chief of staff reads it into the hub the founder follows, and sends "go on" to continue. Do not wait for feedback to plan the next version.
+9. Log every version in `CHANGELOG.md` in the team folder.
+
+## Tools and data
+
+- `ESPN-CHEATSHEET.md` next to this file: every endpoint, the cache windows, the shapes, and sample JSON in `recon/`.
+- Model: the team runs on Opus. Subagents the team spawns pass `model: "opus"` explicitly.
+- The built-in browser is available for testing the page on a phone-sized viewport (resize_window preset mobile).
+- No secrets, no .env files, no keys. Everything is public ESPN.
+
+## What wins
+
+The page the founder cannot put down during the fourth quarter.
