@@ -92,3 +92,9 @@ known: Lounge uses Blue SIM names, Ranks uses Red SIM names.
 - Blue does not provide Rush.contests. RC's manage actions (remove, void, close) write to its own store, so routing reads to Blue's store would make them do nothing.
 - game.html now tags every pick live:true|false. Red was asked to pass it through playerPicks and check it in marketOK, so a contest with live picks off excludes in-game picks. Until Red ships that, the live rule does not filter.
 - Security: Red was sent the two contest.html XSS fixes (decode invite links strictly; coerce and escape results-link rows).
+
+## Game page: the Field on this game (5f210ac)
+- Popular tab, under the Field card: each SIM player's pick on this game, Lounge style ("Sweat Sam SIM took PHI +1.5 -110, Open"), plus your own picks on it. Every name opens player.html?u=<id> (Red's ids, f1 to f30; you are u=me).
+- The Slip with a typed stake shipped earlier (02b8bf1).
+- Tested in jsdom on PHI at DET (Week 9): 8 Field rows with links, 20 renders in 30 ms, no script errors.
+- Next: first live check tonight. The first NBA tips are at 23:00 UTC (6:00 PM ET).
