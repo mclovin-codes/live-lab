@@ -1,5 +1,14 @@
 # Team Gold changelog
 
+## v9
+- Rebuilt as the Live section of the Bears at Seahawks event inside Rush, per RUSH-CONTEXT.md.
+- Rush words on every screen: pick, stake, Slip, Stack, Units, the Field. Tabs are Live, Lines, Props, Slip, Field.
+- Weekly Stack of 1,000. Units are profit and loss, and the Field ranks on Units.
+- Removed early close-out, since Rush has none.
+- SIM Field carries made-up Units from earlier in the week. Named head-to-head SIM opponent.
+- Free Reload once Stack drops under 100. Units keep counting.
+- Stakes rescaled to the 1,000 Stack. Next-snap and drive picks max out at 50.
+
 ## v8
 - One-second, cache-skipping check of ESPN's core situation feed. On the measured play it beat the push by 10 seconds.
 

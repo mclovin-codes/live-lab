@@ -1,8 +1,8 @@
 # Team Gold status
 
-**Version:** v8
+**Version:** v9
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
-**Name:** Hashmark Live
+**Name:** Rush Live
 
 ## Latency, measured on the Pages host in Q2
 Lag is the play's `wallclock` versus when the page first has it.
@@ -12,6 +12,11 @@ Lag is the play's `wallclock` versus when the page first has it.
 - Sample is 4 plays, so treat these as rough numbers.
 - The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
 - Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
+
+## What changed in v9
+- Rush words on every screen, weekly Stack of 1,000, Units, the Field ranked on Units, named head-to-head SIM opponent, free Reload, breadcrumb from the Board.
+- Early close-out removed. Rush has none.
+- Tickets from v8 and earlier do not carry over, because budget and scale changed.
 
 ## What changed in v8
 - One-second cache-skipping check of ESPN's core feed, on top of the push.
@@ -41,7 +46,7 @@ Lag is the play's `wallclock` versus when the page first has it.
 - SIM players now call every snap, so the leaderboard moves on each play. Rank alerts fire when you pass someone or get passed. A SIM field vote shows on the next snap.
 
 ## Other players
-All 12 rivals are labeled SIM. They replay from ESPN's probabilities and plays, so every phone sees the same field. There are no real players without a backend.
+All 12 rivals are labeled SIM stand-ins for the Field, with made-up Units from earlier in the week. One is the named head-to-head opponent. Every phone sees the same ones. No real players without a backend.
 
 ## Tested
 - Mobile preset on the Pages host, live ESPN: score, clock, situation, board, parlay placed, no horizontal scroll, no console errors.
