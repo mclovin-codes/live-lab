@@ -1,5 +1,13 @@
 # Changelog: Team Red, Rush Live
 
+## v13 (2026-11-02, Q3)
+- Rebuilt look per the founder's 9:58 note and three consulting experts (NFL, sportsbook, iOS UI): Rush colours (#00BFFF on #0B1118), system iOS type, frosted header and tab bar with icons, bottom sheets with grabber, header that compacts on scroll.
+- Team logos in the score card, game lines and player sections; player headshots on props and anytime TD; timeouts left; win probability bar; field with ball, line of scrimmage and line to gain; recent plays list with the drive summary.
+- Every timed market shows when it locks: countdown and a shrinking bar that turns amber under 60s and red under 15s, patched in place each second. Game lines show Open or Locked; locked prices stay visible with a lock glyph.
+- Windows per the NFL expert and tonight's data: commercial break 110s, end of the 1st or 3rd 150s, two-minute warning 120s, halftime 720s; new short windows right after a touchdown (60s) or field goal (55s), not in the last two minutes of a half.
+- Plain sportsbook words: Commercial break, Picks open, Locked, Pick placed, Placing pick, Price moved with the old price struck through.
+- Watch button: ESPN app, YouTube TV, Hulu + Live TV, Sling, Fubo, NFL+ and Prime Video (noted as Thursday only) links. No logins collected.
+
 ## v12 (2026-11-02, Q3)
 - Game lines lock on the first DraftKings tick after a play (any change to live moneyline, spread or total), not on a 1.2% move, and stay locked until ESPN posts that play or 40 seconds pass. On the second-half kickoff the old threshold flagged 30s after the snap; the first tick came at 18s.
 - Halftime break board runs 720s (measured halftime tonight: End of Half 02:42:07 to kickoff 02:56:17, 850s).
