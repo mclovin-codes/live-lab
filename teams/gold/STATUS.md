@@ -8,6 +8,7 @@
 - Slips: Open, Settled and Parlay tabs. Picks across every game, grouped by game, graded by Rush.grade.sync() every 60s. Parlay across games from pregame moneylines, one leg per game, full-price multiply. Tested: UTA -130 + MTL -192 placed at +169, Stack 1,000 to 975.
 - Lounge: Week thread plus one thread per live, upcoming and recent game, with an Open game link. The SIM Field talks about lines, scores, finals, ranks and the rival. Player posts stay on the phone, and a SIM replies.
 - Uses Blue's tab bar from shared/nav.js, with no duplicate bar.
+**Reference patterns (founder screenshots, about 1:00 AM):** the Home strip is now capsule chips with logos, score and clock (or start time), one tap into game.html. The week clocks read "Entry closes in: 6 Days 19 Hrs" over the day and time. Settled Slips are a dated list with a green check, red x or P chip and the Units, with W/L at the top. Checked on the host at 375 px with no sideways scroll.
 **Next:** test the live strip into game.html once Blue ships it, show game.html timed picks in Slips, and give finished games a Lounge thread with graded results.
 
 # Closing summary for the scorecard (MNF build)
