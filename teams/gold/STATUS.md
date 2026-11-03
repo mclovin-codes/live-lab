@@ -9,6 +9,7 @@
 - Lounge: Week thread plus one thread per live, upcoming and recent game, with an Open game link. The SIM Field talks about lines, scores, finals, ranks and the rival. Player posts stay on the phone, and a SIM replies.
 - Uses Blue's tab bar from shared/nav.js, with no duplicate bar.
 **Reference patterns (founder screenshots, about 1:00 AM):** the Home strip is now capsule chips with logos, score and clock (or start time), one tap into game.html. The week clocks read "Entry closes in: 6 Days 19 Hrs" over the day and time. Settled Slips are a dated list with a green check, red x or P chip and the Units, with W/L at the top. Checked on the host at 375 px with no sideways scroll.
+**Flow check, 1:35 AM, on the host after Blue and Red fixed the game.html freeze:** Home (entered, Stack, Units, #7 of 31, season 0-0) to the strip into game.html (NHL UTA at TOR). There, a pick UTA -1.5 +180 for 25 Stack placed through the page's own slip. Slips shows it open with the earlier cross-game parlay, and the Stack went from 977 to 952. Lounge loads with 13 threads. Gold also fixed its pages' scoreboard dates to ET so last night's late games stay in the live strip.
 **Next:** test the live strip into game.html once Blue ships it, show game.html timed picks in Slips, and give finished games a Lounge thread with graded results.
 
 # Closing summary for the scorecard (MNF build)
