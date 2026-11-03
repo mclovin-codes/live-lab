@@ -1,5 +1,14 @@
 # Team Gold changelog
 
+## v8
+- One-second, cache-skipping check of ESPN's core situation feed. On the measured play it beat the push by 10 seconds.
+
+## v7
+- ESPN push feed (FastCast websocket) for plays, clock, down and distance, box score and odds. Polling is now the backup.
+- DraftKings live prices on the main spread, total and moneyline. Alt lines and props price off them.
+- Markets lock when DraftKings jumps before ESPN posts the play.
+- True lag behind the real play in the header, with a breakdown in the version panel.
+
 ## v6
 - One-tap picks on Next snap and This drive, with a stake button that cycles $50, $100, $250, $500 and off.
 - Open picks glow on the board.

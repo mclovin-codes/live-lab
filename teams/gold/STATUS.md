@@ -1,8 +1,25 @@
 # Team Gold status
 
-**Version:** v6
+**Version:** v8
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Hashmark Live
+
+## Latency, measured on the Pages host in Q2
+Lag is the play's `wallclock` versus when the page first has it.
+- ESPN's core feed, polled every second past the cache: 23.7s on the one play raced against push in v8.
+- ESPN push feed: 33.8s on that same play. 22.7s, 23.3s and 29.1s on three plays in v7, with delivery to the page about 0.2s of each.
+- In v7 a separate 1-second poll beat the push by 0.6s, 4.4s and 4.9s on those three plays.
+- Sample is 4 plays, so treat these as rough numbers.
+- The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
+- Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
+
+## What changed in v8
+- One-second cache-skipping check of ESPN's core feed, on top of the push.
+
+## What changed in v7
+- ESPN push feed for plays, clock, down and distance, box score, odds. Polling is backup.
+- DraftKings live prices on the main lines. Markets lock when DraftKings jumps.
+- True lag in the header, breakdown in the version panel.
 
 ## What changed in v6
 - One-tap picks on Next snap and This drive. Open picks glow on the board.
@@ -44,5 +61,6 @@ All 12 rivals are labeled SIM. They replay from ESPN's probabilities and plays, 
 Nothing.
 
 ## Testing next
-1. Drive and one-tap settlement during real plays.
-2. v7: win probability chart, SIM props in the feed, fourth-quarter moments.
+1. More lag samples, the market-jump lock, drive and one-tap settlement.
+2. Measure how far DraftKings leads ESPN, and use it if the lead is real.
+3. Push feed reconnect after a phone locks and wakes.
