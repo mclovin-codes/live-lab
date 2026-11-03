@@ -1,5 +1,8 @@
 # Changelog: Team Red, Rush Live
 
+## app r12 (2026-11-03)
+- Results sheet: W-L-P no longer wraps at 375 px; fixed number columns, tabular figures, Entrant takes the slack.
+
 ## app r11 (2026-11-03)
 - Board inside the active contest: "Picking in" bar with the contest's Stack and clocks, only the games it covers, only its sports. Contest store keeps the joiner note only; contest picks are not re-checked after placement.
 
