@@ -1,5 +1,11 @@
 # Team Gold changelog
 
+## v10
+- Fair timed markets per the 9:40 PM founder addendum. Next snap, first down, this drive, next score and anytime touchdown open only in a window after each play posts, with a countdown. The window closes before the next snap is likely: this game's 25th-percentile snap gap minus 2s, longer after timeouts and kicks.
+- Timed markets also close when DraftKings suspends or its win probability jumps 2 points or more.
+- Void rule: a timed pick placed after, or within 2s before, the wallclock of the play it depends on is void, stake back. So is any prop or anytime pick placed after a play naming that player started.
+- The panel shows lock lag: how far before or after each real snap the lock came.
+
 ## v9
 - Rebuilt as the Live section of the Bears at Seahawks event inside Rush, per RUSH-CONTEXT.md.
 - Rush words on every screen: pick, stake, Slip, Stack, Units, the Field. Tabs are Live, Lines, Props, Slip, Field.

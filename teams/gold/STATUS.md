@@ -1,6 +1,6 @@
 # Team Gold status
 
-**Version:** v9
+**Version:** v10
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Rush Live
 
@@ -12,6 +12,15 @@ Lag is the play's `wallclock` versus when the page first has it.
 - Sample is 4 plays, so treat these as rough numbers.
 - The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
 - Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
+
+## What changed in v10
+- Fair timed markets. They open only in a window after each play posts and close before the next snap is likely, or earlier if DraftKings suspends or jumps. Late picks are void. Lock lag is on the page.
+
+## Fairness numbers, measured in Q2
+- Snap-to-snap gap, same possession, 42 snaps: p10 28s, p25 37s, median 41s.
+- ESPN posts a play about 18-24s after its wallclock, which leaves about a 10-15s window to pick before the next snap.
+- DraftKings over the push feed: price suspensions show as missing ticks. The one big move seen came about 14s after the snap, about 9s before ESPN posted the play. DraftKings can lock early after a snap, but not ahead of it. The window plus the void rule carry fairness.
+- 15 fixture tests pass for the void rule and window states.
 
 ## What changed in v9
 - Rush words on every screen, weekly Stack of 1,000, Units, the Field ranked on Units, named head-to-head SIM opponent, free Reload, breadcrumb from the Board.
@@ -66,6 +75,6 @@ All 12 rivals are labeled SIM stand-ins for the Field, with made-up Units from e
 Nothing.
 
 ## Testing next
-1. More lag samples, the market-jump lock, drive and one-tap settlement.
-2. Measure how far DraftKings leads ESPN, and use it if the lead is real.
-3. Push feed reconnect after a phone locks and wakes.
+1. Lock lag on live snaps: how often the window closes before the snap, and how many picks void.
+2. Tune the window if voids are frequent.
+3. Drive and one-tap settlement live.
