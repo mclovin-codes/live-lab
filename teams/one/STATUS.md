@@ -1,10 +1,10 @@
 # One tool status (closing, final whistle 11:24 PM ET)
 
-version: m7
+version: m8
 url: https://mclovin-codes.github.io/live-lab/teams/one/
 final: CHI 34, SEA 17.
 base: Blue v15, integrated by Team Blue. Pulled from the inbox: 5 countdown chip, 6 storylines rail, 7 odds-change setting (Gold), 8 Gold 375 px fixes. Red snippet 1 (key-number margins) arrived after the whistle and is merged as m6; Red 2 (break board) merged as m7; Red 3 and 4 pending.
-versions: m1 base plus 3s lock of game lines on any sharp book move; m2 chips and storylines; m3 odds-change setting; m4 phone fixes; m5 FINAL header and closed timed picks.; m6 key-number margins from Red.; m7 break board from Red, timedGate closed at final (Red probe finding).
+versions: m1 base plus 3s lock of game lines on any sharp book move; m2 chips and storylines; m3 odds-change setting; m4 phone fixes; m5 FINAL header and closed timed picks.; m6 key-number margins from Red.; m7 break board from Red, timedGate closed at final (Red probe finding).; m8 Stats split into Box score, Players, Injuries; Red field progress in the header (founder request after the game).
 
 ## Final grading check
 - On the merged page at the final: game reads state post, Final; final card shows rank, Units, record; every market reports Final and refuses picks.
