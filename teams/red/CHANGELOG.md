@@ -1,5 +1,8 @@
 # Changelog: Team Red, Rush Live
 
+## v17 (2026-11-02, Q4)
+- Commercial-break window 95s, down from 110s. Real break after the blocked field goal: marker 03:31:41, posted 15s late, picks open 03:31:57 to 03:33:31 (72 markets), next snap 03:33:41, only 10s margin. That break lasted 120s, shorter than the 135s minimum seen earlier.
+
 ## v16 (2026-11-02, start of Q4)
 - After the final the win probability bar and ball marker clear; results card leads the page. Fourth quarter bar, overtime and final grading checked with staged states.
 - Real end of the 3rd: marker wallclock 03:24:37, posted 71s late at 03:25:48; picks open 03:25:49 to 03:27:07 with 74 markets; first 4th-quarter snap 03:28:43, so they closed 96s before play.
