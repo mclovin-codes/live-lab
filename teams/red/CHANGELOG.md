@@ -1,5 +1,14 @@
 # Changelog: Team Red, Redline
 
+## v4 (2026-11-02, Q2)
+- Big plays take over the screen (touchdown, field goal, turnover, missed kick, fourth down, 25+ yards, third down sack) and show the swing in your live value.
+- Bankroll and ladder rank move live: cash plus the current worth of open picks.
+- Fourth quarter bar with what the trailing team needs. How it finishes section: overtime and winning margin.
+- Second half total, no more scoring, near-certain moneylines removed.
+- Final results card: place, record, duels, best hit, sprints won.
+- Screen wake lock after first tap.
+- Fix: load-time error from simulated players missing quarter data (was in v3). Summary feed can no longer roll the period back.
+
 ## v3 (2026-11-02, Q2)
 - Duels: on lock, the simulated player nearest you on the ladder takes the other side for the same stake, and the result moves them.
 - Quarter sprints: fresh profit race each quarter, past winners shown, sprint rank in the header.
