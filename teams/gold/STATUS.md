@@ -1,8 +1,12 @@
 # Team Gold status
 
-**Version:** v4
+**Version:** v5
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Hashmark Live
+
+## What changed in v5
+- Self-update within a minute of a ship, because Pages caches the page for 10 minutes.
+- Snap streak, and a head-to-head card on the Field tab.
 
 ## What changed in v4
 - Fixed field position. ESPN counts `yardLine` from the SEA goal line, so Seattle drives were mispriced and the ball was drawn on the wrong side.

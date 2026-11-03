@@ -1,5 +1,10 @@
 # Team Gold changelog
 
+## v5
+- Page updates itself within a minute of a new version and keeps tickets.
+- Snap streak on next-snap, drive and first-down wins.
+- Head-to-head card with the player right above you on the Field tab.
+
 ## v4
 - Fixed field position: ESPN counts yardLine from the SEA goal line. Seattle drives were mispriced and the ball was drawn on the wrong side.
 - Fourth-down prices now expect a kick.
