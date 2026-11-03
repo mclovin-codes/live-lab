@@ -1,5 +1,12 @@
 # Team blue changelog
 
+## v9
+- Fair play (founder rule 9:40 PM). Timed markets (next play, 4th down, chains, this drive, next score, anytime TD) and player props now share one fair window. They close a set time after the last ESPN play, before the next snap can come: 25s after a run or catch, 32s after an incompletion, 14s in the last two minutes of a half, longer after timeouts, kicks and scores. Tonight that closes a median 15s before the snap, measured on 54 snaps; 2 snapped earlier and those picks void.
+- Void rule: any gated pick placed at or after the wallclock of a play the page had not seen yet voids and the stake returns. Pick time uses the server clock from the push feed, not the phone clock.
+- A sharp book price move locks gated picks until the play shows up. A suspended book price locks them too. Close pick is locked for gated picks under the same rule.
+- Lock lag on the page: countdown on Live, detail in the lag sheet.
+- Also new: second half lines graded through overtime, halftime card, game lines on Live, prop card for the player on the last play, red zone anytime TD.
+
 ## v8
 - BUG FIX: v7 dropped a helper during the Rush rewrite, which stopped picks from grading on the live page. Restored, and each update step now runs in isolation so one failure cannot stop grading. v7 picks settle on load in v8.
 - Measured snap-pick void rate on 48 real snaps: 0 to 2% at 15s lag, 2 to 4% at 20s, 4 to 10% at 25s, 8 to 15% at 30s, 19 to 77% at 40s. Median gap between snaps 42s.
