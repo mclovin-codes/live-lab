@@ -72,3 +72,7 @@ What this means:
 5. Chief of staff note, not a rule: collecting payment handles for settling a contest off the app is a compliance question for Rush itself (sweepstakes and contest law, the App Store's rules on real-money gaming). Fine in this prototype; before it enters the Rush app it goes to the Compliance seat and the founder as T1.
 
 Roles: Gold Home tone; Blue the store (limits enforced at placement, injury protection in grading, joiner fields on the contest); Red the create and manage forms and the join form.
+
+## Ruling, 2026-11-03 3:00 AM ET: payment handles out
+
+Founder: "Let's keep the payment source out of it for now then." Item 4 of the 2:55 AM addendum is withdrawn: no joiner fields for payment handles, no Cash App, Venmo, Apple Pay, Zelle or PayPal anywhere in the app. The free-text note field for joiners may stay if already built. Everything else in that addendum stands.
