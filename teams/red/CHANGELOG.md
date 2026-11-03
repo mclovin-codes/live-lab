@@ -1,5 +1,8 @@
 # Changelog: Team Red, Rush Live
 
+## v15 (2026-11-02, Q3)
+- Real commercial break after the Bears touchdown (03:13:37): marker 03:14:40, picks opened 03:15:13 with 77 markets, but a DraftKings repricing tick at 03:15:53 closed them 37s before the planned 03:16:30. Kickoff came at 03:17:55. DraftKings ticks no longer close drive, next score and player picks inside an ESPN-marked stoppage; a new live play still does. Game lines still lock on every tick.
+
 ## v14 (2026-11-02, Q3)
 - Board and Props use iOS segmented controls (Game, Alternates, Totals, Finish; Bears or Seahawks).
 - Real commercial breaks measured on the hosted page (v11 rules): two breaks after punts, ESPN posted the marker 12 to 14s late, picks open 85 to 87s, board closed 51s and 55s before the next snap.
