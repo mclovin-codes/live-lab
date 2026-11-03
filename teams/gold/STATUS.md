@@ -13,6 +13,12 @@ Lag is the play's `wallclock` versus when the page first has it.
 - The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
 - Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
 
+## Q3 on v15, measured live in my test tab
+- 7 picks: 4 next snap, 3 moneyline. Next snap: 3 settled (2 hits, 1 miss), each accepted and settled 34-41s after the tap; 1 pending at the check. Moneyline: 2 accepted 18-22s after the tap; 1 pending at the check. None declined.
+- Window had 6-19s left when the next-snap picks went in.
+- Lock lag: the window closed 6.2s and 1.2s before the snap on 2 snaps, and 6.8s after it on 1. On a late lock, acceptance still declines any pick tapped after the snap.
+- Play lag on the core feed: 11-30s.
+
 ## What changed in v15
 - Odds-change setting (Ask me, Higher only, Any change) with move arrows in the Slip.
 - Storylines rail of five live angles on Live, each with logo or headshot and one price.
