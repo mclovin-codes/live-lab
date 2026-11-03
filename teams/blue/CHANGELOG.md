@@ -1,5 +1,8 @@
 # Team blue changelog
 
+## v11
+- Fair-play audit, saved per player and shown in the lag sheet: timed picks tried, placed, refused or locked by reason, and a check that counts accepted picks later found to come after a snap (target 0).
+
 ## v10
 - No void after the fact (founder 9:50 PM). A gated pick is locked or it is not placed. Void-on-wallclock removed. Before a gated pick is accepted the page re-reads the newest play from ESPN situation (about 150 ms) and checks the book: if a play went in, the line jumped, or the window closed, placement fails with a message. Parlays with a gated leg follow the same window.
 - Window per kind of play = shortest snap gap seen tonight for that kind, minus 3s, learned live from the play feed (live ball 16s, incompletion 33s, kickoff 41s, punt 57s, timeout 51s, scores and breaks 74s and up so far). Hurry-up spots (last 2 minutes of a half) use 8s at most. With ESPN lag of 17 to 22s, a next-play market after a run or a catch usually does not open at all. That is intended.

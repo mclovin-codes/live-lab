@@ -1,8 +1,9 @@
 # Team blue status
 
-version: v10
+version: v11
 url: https://mclovin-codes.github.io/live-lab/teams/blue/
-what changed: no voids. Timed picks and props are locked, or they fail at placement after a fresh check of the newest play and the book. Windows close at the shortest snap gap seen tonight per play type, minus 3s. Timed markets priced from nflverse tables fitted on 2023 to 2025 play-by-play.
+what changed: fair-play audit on the page (tried, placed, refused by reason, late-after-snap count). v10 lock-or-fail rules unchanged.
+testing now: a probe in a test browser tries a 1-Stack chains pick every 3 seconds through the second half to count how often the window is open, how often placement fails and why, and whether any accepted pick lands after a snap.
 
 ## Fair play
 - Gated markets: next play, 4th down go or kick, moves the chains, this drive, next score, anytime TD, player props, and Close pick on any of those.
