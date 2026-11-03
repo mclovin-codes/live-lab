@@ -1,5 +1,10 @@
 # Changelog: Team Red, Rush Live
 
+## v9 (2026-11-02, halftime)
+- Drive result and next score odds come from tables fitted offline to nflverse play-by-play, 2023 to 2025 (124,178 scrimmage plays), by field position, down, distance and time left in the half. Hold: 8% drive result, 12% next score.
+- Next score is now scoped to the half, matching the model (nflfastR next-score probabilities are per half). At halftime it is the second half's first score; receiving team unknown, so both orders are averaged.
+- Break board also opens at halftime and after scores, when no offense is on the field.
+
 ## v8 (2026-11-02, end of Q2)
 - Fair play, per the founder's 9:40 and 9:50 rules. Next snap markets removed: free data cannot lock them before the snap.
 - Break board: drive, next score and player markets open only during stoppages ESPN marks (TV timeout, end of quarter, two-minute warning, halftime) and close 100 seconds after the stoppage began (10 minutes at halftime). Shortest such stoppage measured tonight: 135 seconds. A new live play or a DraftKings move closes it at once.
