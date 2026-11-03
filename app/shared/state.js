@@ -25,7 +25,8 @@
  * SLIP (picks across every game this week)
  *   Pick shape: {id, week, league:'nfl'|'nba'|'nhl', gameId, game:'CHI at SEA', spec:{k,...},
  *                label, odds (American), stake, win, at (ms), seq, status:'open'|'won'|'lost'|'push'|'void'|'cashed',
- *                pay, note, settled, legs?:[{league, gameId, game, spec, label, odds, st}]}
+ *                pay, note, settled, live (true when placed while the game was in progress),
+ *                legs?:[{league, gameId, game, spec, label, odds, st}]}
  *   Rush.place(pick)           -> deducts stake, stores pick, returns stored pick or null (no Stack / entry closed / not entered)
  *   Rush.picks(filter?)        -> array, newest first. filter: {status, league, gameId, week}
  *   Rush.settle(id, result, note, pay?) -> result 'won'|'lost'|'push'|'void'; pay defaults to stake+win, stake, 0
@@ -55,7 +56,12 @@
  *                                 spec.side and spec.team use 'home' | 'away' (game.html maps ESPN team ids).
  *   Rush.grade.sync() grades weekly and contest picks alike.
  *
- * CONTESTS (commissioner mode). No backend: a contest lives in each member's browser, and the invite link carries
+ * CONTESTS: the pages (contests.html, contest.html, Home) use Team Red's app/contest-kit.js (window.RC,
+ * localStorage "rush-contests-v1"). A contest there is a filter over your weekly Slip: sports, days, markets
+ * (pick.live drives its "live" rule). Rush.contests (plural) is deliberately not provided, so RC keeps its own
+ * store. Rush.contest below is a separate wallet-per-contest model no page uses yet; its ?c= link is not RC's.
+ *
+ * Rush.contest (commissioner mode). No backend: a contest lives in each member's browser, and the invite link carries
  * the whole contest (name, schedule, rules) inside the URL, so a friend's phone builds the same contest from the link.
  * Each member sees their own picks plus the contest's SIM Field (seeded by the contest id, identical on every phone)
  * plus any result cards friends share with them. On screen a contest's table is its Ranks; its players are the Field.
