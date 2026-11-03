@@ -1,5 +1,9 @@
 # Changelog: Team Red, Rush Live
 
+## app r9 (2026-11-03, 2:55 AM addendum)
+- Contests: stake limits per pick, odds limits per line and per slip, typed Field size and Stack, injury protection for player props, optional joiner note (payment handles withdrawn by the 3:00 AM ruling), entry link back to the commissioner, Manage shows notes and a Void a pick list. Store fields match Blue's Rush.rules; out-of-limit picks do not count.
+- Fixes: simulated Field capped at 15; entry link loop; inputs wider than a phone.
+
 ## v19 (2026-11-02, after the final)
 - No sportsbook brand named on the page (Phase 2 rule): "the market" or "the book".
 - Phase 2: Red's work moved to the merged tool (teams/one, base Blue). Red delivered inbox snippets 1 (key-number margins, live in m6) and 2 (break board card), a probe of m6, and REVIEW.md. Stats, injuries and Lounge were not added to the Red page; the merged tool has them from Blue.
