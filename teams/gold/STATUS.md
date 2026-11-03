@@ -17,6 +17,7 @@
 - Honest limit: with no backend, a friend shows as in only on their own phone, so the multiplier stays 1.0x in the prototype.
 - Player names on Home and Lounge open Red's player.html?u=<id> (sim ids, and me for you).
 - Slips: each pick shows its stake and return, for example "Stake 25 · Returns 70 (4.5 Units) if it hits" while open and "Returned X" when settled. Typing a stake belongs to Blue's pick sheet.
+**Commissioner mode doors (2:20 AM addendum):** a Contests card on Home, directly under the week card, with Run your own contest, My contests (with a count) and Join with a code (takes a code or a full invite link). It also lists up to three of your contests and three public ones to join. Why Home: Home is where a player decides what to play this week, and a separate tab would push Lounge or Ranks out of the five Rush tabs. The Lounge gets a starred thread per contest you are in, with an Open contest link and support for ?t=c:<id> deep links. Page names live in GS.CPAGE in app/gold-store.js (contest-new.html, contests.html, contest.html?c=, contests.html?join=), so one edit retargets them if Red's names differ. Contest data comes from Blue's Rush.contests once it ships, and the doors and threads stay empty until then.
 **Next:** test the live strip into game.html once Blue ships it, show game.html timed picks in Slips, and give finished games a Lounge thread with graded results.
 
 # Closing summary for the scorecard (MNF build)
