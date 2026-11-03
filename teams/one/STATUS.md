@@ -24,6 +24,8 @@ Timed markets and player props open only during a stoppage and close at the 0.5t
 
 With ESPN showing plays 15 to 25 s late, a timeout leaves about 17 to 27 s to pick and an injury or score about 10 to 20 s; reviews, quarter breaks, commercials and halftime leave minutes. Live-ball plays never open. Placement check and book OFF or price-move locks still apply on top.
 
+Backtest on tonight's 183 real plays (window replayed as if each play showed up 15, 20 or 25 s late): 45 stoppages, 42 opened (3 timeouts too short for our lag), 0 snaps before a close at any lag. Closest call: closed 1 s before the snap. Open time over the game: median window 27 s, about 47 minutes open in total at 20 s lag.
+
 ## Final grading check
 - On the merged page at the final: game reads state post, Final; final card shows rank, Units, record; every market reports Final and refuses picks.
 - Grade rules checked on the final score: CHI moneyline won, CHI -6.5 won, Over 50.5 won, CHI by 13+ winning margin won, a prop for a player not in the box score voids as did not play.
