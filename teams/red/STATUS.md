@@ -6,7 +6,8 @@
 - Board (r1): every NFL, NBA and NHL game of Week 9 (Tue Nov 3 to Mon Nov 9) from ESPN scoreboards: NFL by week (week=9), NBA and NHL one dates=YYYYMMDD call per day. 112 games at first load (15 NFL, 47 NBA, 50 NHL). Grouped Live, Today, Later this week, Final; logos, records, score or start time in ET, main line (spread or puck line and O/U), broadcast, tap into game.html?league=&id=. League segmented control. Refresh every 15s when anything is live, else 60s.
 - Ranks (r1): This week: your week card (rank, Units, games final), matchup with a simulated opponent (fixed for the week), today's race, the Field on Units with the top-3 prize line and your row pinned. Season: W-L record table with week dots. 30 simulated players pick every game of the week (seeded) and are graded on real ESPN finals as games end, so the Field moves all week and is the same on every phone.
 - Shared state: reads window.RushState (Blue's shared/state.js) when it exists for your Stack, Units, picks and season record; until then shows a fresh entry. Tab bar: shared/nav.js when present, otherwise a matching fallback.
-- Not yet: wired to Blue's state API (not shipped when r1 went out); duels beyond the weekly matchup.
+- r2: Ranks reads Blue's shared store (Rush.field, Rush.rival, Rush.season, Rush.me) so rank, matchup and season match Home and the tab badge; a Join the Field card shows before entry. Board and Ranks use Blue's nav.js tab bar. Red's own Field (graded on real finals) remains as a fallback when the store is missing.
+- Not yet: duels beyond the weekly matchup; Blue's Field units are time-driven, not graded on real finals (Red offered week-games.js RW.field as a source).
 
 # Team Red status: closing, after the final whistle
 

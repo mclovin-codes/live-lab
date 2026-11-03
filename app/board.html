@@ -52,7 +52,7 @@ body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.38 var(--rb-font);fo
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
-<body>
+<body data-tab="board">
 <div class="rb-wrap">
  <div class="rb-top"><div><h1>Board</h1><small id="rb-week">This week</small></div><span class="rb-upd" id="rb-upd"></span></div>
  <div class="rb-seg" role="tablist" id="rb-seg"></div>
@@ -90,7 +90,7 @@ setInterval(()=>{if(lastAt)$('rb-upd').textContent='Updated '+Math.round((Date.n
 function loop(){refresh(true).finally(()=>setTimeout(loop,games.some(g=>g.state==='in')?15000:60000))}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh(true)});
 /* tab bar: shared/nav.js when it exists, otherwise a matching fallback */
-setTimeout(()=>{if(document.querySelector('[data-rush-nav],.rush-nav,nav.tabbar')||(window.RushNav&&window.RushNav.mounted))return;const T=[['index.html','Home','<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],['board.html','Board','<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M9 10v10"/>'],['slips.html','Slips','<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],['ranks.html','Ranks','<path d="M8 21V11M12 21V5M16 21v-7"/>'],['lounge.html','Lounge','<path d="M4 5h16v11H8l-4 4z"/>']];const here=location.pathname.split('/').pop()||'index.html';const n=$('rb-tabs');n.innerHTML=T.map(([u,l,p])=>`<a href="${u}" class="${u===here?'on':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>${l}</a>`).join('');n.hidden=false},300);
+setTimeout(()=>{if(document.querySelector('#rnav,[data-rush-nav],.rush-nav,nav.tabbar')||(window.RushNav&&window.RushNav.mounted))return;const T=[['index.html','Home','<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],['board.html','Board','<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M9 10v10"/>'],['slips.html','Slips','<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],['ranks.html','Ranks','<path d="M8 21V11M12 21V5M16 21v-7"/>'],['lounge.html','Lounge','<path d="M4 5h16v11H8l-4 4z"/>']];const here=location.pathname.split('/').pop()||'index.html';const n=$('rb-tabs');n.innerHTML=T.map(([u,l,p])=>`<a href="${u}" class="${u===here?'on':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>${l}</a>`).join('');n.hidden=false},300);
 render();loop();
 </script>
 </body>

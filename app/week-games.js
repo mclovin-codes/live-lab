@@ -10,7 +10,7 @@ const etDay=ms=>new Intl.DateTimeFormat('en-CA',{timeZone:ET,year:'numeric',mont
 const RS=()=>window.RushState||window.Rush||null;
 
 /* The contest week: Tuesday to the end of Monday Night Football. Week 9 opens Tue 2026-11-03. */
-function week(){const s=RS();try{if(s&&s.week){const w=typeof s.week==='function'?s.week():s.week;if(w&&w.n&&w.start)return{n:w.n,start:+new Date(w.start),end:+new Date(w.end)}}}catch(e){}
+function week(){const s=RS();try{if(s&&s.week){const w=typeof s.week==='function'?s.week():s.week;if(w&&w.n&&(w.start||w.opens))return{n:w.n,start:+new Date(w.start||w.opens),end:+new Date(w.end||w.settles||(+new Date(w.opens)+7*864e5))}}}catch(e){}
  const W9=Date.parse('2026-11-03T05:00:00Z');const n=9+Math.max(0,Math.floor((Date.now()-W9)/(7*864e5)));const start=W9+(n-9)*7*864e5;return{n,start,end:start+7*864e5+6*36e5}}
 function days(w){const out=[];for(let t=w.start+3*36e5;t<w.end;t+=864e5)out.push(etDay(t));return[...new Set(out)]}
 
@@ -51,7 +51,7 @@ function season(rows){const n=week().n;return rows.map(r=>{let w=0,l=0;const his
   return{...r,sw:w,sl:l,hist,live:r.units>0?'up':r.units<0?'down':'even'}}).sort((a,b)=>b.sw-a.sw||a.sl-b.sl||b.units-a.units)}
 
 /* ---------- you: read from the shared store when it exists ---------- */
-function me(){const s=RS();let out={name:'You',units:0,w:0,l:0,open:0,entered:false,stack:1000};try{if(s){const g=(k,...a)=>typeof s[k]==='function'?s[k](...a):s[k];const st=g('state')||g('get')||{};const stack=g('stack')??st.stack??st.cash;const units=g('units')??(stack!=null?(stack-1000)/10:null);const bets=g('slip')||st.slip||st.bets||[];
+function me(){const s=RS();try{if(s&&typeof s.me==='function'){const m=s.me();return{name:m.handle||'You',units:m.units||0,stack:m.stack,entered:m.entered,w:0,l:0,open:m.open||0,today:0}}}catch(e){}let out={name:'You',units:0,w:0,l:0,open:0,entered:false,stack:1000};try{if(s){const g=(k,...a)=>typeof s[k]==='function'?s[k](...a):s[k];const st=g('state')||g('get')||{};const stack=g('stack')??st.stack??st.cash;const units=g('units')??(stack!=null?(stack-1000)/10:null);const bets=g('slip')||st.slip||st.bets||[];
   out={name:(g('handle')||st.handle||'You'),units:units??0,stack:stack??1000,entered:!!(g('entered')??st.entered),w:bets.filter(b=>b.status==='won').length,l:bets.filter(b=>b.status==='lost').length,open:bets.filter(b=>b.status==='open').length,today:0}}}catch(e){}return out}
 function mySeason(){const s=RS();try{if(s){const r=typeof s.season==='function'?s.season():s.season;if(r)return{w:r.w||r.wins||0,l:r.l||r.losses||0,hist:r.hist||r.weeks||[]}}}catch(e){}return{w:0,l:0,hist:[]}}
 function opponent(rows){const mine=rows.find(r=>r.me);let best=null;for(const r of rows){if(r.me)continue;if(!best||Math.abs(r.units-mine.units)<Math.abs(best.units-mine.units))best=r}const k='rw.opp.'+week().n;try{const v=localStorage.getItem(k);if(v){const f=rows.find(r=>r.id===v);if(f)return f}if(best)localStorage.setItem(k,best.id)}catch(e){}return best}
