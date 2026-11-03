@@ -63,3 +63,14 @@ tested headless on live ESPN: NBA MIA at LAL (final), NFL BUF at MIN (pregame), 
 
 game.html v1.2 (00:44 ET): ESPN values escaped and validated before they reach the page (Gold security review); results-driven Field from Red's RW.field when week-games.js is loaded (time-driven walk otherwise); Red's games strip above the header; Board tab live-count badge in nav.js. Pregame: starts-in clock, matchup predictor ring with the projected side's price, injury report with return dates, weather, season leaders, injury letters on props, prop rows with season average and a Last 5 bar chart plus an over ladder on tap, last-5 totals card ending in Over and Under prices.
 known gap: Season table in state.js still uses Blue's own SIM names while the weekly Field uses Red's when RW is present.
+
+## End-to-end check on the host (01:40 ET, jsdom loading the real pages from GitHub Pages with live ESPN, one browser storage)
+- Home: entry card, Enter gives 1,000 Stack, rank #25 of 31, season 0-0.
+- Board: Week 9, 15 NFL games plus NBA and NHL by day, 144 game links.
+- Game (JAX at BAL): full pregame book renders; JAX moneyline -470 placed for 25; Stack 975.
+- Slips: Open (1), JAX moneyline -470, 25 staked.
+- Ranks: you in the Field, matchup, Top 3 line.
+- Lounge: week thread with game threads.
+- Fixed on the way: game.html froze after the roster loaded (every player-name lookup rescanned the whole summary; 779 props per render). Lookups are memoized now; page stays responsive.
+not yet checked: live mode and grading at a final on a real NBA or NHL game; first games tonight Tue Nov 3 from 7:00 PM ET.
+known: Lounge uses Blue SIM names, Ranks uses Red SIM names.
