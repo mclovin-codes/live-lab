@@ -1,6 +1,6 @@
 # Team Gold status
 
-**Version:** v10
+**Version:** v11
 **URL:** https://mclovin-codes.github.io/live-lab/teams/gold/
 **Name:** Rush Live
 
@@ -12,6 +12,12 @@ Lag is the play's `wallclock` versus when the page first has it.
 - Sample is 4 plays, so treat these as rough numbers.
 - The floor is upstream of the page. ESPN has not published the play for about 20s or more. Going lower needs a paid official data feed and a server, which the brief rules out (no keys).
 - Not measured: how far DraftKings prices lead ESPN's play. The market-jump lock has not fired yet.
+
+## What changed in v11
+- No void after the fact. Live picks are pending until the feed confirms the ball was dead at the tap. Picks that fail are never accepted, and the stake stays in the Stack. This is how books accept in-play picks with a delay.
+- Tested: 10 acceptance fixtures pass. A live SEA moneyline pick was accepted 21s after the tap.
+- Lock lag measured on 3 live snaps: the window closed 2.1s and 8.1s before two of them. The third lock came from a DraftKings move 25.9s early. The window is predictive, so acceptance is the guarantee.
+- Why not lock before the snap: the DraftKings ticks reach the page through ESPN about 14s after the snap. ESPN posts the play 16-28s after. No free signal arrives before the snap.
 
 ## What changed in v10
 - Fair timed markets. They open only in a window after each play posts and close before the next snap is likely, or earlier if DraftKings suspends or jumps. Late picks are void. Lock lag is on the page.

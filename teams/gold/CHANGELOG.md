@@ -1,5 +1,10 @@
 # Team Gold changelog
 
+## v11
+- Removed void-after-the-fact, per the 9:50 PM addendum. Every live pick is pending until the feed confirms the ball was dead at the tap. Picks that fail the check are never accepted, and the stake stays in the Stack.
+- Timed picks (next snap, first down, this drive, next score, anytime TD) are accepted only if the next play ESPN posts started after the tap, using its wallclock with a 2s margin.
+- Other picks wait 16s for DraftKings ticks to pass the tap. They are declined if DraftKings suspended or its win probability moved 2 points or more, or if a scoring, turnover or 15+ yard play, or a play naming the prop player, started before the tap.
+
 ## v10
 - Fair timed markets per the 9:40 PM founder addendum. Next snap, first down, this drive, next score and anytime touchdown open only in a window after each play posts, with a countdown. The window closes before the next snap is likely: this game's 25th-percentile snap gap minus 2s, longer after timeouts and kicks.
 - Timed markets also close when DraftKings suspends or its win probability jumps 2 points or more.
