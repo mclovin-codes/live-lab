@@ -32,15 +32,17 @@ All 12 rivals are labeled SIM. They replay from ESPN's probabilities and plays, 
 
 ## Tested live on the host
 - Real tickets settled from real plays in Q2: Next snap Pass at -240 paid $141.67 on a stake of $100, and 5+ yards lost on an incompletion.
+- A first-down Yes ticket lost correctly on a punt.
+- An open v5 tab hopped to v6 on its own within a minute of the ship and kept its tickets.
 
 ## Not tested
 - A real phone. Checked only at the mobile preset in the built-in browser.
-- The self-update hop has not fired yet; v6 will be its first real test.
-- First-down and drive tickets have not settled live yet.
+- A drive ticket has not settled live yet.
+- One-tap picks tested only from the local file, not settled live.
 
 ## Blocked
 Nothing.
 
 ## Testing next
-1. First-down and drive settlement during real plays.
+1. Drive and one-tap settlement during real plays.
 2. v7: win probability chart, SIM props in the feed, fourth-quarter moments.
