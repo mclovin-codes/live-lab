@@ -35,6 +35,13 @@ Measured on 8 live NHL games, 1st period, 19:27 to 19:46 ET, recording ESPN fast
   - Skaters and goalie on the ice.
 - Win probability: ESPN has none for NHL (core probabilities returns 400, and the summary has no winprobability block). The panel now shows the market series instead, from the closing line and then each posted live moneyline with the margin removed, labelled "From the market". A live game never shows an empty panel.
 - The Board: game.html writes rw.lastLive[LG+ID] = {h, a, ou, at} on each new posted moneyline, for Red's Live cards.
+- Header (13d55c9, founder): NHL shows the scorebug, the last play card and the collapsed "Stats and on the ice" row only. No rink, no probability slide, no carousel. NFL and NBA keep the game card slide (b6b17cc).
+- Real-time numbers, NHL, 8 games:
+  - Play feed lag (wallclock to push, 371 plays): median 34 s, quartiles 24 and 50 s, p90 68 s, max 173 s. NFL on the 2nd ran 19 to 45 s, about 20 s typical, so NHL plays arrive later than NFL's.
+  - Push delivery (ESPN timestamp to this page): median 0.18 s. The p90 of 8.8 s comes from bursts while the tab was in the background.
+  - Book versus the real event: the only clean case is a penalty at 19:27:28 wallclock, which the book marked OFF at 19:28:16, 48 s later. The median play lag is 34 s, so the penalty backstop can lock before a relayed book suspension does.
+  - Lock and reopen follow the book's OFF and repost within the push delivery time (well under a second); no wait on a play.
+- Probe on the host build (bbb8e4e), WPG at MTL: 25 placed of 25 tries with a line open (19 in the intermission, 6 in play at the book price), 0 refused at confirm, 0 after a goal or penalty the book had not repriced. 4 period-market tries in play were locked as designed. 84 more tries hit "Feed paused" while the browser pane was hidden (the page stops polling when not visible).
 - Answer to the founder: NHL is usable. Game lines are open about 95% of the clock at the book's price. Only alts, periods and props wait for intermissions.
 
 ## Fair play
