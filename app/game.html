@@ -230,7 +230,8 @@ function gate(M){const g=M.g;if(g.done)return{open:false,why:'Final'};if(!g.live
   /* hockey: the book's own state is the lock. It keeps pricing the moneyline and total while the puck is live and marks them OFF
      when it suspends. While it posts, game lines open at its exact price; model-priced markets wait for an intermission or timeout.
      The play feed (17-60 s late) is only a backstop: a goal or penalty stamped after the book's last price locks everything. */
-  if(LG==='nhl'&&fcLive()){if(!FC.priceAt)return{open:false,why:'Connecting to the live book'};const big=S.plays.filter(p=>/^(goal|penalty)/i.test((p.type&&p.type.text)||'')).pop(),bw=big&&Date.parse(big.wallclock||'');if(bw&&bw>FC.priceAt)return{open:false,why:'Waiting for the book after the '+((big.type.text||'').toLowerCase().startsWith('goal')?'goal':'penalty')};
+  if(LG==='nhl'&&fcLive()){if(!FC.priceAt)return{open:false,why:'Connecting to the live book'};/* penalty plays are typed by the infraction (Hooking, Roughing) and carry type.penaltyMinutes */
+    const big=S.plays.filter(p=>p.type&&(/^goal/i.test(p.type.text||'')||p.type.penaltyMinutes)).pop(),bw=big&&Date.parse(big.wallclock||'');if(bw&&bw>FC.priceAt)return{open:false,why:'Waiting for the book after the '+(/^goal/i.test(big.type.text||'')?'goal':'penalty')};
     /* a book that has not moved in 5 min of running clock may be a stalled relay; intermissions and timeouts are allowed to sit still */
     const s=stopInfo(),sl=s?s.w-(Date.now()-s.at)/1000:0;if(!(sl>0)&&Date.now()-FC.priceAt>300000)return{open:false,why:'Waiting for the book to move'};return{open:true,book:true,stop:sl>0,left:sl,name:sl>0?s.k:'Live'}}
   const s=stopInfo();if(!s)return{open:false,why:LG==='nhl'?'Puck in play. Lines open at the next intermission or timeout':'Ball in play. Lines open at the next stoppage'};const left=s.w-(Date.now()-s.at)/1000;return left>0?{open:true,left,w:s.w,name:s.k}:{open:false,why:'Stoppage ending'}}
