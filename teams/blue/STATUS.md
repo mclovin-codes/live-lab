@@ -7,6 +7,24 @@ probe on real snaps (1-Stack chains pick every 3s while the page was in front, Q
 Q4 live check at 15:00, CHI 20 SEA 9: main lines exact DraftKings (SEA +348, CHI -523, SEA +6.5 -126, total 44.5). Alts and team totals consistent with the DK-implied mean margin of 6 and remaining sd 6.7. Winning margin bands sum to 1.000. Q4 total -115 both ways. Timed window open 22s after a timeout, locks at 0. Overtime: game logic, quarter-race OT label, 2nd-half lines through OT and settling are in place; untested live unless the game goes to OT.
 model limit seen in Q4: a normal margin centred on the DK-implied mean understates the tails of a two-score lead (for example CHI 13+ at +430), because real outcomes cluster at 3 and 7 point steps.
 
+## NHL live, Nov 3 (app/game.html, 54ba7c9 and 2135b49)
+Measured on 8 live NHL games, 1st period, 19:27 to 19:46 ET, recording ESPN fastcast (gp-hockey-nhl-<id>) and the REST summary side by side.
+- The book does not suspend at every whistle. It keeps pricing the moneyline and total while the puck is live (moves about every 36 s, median) and marks them OFF only around goals and penalties.
+- Share of game time the moneyline was posted (open): 95% overall; per game 100, 100, 100, 100, 95, 93 and 80%. One game posted nothing all period.
+- OFF spells: 3 in 20 min. A goal (TB -520 to -1450) was OFF for 41 s. A probable goal (+180 to +165) was OFF for 57 s. A penalty plus TV timeout was OFF for 168 s.
+- Intermission: the book reposts and keeps moving (DAL at WSH: period end 19:41:32, new prices at 19:41:55 and 19:44:11).
+- The REST summary is no guide in hockey. It lags the push by minutes: MTL -410 on REST at 19:43, a price the push had moved to -345 at 19:32:33. It often reads OFF while the push has a price. Before the push, every NHL game sat on "Book suspended".
+- Play feed lag: 17 to 60 s (outliers 166 s). Whistle to faceoff is 19 to 44 s. A whistle therefore reaches the page after the puck has dropped, so a play-driven window can never open on a whistle in hockey. That is why the book is the lock.
+- What the page does now (hockey):
+  - Game lines (moneyline, puck line, total at the book's line) open in play at the book's exact price and lock when it marks OFF.
+  - Model-priced markets (alts, team totals, periods, props) open only in intermissions (960 s from the period-end stamp) and timeouts.
+  - Backstops:
+    - A goal or penalty stamped after the book's last price locks everything until the book reprices.
+    - 5 min without a move while the clock runs locks everything ("Waiting for the book to move").
+    - Lines stay locked until the push itself posts a moneyline, so a stale REST price is never sold.
+- Placement check on the host build: PHI moneyline +550 placed in play at the book price into The Rush. WPG +240 placed into The Rush and a contest at once, each Stack down 1.
+- Answer to the founder: NHL is usable. Game lines are open about 95% of the clock at the book's price. Only alts, periods and props wait for intermissions.
+
 ## Fair play
 - Gated markets: next play, 4th down go or kick, moves the chains, this drive, next score, anytime TD, player props, and Close pick on any of those.
 - Open only from the moment ESPN shows the last play until the shortest gap to the next snap seen tonight for that play type, minus 3s. Hurry-up: 8s max.
