@@ -1,5 +1,8 @@
 # Changelog: Team Red, Rush Live
 
+## p3.4 / p3.5 (2026-11-04)
+- Live-site end-to-end check. Fixed: Join button hidden under the tab bar; unnamed commissioner showed as "You invited you" (quick start now asks the name); invite said 0 entrants; a joiner's phone filled 30 SIM players instead of the contest's 2.
+
 ## p3.3 (2026-11-04)
 - Home Contests hero card; prize copy without currency or pay; create door opens the quick start; sim recent-rate scenario (W13 55.8 vs 61.7); FEATURES.md.
 

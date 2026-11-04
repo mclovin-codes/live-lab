@@ -15,6 +15,8 @@ State key: **works** (does what it says on a phone today), **rough** (works, wit
 - Join with a code: works for public contests and contests already on the phone. **rough**: a private code from another phone needs the server; the link always works.
 - Run it back: one tap makes next week's contest with the same rules and opens the invite. **works**
 - Contest page: Ranks on the contest's scoring (live as games go final), Picks per entrant (sealed until each game starts), Rules, Manage (edit until entry closes, remove or restore an entrant, void a pick with a reason), Results sheet (share link, CSV, print). **works**
+- Each player's picks count on their own phone's contest Ranks. **mock**: a friend's picks reach the commissioner's Ranks only with the Rush backend (here the commissioner sees the friend listed with no picks).
+- Checked end to end on the live site at 375 px (2026-11-04): create, invite link, join on a clean phone with "Join, Kim invited me", a pick placed in the contest shows in its Ranks, entry back to the commissioner, one-tap confirm, confirmation back makes the link final on both sides.
 - SIM stand-ins: quick start puts 2 labelled SIM players in so the Ranks are not empty; friends replace them. **mock**
 - Public contests list: five seeded contests per week, the same on every phone. **mock**
 
