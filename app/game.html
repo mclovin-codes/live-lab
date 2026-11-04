@@ -321,7 +321,8 @@ function hockeyPanel(M){const P=(S.sum&&S.sum.plays)||[],per=M.g.period||1,hc='#
   /* stats and skaters start collapsed under one row; the choice is kept per viewer */
   const more=stats||oi?`<button class="hkx" data-a="hkx" aria-expanded="${hkOpen}">Stats and on the ice<span>${hkOpen?'&#8964;':'&rsaquo;'}</span></button>`+(hkOpen?stats+(oi?'<div class="oi" style="margin-top:10px">On the ice</div>'+oi:''):''):'';
   /* founder, Nov 3: the rink and the probability slide are off on NHL for now; the rink code stays for later */
-  return card+pp+more}
+  /* founder: the header is the scorebug and the last play only; stats and skaters live in the Box Score and Stats tabs */
+  return card}
 let hkOpen=false;try{hkOpen=localStorage.getItem('rush-hk-more')==='1'}catch(e){}
 function vHdr(M){if(!S.sum)return`<div class="gtop"><a href="board.html">&lsaquo; Board</a><span>${esc(LG.toUpperCase())}</span><span></span></div><div class="pane"><div class="empty">${S.err?'Could not reach the game feed ('+esc(S.err)+'). Retrying.':'Loading the game.'}</div></div>`;const g=M.g,h=M.h,a=M.a,lead=h.score===a.score?'':h.score>a.score?'h':'a';const gt=gate(M);
   mktTrack(M);const court=`<div class="court ${SPORT.court}"><i class="mid"></i><span class="rd"></span>${g.live?`<span class="ball" style="left:${possLeft()}%"></span>`:''}</div>`;const pt=possTeam();
