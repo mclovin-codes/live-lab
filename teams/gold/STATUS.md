@@ -20,34 +20,51 @@ Recruiting starts a Squad and showing up keeps its boost alive. The cheapest per
 - Checked on the host at 375 px: created "Gold Rush", filled 3 SIM seats, 4 of 4 picked, +0.2x, #2 in Squad Ranks.
 - Honest limit: no backend, so friends who join by link count only on their own phone.
 
-**First simulation run** (teams/gold/sim/sim.js, params.json, 1,000 runs, seeds mulberry32(run) for run 1 to 1,000, the same seeds for every variant). Page: https://mclovin-codes.github.io/live-lab/teams/gold/app/sim.html. Week 13 means, with the Field as players in with a pick:
+**Two-sided linking (founder addendum, 10:05 PM), in the prototype:**
+- Nothing links on its own; an invite link only prefills.
+- Opening a Squad link shows "Ask to join"; you wait until the Squad confirms with one tap. Home shows "Waiting for X to confirm".
+- A Squad can confirm or decline requests, and can Ask anyone who joined Rush in the last 14 days. That player confirms, and only then does the seat count.
+- "Who invited you?" searches players by name (prefilled from the link) and stays pending until that player confirms. Then the +0.1x referral credit applies.
+- SIM players confirm after 4 seconds so the flow works on one phone. Checked on the host: 3 requests, Confirm took 4 seats to 5, Ask took 5 to 6 after the confirm, and the inviter went from pending to linked.
+
+**Simulation, aligned with Blue's harness** (teams/gold/sim/sim.js, params.json, 1,000 runs, seeds mulberry32(1000 + r)).
+- The no-mechanism arm is Blue's baseline, draw for draw. Its Week 13 Field of 42.0 (p10 to p90: 35 to 49, 67% past 40 in) matches teams/blue/sim/crews-sim.mjs exactly.
+- The Field is that week's entrants. A referral or a Squad seat counts only when both sides confirm (A6 = 0.8).
+- Page: https://mclovin-codes.github.io/live-lab/teams/gold/app/sim.html.
+
+Week 13 means:
 
 | Variant | Field W13 | Retention W13 | Avg multiplier | Touched | P(40+ in) |
 |---|---|---|---|---|---|
-| No mechanism | 43.2 | 81.2% | 1.014x | 0% | 73% |
-| Squad Streak, all assumptions | 50.2 | 85.9% | 1.294x | 55% | 95% |
-| Squad Streak, cohort rates only | 43.1 | 81.1% | 1.026x | 3% | 73% |
+| No mechanism (pooled return rates) | 42.0 | 79.4% | 1.011x | 0% | 67% |
+| Squad Streak, all assumptions | 46.7 | 82.9% | 1.232x | 50% | 89% |
+| Squad Streak, half of links confirmed (A6 0.5) | 45.3 | 81.8% | 1.151x | 36% | 83% |
+| Squad Streak, cohort rates only | 42.1 | 79.7% | 1.019x | 2% | 67% |
+| No mechanism, W7 to W8 carryover 0.93 | 55.8 | 91.0% | 1.016x | 0% | 100% |
+| Squad Streak, all assumptions, carryover 0.93 | 61.0 | 93.6% | 1.279x | 52% | 100% |
 
-- Field per week, Squad Streak against no mechanism: 35.0 against 34.4, 38.1 against 36.2, 41.9 against 38.5, 45.9 against 40.7, 50.2 against 43.2.
 - Removing one assumption at a time, the Week 13 Field is:
 
   | Assumption removed | Field W13 |
   |---|---|
-  | A1 | 47.3 |
-  | A2 | 44.1 |
-  | A3 | 48.7 |
-  | A4 | 45.8 |
-  | A5 | 49.2 |
+  | A1 | 44.7 |
+  | A2 | 43.1 |
+  | A3 | 45.3 |
+  | A4 | 44.0 |
+  | A5 | 46.1 |
 
-- **What drives it:** A2 (a founder pulls in friends already in the Field) and A4 (retention). With every assumption off, Squads barely form, and the result matches no mechanism.
+- **What drives it:** A2 (a founder asks friends already in the Field) and A4 (retention). With every assumption off, Squads barely form, and the Field matches no mechanism.
+- **Pooled against recent rates:** on pooled return rates the baseline grows about 2 a week. The cohort file's +4 a week trend comes from the W7 to W8 carryover (0.93), shown as its own pair of rows.
 - **Assumptions, named:**
   - A1: Squad founding at 2x the first-share stamp rate.
-  - A2: a founder pulls in 1.5 existing Field players on average. 54.5% of the Week 8 cohort are friends.
-  - A3: Squad members with an open seat bring 1.5x the cohort's referral signups. This is the weakest assumption: the multiplier era moved the rate only from 0.040 to 0.044.
+  - A2: a founder asks a mean of 1.5 players already in the Field. 18 of 33 Week 8 entrants came through a friend.
+  - A3: members with an open seat bring 1.5x the cohort's referral signups. This is the weakest assumption: the multiplier era moved the rate only from 0.040 to 0.044.
   - A4: Squad members return like losers who reloaded, +10 points after a loss and +3 after a win.
   - A5: absent Squad members reactivate at 0.30 against 0.18.
+  - A6: 0.8 of links get both taps.
+- **Referral counting:** personal codes only, and the founder test link is not counted as a referral.
 - **Not modelled:** Reload, the Lounge and in-game picks.
-- **Data handling:** cohort rates are aggregates only, with no player names in the repo.
+- **Data handling:** cohort rates are aggregates only, with no player names in the repo. COHORT-WEEK8.md stays local and gitignored.
 
 ## Now: the weekly app (from 12:10 AM, Nov 3)
 **Gold owns:** app/index.html (Home), app/slips.html (Slips), app/lounge.html (Lounge), app/gold-store.js (a thin map onto Blue's shared/state.js), and the app card in hub/index.html.
