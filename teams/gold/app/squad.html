@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rush · Squad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/rush.css">
+<style>
+/* Squad: friends who keep each other's Prize Multiplier up by showing up every week. */
+:root{--bg:#0B1118;--card:#121A23;--card2:#1A2530;--line:#22303D;--fg:#fff;--mute:#8C9BAD;--acc:#00BFFF;--win:#10B981;--loss:#D95151;--vio:#A78BFA;--f:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;--cond:"Barlow Condensed","Arial Narrow",var(--f)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 var(--f);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.g-wrap{padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 110px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px;max-width:640px;margin:0 auto}
+.g-top{display:flex;align-items:center;gap:10px}.g-top h1{font:800 30px/1 var(--cond);letter-spacing:.01em;text-transform:uppercase;margin:0}.g-top a{color:var(--mute);text-decoration:none;font:600 14px var(--f);min-height:44px;display:flex;align-items:center}
+.g-top [data-rush-pill]{margin-left:auto;min-width:0;max-width:64%}
+.g-card{background:var(--card);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.g-h{display:flex;align-items:baseline;gap:8px;font:700 17px var(--f)}.g-h small{margin-left:auto;font:500 12.5px var(--f);color:var(--mute)}
+.g-eyebrow{font:700 11px var(--f);letter-spacing:.1em;color:var(--mute);text-transform:uppercase}
+.g-note{font-size:12.5px;color:var(--mute)}
+.hero{border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:14px;background:radial-gradient(130% 120% at 100% 0%,rgba(167,139,250,.22),transparent 60%),var(--card);box-shadow:inset 0 0 0 1.5px rgba(167,139,250,.45)}
+.hero .nm{font:700 30px/1 var(--cond);text-transform:uppercase;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hero .row{display:flex;align-items:flex-end;gap:14px}
+.big{display:flex;flex-direction:column;gap:2px}.big b{font:700 56px/.9 var(--cond)}.big small{font:600 12px var(--f);color:var(--mute);letter-spacing:.04em;text-transform:uppercase}
+.parts{margin-left:auto;display:flex;flex-direction:column;gap:4px;text-align:right;font:500 12.5px var(--f);color:var(--mute)}.parts b{color:var(--fg);font-weight:700}
+.pips{display:flex;gap:6px;align-items:center}.pips i{flex:1;height:10px;border-radius:5px;background:rgba(255,255,255,.1)}.pips i.on{background:var(--vio)}
+.pips span{flex:none;font:700 14px var(--f);margin-right:4px;white-space:nowrap}
+.keep{display:flex;flex-direction:column;gap:6px;background:rgba(255,255,255,.05);border-radius:14px;padding:12px}
+.keep b{font:700 15px var(--f)}.keep .ok{color:var(--win)}.keep .no{color:#F5B14A}
+.bar{height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;position:relative}.bar i{position:absolute;inset:0 auto 0 0;background:var(--acc);border-radius:4px}.bar em{position:absolute;top:-3px;bottom:-3px;width:2px;background:#fff;border-radius:1px}
+.cta{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:14px;font:700 15px var(--f);text-align:center;text-decoration:none;white-space:nowrap;padding:12px}
+.cta.b{background:var(--acc);color:#04121C}.cta.f{background:rgba(255,255,255,.1);color:var(--fg)}
+.two{display:grid;grid-template-columns:1.3fr 1fr;gap:8px}
+.mem{display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 0;border-bottom:1px solid var(--line)}.mem:last-child{border-bottom:0}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:700 13px var(--f);color:#fff;flex:none;background:#64748B}
+.mem .m{flex:1;min-width:0;display:flex;flex-direction:column}.mem .m b{font:600 15px var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mem .m small{font-size:12.5px;color:var(--mute)}
+.tag{display:inline-block;padding:1px 6px;border-radius:6px;font:700 10px var(--f);background:var(--card2);color:var(--mute);margin-left:6px;vertical-align:2px}
+.st{flex:none;font:700 12px var(--f);border-radius:8px;padding:6px 10px}.st.y{color:var(--win);background:rgba(16,185,129,.12)}.st.n{color:#F5B14A;background:rgba(245,177,74,.12)}
+.nudge{flex:none;font:700 13px var(--f);color:var(--acc);background:rgba(0,191,255,.12);border-radius:10px;padding:9px 12px;min-height:40px}
+.rk{display:flex;align-items:center;gap:12px;min-height:44px;padding:4px 0}.rk .n{width:22px;font:700 18px var(--cond);color:var(--mute);text-align:center}.rk .m{flex:1;min-width:0;font:600 15px var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rk .u{font:700 18px var(--cond)}
+.rk.me{background:rgba(167,139,250,.12);border-radius:12px;margin:0 -8px;padding:4px 8px}
+.up{color:var(--win)}.dn{color:var(--loss)}
+.rules{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}.rules b{color:var(--fg)}
+.in{width:100%;background:var(--card2);border:0;border-radius:12px;padding:14px;color:var(--fg);font:15px var(--f)}
+.hd b{display:block;font:700 34px/.95 var(--cond);text-transform:uppercase;letter-spacing:.01em;margin-top:4px}
+.link{font:600 13px var(--f);color:var(--mute);text-decoration:underline;align-self:center;min-height:44px}
+#g-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#fff;color:#0B1118;font:600 14px var(--f);padding:10px 16px;border-radius:12px;z-index:20}
+</style>
+</head>
+<body>
+<div class="g-wrap" id="squad"></div>
+<div id="g-toast" hidden></div>
+<nav id="g-nav"></nav>
+<script src="shared/state.js"></script>
+<script src="week-games.js"></script>
+<script src="contest-kit.js"></script>
+<script src="shared/nav.js"></script>
+<script src="gold-store.js"></script>
+<script src="squad-kit.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ini=n=>String(n||'?').split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const COL=['#EC4899','#F59E0B','#34D399','#A78BFA','#38BDF8','#F87171','#FACC15','#2DD4BF'];
+const col=s=>COL[[...String(s)].reduce((a,c)=>a+c.charCodeAt(0),0)%COL.length];
+const x=v=>(v>=0?'+':'')+v.toFixed(2).replace(/0$/,'')+'x';
+function toast(t){const el=$('g-toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2000)}
+function left(ms){return ms<=0?'closed':Rush.clock?Rush.clock(ms):Math.round(ms/36e5)+'h'}
+function day(ms){return new Date(ms).toLocaleString([], {weekday:'short',hour:'numeric',minute:'2-digit'})}
+const Q=new URLSearchParams(location.search),INV=Q.get('sq')?{code:Q.get('sq'),name:Q.get('n')||'a Squad',host:Q.get('h')||'A friend'}:null;
+const RULES=`<ol class="rules">
+  <li><b>+0.05x</b> on your Prize Multiplier for every squadmate who locks a pick this week, you included.</li>
+  <li><b>+0.1x</b> for every streak week, up to +0.5x. A streak week is one where at least 60% of the Squad locks a pick before Monday night kickoff.</li>
+  <li>A new member's first pick adds a streak week straight away, once per week.</li>
+  <li>Miss a week and the streak goes back to 0. Nobody loses their seat.</li>
+  <li>Squad Ranks score each Squad by its members' average Units. The top Squad gets <b>+0.2x</b> the next week.</li></ol>`;
+function setup(){
+  if(INV)return`<div class="hero"><div class="g-eyebrow">${esc(INV.host)} wants you in</div><div class="nm">${esc(INV.name)}</div><div class="g-note" style="color:var(--fg);font-size:15px">Join the Squad and every pick you lock this week lifts everyone's Prize Multiplier, yours included.</div><button class="cta b" data-act="join">Join ${esc(INV.name)}</button></div><div class="g-card"><div class="g-h">How a Squad pays</div>${RULES}</div>`;
+  return`<div class="g-card hero"><div class="hd"><span class="g-eyebrow">Free · 2 to 8 friends</span><b>Squad up</b></div>
+  <div style="font-size:15px">Every friend who picks lifts your Prize Multiplier. Every week you all show up, it climbs again. Up to <b>+1.1x</b>.</div>
+  <input class="in" id="sqname" maxlength="24" placeholder="Squad name" autocomplete="off"><button class="cta b" data-act="create">Start a Squad</button></div>
+  <div class="g-card"><div class="g-h">How a Squad pays</div>${RULES}</div>`}
+function render(){const s=SQ.status();let h=`<div class="g-top"><a href="index.html" aria-label="Back to Home">&#8249; Home</a><span data-rush-pill></span></div>`;
+  if(!s){h+=setup();$('squad').innerHTML=h;after();return}
+  const now=Date.now(),need=s.need,pct=Math.min(100,s.picked/s.of*100),mark=need/s.of*100,togo=Math.max(0,need-s.picked);
+  h+=`<div class="hero"><div><div class="g-eyebrow">Your Squad · ${s.of} of ${SQ.RULES.max} seats</div><div class="nm">${esc(s.name)}</div></div>
+  <div class="row"><div class="big"><b>${x(s.boost.total)}</b><small>Squad boost on your Prize Multiplier</small></div><div class="parts"><span><b>${x(s.boost.active)}</b> ${s.picked} picked</span><span><b>${x(s.boost.streak)}</b> streak</span>${s.boost.top?`<span><b>${x(s.boost.top)}</b> top Squad</span>`:''}</div></div>
+  <div class="pips"><span>Streak ${s.streak}</span>${Array.from({length:SQ.RULES.maxStreak},(_,i)=>`<i class="${i<s.streak?'on':''}"></i>`).join('')}</div>
+  <div class="keep">${s.onTrack?`<b class="ok">Streak is safe this week: ${s.picked} of ${s.of} picked.</b>`:`<b class="no">${togo} more pick${togo>1?'s':''} needed to keep the streak.</b>`}<div class="bar"><i style="width:${pct}%"></i><em style="left:calc(${mark}% - 1px)"></em></div><span class="g-note">${need} of ${s.of} must lock a pick by ${esc(day(s.deadline))} (${esc(left(s.deadline-now))}). ${s.onTrack?'Every extra pick still adds +0.05x.':'Nudge the ones who have not picked yet.'}</span></div>
+  <div class="two"><button class="cta b" data-act="invite">${s.of<SQ.RULES.max?'Invite a friend':'Squad is full'}</button><button class="cta f" data-act="nudgeall">Nudge Squad</button></div></div>`;
+  h+=`<div class="g-card"><div class="g-h">This week<small>${s.picked} of ${s.of} picked</small></div>${s.members.map(m=>`<div class="mem"><span class="av" style="background:${m.me?'#0EA5C6':col(m.name)}">${esc(ini(m.name))}</span><span class="m"><b>${esc(m.name)}${m.me?'<span class="tag" style="background:var(--acc);color:#04121C">YOU</span>':''}${m.sim?'<span class="tag">SIM</span>':''}${m.founder?'<span class="tag">FOUNDER</span>':''}</b><small>${m.picked?'Locked a pick':'No pick yet'}${m.away?' · on their phone':''}</small></span>${m.picked?'<span class="st y">IN</span>':m.me?'<a class="nudge" href="board.html" style="text-decoration:none">Pick</a>':`<button class="nudge" data-nudge="${esc(m.name)}">Nudge</button>`}</div>`).join('')}
+  ${s.of<SQ.RULES.max?`<button class="cta f" data-act="fill">Fill ${Math.min(3,SQ.RULES.max-s.of)} seats with SIM players</button><div class="g-note">SIM squadmates are for trying the Squad on one phone. Friends who join by your link count on their own phones.</div>`:''}</div>`;
+  const rk=SQ.ranks();h+=`<div class="g-card"><div class="g-h">Squad Ranks<small>Week ${s.week.n} · average Units</small></div>${rk.map(r=>`<div class="rk${r.me?' me':''}"><span class="n">${r.rank}</span><span class="m">${esc(r.name)}${r.sim?'<span class="tag">SIM</span>':''} <span class="g-note">· ${r.size}</span></span><span class="u ${r.units>0?'up':r.units<0?'dn':''}">${r.units>0?'+':''}${r.units.toFixed(1)}</span></div>`).join('')}<div class="g-note">Top Squad when the week settles gets +0.2x next week.</div></div>`;
+  if(s.hist.length)h+=`<div class="g-card"><div class="g-h">Past weeks</div>${s.hist.slice().reverse().map(w=>`<div class="rk"><span class="n">${w.n}</span><span class="m">${w.picked} of ${w.of} picked${w.rec?' · new member':''}</span><span class="st ${w.kept?'y':'n'}">${w.kept?'KEPT':'MISSED'}</span></div>`).join('')}</div>`;
+  h+=`<div class="g-card"><div class="g-h">How a Squad pays</div>${RULES}</div><button class="link" data-act="leave">Leave Squad</button>`;
+  $('squad').innerHTML=h;after()}
+function after(){const bd=$('rpill-band');if(bd)bd.remove();if(Rush.nav)try{Rush.nav.refresh()}catch(e){}}
+async function share(text,url){try{if(navigator.share){await navigator.share({text,url});return}}catch(e){return}try{await navigator.clipboard.writeText(text+' '+url);toast('Link copied')}catch(e){toast(url)}}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act],[data-nudge]');if(!t)return;const a=t.dataset.act;
+  if(t.dataset.nudge){share(`${t.dataset.nudge}, the Squad needs your pick before Monday night kickoff to keep the streak alive.`,SQ.inviteUrl());return}
+  if(a==='create'){SQ.create(($('sqname')||{}).value);toast('Squad started. Invite your friends.');history.replaceState(null,'','squad.html')}
+  else if(a==='join'&&INV){SQ.join(INV.code,INV.name,INV.host);toast('You are in '+INV.name);history.replaceState(null,'','squad.html')}
+  else if(a==='invite'){const s=SQ.status();if(s.of>=SQ.RULES.max)return;share(`Join my Squad "${s.name}" on Rush. Every friend who picks lifts everyone's Prize Multiplier. Free.`,SQ.inviteUrl());return}
+  else if(a==='nudgeall'){const s=SQ.status();share(`${s.picked} of ${s.of} in ${s.name} have picked. ${Math.max(0,s.need-s.picked)?'We need '+Math.max(0,s.need-s.picked)+' more by Monday night kickoff to keep the streak.':'Streak is safe. Every extra pick is +0.05x for all of us.'}`,new URL('index.html',location.href).href);return}
+  else if(a==='fill'){const n=SQ.fill(3);toast(n?n+' SIM squadmates joined':'No open seats')}
+  else if(a==='leave'){if(!confirm('Leave this Squad? Your streak stays with them.'))return;SQ.leave()}
+  render()});
+SQ.on(render);if(Rush.on)Rush.on(()=>render());
+GS.nav('home');render();setInterval(render,30000);
+</script>
+</body>
+</html>
