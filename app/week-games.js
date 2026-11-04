@@ -21,12 +21,14 @@ function norm(league,e){const c=e.competitions&&e.competitions[0]||{},st=e.statu
 /* live line: the scoreboard drops odds once a game starts. The book posts live odds at whistles and goes OFF while play runs,
    so the Board samples each live game's summary every 30 s and shows the book's last posted live line (kept per game in
    localStorage 'rw.lastLive' {h,a,ou,at}; game.html may write it too), labelled last seen, since the summary runs minutes behind
-   the push. No line until the book has posted one; the Board never prices a game itself. */
+   the push. No line until the book has posted one, and none while the book is OFF (locked, as on game.html); the Board never
+   prices a game itself. */
 const SP={nfl:1,nba:1,nhl:1};
 function postedLine(pc){if(!pc||!pc.moneyline)return null;const P=(o,...k)=>{let n=o;for(const x of k){if(n==null)return null;n=n[x]}return n},o=x=>{const v=num(x);return v!=null&&Math.abs(v)>=100?v:null},h=o(P(pc.moneyline,'home','live','odds')),a=o(P(pc.moneyline,'away','live','odds'));
  if(h==null||a==null)return null;const t=P(pc.total,'over','live','line');return{h,a,ou:t==null?null:num(String(t).replace(/^[ou]/i,''))}}
 function last(){try{return JSON.parse(localStorage.getItem('rw.lastLive')||'{}')||{}}catch(e){return{}}}
 function keepLast(k,L){const m=last(),o=m[k];if(o&&o.at&&o.h===L.h&&o.a===L.a&&o.ou===L.ou)return;L.at=Date.now();m[k]=L;try{localStorage.setItem('rw.lastLive',JSON.stringify(m))}catch(e){}}
+function dropLast(k){const m=last();if(!(k in m))return;delete m[k];try{localStorage.setItem('rw.lastLive',JSON.stringify(m))}catch(e){}}
 function liveLine(g,L){if(!L||L.h==null||L.a==null)return null;const fav=L.h<=L.a?g.home:g.away;return{details:`${fav.abbr} ${L.h<=L.a?L.h:L.a}`,ou:L.ou,seen:+L.at||true}}
 const AT={};
 async function J(u){const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
@@ -35,7 +37,7 @@ async function load(force){if(!force&&cache&&Date.now()-cacheAt<15000)return cac
  jobs.push(J(`${SB}${LEAGUES.nfl.path}/scoreboard?week=${w.n}&seasontype=2`).then(d=>(d.events||[]).map(e=>norm('nfl',e))).catch(()=>[]));
  for(const lg of['nba','nhl'])for(const d of ds)jobs.push(J(`${SB}${LEAGUES[lg].path}/scoreboard?dates=${d}`).then(r=>(r.events||[]).map(e=>norm(lg,e))).catch(()=>[]));
  const all=(await Promise.all(jobs)).flat(),seen=new Set,games=[];for(const g of all){const k=g.league+g.id;if(seen.has(k))continue;seen.add(k);if(g.date>=w.start-6*36e5&&g.date<=w.end)games.push(g)}
- await Promise.all(games.filter(g=>g.state==='in'&&g.line.hml==null&&SP[g.league]).map(async g=>{const k=g.league+g.id;if(!AT[k]||Date.now()-AT[k]>30e3){AT[k]=Date.now();try{const r=await J(`${SB}${LEAGUES[g.league].path}/summary?event=${g.id}`),L=postedLine((r.pickcenter||[])[0]);if(L)keepLast(k,L)}catch(e){}}const L=liveLine(g,last()[k]);if(L)g.liveLine=L}));
+ await Promise.all(games.filter(g=>g.state==='in'&&g.line.hml==null&&SP[g.league]).map(async g=>{const k=g.league+g.id;if(!AT[k]||Date.now()-AT[k]>30e3){AT[k]=Date.now();try{const r=await J(`${SB}${LEAGUES[g.league].path}/summary?event=${g.id}`),L=postedLine((r.pickcenter||[])[0]);if(L)keepLast(k,L);else dropLast(k)}catch(e){}}const L=liveLine(g,last()[k]);if(L)g.liveLine=L}));
  games.sort((a,b)=>a.date-b.date);cache=games;cacheAt=Date.now();try{localStorage.setItem('rw.games',JSON.stringify({at:cacheAt,w:w.n,games}));localStorage.setItem('rw.live',JSON.stringify({n:games.filter(g=>g.state==='in').length,at:cacheAt}))}catch(e){}badge();return games}
 let cRaw=null,cVal=null;function cached(){try{const raw=localStorage.getItem('rw.games');if(raw!==cRaw){cRaw=raw;const j=JSON.parse(raw||'null');cVal=j&&j.w===week().n?j.games:null}return cVal}catch(e){}return null}
 
