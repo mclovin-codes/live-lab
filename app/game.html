@@ -223,7 +223,7 @@ function book(){const pc=S.sum&&(S.sum.pickcenter||[])[0];if(!pc||!pc.moneyline)
 function model(){const g=game(),b=book(),h=team('home'),a=team('away'),f=clamp(g.secs/SPORT.total,0,1),cur=h.score-a.score,sum=h.score+a.score,fl=g.secs>=90?.28*SPORT.sdM:.1*SPORT.sdM;const sm=Math.max(fl,SPORT.sdM*Math.sqrt(f)),st=Math.max(fl,SPORT.sdT*Math.sqrt(f));
   const pr=S.probs[S.probs.length-1];let hw=g.live&&pr?pr.homeWinPercentage:b&&b.hw!=null?b.hw:.5;let mu=b&&b.spH!=null&&b.cov!=null?-b.spH+sm*inv(clamp(b.cov,.02,.98)):sm*inv(clamp(hw,.01,.99));const bd=(18*f+1.5)*SPORT.sdM/13.4;mu=clamp(mu,cur-bd,cur+bd);
   let tm=b&&b.tot!=null?b.tot+st*inv(clamp(b.ov==null?.5:b.ov,.02,.98)):sum+(SPORT.unit==='goals'?6*f:SPORT.sdT*3*f);tm=Math.max(tm,sum+.1);const hm=Math.max(h.score,(tm+mu)/2),am=Math.max(a.score,(tm-mu)/2);
-  return{g,b,h,a,f,cur,sum,sm,st,mu,tm,hm,am,sdT:Math.max(fl*.7,SPORT.sdT*.7*Math.sqrt(f)),hw,main:b&&b.spH!=null?b.spH:-half(mu),mt:b&&b.tot!=null?b.tot:LG==='nhl'?Math.floor(tm)+.5:half(tm)}}
+  return{g,b,h,a,f,cur,sum,sm,st,mu,tm,hm,am,sdT:Math.max(fl*.7,SPORT.sdT*.7*Math.sqrt(f)),hw,main:b&&b.spH!=null?b.spH:LG==='nhl'?(mu>=0?-1.5:1.5):-half(mu),mt:b&&b.tot!=null?b.tot:LG==='nhl'?Math.floor(tm)+.5:half(tm)}}
 
 /* ---------- fair window: pregame open until the start; live only in stoppages ---------- */
 function stopInfo(){const L=S.plays,last=L[L.length-1];if(!last)return null;const t=((last.type&&last.type.text)||'')+' '+(last.text||''),w=Date.parse(last.wallclock||'');if(!w)return null;
