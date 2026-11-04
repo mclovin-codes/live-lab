@@ -1,0 +1,43 @@
+{
+  "source": "COHORT-WEEK8.md, read 2026-11-03 9:47 PM ET. Aggregate rates only; no player names.",
+  "cohort": {
+    "pickers_w8": 32,
+    "winners_w8": 12,
+    "entered_no_pick_w8": 1,
+    "recent_absent_w8": 2,
+    "long_absent_w8": 17,
+    "p_return_after_loss": 0.77,
+    "p_return_after_win": 0.92,
+    "p_pick_after_entered_no_pick": 0.40,
+    "p_reactivate": 0.18,
+    "p_finish_up": 0.27,
+    "signups_per_week": 4.5,
+    "p_first_pick_signup_week": 0.81,
+    "p_enter_signup_week": 0.92,
+    "p_active_brings_signup": 0.04,
+    "avg_active_w1_w8": 22,
+    "p_first_share": 0.054,
+    "p_return_reloaded_loser": 0.86,
+    "p_return_unreloaded_loser": 0.76,
+    "friends_share_w8": 0.545,
+    "rungs": [0, 40, 75, 125, 200]
+  },
+  "squad": {
+    "per_active": 0.05,
+    "per_streak": 0.1,
+    "max_streak": 5,
+    "keep_share": 0.6,
+    "min_keep": 2,
+    "top_bonus": 0.2,
+    "max_size": 8
+  },
+  "assumptions": {
+    "A1_found_uplift": { "value": 2.0, "off": 1.0, "what": "A Squad card on Home doubles the rate players start a group, against the first-share stamp rate (0.054 per entrant-week). Off: founding at the cohort's first-share rate." },
+    "A2_friends_pulled": { "value": 1.5, "off": 0.0, "what": "A founder pulls in a mean of 1.5 players already in the Field (54.5% of the Week 8 cohort came in as friends). Off: a Squad grows only through new signups." },
+    "A3_invite_lift": { "value": 1.5, "off": 1.0, "what": "Squad members with an open seat bring a signup at 1.5x the cohort rate (0.04 per active player-week). The multiplier era (W5 to W8) only moved it from 0.040 to 0.044, so this is the weakest assumption. Off: cohort rate." },
+    "A4_retention_proxy": { "value": 1, "off": 0, "what": "A Squad member returns like a loser who reloaded: 0.86 after a loss against 0.76 (Reload is the cohort's only measured reason to stay). Winners 0.92 to 0.95. Off: cohort return rates." },
+    "A5_nudge_reactivation": { "value": 0.30, "off": 0.18, "what": "An absent Squad member comes back at 0.30 a week when squadmates nudge (cohort reactivation 0.18, recent absentees higher; real-player nudges so far: 0). Off: 0.18." }
+  },
+  "runs": 1000,
+  "seed": "mulberry32(run), run = 1 to 1000; baseline and every variant use the same seed for the same run."
+}

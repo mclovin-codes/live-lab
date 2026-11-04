@@ -81,7 +81,7 @@ function setup(){
   <div style="font-size:15px">Every friend who picks lifts your Prize Multiplier. Every week you all show up, it climbs again. Up to <b>+1.1x</b>.</div>
   <input class="in" id="sqname" maxlength="24" placeholder="Squad name" autocomplete="off"><button class="cta b" data-act="create">Start a Squad</button></div>
   <div class="g-card"><div class="g-h">How a Squad pays</div>${RULES}</div>`}
-function render(){const s=SQ.status();let h=`<div class="g-top"><a href="index.html" aria-label="Back to Home">&#8249; Home</a><span data-rush-pill></span></div>`;
+function render(){const ae=document.activeElement;if(ae&&ae.id==='sqname')return;const s=SQ.status();let h=`<div class="g-top"><a href="index.html" aria-label="Back to Home">&#8249; Home</a><span data-rush-pill></span></div>`;
   if(!s){h+=setup();$('squad').innerHTML=h;after();return}
   const now=Date.now(),need=s.need,pct=Math.min(100,s.picked/s.of*100),mark=need/s.of*100,togo=Math.max(0,need-s.picked);
   h+=`<div class="hero"><div><div class="g-eyebrow">Your Squad · ${s.of} of ${SQ.RULES.max} seats</div><div class="nm">${esc(s.name)}</div></div>
@@ -93,7 +93,7 @@ function render(){const s=SQ.status();let h=`<div class="g-top"><a href="index.h
   ${s.of<SQ.RULES.max?`<button class="cta f" data-act="fill">Fill ${Math.min(3,SQ.RULES.max-s.of)} seats with SIM players</button><div class="g-note">SIM squadmates are for trying the Squad on one phone. Friends who join by your link count on their own phones.</div>`:''}</div>`;
   const rk=SQ.ranks();h+=`<div class="g-card"><div class="g-h">Squad Ranks<small>Week ${s.week.n} · average Units</small></div>${rk.map(r=>`<div class="rk${r.me?' me':''}"><span class="n">${r.rank}</span><span class="m">${esc(r.name)}${r.sim?'<span class="tag">SIM</span>':''} <span class="g-note">· ${r.size}</span></span><span class="u ${r.units>0?'up':r.units<0?'dn':''}">${r.units>0?'+':''}${r.units.toFixed(1)}</span></div>`).join('')}<div class="g-note">Top Squad when the week settles gets +0.2x next week.</div></div>`;
   if(s.hist.length)h+=`<div class="g-card"><div class="g-h">Past weeks</div>${s.hist.slice().reverse().map(w=>`<div class="rk"><span class="n">${w.n}</span><span class="m">${w.picked} of ${w.of} picked${w.rec?' · new member':''}</span><span class="st ${w.kept?'y':'n'}">${w.kept?'KEPT':'MISSED'}</span></div>`).join('')}</div>`;
-  h+=`<div class="g-card"><div class="g-h">How a Squad pays</div>${RULES}</div><button class="link" data-act="leave">Leave Squad</button>`;
+  h+=`<div class="g-card"><div class="g-h">How a Squad pays</div>${RULES}<a href="sim.html" style="font:600 14px var(--f);color:var(--acc);text-decoration:none">How Squads grow the Field: the simulation &#8250;</a></div><button class="link" data-act="leave">Leave Squad</button>`;
   $('squad').innerHTML=h;after()}
 function after(){const bd=$('rpill-band');if(bd)bd.remove();if(Rush.nav)try{Rush.nav.refresh()}catch(e){}}
 async function share(text,url){try{if(navigator.share){await navigator.share({text,url});return}}catch(e){return}try{await navigator.clipboard.writeText(text+' '+url);toast('Link copied')}catch(e){toast(url)}}

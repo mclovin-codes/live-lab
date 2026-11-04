@@ -276,7 +276,7 @@ const CHEV='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9
 /* Run your own: the door into contest creation, third on Home. Join with a code sits beside it. */
 /* Squad Streak (Phase 3): the Squad sits right under the prize, because its boost is part of what 1st pays you. */
 function squadCard(){const s=window.SQ?SQ.status():null,bx=v=>'+'+v.toFixed(2).replace(/0$/,'')+'x';
-  if(!s)return`<a class="g-sq new" href="squad.html"><span class="ic" aria-hidden="true"><i></i><i></i><i></i></span><span class="tx"><b>Squad up</b><small>+0.05x per friend who picks, +0.1x every week you all show up</small></span><span class="go">Start${CHEV}</span></a>`;
+  if(!s)return`<a class="g-sq new" href="squad.html"><span class="ic" aria-hidden="true"><i></i><i></i><i></i></span><span class="tx"><b>Squad up</b><small>Friends who pick lift your multiplier</small></span><span class="go">Start${CHEV}</span></a>`;
   const togo=Math.max(0,s.need-s.picked);
   return`<a class="g-sq" href="squad.html"><span class="top"><span class="tx"><span class="g-eyebrow">Squad · streak ${s.streak}</span><b>${esc(s.name)}</b></span><span class="bx"><b>${bx(s.boost.total)}</b><small>on your multiplier</small></span></span>
   <span class="pips">${Array.from({length:SQ.RULES.maxStreak},(_,i)=>`<i class="${i<s.streak?'on':''}"></i>`).join('')}</span>

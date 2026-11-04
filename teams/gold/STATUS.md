@@ -12,6 +12,43 @@
 
 Recruiting starts a Squad and showing up keeps its boost alive. The cheapest person to put in next week's Field is someone who was in this week's, so the biggest leak, churn after a losing week, becomes a reason for squadmates to nudge each other. The weekly deadline is the Monday night kickoff, which every member can meet on their own, not a timer only a stranger can reset. Squad Streak should match Crews on new players early and pull ahead on retention and Field size by Week 13. The simulation in teams/gold/sim/ tests that, and every assumption the Week 8 cohort file does not support is named and shown switched off.
 
+**Playable (Nov 3, about 10:20 PM ET):**
+- squad.html: start a Squad, join by invite link (?sq=CODE&n=NAME&h=HOST), the boost broken down, streak pips, and how many more picks keep the streak by Monday night kickoff.
+- Members show IN or a Nudge button, plus Squad Ranks against six SIM Squads from the Field. Fill 3 seats with SIM players to try it on one phone.
+- Home: a violet Squad card sits under the prize card (Squad up, or your Squad's boost, streak and picks this week). The Squad boost is added to the Prize Multiplier.
+- Store: squad-kit.js (window.SQ, localStorage gold-squad-v1).
+- Checked on the host at 375 px: created "Gold Rush", filled 3 SIM seats, 4 of 4 picked, +0.2x, #2 in Squad Ranks.
+- Honest limit: no backend, so friends who join by link count only on their own phone.
+
+**First simulation run** (teams/gold/sim/sim.js, params.json, 1,000 runs, seeds mulberry32(run) for run 1 to 1,000, the same seeds for every variant). Page: https://mclovin-codes.github.io/live-lab/teams/gold/app/sim.html. Week 13 means, with the Field as players in with a pick:
+
+| Variant | Field W13 | Retention W13 | Avg multiplier | Touched | P(40+ in) |
+|---|---|---|---|---|---|
+| No mechanism | 43.2 | 81.2% | 1.014x | 0% | 73% |
+| Squad Streak, all assumptions | 50.2 | 85.9% | 1.294x | 55% | 95% |
+| Squad Streak, cohort rates only | 43.1 | 81.1% | 1.026x | 3% | 73% |
+
+- Field per week, Squad Streak against no mechanism: 35.0 against 34.4, 38.1 against 36.2, 41.9 against 38.5, 45.9 against 40.7, 50.2 against 43.2.
+- Removing one assumption at a time, the Week 13 Field is:
+
+  | Assumption removed | Field W13 |
+  |---|---|
+  | A1 | 47.3 |
+  | A2 | 44.1 |
+  | A3 | 48.7 |
+  | A4 | 45.8 |
+  | A5 | 49.2 |
+
+- **What drives it:** A2 (a founder pulls in friends already in the Field) and A4 (retention). With every assumption off, Squads barely form, and the result matches no mechanism.
+- **Assumptions, named:**
+  - A1: Squad founding at 2x the first-share stamp rate.
+  - A2: a founder pulls in 1.5 existing Field players on average. 54.5% of the Week 8 cohort are friends.
+  - A3: Squad members with an open seat bring 1.5x the cohort's referral signups. This is the weakest assumption: the multiplier era moved the rate only from 0.040 to 0.044.
+  - A4: Squad members return like losers who reloaded, +10 points after a loss and +3 after a win.
+  - A5: absent Squad members reactivate at 0.30 against 0.18.
+- **Not modelled:** Reload, the Lounge and in-game picks.
+- **Data handling:** cohort rates are aggregates only, with no player names in the repo.
+
 ## Now: the weekly app (from 12:10 AM, Nov 3)
 **Gold owns:** app/index.html (Home), app/slips.html (Slips), app/lounge.html (Lounge), app/gold-store.js (a thin map onto Blue's shared/state.js), and the app card in hub/index.html.
 **URL:** https://mclovin-codes.github.io/live-lab/app/
