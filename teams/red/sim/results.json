@@ -1,7 +1,7 @@
 {
  "meta": {
   "title": "Team Red Contests sim",
-  "generated": "2026-11-04T03:03:04.544Z",
+  "generated": "2026-11-04T03:55:58.509Z",
   "runs": 1000,
   "weeks": [
    9,
@@ -10,7 +10,7 @@
    12,
    13
   ],
-  "runtimeMs": 2305,
+  "runtimeMs": 2142,
   "cohortSource": "COHORT-WEEK8.md",
   "cohortRead": "2026-11-03",
   "organicSignupsPerWeek": 3.62,
@@ -58,6 +58,7 @@
   "return_after_win": 0.92,
   "return_after_loss": 0.77,
   "return_after_no_pick": 0.4,
+  "return_recent": 0.93,
   "reactivation": 0.18,
   "pick_if_entered": 0.96969696969697,
   "win_share": 0.27,
@@ -1136,6 +1137,1024 @@
    "mean": 5.17,
    "p10": -2,
    "p90": 14
+  }
+ },
+ "recent": {
+  "returnRate": 0.93,
+  "why": "W7 to W8 carryover, 26 of 28 came back; every return after a pick uses it (no pick stays 0.40, reactivation 0.18), as in Blue baseline_recent.",
+  "arms": {
+   "baseline": {
+    "key": "baseline_recent",
+    "label": "Baseline, no Contests, recent return 0.93",
+    "config": {
+     "key": "baseline_recent",
+     "label": "Baseline, no Contests, recent return 0.93",
+     "contests": false,
+     "recent": true
+    },
+    "weeks": [
+     {
+      "week": 9,
+      "field": {
+       "mean": 38.1,
+       "p10": 34,
+       "p90": 42
+      },
+      "newPlayers": {
+       "mean": 4.5,
+       "p10": 2,
+       "p90": 7
+      },
+      "retention": {
+       "mean": 0.91,
+       "p10": 0.848,
+       "p90": 0.97
+      },
+      "rung": {
+       "mean": 0.32,
+       "p10": 0,
+       "p90": 1,
+       "median": 0,
+       "label": "To start",
+       "dist": [
+        0.679,
+        0.321,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.321,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.321,
+      "multiplier": {
+       "mean": 1.015,
+       "p10": 1.01,
+       "p90": 1.02
+      },
+      "touched": {
+       "mean": 0,
+       "p10": 0,
+       "p90": 0
+      },
+      "liveContests": {
+       "mean": 0,
+       "p10": 0,
+       "p90": 0
+      },
+      "confirmedReferrals": {
+       "mean": 1.19,
+       "p10": 0,
+       "p90": 3
+      }
+     },
+     {
+      "week": 10,
+      "field": {
+       "mean": 42.7,
+       "p10": 37,
+       "p90": 48
+      },
+      "newPlayers": {
+       "mean": 4.68,
+       "p10": 2,
+       "p90": 8
+      },
+      "retention": {
+       "mean": 0.911,
+       "p10": 0.85,
+       "p90": 0.972
+      },
+      "rung": {
+       "mean": 0.78,
+       "p10": 0,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.225,
+        0.775,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.775,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.775,
+      "multiplier": {
+       "mean": 1.015,
+       "p10": 1.009,
+       "p90": 1.021
+      },
+      "touched": {
+       "mean": 0,
+       "p10": 0,
+       "p90": 0
+      },
+      "liveContests": {
+       "mean": 0,
+       "p10": 0,
+       "p90": 0
+      },
+      "confirmedReferrals": {
+       "mean": 1.42,
+       "p10": 0,
+       "p90": 3
+      }
+     },
+     {
+      "week": 11,
+      "field": {
+       "mean": 47.1,
+       "p10": 41,
+       "p90": 53
+      },
+      "newPlayers": {
+       "mean": 4.84,
+       "p10": 2,
+       "p90": 8
+      },
+      "retention": {
+       "mean": 0.91,
+       "p10": 0.846,
+       "p90": 0.974
+      },
+      "rung": {
+       "mean": 0.94,
+       "p10": 1,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.055,
+        0.945,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.945,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.945,
+      "multiplier": {
+       "mean": 1.015,
+       "p10": 1.009,
+       "p90": 1.021
+      },
+      "touched": {
+       "mean": 0,
+       "p10": 0,
+       "p90": 0
+      },
+      "liveContests": {
+       "mean": 0,
+       "p10": 0,
+       "p90": 0
+      },
+      "confirmedReferrals": {
+       "mean": 1.52,
+       "p10": 0,
+       "p90": 3
+      }
+     },
+     {
+      "week": 12,
+      "field": {
+       "mean": 51.4,
+       "p10": 44,
+       "p90": 58
+      },
+      "newPlayers": {
+       "mean": 5.03,
+       "p10": 2,
+       "p90": 8
+      },
+      "retention": {
+       "mean": 0.908,
+       "p10": 0.854,
+       "p90": 0.959
+      },
+      "rung": {
+       "mean": 0.99,
+       "p10": 1,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.007,
+        0.993,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.993,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.993,
+      "multiplier": {
+       "mean": 1.016,
+       "p10": 1.009,
+       "p90": 1.022
+      },
+      "touched": {
+       "mean": 0,
+       "p10": 0,
+       "p90": 0
+      },
+      "liveContests": {
+       "mean": 0,
+       "p10": 0,
+       "p90": 0
+      },
+      "confirmedReferrals": {
+       "mean": 1.74,
+       "p10": 0,
+       "p90": 4
+      }
+     },
+     {
+      "week": 13,
+      "field": {
+       "mean": 55.8,
+       "p10": 48,
+       "p90": 64
+      },
+      "newPlayers": {
+       "mean": 5.2,
+       "p10": 3,
+       "p90": 8
+      },
+      "retention": {
+       "mean": 0.91,
+       "p10": 0.854,
+       "p90": 0.961
+      },
+      "rung": {
+       "mean": 1,
+       "p10": 1,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.001,
+        0.996,
+        0.003,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.999,
+        0.003,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.999,
+      "multiplier": {
+       "mean": 1.016,
+       "p10": 1.01,
+       "p90": 1.023
+      },
+      "touched": {
+       "mean": 0,
+       "p10": 0,
+       "p90": 0
+      },
+      "liveContests": {
+       "mean": 0,
+       "p10": 0,
+       "p90": 0
+      },
+      "confirmedReferrals": {
+       "mean": 1.88,
+       "p10": 0,
+       "p90": 4
+      }
+     }
+    ],
+    "headline": {
+     "field13": {
+      "mean": 55.8,
+      "p10": 48,
+      "p90": 64
+     },
+     "retention13": {
+      "mean": 0.91,
+      "p10": 0.854,
+      "p90": 0.961
+     },
+     "retention9to13": {
+      "mean": 0.763,
+      "p10": 0.667,
+      "p90": 0.85
+     },
+     "reach40": 0.999
+    }
+   },
+   "cohort": {
+    "key": "cohort_recent",
+    "label": "Contests, cohort numbers only, recent return 0.93",
+    "config": {
+     "key": "cohort_recent",
+     "label": "Contests, cohort numbers only, recent return 0.93",
+     "contests": true,
+     "A1": 0.054,
+     "A2": 1,
+     "A3": 1,
+     "A4": 0,
+     "A5": 0.9,
+     "recent": true
+    },
+    "weeks": [
+     {
+      "week": 9,
+      "field": {
+       "mean": 38.1,
+       "p10": 34,
+       "p90": 42
+      },
+      "newPlayers": {
+       "mean": 4.5,
+       "p10": 2,
+       "p90": 7
+      },
+      "retention": {
+       "mean": 0.91,
+       "p10": 0.848,
+       "p90": 0.97
+      },
+      "rung": {
+       "mean": 0.32,
+       "p10": 0,
+       "p90": 1,
+       "median": 0,
+       "label": "To start",
+       "dist": [
+        0.679,
+        0.321,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.321,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.321,
+      "multiplier": {
+       "mean": 1.037,
+       "p10": 1.015,
+       "p90": 1.062
+      },
+      "touched": {
+       "mean": 0.176,
+       "p10": 0,
+       "p90": 0.366
+      },
+      "liveContests": {
+       "mean": 1.57,
+       "p10": 0,
+       "p90": 3
+      },
+      "confirmedReferrals": {
+       "mean": 1.07,
+       "p10": 0,
+       "p90": 3
+      }
+     },
+     {
+      "week": 10,
+      "field": {
+       "mean": 42.7,
+       "p10": 37,
+       "p90": 48
+      },
+      "newPlayers": {
+       "mean": 4.68,
+       "p10": 2,
+       "p90": 8
+      },
+      "retention": {
+       "mean": 0.911,
+       "p10": 0.85,
+       "p90": 0.972
+      },
+      "rung": {
+       "mean": 0.78,
+       "p10": 0,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.225,
+        0.775,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.775,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.775,
+      "multiplier": {
+       "mean": 1.052,
+       "p10": 1.025,
+       "p90": 1.078
+      },
+      "touched": {
+       "mean": 0.305,
+       "p10": 0.108,
+       "p90": 0.511
+      },
+      "liveContests": {
+       "mean": 3.08,
+       "p10": 1,
+       "p90": 5
+      },
+      "confirmedReferrals": {
+       "mean": 1.27,
+       "p10": 0,
+       "p90": 3
+      }
+     },
+     {
+      "week": 11,
+      "field": {
+       "mean": 47.1,
+       "p10": 41,
+       "p90": 53
+      },
+      "newPlayers": {
+       "mean": 4.84,
+       "p10": 2,
+       "p90": 8
+      },
+      "retention": {
+       "mean": 0.91,
+       "p10": 0.846,
+       "p90": 0.974
+      },
+      "rung": {
+       "mean": 0.94,
+       "p10": 1,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.055,
+        0.945,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.945,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.945,
+      "multiplier": {
+       "mean": 1.063,
+       "p10": 1.037,
+       "p90": 1.09
+      },
+      "touched": {
+       "mean": 0.399,
+       "p10": 0.208,
+       "p90": 0.595
+      },
+      "liveContests": {
+       "mean": 4.53,
+       "p10": 2,
+       "p90": 7
+      },
+      "confirmedReferrals": {
+       "mean": 1.37,
+       "p10": 0,
+       "p90": 3
+      }
+     },
+     {
+      "week": 12,
+      "field": {
+       "mean": 51.4,
+       "p10": 44,
+       "p90": 58
+      },
+      "newPlayers": {
+       "mean": 5.03,
+       "p10": 2,
+       "p90": 8
+      },
+      "retention": {
+       "mean": 0.908,
+       "p10": 0.854,
+       "p90": 0.959
+      },
+      "rung": {
+       "mean": 0.99,
+       "p10": 1,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.007,
+        0.993,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.993,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.993,
+      "multiplier": {
+       "mean": 1.072,
+       "p10": 1.046,
+       "p90": 1.098
+      },
+      "touched": {
+       "mean": 0.473,
+       "p10": 0.286,
+       "p90": 0.659
+      },
+      "liveContests": {
+       "mean": 5.91,
+       "p10": 4,
+       "p90": 8
+      },
+      "confirmedReferrals": {
+       "mean": 1.58,
+       "p10": 0,
+       "p90": 3
+      }
+     },
+     {
+      "week": 13,
+      "field": {
+       "mean": 55.8,
+       "p10": 48,
+       "p90": 64
+      },
+      "newPlayers": {
+       "mean": 5.2,
+       "p10": 3,
+       "p90": 8
+      },
+      "retention": {
+       "mean": 0.91,
+       "p10": 0.854,
+       "p90": 0.961
+      },
+      "rung": {
+       "mean": 1,
+       "p10": 1,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.001,
+        0.996,
+        0.003,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.999,
+        0.003,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.999,
+      "multiplier": {
+       "mean": 1.079,
+       "p10": 1.053,
+       "p90": 1.105
+      },
+      "touched": {
+       "mean": 0.529,
+       "p10": 0.346,
+       "p90": 0.696
+      },
+      "liveContests": {
+       "mean": 7.2,
+       "p10": 5,
+       "p90": 10
+      },
+      "confirmedReferrals": {
+       "mean": 1.67,
+       "p10": 0,
+       "p90": 3
+      }
+     }
+    ],
+    "headline": {
+     "field13": {
+      "mean": 55.8,
+      "p10": 48,
+      "p90": 64
+     },
+     "retention13": {
+      "mean": 0.91,
+      "p10": 0.854,
+      "p90": 0.961
+     },
+     "retention9to13": {
+      "mean": 0.763,
+      "p10": 0.667,
+      "p90": 0.85
+     },
+     "reach40": 0.999
+    }
+   },
+   "assumed": {
+    "key": "assumed_recent",
+    "label": "Contests with named assumptions, recent return 0.93",
+    "config": {
+     "key": "assumed_recent",
+     "label": "Contests with named assumptions, recent return 0.93",
+     "contests": true,
+     "A1": 0.054,
+     "A2": 1.5,
+     "A3": 1.3,
+     "A4": 0.08,
+     "A5": 0.9,
+     "recent": true
+    },
+    "weeks": [
+     {
+      "week": 9,
+      "field": {
+       "mean": 38.3,
+       "p10": 34,
+       "p90": 42
+      },
+      "newPlayers": {
+       "mean": 4.72,
+       "p10": 2,
+       "p90": 8
+      },
+      "retention": {
+       "mean": 0.91,
+       "p10": 0.848,
+       "p90": 0.97
+      },
+      "rung": {
+       "mean": 0.34,
+       "p10": 0,
+       "p90": 1,
+       "median": 0,
+       "label": "To start",
+       "dist": [
+        0.656,
+        0.344,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.344,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.344,
+      "multiplier": {
+       "mean": 1.038,
+       "p10": 1.015,
+       "p90": 1.064
+      },
+      "touched": {
+       "mean": 0.179,
+       "p10": 0,
+       "p90": 0.368
+      },
+      "liveContests": {
+       "mean": 1.57,
+       "p10": 0,
+       "p90": 3
+      },
+      "confirmedReferrals": {
+       "mean": 1.27,
+       "p10": 0,
+       "p90": 3
+      }
+     },
+     {
+      "week": 10,
+      "field": {
+       "mean": 43.8,
+       "p10": 38,
+       "p90": 49
+      },
+      "newPlayers": {
+       "mean": 5.22,
+       "p10": 2,
+       "p90": 8
+      },
+      "retention": {
+       "mean": 0.919,
+       "p10": 0.857,
+       "p90": 0.974
+      },
+      "rung": {
+       "mean": 0.84,
+       "p10": 0,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.16,
+        0.84,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.84,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.84,
+      "multiplier": {
+       "mean": 1.056,
+       "p10": 1.028,
+       "p90": 1.085
+      },
+      "touched": {
+       "mean": 0.317,
+       "p10": 0.116,
+       "p90": 0.522
+      },
+      "liveContests": {
+       "mean": 3.09,
+       "p10": 1,
+       "p90": 5
+      },
+      "confirmedReferrals": {
+       "mean": 1.71,
+       "p10": 0,
+       "p90": 3
+      }
+     },
+     {
+      "week": 11,
+      "field": {
+       "mean": 49.3,
+       "p10": 43,
+       "p90": 56
+      },
+      "newPlayers": {
+       "mean": 5.55,
+       "p10": 3,
+       "p90": 9
+      },
+      "retention": {
+       "mean": 0.923,
+       "p10": 0.864,
+       "p90": 0.977
+      },
+      "rung": {
+       "mean": 0.97,
+       "p10": 1,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.026,
+        0.974,
+        0,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.974,
+        0,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.974,
+      "multiplier": {
+       "mean": 1.071,
+       "p10": 1.041,
+       "p90": 1.102
+      },
+      "touched": {
+       "mean": 0.424,
+       "p10": 0.229,
+       "p90": 0.617
+      },
+      "liveContests": {
+       "mean": 4.6,
+       "p10": 2,
+       "p90": 7
+      },
+      "confirmedReferrals": {
+       "mean": 2.03,
+       "p10": 0,
+       "p90": 4
+      }
+     },
+     {
+      "week": 12,
+      "field": {
+       "mean": 55.2,
+       "p10": 48,
+       "p90": 63
+      },
+      "newPlayers": {
+       "mean": 6.03,
+       "p10": 3,
+       "p90": 9
+      },
+      "retention": {
+       "mean": 0.928,
+       "p10": 0.878,
+       "p90": 0.976
+      },
+      "rung": {
+       "mean": 1,
+       "p10": 1,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0.001,
+        0.998,
+        0.001,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        0.999,
+        0.001,
+        0,
+        0
+       ]
+      },
+      "reach40": 0.999,
+      "multiplier": {
+       "mean": 1.084,
+       "p10": 1.053,
+       "p90": 1.114
+      },
+      "touched": {
+       "mean": 0.505,
+       "p10": 0.316,
+       "p90": 0.686
+      },
+      "liveContests": {
+       "mean": 6.06,
+       "p10": 4,
+       "p90": 8
+      },
+      "confirmedReferrals": {
+       "mean": 2.44,
+       "p10": 1,
+       "p90": 5
+      }
+     },
+     {
+      "week": 13,
+      "field": {
+       "mean": 61.7,
+       "p10": 53,
+       "p90": 70
+      },
+      "newPlayers": {
+       "mean": 6.55,
+       "p10": 3,
+       "p90": 10
+      },
+      "retention": {
+       "mean": 0.931,
+       "p10": 0.887,
+       "p90": 0.977
+      },
+      "rung": {
+       "mean": 1.03,
+       "p10": 1,
+       "p90": 1,
+       "median": 1,
+       "label": "40 in",
+       "dist": [
+        0,
+        0.968,
+        0.032,
+        0,
+        0
+       ],
+       "reach": [
+        1,
+        1,
+        0.032,
+        0,
+        0
+       ]
+      },
+      "reach40": 1,
+      "multiplier": {
+       "mean": 1.096,
+       "p10": 1.067,
+       "p90": 1.126
+      },
+      "touched": {
+       "mean": 0.568,
+       "p10": 0.404,
+       "p90": 0.732
+      },
+      "liveContests": {
+       "mean": 7.42,
+       "p10": 5,
+       "p90": 10
+      },
+      "confirmedReferrals": {
+       "mean": 2.97,
+       "p10": 1,
+       "p90": 5
+      }
+     }
+    ],
+    "headline": {
+     "field13": {
+      "mean": 61.7,
+      "p10": 53,
+      "p90": 70
+     },
+     "retention13": {
+      "mean": 0.931,
+      "p10": 0.887,
+      "p90": 0.977
+     },
+     "retention9to13": {
+      "mean": 0.81,
+      "p10": 0.725,
+      "p90": 0.896
+     },
+     "reach40": 1
+    }
+   }
+  },
+  "deltaField13": {
+   "cohort": {
+    "mean": 0,
+    "p10": 0,
+    "p90": 0
+   },
+   "assumed": {
+    "mean": 5.86,
+    "p10": -1,
+    "p90": 14
+   }
   }
  },
  "ablations": [

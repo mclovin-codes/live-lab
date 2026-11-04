@@ -1,5 +1,8 @@
 # Changelog: Team Red, Rush Live
 
+## p3.3 (2026-11-04)
+- Home Contests hero card; prize copy without currency or pay; create door opens the quick start; sim recent-rate scenario (W13 55.8 vs 61.7); FEATURES.md.
+
 ## p3.2 (2026-11-03)
 - Two-sided referral linking in Contests (who invited you on join, commissioner confirms on the entry card, Friends section any time after signup, one tap each side, no codes). First sim run: sim/sim.mjs and sim.html, baseline aligned with Blue (42.0 at Week 13), Contests with named assumptions 47.1.
 - p3.1a/b: contest CSV guards formula cells; entry links wait for the commissioner.
