@@ -12,7 +12,7 @@
 .gtop{display:flex;justify-content:space-between;align-items:center;padding:8px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));font-size:13px;color:var(--dim)}
 .gtop a{color:var(--blue);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
 .gtop .lv{font:700 12px var(--body);letter-spacing:.09em;color:var(--loss)}
-.car{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.car{display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;transition:height .2s}
 .car::-webkit-scrollbar{display:none}
 .pane{flex:0 0 100%;scroll-snap-align:start;padding:6px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));min-width:0}
 .dots{display:flex;justify-content:center;gap:6px;padding-bottom:8px}
@@ -48,7 +48,14 @@
 .hst{display:grid;grid-template-columns:1fr auto 1fr;gap:4px 10px;margin-top:8px;font:600 14px var(--num);font-variant-numeric:tabular-nums;color:var(--ink)}.hst span:nth-child(3n+1){text-align:left}.hst span:nth-child(3n){text-align:right}.hst small{font:500 12px var(--body);color:var(--dim);text-align:center;text-transform:uppercase;letter-spacing:.05em}
 .oi{margin-top:8px;font:400 12px/17px var(--body);color:var(--dim)}.oi b{color:var(--ink);font-weight:700;margin-right:4px}
 .hkx{display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:8px;padding:10px 12px;border:0;border-radius:12px;background:var(--panel2);color:var(--ink);font:600 14px var(--body);cursor:pointer;text-align:left}.hkx span{color:var(--dim);font-size:18px;line-height:1}
-.wpn{margin:4px 0 0;font:500 12px var(--body);color:var(--dim)}
+.gc{display:grid;gap:8px;padding:12px;border-radius:16px;background:var(--panel2)}
+.gcb{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}.gcb .t{display:flex;align-items:center;gap:6px;font:700 15px var(--body);color:var(--ink);min-width:0}.gcb .t.r{justify-content:flex-end}.gcb img{width:26px;height:26px;flex:none}.gcb b{font:800 24px/1 var(--num);font-variant-numeric:tabular-nums;margin:0 4px}.gcb .c{font:600 12px var(--body);color:var(--dim);text-align:center;white-space:nowrap}
+.gch{display:flex;justify-content:space-between;gap:8px;font:600 12px var(--body);color:var(--dim)}.gch b{color:var(--ink)}
+.gcw{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:stretch}.gcw svg{display:block;width:100%;height:auto;min-width:0}
+.gcw .qd{stroke:rgba(255,255,255,.14);stroke-width:1}.gcw .md{stroke:rgba(255,255,255,.22);stroke-width:1;stroke-dasharray:3 3}.gcw .ln{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round}.gcw .dt{fill:var(--ink);stroke:var(--panel2);stroke-width:2}
+.gcp{display:flex;flex-direction:column;justify-content:space-between;font:800 15px var(--num);font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}.gcp i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}.gcp small{display:block;font:600 10px var(--body);color:var(--dim);letter-spacing:.06em;text-transform:uppercase;text-align:right}
+.gcl{display:flex;gap:8px;align-items:center;font:400 13px var(--body);color:var(--ink);min-width:0}.gcl span{flex:none;color:var(--dim);font-weight:600}.gcl em{font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.gce{font:500 13px var(--body);color:var(--dim);text-align:center;padding:6px 0}
 .court.nfl .ball{background:#8B4A26;border:1px solid #fff;height:9px;width:14px;margin:-4px 0 0 -7px}
 .wpx{position:relative}
 .wpx svg{display:block;width:100%;height:auto}
@@ -316,15 +323,39 @@ function hockeyPanel(M){const P=(S.sum&&S.sum.plays)||[],per=M.g.period||1,hc='#
   return rink+card+pp+more}
 let hkOpen=false;try{hkOpen=localStorage.getItem('rush-hk-more')==='1'}catch(e){}
 function vHdr(M){if(!S.sum)return`<div class="gtop"><a href="board.html">&lsaquo; Board</a><span>${esc(LG.toUpperCase())}</span><span></span></div><div class="pane"><div class="empty">${S.err?'Could not reach the game feed ('+esc(S.err)+'). Retrying.':'Loading the game.'}</div></div>`;const g=M.g,h=M.h,a=M.a,lead=h.score===a.score?'':h.score>a.score?'h':'a';const gt=gate(M);
-  mktTrack(M);const wp=wpChart(M);const court=`<div class="court ${SPORT.court}"><i class="mid"></i><span class="rd"></span>${g.live?`<span class="ball" style="left:${possLeft()}%"></span>`:''}</div>`;const pt=possTeam();
+  mktTrack(M);const court=`<div class="court ${SPORT.court}"><i class="mid"></i><span class="rd"></span>${g.live?`<span class="ball" style="left:${possLeft()}%"></span>`:''}</div>`;const pt=possTeam();
   return`<div class="gtop"><a href="board.html">&lsaquo; Board</a><span>${esc(LG.toUpperCase())} · ${esc(gameName())}</span><span class="lv">${g.done?'FINAL':g.live?'LIVE':''}</span></div>
-  <div class="car" id="car"><div class="pane"><div class="sb"><div class="sbt"><img src="${a.logo}" alt=""><span>${esc(a.abbr)}</span><small>${esc(a.rec||'')}</small></div><div class="sbs"><b class="${lead==='a'?'lead':''}">${g.state==='pre'?'':a.score}</b><div class="sbm">${g.state==='pre'?esc(new Date(g.start).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'})):esc(g.detail)}<small>${g.state==='pre'?'Starts in '+Rush.clock(g.start-Date.now()):''}</small></div><b class="${lead==='h'?'lead':''}">${g.state==='pre'?'':h.score}</b></div><div class="sbt"><img src="${h.logo}" alt=""><span>${esc(h.abbr)}</span><small>${esc(h.rec||'')}</small></div></div>${g.live&&pt&&LG!=='nhl'?`<div class="poss"><img src="${pt.logo}" alt="">POSSESSION</div>`:''}${LG==='nhl'&&g.state!=='pre'?hockeyPanel(M):g.live?court:''}</div><div class="pane">${wp||`<div class="empty">${g.live&&S.closeHw!=null?'Win probability from the market appears when the book posts a price. Closing line: '+esc(M.h.abbr)+' '+Math.round(S.closeHw*100)+'%, '+esc(M.a.abbr)+' '+Math.round((1-S.closeHw)*100)+'%.':'Win probability appears once the game starts.'}</div>`}</div></div><div class="dots"><i class="on"></i><i></i></div>`}
+  <div class="car" id="car"><div class="pane"><div class="sb"><div class="sbt"><img src="${a.logo}" alt=""><span>${esc(a.abbr)}</span><small>${esc(a.rec||'')}</small></div><div class="sbs"><b class="${lead==='a'?'lead':''}">${g.state==='pre'?'':a.score}</b><div class="sbm">${g.state==='pre'?esc(new Date(g.start).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'})):esc(g.detail)}<small>${g.state==='pre'?'Starts in '+Rush.clock(g.start-Date.now()):''}</small></div><b class="${lead==='h'?'lead':''}">${g.state==='pre'?'':h.score}</b></div><div class="sbt"><img src="${h.logo}" alt=""><span>${esc(h.abbr)}</span><small>${esc(h.rec||'')}</small></div></div>${g.live&&pt&&LG!=='nhl'?`<div class="poss"><img src="${pt.logo}" alt="">POSSESSION</div>`:''}${LG==='nhl'&&g.state!=='pre'?hockeyPanel(M):g.live?court:''}</div><div class="pane">${wpCard(M)}</div></div><div class="dots"><i class="on"></i><i></i></div>`}
 function possTeam(){const L=S.plays,l=L[L.length-1];if(!l)return null;const id=(l.possessionTeam&&(l.possessionTeam.id||((l.possessionTeam.$ref||'').match(/teams\/(\d+)/)||[])[1]))||(l.team&&l.team.id);if(!id)return null;const h=team('home');return id==h.id?h:team('away')}
 function possLeft(){const p=possTeam();if(!p)return 50;return p.id==team('home').id?72:28}
-function wpChart(M){const E=S.sum&&S.sum.winprobability||[],mk=E.length<2,W=mk?mktWP():E;if(W.length<2)return'';const n=W.length,X=i=>(i/(n-1)*300).toFixed(1),Y=v=>((1-v)*110+5).toFixed(1),hc='#'+(M.h.color||'00BFFF'),ac='#'+(M.a.color||'D95151');const step=f=>W.map((p,i)=>(i?'H'+X(i)+'V':'M0,')+Y(f(p))).join('');const l=W[n-1].homeWinPercentage;return`<div class="wpx"><svg viewBox="0 0 340 120" role="img" aria-label="Win probability"><line class="gl" x1="0" x2="300" y1="${Y(.5)}" y2="${Y(.5)}"/><path class="l1" d="${step(p=>p.homeWinPercentage)}" stroke="${hc}"/><path class="l1" d="${step(p=>1-p.homeWinPercentage)}" stroke="${ac}"/></svg><div class="pins"><span style="color:${l>=.5?hc:ac}">${esc(l>=.5?M.h.abbr:M.a.abbr)} ${Math.round(Math.max(l,1-l)*100)}%</span><span style="color:${l>=.5?ac:hc}">${esc(l>=.5?M.a.abbr:M.h.abbr)} ${Math.round(Math.min(l,1-l)*100)}%</span></div></div>${mk?'<p class="wpn">From the market: the book\'s live moneyline with its margin removed, since the closing line.</p>':''}`}
-/* market win probability: closing line, then each live moneyline the book posts (no margin); kept for this page view */
-function mktWP(){if(S.closeHw==null||!(S.mwp||[]).length&&!(S.sum&&S.sum.header&&game().live))return[];const L=[{homeWinPercentage:S.closeHw}].concat((S.mwp||[]).map(x=>({homeWinPercentage:x.hw})));return L.length<2?L.concat(L):L}
-function mktTrack(M){if(!M.g.live||!M.b||M.b.off||M.b.hw==null)return;const L=S.mwp=S.mwp||[],p=L[L.length-1];if(!p||Math.abs(p.hw-M.b.hw)>.001){L.push({t:Date.now(),hw:M.b.hw});if(L.length>400)L.splice(1,1)}
+/* ---------- game card (pane 2): scorebug, win probability as a filled area with period dividers and the last play's swing,
+   both percentages pinned right, the last play in one line. ESPN's series where it has one (NFL, NBA); in hockey ESPN has none,
+   so the series is the market's: the closing line, then each live moneyline the book posts, margin removed. ---------- */
+function wpSeries(M){const E=(S.sum&&S.sum.winprobability)||[];if(E.length>1){const pm=new Map(),add=p=>{if(p&&p.id!=null)pm.set(String(p.id),p)};(S.sum.plays||[]).forEach(add);((S.sum.drives&&S.sum.drives.previous)||[]).forEach(d=>(d.plays||[]).forEach(add));S.plays.forEach(add);
+    let lo=0;const n=E.length,pts=E.map((w,i)=>{const p=pm.get(String(w.playId));let x=null;if(p&&p.period&&p.clock){const m=/(\d+):(\d+)/.exec(p.clock.displayValue||''),c=m?+m[1]*60+ +m[2]:0;x=((p.period.number-1)*SPORT.len+(SPORT.len-c))/SPORT.total}if(x==null||!isFinite(x))x=i/(n-1);x=lo=Math.max(lo,clamp(x,0,1));return{x,y:clamp(+w.homeWinPercentage||0,0,1)}});return{pts,mk:false}}
+  if(S.closeHw==null||M.g.state==='pre')return null;const L=[{x:0,y:S.closeHw}].concat((S.mwp||[]).map(m=>({x:m.x,y:m.hw})));const now=clamp(1-M.g.secs/SPORT.total,0,1);if(M.g.live&&now>L[L.length-1].x)L.push({x:now,y:L[L.length-1].y,hold:true});return{pts:L,mk:true,step:true}}
+/* team colours readable on the dark card: a near-black primary falls back to the alternate colour */
+function tcol(side){const c=comp(),t=c&&c.competitors.find(x=>x.homeAway===side),ok=v=>/^[0-9a-f]{6}$/i.test(v||''),lum=v=>{const n=parseInt(v,16);return(.299*(n>>16&255)+.587*(n>>8&255)+.114*(n&255))/255};const p=t&&t.team.color,al=t&&t.team.alternateColor;
+  if(ok(p)&&lum(p)>=.22)return'#'+p;if(ok(al)&&lum(al)>=.22)return'#'+al;return side==='home'?'#00BFFF':'#D95151'}
+function wpCard(M){const g=M.g,h=M.h,a=M.a,pre=g.state==='pre';
+  const bug=`<div class="gcb"><span class="t"><img src="${a.logo}" alt="">${a.abbr}<b>${pre?'':a.score}</b></span><span class="c">${pre?esc(new Date(g.start).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'})):esc(g.detail)}</span><span class="t r"><b>${pre?'':h.score}</b>${h.abbr}<img src="${h.logo}" alt=""></span></div>`;
+  const se=wpSeries(M);if(!se||!se.pts.length)return`<div class="gc">${bug}<div class="gce">Win probability starts with the game.</div></div>`;
+  let P=se.pts;if(P.length<2)P=[P[0],Object.assign({},P[0],{x:Math.min(1,P[0].x+.001)})];
+  /* a final ends on the result, whatever the last feed value says */
+  if(g.done&&h.score!==a.score)P=P.concat([{x:1,y:h.score>a.score?1:0,hold:true}]);
+  let hc=tcol('home'),ac=tcol('away');if(hc.toLowerCase()===ac.toLowerCase())ac='#D95151';
+  const W=300,H=86,X=x=>(clamp(x,0,1)*W).toFixed(1),Y=v=>((1-v)*(H-4)+2).toFixed(1),mid=Y(.5);
+  const path=se.step?P.map((p,i)=>(i?'H'+X(p.x)+'V':'M'+X(p.x)+',')+Y(p.y)).join(''):'M'+P.map(p=>X(p.x)+','+Y(p.y)).join('L');
+  const f0=P[0],fl=P[P.length-1],area=path+'L'+X(fl.x)+','+mid+'L'+X(f0.x)+','+mid+'Z';
+  const div=[];for(let k=1;k<SPORT.per;k++)div.push(`<line class="qd" x1="${X(k/SPORT.per)}" x2="${X(k/SPORT.per)}" y1="0" y2="${H}"/>`);
+  /* swing of the last play (or the book's last move): last two distinct values */
+  const real=P.filter(p=>!p.hold);let sw=0;for(let i=real.length-1;i>0;i--){const d=real[i].y-real[i-1].y;if(Math.abs(d)>1e-4){sw=d;break}}
+  const l=fl.y,lead=l>=.5?h:a,swT=Math.abs(sw)*100>=.05?(se.mk?(real.length<=2?'Since the closing line: ':'Last move: '):'Last play: ')+(sw>0?h.abbr:a.abbr)+' +'+(Math.abs(sw)*100).toFixed(1)+'%':(se.mk?'No move yet':'Last play: no swing');
+  const lp=(()=>{const L=(S.sum&&S.sum.plays&&S.sum.plays.length?S.sum.plays:S.plays)||[],p=L[L.length-1];if(!p)return'';const cl=((p.period&&(p.period.displayValue||(SPORT.pn+p.period.number)))||'')+' '+((p.clock&&p.clock.displayValue)||'');return`<div class="gcl"><span>${esc(cl.trim())}</span><em>${esc(p.text||(p.type&&p.type.text)||'')}</em></div>`})();
+  return`<div class="gc">${bug}<div class="gch"><span><b>${lead.abbr} ${Math.round(Math.max(l,1-l)*100)}%</b> to win</span><span>${esc(swT)}</span></div><div class="gcw"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${h.abbr} win probability ${Math.round(l*100)} percent"><defs><clipPath id="gcU"><rect x="0" y="0" width="${W}" height="${mid}"/></clipPath><clipPath id="gcD"><rect x="0" y="${mid}" width="${W}" height="${H}"/></clipPath></defs>${div.join('')}<path d="${area}" fill="${hc}" opacity=".45" clip-path="url(#gcU)"/><path d="${area}" fill="${ac}" opacity=".45" clip-path="url(#gcD)"/><line class="md" x1="0" x2="${W}" y1="${mid}" y2="${mid}"/><path class="ln" d="${path}"/><circle class="dt" cx="${X(fl.x)}" cy="${Y(fl.y)}" r="3.5"/></svg><div class="gcp"><span><i style="background:${hc}"></i>${h.abbr} ${Math.round(l*100)}%</span>${se.mk?'<small>Market</small>':''}<span><i style="background:${ac}"></i>${a.abbr} ${Math.round((1-l)*100)}%</span></div></div>${lp}</div>`}
+/* the series is kept per game in this browser, so a reload keeps the chart */
+const MWK='rush-mwp-'+LG+ID;
+function mktTrack(M){if(!M.g.live||!M.b||M.b.off||M.b.hw==null)return;if(!S.mwp){try{S.mwp=JSON.parse(localStorage.getItem(MWK)||'[]').filter(x=>x&&isFinite(x.hw)&&isFinite(x.x))}catch(e){S.mwp=[]}}const L=S.mwp,p=L[L.length-1];if(!p||Math.abs(p.hw-M.b.hw)>.001){L.push({t:Date.now(),hw:M.b.hw,x:clamp(1-M.g.secs/SPORT.total,0,1)});if(L.length>400)L.splice(1,1);try{localStorage.setItem(MWK,JSON.stringify(L.slice(-400)))}catch(e){}}
   /* the Board's Live card reads the last posted line from here (Red's week-games.js, rw.lastLive) */
   if(!p||p.hw!==M.b.hw){try{const k='rw.lastLive',o=JSON.parse(localStorage.getItem(k)||'{}');o[LG+ID]={h:M.b.mlH,a:M.b.mlA,ou:M.b.tot,at:Date.now()};localStorage.setItem(k,JSON.stringify(o))}catch(e){}}}
 function vPills(){return[['odds','Odds'],['box','Box Score'],['stats','Stats'],['plays','Plays']].map(x=>`<button class="${pillTab===x[0]?'on':''}" data-a="pill" data-v="${x[0]}">${x[1]}</button>`).join('')}
@@ -406,7 +437,9 @@ function vSheet(M){if(sheet==='enter'){const wk=Rush.week();return`<div class="g
   return''}
 
 /* ---------- render ---------- */
-let sheet=null;const html={};function put(id,h){if(html[id]!==h){html[id]=h;$(id).innerHTML=h}}
+let sheet=null;const html={};function put(id,h){if(html[id]!==h){html[id]=h;const c=id==='ghdr'&&$('car'),sl=c?c.scrollLeft:0;$(id).innerHTML=h;if(c){const n=$('car');if(n){n.scrollLeft=sl;fitCar()}}}}
+/* the carousel is as tall as the pane in view, so a short pane leaves no empty space */
+function fitCar(){const c=$('car');if(!c)return;const i=Math.round(c.scrollLeft/Math.max(1,c.clientWidth)),p=c.children[i]||c.children[0];if(p)c.style.height=p.offsetHeight+'px';document.querySelectorAll('.dots i').forEach((d,n)=>d.classList.toggle('on',n===i))}
 function render(){if(!SPORT){$('gview').innerHTML='<div class="empty">Unknown league.</div>';return}const M=model();put('ghdr',vHdr(M));put('pills',vPills());put('subs',vSubs());$('subs').hidden=pillTab!=='odds';put('gview',pillTab==='odds'?vOdds(M):pillTab==='box'?vBox(M):pillTab==='stats'?vStats(M):vPlays(M));if(sheet==='slip'||sheet==='parlay')paintSlip(M);$('slipbar').hidden=!pl.length;if(pl.length)put('slipbar',`<button data-a="plopen"><span>Parlay · ${pl.length} leg${pl.length>1?'s':''}</span><span>${(()=>{const qs=pl.map(sp=>quote(sp,M));return pl.length>1&&qs.every(q=>q.ok)?fo(plOdds(qs.map(q=>q.odds))):'add more'})()}</span></button>`);document.title=(M.a.abbr||'')+' at '+(M.h.abbr||'')+' · Rush'}
 addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.pin;if(!id||!slip||!slip.sel||!slip.sel[id])return;slip.sel[id].on=e.target.checked;paintSlip(model())});
 function setStk(){const i=$('stk');if(i)i.value=slip.stake||'';paintSlip(model())}
@@ -433,7 +466,7 @@ function act(d){const M=model();switch(d.a){
   case'close':closeSheet();break}}
 document.addEventListener('scroll',()=>{},{passive:true});
 $('ghdr').addEventListener('scroll',e=>{if(e.target.id!=='car')return},true);
-document.addEventListener('scroll',e=>{const c=$('car');if(e.target!==c)return;const i=Math.round(c.scrollLeft/c.clientWidth);document.querySelectorAll('.dots i').forEach((d,n)=>d.classList.toggle('on',n===i))},true);
+document.addEventListener('scroll',e=>{const c=$('car');if(e.target!==c)return;clearTimeout(fitCar.t);fitCar.t=setTimeout(fitCar,60);const i=Math.round(c.scrollLeft/c.clientWidth);document.querySelectorAll('.dots i').forEach((d,n)=>d.classList.toggle('on',n===i))},true);window.addEventListener('resize',()=>fitCar());
 
 /* ---------- feeds ---------- */
 /* push book: ESPN fastcast topic gp-<sport>-<league>-<id> sends JSON patches of the game doc; the /pickcenter ones are applied to
