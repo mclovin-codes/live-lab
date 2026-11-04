@@ -7,6 +7,30 @@ probe on real snaps (1-Stack chains pick every 3s while the page was in front, Q
 Q4 live check at 15:00, CHI 20 SEA 9: main lines exact DraftKings (SEA +348, CHI -523, SEA +6.5 -126, total 44.5). Alts and team totals consistent with the DK-implied mean margin of 6 and remaining sd 6.7. Winning margin bands sum to 1.000. Q4 total -115 both ways. Timed window open 22s after a timeout, locks at 0. Overtime: game logic, quarter-race OT label, 2nd-half lines through OT and settling are in place; untested live unless the game goes to OT.
 model limit seen in Q4: a normal margin centred on the DK-implied mean understates the tails of a two-score lead (for example CHI 13+ at +430), because real outcomes cluster at 3 and 7 point steps.
 
+## Phase 3: Crews (teams/blue/app, ef9cde3 and 5560ae9)
+Site: https://mclovin-codes.github.io/live-lab/teams/blue/app/ (Crew tab). Results: https://mclovin-codes.github.io/live-lab/teams/blue/app/sim.html
+- The mechanism (shared/crew.js, Rush.crew.RULES; the sim uses the same numbers):
+  - Every crewmate adds +0.1x to every member's Prize Multiplier, up to +1.0x at 11 crewmates; a crew holds 12.
+  - Alive: 3 or more members and the timer running. Someone new to Rush resets the timer to 7 days; a player already in the Field moving in adds 48 h. At zero the crew goes cold: members stay and the boost is off until someone new joins.
+  - The boost that counts is the one held when the week settles. One crew a week.
+- The first design was 72 h and 24 h. The sim showed it fails with this cohort: at 0.04 referral signups per entrant-week, a crew of five brings about 0.2 new people a week, so only 8 to 11% of the Field sat in a live crew at settle. At 7 days that is 18 to 24%.
+- The app:
+  - Crew page: countdown ring (alive, under 48 h, hurry under 12 h, cold), boost meter with the next member's step, invite (share sheet, copy link, the invite text in Rush words), members with NEW TO RUSH and SIM tags, what happened, the curve, the rules, leave with confirm.
+  - A Crew tab whose badge shows hours left under 48 h, or "!" when cold.
+  - Home: a crew card with the live countdown; the crew boost is added to Your multiplier (capped at 3x).
+  - An invite link (crew.html?crew=CODE&cn=NAME&ref=WHO) lets a friend join on their own phone, counted as new to Rush if not yet in this week's Field.
+  - Prototype: the crew lives in the browser, and SIM crewmates join 60 to 200 h apart so the timer can be watched.
+- Sim (teams/blue/sim/crews-sim.mjs, 1,000 runs, seed 1000 + r with mulberry32, the same seed in each arm). Week 13 Field, mean (p10 to p90):
+  - Baseline: 42.0 (35 to 49); reaches 40 in 67% of seasons.
+  - Crews, cohort-supported only (adoption 0.55, recruiting lift 1.1, no return bonus): 42.5; average multiplier 1.09x against 1.01x; 61% of the Field in a crew.
+  - Crews, recruiting x2: 45.1. With x2 and +5 points return: 46.2; reaches 40 in 86% of seasons.
+  - Crews, recruiting x3 and +5 points return: 50.4.
+- Reading: Crews barely grows the Field unless it changes how often people bring someone in. The countdown has to do that work; the cohort shows the referral multiplier alone moved recruiting about 10% (0.044 against 0.040).
+- Assumptions not in the cohort file, each shown with and without on the page:
+  - adoption 0.55 (anchored on 18 of 33 Week 8 entrants who came by a friend);
+  - recruiting lift 2 or 3;
+  - +5 points return for members of a live crew.
+
 ## NHL live, Nov 3 (app/game.html, 54ba7c9 and 2135b49)
 Measured on 8 live NHL games, 1st period, 19:27 to 19:46 ET, recording ESPN fastcast (gp-hockey-nhl-<id>) and the REST summary side by side.
 - The book does not suspend at every whistle. It keeps pricing the moneyline and total while the puck is live (moves about every 36 s, median) and marks them OFF only around goals and penalties.
