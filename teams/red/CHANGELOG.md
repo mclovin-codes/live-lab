@@ -1,5 +1,9 @@
 # Changelog: Team Red, Rush Live
 
+## app r13 (2026-11-03)
+- Live games: when the feed marks live odds OFF, the game page prices from the closing line moved by score and clock, so it no longer shows "Book suspended". Board Live cards show the live moneyline and total.
+- Board tab live badge no longer shows twice.
+
 ## app r12 (2026-11-03)
 - Results sheet: W-L-P no longer wraps at 375 px; fixed number columns, tabular figures, Entrant takes the slack.
 
