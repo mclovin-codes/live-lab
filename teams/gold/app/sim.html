@@ -73,10 +73,10 @@ function chart(id,metric,fmt,opt={}){
 const legend=(ser=SER)=>`<div class="legend">${ser.map(s=>`<span><i style="background:${s[3]}"></i>${s[1]}</span>`).join('')}</div>`;
 const b=last('base'),q=last('squad'),c=last('cohortOnly');
 const ASM=S.params.assumptions,C=S.params.cohort;
-const order=['baseline','squad','noA1','noA2','noA3','noA4','noA5','cohortOnly'];
+const order=['baseline','squad','noA1','noA2','noA3','noA4','noA5','lowA6','cohortOnly','baselineRecent','squadRecent'].filter(k=>V[k]);
 $('app').innerHTML=`<div class="top"><a href="index.html">&#8249; Home</a><a href="squad.html" style="margin-left:auto">Open your Squad &#8250;</a></div>
 <h1>Squad Streak: Weeks 9 to 13</h1>
-<p class="sub">${S.runs.toLocaleString()} simulated seasons, player by player, from the Week 8 cohort's real rates. Same seeds for every variant (${S.seed.split(';')[0]}). The Field is players in with a pick that week.</p>
+<p class="sub">${S.runs.toLocaleString()} simulated seasons, player by player, from the Week 8 cohort's real rates. Seeds ${S.seed.split(';')[0]}, the same in every arm. The no-mechanism arm is Team Blue's baseline draw for draw, so the three teams compare against one baseline. The Field is that week's entrants. A referral or a Squad seat counts only when both sides confirm (A6).</p>
 <div class="heros">
 <div class="hero"><small>Field at Week 13</small><b>${f1(q.field.mean)}</b><span>vs ${f1(b.field.mean)} with no mechanism</span></div>
 <div class="hero"><small>Retention, Week 13</small><b>${pct(q.retention.mean)}</b><span>vs ${pct(b.retention.mean)}</span></div>
@@ -89,7 +89,7 @@ $('app').innerHTML=`<div class="top"><a href="index.html">&#8249; Home</a><a hre
 <div class="card"><h2>Share touched<small>in a Squad of 2 or more with a boost</small></h2>${legend(SER.filter(s=>s[0]!=='base'))}<div id="c-touch"></div></div></div>
 <div class="card"><h2>Week 13, every variant<small>mean of ${S.runs.toLocaleString()} runs</small></h2><div class="scroll"><table><thead><tr><th>Variant</th><th>Field</th><th>New in</th><th>Retention</th><th>Multiplier</th><th>Touched</th><th>40+ in</th><th>75+ in</th></tr></thead><tbody>
 ${order.map(k=>{const x=V[k].weeks[W.length-1];return`<tr class="${k==='squad'?'hl':''}"><td>${V[k].label}</td><td>${f1(x.field.mean)}</td><td>${f1(x.newIn.mean)}</td><td>${pct(x.retention.mean)}</td><td>${x.mult.mean.toFixed(3)}x</td><td>${Math.round(x.touched.mean*100)}%</td><td>${Math.round(x.rungShare[1]*100)}%</td><td>${Math.round(x.rungShare[2]*100)}%</td></tr>`}).join('')}
-</tbody></table></div><p class="note">Each "without" row switches one assumption back to the cohort's own rate. The last row switches all of them off.</p></div>
+</tbody></table></div><p class="note">Each "without" row switches one assumption back to the cohort's own rate; "cohort rates only" switches all of them off. The last two rows rerun both arms with the Week 7 to Week 8 carryover (26 of 28 came back, 0.93), the pace behind the cohort file's +4 a week trend.</p></div>
 <div class="card"><h2>Week by week<small>Squad Streak against no mechanism</small></h2><div class="scroll"><table><thead><tr><th>Week</th><th>Field</th><th>No mechanism</th><th>Retention</th><th>No mechanism</th><th>Multiplier</th><th>Touched</th></tr></thead><tbody>
 ${W.map((wk,i)=>{const x=V.squad.weeks[i],y=V.baseline.weeks[i];return`<tr><td>Week ${wk}</td><td>${f1(x.field.mean)}</td><td>${f1(y.field.mean)}</td><td>${pct(x.retention.mean)}</td><td>${pct(y.retention.mean)}</td><td>${x.mult.mean.toFixed(3)}x</td><td>${Math.round(x.touched.mean*100)}%</td></tr>`}).join('')}</tbody></table></div></div>
 <div class="card"><h2>What the cohort file says, and what we added</h2>

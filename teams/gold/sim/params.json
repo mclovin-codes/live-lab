@@ -1,26 +1,23 @@
 {
-  "source": "COHORT-WEEK8.md, read 2026-11-03 9:47 PM ET. Aggregate rates only; no player names.",
+  "source": "COHORT-WEEK8.md, read 2026-11-03 9:47 PM ET. Aggregate rates only; no player names. Baseline numbers and names match Team Blue's harness (teams/blue/sim/crews-sim.mjs).",
   "cohort": {
-    "pickers_w8": 32,
-    "winners_w8": 12,
-    "entered_no_pick_w8": 1,
-    "recent_absent_w8": 2,
-    "long_absent_w8": 17,
-    "p_return_after_loss": 0.77,
-    "p_return_after_win": 0.92,
-    "p_pick_after_entered_no_pick": 0.40,
-    "p_reactivate": 0.18,
-    "p_finish_up": 0.27,
-    "signups_per_week": 4.5,
-    "p_first_pick_signup_week": 0.81,
-    "p_enter_signup_week": 0.92,
-    "p_active_brings_signup": 0.04,
-    "avg_active_w1_w8": 22,
+    "start": { "won": 12, "lost": 20, "noPick": 1, "outside": 19 },
+    "backAfterWin": 0.92,
+    "backAfterLoss": 0.77,
+    "backAfterNoPick": 0.40,
+    "reactivate": 0.18,
+    "pickIfEntered": 0.9697,
+    "winShare": 0.27,
+    "signupsPerWeek": 4.5,
+    "referralPerEntrantWeek": 0.04,
+    "newEnters": 0.92,
+    "newFirstPick": 0.81,
+    "refFirstPick": 1.0,
+    "ladder": [0, 40, 75, 125, 200],
+    "recent_carryover": 0.93,
     "p_first_share": 0.054,
     "p_return_reloaded_loser": 0.86,
-    "p_return_unreloaded_loser": 0.76,
-    "friends_share_w8": 0.545,
-    "rungs": [0, 40, 75, 125, 200]
+    "p_return_unreloaded_loser": 0.76
   },
   "squad": {
     "per_active": 0.05,
@@ -33,11 +30,12 @@
   },
   "assumptions": {
     "A1_found_uplift": { "value": 2.0, "off": 1.0, "what": "A Squad card on Home doubles the rate players start a group, against the first-share stamp rate (0.054 per entrant-week). Off: founding at the cohort's first-share rate." },
-    "A2_friends_pulled": { "value": 1.5, "off": 0.0, "what": "A founder pulls in a mean of 1.5 players already in the Field (54.5% of the Week 8 cohort came in as friends). Off: a Squad grows only through new signups." },
-    "A3_invite_lift": { "value": 1.5, "off": 1.0, "what": "Squad members with an open seat bring a signup at 1.5x the cohort rate (0.04 per active player-week). The multiplier era (W5 to W8) only moved it from 0.040 to 0.044, so this is the weakest assumption. Off: cohort rate." },
-    "A4_retention_proxy": { "value": 1, "off": 0, "what": "A Squad member returns like a loser who reloaded: 0.86 after a loss against 0.76 (Reload is the cohort's only measured reason to stay). Winners 0.92 to 0.95. Off: cohort return rates." },
-    "A5_nudge_reactivation": { "value": 0.30, "off": 0.18, "what": "An absent Squad member comes back at 0.30 a week when squadmates nudge (cohort reactivation 0.18, recent absentees higher; real-player nudges so far: 0). Off: 0.18." }
+    "A2_friends_pulled": { "value": 1.5, "off": 0.0, "what": "A founder asks a mean of 1.5 players already in the Field to join (18 of the 33 Week 8 entrants came in through a friend). Off: a Squad grows only through new signups." },
+    "A3_invite_lift": { "value": 1.5, "off": 1.0, "what": "Squad members with an open seat bring a signup at 1.5x the cohort rate (0.04 per entrant-week). The multiplier era (W5 to W8) only moved it from 0.040 to 0.044, so this is the weakest assumption. Off: cohort rate." },
+    "A4_retention_proxy": { "value": 1, "off": 0, "what": "A member of a live Squad returns like a loser who reloaded: +10 points after a loss (0.86 against 0.76, Reload being the cohort's only measured reason to stay), +3 after a win. Off: cohort return rates." },
+    "A5_nudge_reactivation": { "value": 0.30, "off": 0.18, "what": "An absent member of a live Squad comes back at 0.30 a week when squadmates nudge (cohort reactivation 0.18, higher for recent absentees; real-player nudges so far: 0). Off: 0.18." },
+    "A6_link_confirm": { "value": 0.8, "off": 0.8, "low": 0.5, "what": "Founder rule: a referral or a Squad seat counts only when both sides confirm with one tap. 0.8 of links get both taps (the cohort has 1 referral claim, unclaimed, so there is no rate). Unconfirmed referred signups still play, but credit no multiplier and take no seat. Shown at 0.5 too." }
   },
   "runs": 1000,
-  "seed": "mulberry32(run), run = 1 to 1000; baseline and every variant use the same seed for the same run."
+  "seed": "mulberry32(1000 + r), r = 0 to 999; the same seed in every arm, as in Team Blue's harness"
 }
