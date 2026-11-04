@@ -19,14 +19,15 @@ function norm(league,e){const c=e.competitions&&e.competitions[0]||{},st=e.statu
  const o=(c.odds||[])[0]||{},ml=o.moneyline||{};const hml=num(o.homeTeamOdds&&o.homeTeamOdds.moneyLine)??num(ml.home&&(ml.home.close||ml.home.open||{}).odds),aml=num(o.awayTeamOdds&&o.awayTeamOdds.moneyLine)??num(ml.away&&(ml.away.close||ml.away.open||{}).odds);
  return{league,id:e.id,date:Date.parse(e.date),state:ty.state||'pre',done:!!ty.completed,detail:ty.shortDetail||ty.detail||'',period:st.period||0,clock:st.displayClock||'',home:side('home'),away:side('away'),line:{details:o.details||'',ou:num(o.overUnder),spread:num(o.spread),hml,aml},broadcast:(c.broadcasts||[]).flatMap(b=>b.names||[]).join(', ')}}
 /* live line: the scoreboard drops odds once a game starts. The book posts live odds at whistles and goes OFF while play runs,
-   so the Board samples each live game's summary every 30 s and shows the book's last posted live line (kept per game).
-   No line until the book has posted one; the Board never prices a game itself. */
+   so the Board samples each live game's summary every 30 s and shows the book's last posted live line (kept per game in
+   localStorage 'rw.lastLive' {h,a,ou,at}; game.html may write it too), labelled last seen, since the summary runs minutes behind
+   the push. No line until the book has posted one; the Board never prices a game itself. */
 const SP={nfl:1,nba:1,nhl:1};
 function postedLine(pc){if(!pc||!pc.moneyline)return null;const P=(o,...k)=>{let n=o;for(const x of k){if(n==null)return null;n=n[x]}return n},o=x=>{const v=num(x);return v!=null&&Math.abs(v)>=100?v:null},h=o(P(pc.moneyline,'home','live','odds')),a=o(P(pc.moneyline,'away','live','odds'));
  if(h==null||a==null)return null;const t=P(pc.total,'over','live','line');return{h,a,ou:t==null?null:num(String(t).replace(/^[ou]/i,''))}}
-let LAST=null;function last(){if(!LAST){try{LAST=JSON.parse(localStorage.getItem('rw.lastLive')||'{}')||{}}catch(e){LAST={}}}return LAST}
-function keepLast(k,L){const m=last();m[k]=L;try{localStorage.setItem('rw.lastLive',JSON.stringify(m))}catch(e){}}
-function liveLine(g,L){if(!L)return null;const fav=L.h<=L.a?g.home:g.away;return{details:`${fav.abbr} ${L.h<=L.a?L.h:L.a}`,ou:L.ou}}
+function last(){try{return JSON.parse(localStorage.getItem('rw.lastLive')||'{}')||{}}catch(e){return{}}}
+function keepLast(k,L){const m=last(),o=m[k];if(o&&o.at&&o.h===L.h&&o.a===L.a&&o.ou===L.ou)return;L.at=Date.now();m[k]=L;try{localStorage.setItem('rw.lastLive',JSON.stringify(m))}catch(e){}}
+function liveLine(g,L){if(!L||L.h==null||L.a==null)return null;const fav=L.h<=L.a?g.home:g.away;return{details:`${fav.abbr} ${L.h<=L.a?L.h:L.a}`,ou:L.ou,seen:+L.at||true}}
 const AT={};
 async function J(u){const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
 let cache=null,cacheAt=0;
