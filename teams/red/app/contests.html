@@ -50,6 +50,10 @@ details.k-arch summary{cursor:pointer;color:var(--k-mut);font:600 14px var(--k-f
 .k-boostrow span{padding:8px 4px;border-radius:11px;background:rgba(11,17,24,.55);text-align:center;font:500 11px/1.25 var(--k-font);color:var(--k-mut)}.k-boostrow b{display:block;font:800 16px var(--k-font);color:var(--k-fg)}.k-boostrow span.cr b{color:var(--k-win)}
 .k-more{background:none;border:0;color:var(--k-acc);font:600 14px var(--k-font);padding:6px 0;cursor:pointer;justify-self:center}
 .k-btn.big{padding:15px 16px;font-size:16px;border-radius:14px}
+.k-btn.sm{padding:8px 12px;font-size:13px;border-radius:10px}
+.k-lk{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 0;border-top:.5px solid var(--k-line)}.k-lk:first-of-type{border-top:0}.k-lk b{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.k-lk small{color:var(--k-mut);font-size:12px}
+.k-pend{border:1px solid rgba(0,191,255,.45)}
+.k-toast{position:fixed;left:16px;right:16px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:50;max-width:520px;margin:0 auto;padding:12px 14px;border-radius:14px;background:rgba(36,50,65,.97);font:600 14px var(--k-font);box-shadow:0 10px 30px rgba(0,0,0,.45)}
 </style>
 </head>
 <body data-tab="ranks">
@@ -59,6 +63,7 @@ details.k-arch summary{cursor:pointer;color:var(--k-mut);font:600 14px var(--k-f
  <div class="k-sub" id="k-sub">Run your own or join one</div>
  <div id="k-main"></div>
 </div>
+<div class="k-toast" id="k-toast" hidden></div>
 <script src="shared/state.js"></script>
 <script src="week-games.js"></script>
 <script src="contest-kit.js"></script>
@@ -105,6 +110,23 @@ function createForm(){const ec=entryClose(F);return`<div class="k-sec"><h2>New c
  <div class="k-fl"><span>Injury protection for player props</span>${seg('injury',[['none','None'],['h1','1st half'],['full','Full game']],F.injury)}<span class="k-hint">${esc(INJ_TXT[F.injury])}</span></div>
  <div class="k-fl"><span>Joiner note (optional)</span>${tg('fields',Object.entries(JFN),F.fields)}<span class="k-hint">Joiners can leave you a short note when they enter.</span>${F.fields.length?seg('showFields',[['commish','Only you see them'],['contest','Everyone in the contest']],F.showFields):''}</div>
  <button class="k-btn block" type="submit">Create contest</button><button class="k-btn ghost block" type="button" data-cancel="1">Cancel</button></form></div>`}
+function toast(t){const e=$('k-toast');e.textContent=t;e.hidden=false;clearTimeout(e._t);e._t=setTimeout(()=>e.hidden=true,2600)}
+async function send(text,url){if(navigator.share){try{await navigator.share({title:'Rush',text,url});toast('Sent');return true}catch(x){if(x&&x.name==='AbortError')return false}}try{await navigator.clipboard.writeText(text+'\n'+url);toast('Copied: paste it to your friend')}catch(e){toast('Copy this link: '+url)}return true}
+/* a link from a friend carries their tap: confirm with one tap of yours, or say no */
+let LK=null,lkDone=null;{const q=new URLSearchParams(location.search).get('lk');if(q){LK=RC.link.decode(q);history.replaceState(null,'','contests.html');if(LK&&LK.r==='ok'){const dir=LK.d==='inv'?'inv':'by',had=RC.link.get(LK.f,dir);if(had&&had.state==='asked'){RC.link.final(LK.f,dir);lkDone=`${LK.f} confirmed. The link is final.`}else lkDone=had&&had.state==='final'?`Already linked with ${LK.f}.`:`${LK.f} confirmed a link you did not ask for, so nothing changed.`;LK=null}}}
+function lkHTML(){if(lkDone)return`<div class="k-sec k-pend"><h2>Friends</h2><div class="k-note">${esc(lkDone)}</div></div>`;if(!LK)return'';const f=LK.f,by=RC.link.invitedBy();
+ if(LK.r==='by')return`<div class="k-sec k-pend"><h2>${esc(f)} says you invited them</h2><div class="k-note">Confirm and the link is final: ${esc(f)} counts on your Prize Multiplier when they are in with a pick.</div><div class="k-row" style="margin-top:12px"><button class="k-btn" data-lkyes="inv">Confirm, I invited ${esc(f)}</button><button class="k-btn ghost" data-lkno="1">Not me</button></div></div>`;
+ if(by&&by.name.toLowerCase()!==f.toLowerCase())return`<div class="k-sec k-pend"><h2>${esc(f)} says they invited you</h2><div class="k-note">You are already linked to ${esc(by.name)}. A player has one inviter, so this cannot change.</div><div class="k-acts"><button class="k-btn ghost" data-lkno="1">OK</button></div></div>`;
+ return`<div class="k-sec k-pend"><h2>${esc(f)} says they invited you</h2><div class="k-note">Confirm and the link is final. You can only be linked to one inviter.</div><div class="k-row" style="margin-top:12px"><button class="k-btn" data-lkyes="by">Confirm, ${esc(f)} invited me</button><button class="k-btn ghost" data-lkno="1">Not true</button></div></div>`}
+let backTo=null;
+/* Friends: link who invited you, or a friend you invited, any time after signup. One tap to ask, one tap on the other side to confirm. */
+function friendsHTML(){const by=RC.link.invitedBy(),askBy=RC.link.list().find(x=>x.dir==='by'&&x.state==='asked'),inv=RC.link.list().filter(x=>x.dir==='inv'),recent=RC.link.recent().filter(x=>!inv.some(y=>y.name.toLowerCase()===x.name.toLowerCase()));
+ let h=`<div class="k-sec"><h2>Friends <span>Links count only when both confirm</span></h2>`;
+ if(backTo)h+=`<div class="k-lk"><span><b>Linked with ${esc(backTo.name)}</b><small>Send the confirmation so their side shows it</small></span><button class="k-btn sm" data-lkback="1">Send</button></div>`;
+ h+=by?`<div class="k-lk"><span><b>${esc(by.name)} invited you</b><small>Linked</small></span><span class="k-chip win">Final</span></div>`:askBy?`<div class="k-lk"><span><b>You said ${esc(askBy.name)} invited you</b><small>Waiting for ${esc(askBy.name)} to confirm</small></span><button class="k-btn sm ghost" data-lkask="by" data-n="${esc(askBy.name)}">Send again</button></div>`:`<div class="k-fl" style="margin-bottom:6px"><span>Who invited you to Rush?</span><div class="k-row"><input class="k-in" id="k-lkname" list="k-lknames" maxlength="24" placeholder="Search players" autocomplete="off" aria-label="Who invited you"><button class="k-btn" data-lkask="by">Ask</button></div><datalist id="k-lknames">${RC.link.names().map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div>`;
+ h+=inv.map(x=>`<div class="k-lk"><span><b>You invited ${esc(x.name)}</b><small>${x.state==='final'?'Linked: counts on your Prize Multiplier':'Waiting for '+esc(x.name)+' to confirm'}</small></span>${x.state==='final'?'<span class="k-chip win">Final</span>':`<button class="k-btn sm ghost" data-lkask="inv" data-n="${esc(x.name)}">Send again</button>`}</div>`).join('');
+ h+=recent.length?`<div class="k-hint" style="margin:10px 0 2px">Joined your contests in the last 14 days</div>`+recent.map(x=>`<div class="k-lk"><span><b>${esc(x.name)}</b><small>${esc(x.contest)}${x.by?' &middot; named '+esc(x.by):''}</small></span><button class="k-btn sm" data-lkask="inv" data-n="${esc(x.name)}">I invited them</button></div>`).join(''):'';
+ return h+`<div class="k-hint" style="margin-top:8px">No codes. A link only suggests a name; nothing counts until the other player taps confirm.</div></div>`}
 function heroQS(){const w=RW.week(),T=RC.TIERS;return`<div class="k-hero"><div class="k-eye">RUN YOUR OWN · WEEK ${esc(w.n)}</div><h2>Your friends, your rules, this week's games.</h2><p>Set it up in three taps. Every friend who joins grows the Contest Boost on everyone's Prize Multiplier, not only yours.</p>
  <div class="k-boostrow" style="margin:0 0 12px" aria-label="Contest Boost">${T.map(t=>`<span><b>+${t.add.toFixed(1)}x</b>${t.at} in</span>`).join('')}<span class="cr"><b>+${RC.CROWN.toFixed(1)}x</b>Win it</span></div>
  <div class="k-qs"><div class="k-tiles" role="radiogroup" aria-label="Game plan">${Object.entries(PLANS).map(([k,p])=>`<button type="button" role="radio" aria-checked="${QS.plan===k}" class="k-tile${QS.plan===k?' on':''}" data-plan="${k}">${esc(p.n)}<small>${esc(p.d)}</small></button>`).join('')}</div>
@@ -114,13 +136,19 @@ function heroQS(){const w=RW.week(),T=RC.TIERS;return`<div class="k-hero"><div c
  <button class="k-more" data-create="1" type="button">Set every rule &rsaquo;</button></div>
 </div>`}
 function render(){const w=RW.week();$('k-sub').textContent=`Week ${w.n} · run your own or join one`;const list=RC.list(),mine=list.filter(c=>c.status!=='archived'),arch=list.filter(c=>c.status==='archived'),pub=RC.publicList().filter(p=>!list.some(c=>c.id===p.id));
- let h=showCreate?'':heroQS();h+=`<div class="k-sec"><h2>Join with a code</h2><div class="k-row"><input class="k-in k-code" id="k-code" maxlength="6" placeholder="ABC123" aria-label="Contest code" autocomplete="off"><button class="k-btn" data-join="1">Join</button></div><div class="k-msg${msg&&/not|closed/i.test(msg)?' err':''}" id="k-msg">${esc(msg||'Got an invite link? Open it to see the contest and join.')}</div></div>`;
+ let h=lkHTML()+(showCreate?'':heroQS());h+=`<div class="k-sec"><h2>Join with a code</h2><div class="k-row"><input class="k-in k-code" id="k-code" maxlength="6" placeholder="ABC123" aria-label="Contest code" autocomplete="off"><button class="k-btn" data-join="1">Join</button></div><div class="k-msg${msg&&/not|closed/i.test(msg)?' err':''}" id="k-msg">${esc(msg||'Got an invite link? Open it to see the contest and join.')}</div></div>`;
  if(showCreate)h=createForm()+h;
  h+=`<div class="k-sec"><h2>Your contests <span>${mine.length||''}</span></h2>${mine.length?mine.map(c=>card(c,false)).join(''):'<div class="k-empty">None yet. Create one for your friends or join a public one below.</div>'}</div>`;
  h+=`<div class="k-sec"><h2>Public contests <span>Open to everyone</span></h2>${pub.map(c=>card(c,true)).join('')}</div>`;
+ h+=friendsHTML();
+ h+=`<a class="k-c" href="sim.html" style="margin:0 0 14px"><b>Contests sim</b><span class="rt">&rsaquo;</span><small>Weeks 9 to 13, 1,000 runs from the Week 8 cohort: how Contests grow the Field</small></a>`;
  if(arch.length)h+=`<div class="k-sec"><details class="k-arch"><summary>Archived (${arch.length})</summary>${arch.map(c=>card(c,false)).join('')}</details></div>`;
  const m=$('k-main'),focus=document.activeElement&&document.activeElement.id;if(focus&&/^k-/.test(focus)&&document.activeElement.tagName==='INPUT')return;if(m._h!==h){m.innerHTML=h;m._h=h}}
-document.addEventListener('click',e=>{const t=e.target;
+document.addEventListener('click',async e=>{const t=e.target;const re=()=>{$('k-main')._h='';render()};
+ const ly=t.closest('[data-lkyes]');if(ly&&LK){const dir=ly.dataset.lkyes,f=LK.f;if(RC.link.final(f,dir)){backTo={name:f,d:dir==='inv'?'by':'inv'};lkDone=null;LK=null;toast(`Linked with ${f}`)}else{toast('You already have an inviter');LK=null}re();return}
+ if(t.closest('[data-lkno]')){LK=null;lkDone=null;re();return}
+ if(t.closest('[data-lkback]')&&backTo){const ok=await send(`${RC.myHandle()||'Your friend'} confirmed the Rush link with you.`,RC.link.url('ok',{d:backTo.d}));if(ok){backTo=null;re()}return}
+ const la=t.closest('[data-lkask]');if(la){const dir=la.dataset.lkask;const n=(la.dataset.n||($('k-lkname')||{}).value||'').trim();if(!n){toast('Type or pick a player');return}if(!RC.link.ask(n,dir)){toast('You already have an inviter');return}re();await send(dir==='by'?`I joined Rush on your invite. Tap to confirm, ${n}.`:`I invited you to Rush. Tap to confirm, ${n}.`,RC.link.url(dir));return}
  const pl=t.closest('[data-plan]');if(pl){grab();QS.plan=pl.dataset.plan;$('k-main')._h='';render();return}
  if(t.closest('[data-qgo]')){grab();const P=PLANS[QS.plan],w=RW.week();const f=Object.assign({},F,{leagues:P.leagues.slice(),days:RW.days(w),close:'last'});const c=RC.create({name:(QS.name||'').trim()||myName()+' Week '+w.n,visibility:QS.vis,size:30,sims:2,schedule:{leagues:P.leagues.slice(),days:RW.days(w).slice().sort(),entryClose:entryClose(f)},rules:{stack:1000,markets:Object.assign({},P.markets),reload:true,scoring:P.scoring,ties:'split'}});if(c)location.href='contest.html?c='+encodeURIComponent(c.id)+'&new=1';return}
  if(t.closest('[data-create]')){grab();const P=PLANS[QS.plan];F.leagues=P.leagues.slice();F.markets=Object.assign({},P.markets);F.scoring=P.scoring;F.visibility=QS.vis;if(QS.name)F.name=QS.name;showCreate=true;$('k-main')._h='';render();scrollTo(0,0);setTimeout(()=>$('k-name')&&$('k-name').focus(),50);return}
