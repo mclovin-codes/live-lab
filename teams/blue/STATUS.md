@@ -23,6 +23,18 @@ Measured on 8 live NHL games, 1st period, 19:27 to 19:46 ET, recording ESPN fast
     - 5 min without a move while the clock runs locks everything ("Waiting for the book to move").
     - Lines stay locked until the push itself posts a moneyline, so a stale REST price is never sold.
 - Placement check on the host build: PHI moneyline +550 placed in play at the book price into The Rush. WPG +240 placed into The Rush and a contest at once, each Stack down 1.
+- Later fixes (bbb8e4e, fd61135):
+  - The push copy now seeds from the fastcast checkpoint, so the current price shows on load. Before this, a page opened in an intermission sat on "Connecting to the live book": 42 of 48 probe tries.
+  - NHL plays now come from the summary, because ESPN's core plays endpoint returns 400 for NHL. Until bbb8e4e the intermission window and the goal backstop never fired on NHL.
+  - Penalties are matched by type.penaltyMinutes, since the play type is the infraction (Hooking, Roughing).
+- Rink panel (558c94a):
+  - Under the score: the rink with the last play's spot and this period's shot map in team colours (goals filled, saves hollow, blocks and misses faint). A Blocked play carries the blocking team, so it is drawn in the shooter's colour.
+  - Which end each team attacks, from its shots.
+  - Last play card with strength, and a power play banner.
+  - Stats strip: shots, hits, faceoff %, PP, PIM.
+  - Skaters and goalie on the ice.
+- Win probability: ESPN has none for NHL (core probabilities returns 400, and the summary has no winprobability block). The panel now shows the market series instead, from the closing line and then each posted live moneyline with the margin removed, labelled "From the market". A live game never shows an empty panel.
+- The Board: game.html writes rw.lastLive[LG+ID] = {h, a, ou, at} on each new posted moneyline, for Red's Live cards.
 - Answer to the founder: NHL is usable. Game lines are open about 95% of the clock at the book's price. Only alts, periods and props wait for intermissions.
 
 ## Fair play
