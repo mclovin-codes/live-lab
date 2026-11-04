@@ -27,3 +27,13 @@ The chief of staff compares the three simulations on Field size at Week 13 and o
 ## Clock
 
 First playable version of the mechanism and the first simulation run by 2:00 AM ET; iterate through tomorrow; the live NHL and NBA work on the shared app continues in parallel only for grading proof tonight.
+
+## Addendum, 2026-11-03 10:05 PM ET (founder, verbatim): referral linking
+
+"There a lot of random accounts that don't seem to have been able to come from anywhere but referrals but it seems the code is broken or gets lost when they have to go to TestFlight and it falsely adds code before they make it to the app. We might need to decide an easier way to track or get people on the app and linking referrals automatically without the mayhem, zero barrier to link referrals. It must be 100% accurate every time a user adds a playing friend."
+
+The cohort file agrees: 23 of 30 non-founder signups sit on the house code, which is where a lost referral lands. Every mechanism in Phase 3 depends on the link being right, so every team designs the linking flow into its mechanism and shows it in the prototype:
+1. No automatic attribution from the network or the clipboard decides anything. A link or code may prefill, never commit.
+2. Linking is explicit and two-sided, any time after signup, not only on first open: the new player picks who invited them from a search of usernames (and from "players near you in the Field" if the app knows them), or the inviter adds the friend from a list of players who joined in the last 14 days; the other side confirms with one tap. On confirm the link is final and the multiplier (or crew, or contest incentive) credits.
+3. Zero barrier: one tap to invite (the app link and the player's name travel together), one tap to confirm. No codes typed by anyone unless they want to.
+4. The sim counts a referral only when both sides confirmed.
