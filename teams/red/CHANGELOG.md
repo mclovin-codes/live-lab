@@ -1,5 +1,8 @@
 # Changelog: Team Red, Rush Live
 
+## p3.6 (2026-11-04)
+- Invite card drops the Code line and the nothing-to-download claim; props switch reads player stats; settle-night one-tap result send with next week's join link.
+
 ## p3.4 / p3.5 (2026-11-04)
 - Live-site end-to-end check. Fixed: Join button hidden under the tab bar; unnamed commissioner showed as "You invited you" (quick start now asks the name); invite said 0 entrants; a joiner's phone filled 30 SIM players instead of the contest's 2.
 
