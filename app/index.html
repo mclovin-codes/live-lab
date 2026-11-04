@@ -128,6 +128,18 @@ a{color:inherit}
 .g-cc .m{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.g-cc .t{display:flex;align-items:center;gap:8px;min-width:0}.g-cc b{font:700 15.5px var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.g-cc small{font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .g-cc .on-tag{flex:none;font:700 10px var(--f);letter-spacing:.08em;color:var(--acc);background:rgba(0,191,255,.16);border-radius:6px;padding:2px 6px}
 .g-cc .chev{flex:none;width:18px;height:18px;fill:none;stroke:var(--mute);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.g-cc.pub{min-height:52px;padding:10px 12px 10px 14px}
+.g-cc.r1{min-height:52px;padding:10px 12px 10px 14px}.g-cc .nums{flex:none;font:500 13px var(--f);color:var(--mute);white-space:nowrap}.g-cc .nums b{font:700 17px/1 var(--cond);color:var(--fg);letter-spacing:.01em}
+.g-cc .sp{display:flex;align-items:center;gap:6px;min-width:0}.g-sp{flex:none;font:700 10px var(--f);letter-spacing:.06em;color:var(--fg);background:rgba(255,255,255,.1);border-radius:6px;padding:2px 6px}
+.g-door{border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;background:radial-gradient(130% 120% at 100% 0%,rgba(167,139,250,.2),transparent 60%),var(--card);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.g-door .hd{display:flex;gap:12px;align-items:flex-start}.g-door .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.g-door .tx b{font:700 32px/.95 var(--cond);text-transform:uppercase;letter-spacing:.01em}
+.g-door p{margin:0;font:500 15px/1.4 var(--f);color:var(--fg);opacity:.85}
+.g-door .ic{flex:none;width:78px;display:flex;flex-direction:column;gap:5px;padding-top:4px}
+.g-door .ic i{display:flex;align-items:center;gap:6px;height:17px;border-radius:6px;background:rgba(255,255,255,.08);padding:0 6px}.g-door .ic i:nth-child(2){margin-left:7px}.g-door .ic i:nth-child(3){margin-left:14px}
+.g-door .ic i::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--c)}.g-door .ic i::after{content:"";flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.2)}
+.g-door .acts{display:grid;grid-template-columns:1.2fr 1fr;gap:8px}
+.g-door .g-cta{min-height:48px;padding:12px 8px;font:700 15px var(--f);border-radius:14px;white-space:nowrap;border:0;cursor:pointer}
+.g-door .g-cta.b{background:var(--acc);color:#04121C}.g-cta.f{background:rgba(255,255,255,.1);color:var(--fg)}
 .g-more{align-self:flex-end;font:600 13px var(--f);color:var(--acc);text-decoration:none;padding:4px 2px}
 .g-line{font-size:13.5px;color:var(--mute);padding:0 4px}.g-line b{color:var(--fg);font-weight:600}.g-line em{font-style:normal;color:var(--warn);font-weight:700}
 .g-move{display:flex;flex-direction:column;gap:2px}
@@ -257,28 +269,33 @@ function prizeCard(){const n=GS.field().length,i=rungOf(n),r=LADDER[i],nx=LADDER
   <div class="acts"><button class="g-cta b" data-act="invite">Invite a friend</button><button class="g-cta o2" data-act="nudge">Nudge</button></div></div>`}
 /* My contests: every contest the player is in as one tappable card. The active one opens its Ranks; any other switches to it. */
 const CHEV='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
-function shortClock(w,now){if(w.phase==='settled')return'Settled';if(w.phase==='upcoming')return'Opens in '+startsIn(w.opens-now);const s=w.settles-now;return'Settles '+(s<864e5?'in '+startsIn(s):new Date(w.settles).toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'}))}
-function myContests(ws,act,now){const P=GS.CPAGE,pub=GS.contests.open().filter(x=>!ws.some(w=>w.id===x.id)).slice(0,3);
-  const row=w=>{const on=w.id===act,sub=[w.entered?GS.fmt(w.stack)+' Stack':'Not entered',w.rank?'#'+w.rank+(w.of?' of '+w.of:''):'',shortClock(w,now)].filter(Boolean).join(' · ');const inner=`<span class="g-dot" style="background:${okc(w.color)}"></span><span class="m"><span class="t"><b>${esc(w.name)}</b>${on?'<span class="on-tag">ACTIVE</span>':''}</span><small>${esc(sub)}</small></span>${CHEV}`;
-    return on?`<a class="g-cc on" href="${w.id==='rush'?'ranks.html':P.one(w.id)}" aria-label="${esc(w.name)}, active. Open Ranks">${inner}</a>`:`<button class="g-cc" data-wallet="${esc(w.id)}" aria-label="Switch to ${esc(w.name)}">${inner}</button>`};
-  return`<div class="g-card"><div class="g-h">My contests<small>${ws.length>1?'Tap one to switch':'Run one or join one'}</small></div>${ws.map(row).join('')}
-  <div class="g-two"><a class="g-cta o2" href="${P.create}">Run your own contest</a><button class="g-cta o2" data-act="joinopen">Join with a code</button></div>
-  <form id="g-joinf" class="g-two" hidden><input class="g-in" id="g-code" maxlength="80" placeholder="Code or invite link" autocomplete="off"><button class="g-cta b" type="submit">Join</button></form>
-  ${pub.length?`<div class="g-eyebrow" style="margin-top:4px">Public contests to join</div>${pub.map(x=>{const c=GS.contests.count(x);return`<a class="g-cc pub" href="${P.one(x.id)}"><span class="m"><b>${esc(GS.contests.name(x))}</b><small>${c!=null?c+' in':'Public'}</small></span>${CHEV}</a>`}).join('')}<a class="g-more" href="${P.list}">All contests &#8250;</a>`:''}</div>`}
+/* Run your own: the door into contest creation, third on Home. Join with a code sits beside it. */
+function doorCard(ws){const own=ws.some(w=>w.owner);
+  return`<div class="g-door"><div class="hd"><div class="tx"><span class="g-eyebrow">Free · private or public</span><b>Run your own contest</b></div><span class="ic" aria-hidden="true"><i style="--c:#F59E0B"></i><i style="--c:#A78BFA"></i><i style="--c:#34D399"></i></span></div>
+  <p>Your Field, your rules. Any sports, any days, your Stack.</p>
+  <div class="acts"><a class="g-cta b" href="${GS.CPAGE.create}">${own?'Start another':'Start a contest'}</a><button class="g-cta f" data-act="joinopen">Join with a code</button></div>
+  <form id="g-joinf" class="g-two" hidden><input class="g-in" id="g-code" maxlength="80" placeholder="Code or invite link" autocomplete="off"><button class="g-cta b" type="submit">Join</button></form></div>`}
+/* My contests: one tight row per contest. The active one opens its Ranks; any other switches to it. Public contests show only once they have entries. */
+function myContests(ws,act){const P=GS.CPAGE,all=GS.contests.open().filter(x=>!ws.some(w=>w.id===x.id)),pub=all.filter(x=>GS.contests.count(x)>0).slice(0,3);
+  const row=w=>{const on=w.id===act,nums=w.entered?`<b>${GS.fmt(w.stack)}</b>${w.rank?' · #'+w.rank:''}`:'Not entered';const inner=`<span class="g-dot" style="background:${okc(w.color)}"></span><span class="m"><span class="t"><b>${esc(w.name)}</b>${on?'<span class="on-tag">ACTIVE</span>':''}</span></span><span class="nums">${nums}</span>${CHEV}`;
+    return on?`<a class="g-cc r1 on" href="${w.id==='rush'?'ranks.html':P.one(w.id)}" aria-label="${esc(w.name)}, active. Open Ranks">${inner}</a>`:`<button class="g-cc r1" data-wallet="${esc(w.id)}" aria-label="Switch to ${esc(w.name)}">${inner}</button>`};
+  const pc=x=>{const c=GS.contests.count(x),lg=((x.schedule&&x.schedule.leagues)||[]).slice(0,3);return`<a class="g-cc pub" href="${P.one(x.id)}"><span class="m"><b>${esc(GS.contests.name(x))}</b><span class="sp">${lg.map(l=>`<span class="g-sp">${esc(String(l).toUpperCase())}</span>`).join('')}<small>${c} in the Field${x.host?' · by '+esc(x.host):''}</small></span></span>${CHEV}</a>`};
+  return`<div class="g-card"><div class="g-h">My contests<small>${ws.length>1?'Tap one to switch':'Stack · rank'}</small></div>${ws.map(row).join('')}
+  ${pub.length?`<div class="g-eyebrow" style="margin-top:4px">Public contests filling up</div>${pub.map(pc).join('')}`:''}<a class="g-more" href="${P.list}">All contests${all.length?' · '+all.length+' public open':''} &#8250;</a></div>`}
 function contestCard(c){return`<a class="g-card g-cl" href="${GS.CPAGE.one(c.id)}"><span class="g-h">${esc(c.name)} Ranks<small>${c.of?c.of+' in · ':''}Open &#8250;</small></span><span class="g-plain">${c.rank?`You are <b>#${c.rank}</b> of ${c.of}.`:'Ranks fill in as picks settle.'}${c.owner?' You run this contest.':''}</span></a>`}
 function render(){const ae=document.activeElement;if(ae&&(ae.id==='g-code'||ae.id==='g-name'||ae.id==='g-refname'))return;const me=GS.me(),now=Date.now(),ws=wallets(),act=WAL()?WAL().active():'rush',c=ws.find(w=>w.id===act)||null,rush=act==='rush'||!c,entered=rush?GS.entered():c.entered;
   const L=GAMES.filter(covered(act)),hero=heroGame(L),live=L.filter(g=>g.state==='in'&&g!==hero),next=L.filter(g=>g.state==='pre'&&g!==hero).slice(0,8);
   let h=`<div class="g-top"><h1>Rush</h1>${rush?`<span class="g-chip">Week ${W.n}</span>`:''}<span data-rush-pill></span></div>`;
-  h+=heroCard(hero);if(rush)h+=prizeCard();
+  h+=heroCard(hero);if(rush)h+=prizeCard()+doorCard(ws);
   if(rush){
     if(!entered){h+=now<W.entryClose?`<div class="g-card"><input class="g-in" id="g-name" maxlength="20" placeholder="Your name in the Field" value="${esc(me.name&&me.name!=='You'?me.name:'')}"><button class="g-cta" id="g-enter">Enter Week ${W.n} · 1,000 Stack</button><div class="g-note">Free. Everyone starts with 1,000 Stack. The Field ranks on Units.</div></div>`:`<div class="g-line">Entry for Week ${W.n} closed at Monday night kickoff.</div>`}
     else{const u=GS.units(),rk=GS.rank(),rec=GS.record(),open=GS.picks().filter(p=>p.status==='open').length;h+=`<div class="g-me"><span class="u ${u>0?'up':u<0?'dn':''}" data-tick="units">${u>0?'+':''}${u.toFixed(1)} U</span><span class="r">#${rk.rank} <small>of ${rk.of}${rec.w+rec.l?' · '+rec.w+'-'+rec.l+' season':''}</small></span><a href="slips.html">${open?open+' open':'Slips'} &#8250;</a></div>`;
       if(me.stack<10&&!me.reloaded)h+=`<button class="g-cta" id="g-reload">Reload: 1,000 Stack back, free once a week</button>`}
     const left=W.entryClose-now;h+=`<div class="g-line">${left>864e5?`Picks open through <b>${esc(fmtDay(W.entryClose))}</b>. Each game locks at its start.`:left>0?`Entry closes in <em>${startsIn(left)}</em>.`:'Entry is closed. Picks in play settle after Monday night.'}</div>`;
-    h+=fieldMover(me)+myContests(ws,act,now)}
+    h+=fieldMover(me)+myContests(ws,act)}
   else{const u=+c.units||0;h+=`<div class="g-me"><span class="u ${u>0?'up':u<0?'dn':''}">${u>0?'+':''}${u.toFixed(1)} U</span><span class="r">${c.rank?'#'+c.rank:'&#8212;'} <small>${c.of?'of '+c.of:''}</small></span><a href="slips.html">${c.open?c.open+' open':'Slips'} &#8250;</a></div>`;
     if(c.canReload)h+=`<button class="g-cta" data-act="wreload">Reload ${esc(c.name)}: once, under 50 Stack</button>`;
-    h+=`<div class="g-line">${contestClock(c,now)}</div>`+contestCard(c)+myContests(ws,act,now)}
+    h+=`<div class="g-line">${contestClock(c,now)}</div>`+contestCard(c)+doorCard(ws)+myContests(ws,act)}
   LMSG=loungeLines();if(LI>=LMSG.length)LI=0;h+=loungeLine().replace(/<b>[^<]*<\/b>/,`<b>${esc(LMSG[LI]||'')}</b>`);
   if(live.length||next.length)h+=`<div class="g-card"><div class="g-h">${live.length?'More live':'Up next'}<small><a href="board.html" style="color:var(--acc);text-decoration:none">Board</a></small></div><div class="g-caps">${(live.length?live:next).map(capChip).join('')}</div></div>`;
   $('home').innerHTML=h;tickAll();const bd=document.getElementById('rpill-band');if(bd)bd.remove();if(Rush.nav)try{Rush.nav.refresh()}catch(e){}const e=$('g-enter');if(e)e.onclick=()=>{GS.enter(($('g-name')||{}).value);render()};const rl=$('g-reload');if(rl)rl.onclick=()=>{GS.reload();render()}}
