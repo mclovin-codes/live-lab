@@ -1,5 +1,8 @@
 # Changelog: Team Red, Rush Live
 
+## app r13c (2026-11-03)
+- Board Live cards show the book's last posted live line; the Board never prices a game itself.
+
 ## app r13 (2026-11-03)
 - Live games: when the feed marks live odds OFF, the game page prices from the closing line moved by score and clock, so it no longer shows "Book suspended". Board Live cards show the same live moneyline and total as the game page (posted live odds when the feed has them, nothing while suspended, NHL totals on .5).
 - Board tab live badge no longer shows twice.
