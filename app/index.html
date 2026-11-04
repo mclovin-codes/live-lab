@@ -130,16 +130,11 @@ a{color:inherit}
 .g-cc .chev{flex:none;width:18px;height:18px;fill:none;stroke:var(--mute);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.g-cc.pub{min-height:52px;padding:10px 12px 10px 14px}
 .g-cc.r1{min-height:52px;padding:10px 12px 10px 14px}.g-cc .nums{flex:none;font:500 13px var(--f);color:var(--mute);white-space:nowrap}.g-cc .nums b{font:700 17px/1 var(--cond);color:var(--fg);letter-spacing:.01em}
 .g-cc .sp{display:flex;align-items:center;gap:6px;min-width:0}.g-sp{flex:none;font:700 10px var(--f);letter-spacing:.06em;color:var(--fg);background:rgba(255,255,255,.1);border-radius:6px;padding:2px 6px}
-.g-door{border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;background:radial-gradient(130% 120% at 100% 0%,rgba(167,139,250,.2),transparent 60%),var(--card);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
-.g-door .hd{display:flex;gap:12px;align-items:flex-start}.g-door .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
-.g-door .tx b{font:700 32px/.95 var(--cond);text-transform:uppercase;letter-spacing:.01em}
-.g-door p{margin:0;font:500 15px/1.4 var(--f);color:var(--fg);opacity:.85}
-.g-door .ic{flex:none;width:78px;display:flex;flex-direction:column;gap:5px;padding-top:4px}
-.g-door .ic i{display:flex;align-items:center;gap:6px;height:17px;border-radius:6px;background:rgba(255,255,255,.08);padding:0 6px}.g-door .ic i:nth-child(2){margin-left:7px}.g-door .ic i:nth-child(3){margin-left:14px}
-.g-door .ic i::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--c)}.g-door .ic i::after{content:"";flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.2)}
-.g-door .acts{display:grid;grid-template-columns:1.2fr 1fr;gap:8px}
-.g-door .g-cta{min-height:48px;padding:12px 8px;font:700 15px var(--f);border-radius:14px;white-space:nowrap;border:0;cursor:pointer}
-.g-door .g-cta.b{background:var(--acc);color:#04121C}.g-cta.f{background:rgba(255,255,255,.1);color:var(--fg)}
+.g-door{display:flex;align-items:center;gap:12px;border-radius:18px;padding:12px 12px 12px 14px;min-height:64px;background:var(--card);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);color:var(--fg);text-decoration:none}.g-door:active{transform:scale(.985)}
+.g-door .ic{flex:none;width:38px;height:38px;border-radius:12px;background:rgba(167,139,250,.16);display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 8px}.g-door .ic i{display:block;height:4px;border-radius:2px;background:var(--c)}.g-door .ic i:nth-child(2){width:70%}.g-door .ic i:nth-child(3){width:45%}
+.g-door .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.g-door .tx b{font:700 19px/1.05 var(--cond);text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.g-door .tx small{font:500 12.5px var(--f);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-door .go{flex:none;display:flex;align-items:center;gap:2px;background:var(--acc);color:#04121C;font:700 14px var(--f);border-radius:12px;padding:9px 8px 9px 12px}.g-door .go .chev{width:16px;height:16px;fill:none;stroke:#04121C;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.g-foot{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g-foot .g-cta{min-height:46px;padding:10px 8px;font:700 14px var(--f);border-radius:14px;white-space:nowrap;border:0;cursor:pointer;background:var(--card2);color:var(--fg)}.g-foot .g-cta small{color:var(--acc);font:700 12px var(--f)}
 .g-more{align-self:flex-end;font:600 13px var(--f);color:var(--acc);text-decoration:none;padding:4px 2px}
 .g-line{font-size:13.5px;color:var(--mute);padding:0 4px}.g-line b{color:var(--fg);font-weight:600}.g-line em{font-style:normal;color:var(--warn);font-weight:700}
 .g-move{display:flex;flex-direction:column;gap:2px}
@@ -271,17 +266,15 @@ function prizeCard(){const n=GS.field().length,i=rungOf(n),r=LADDER[i],nx=LADDER
 const CHEV='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 /* Run your own: the door into contest creation, third on Home. Join with a code sits beside it. */
 function doorCard(ws){const own=ws.some(w=>w.owner);
-  return`<div class="g-door"><div class="hd"><div class="tx"><span class="g-eyebrow">Free · private or public</span><b>Run your own contest</b></div><span class="ic" aria-hidden="true"><i style="--c:#F59E0B"></i><i style="--c:#A78BFA"></i><i style="--c:#34D399"></i></span></div>
-  <p>Your Field, your rules. Any sports, any days, your Stack.</p>
-  <div class="acts"><a class="g-cta b" href="${GS.CPAGE.create}">${own?'Start another':'Start a contest'}</a><button class="g-cta f" data-act="joinopen">Join with a code</button></div>
-  <form id="g-joinf" class="g-two" hidden><input class="g-in" id="g-code" maxlength="80" placeholder="Code or invite link" autocomplete="off"><button class="g-cta b" type="submit">Join</button></form></div>`}
+  return`<a class="g-door" href="${GS.CPAGE.create}" aria-label="Run your own contest"><span class="ic" aria-hidden="true"><i style="--c:#F59E0B"></i><i style="--c:#A78BFA"></i><i style="--c:#34D399"></i></span><span class="tx"><b>Run your own contest</b><small>Your Field, your rules, your Stack.</small></span><span class="go">${own?'New':'Start'}${CHEV}</span></a>`}
 /* My contests: one tight row per contest. The active one opens its Ranks; any other switches to it. Public contests show only once they have entries. */
 function myContests(ws,act){const P=GS.CPAGE,all=GS.contests.open().filter(x=>!ws.some(w=>w.id===x.id)),pub=all.filter(x=>GS.contests.count(x)>0).slice(0,3);
   const row=w=>{const on=w.id===act,nums=w.entered?`<b>${GS.fmt(w.stack)}</b>${w.rank?' · #'+w.rank:''}`:'Not entered';const inner=`<span class="g-dot" style="background:${okc(w.color)}"></span><span class="m"><span class="t"><b>${esc(w.name)}</b>${on?'<span class="on-tag">ACTIVE</span>':''}</span></span><span class="nums">${nums}</span>${CHEV}`;
     return on?`<a class="g-cc r1 on" href="${w.id==='rush'?'ranks.html':P.one(w.id)}" aria-label="${esc(w.name)}, active. Open Ranks">${inner}</a>`:`<button class="g-cc r1" data-wallet="${esc(w.id)}" aria-label="Switch to ${esc(w.name)}">${inner}</button>`};
   const pc=x=>{const c=GS.contests.count(x),lg=((x.schedule&&x.schedule.leagues)||[]).slice(0,3);return`<a class="g-cc pub" href="${P.one(x.id)}"><span class="m"><b>${esc(GS.contests.name(x))}</b><span class="sp">${lg.map(l=>`<span class="g-sp">${esc(String(l).toUpperCase())}</span>`).join('')}<small>${c} in the Field${x.host?' · by '+esc(x.host):''}</small></span></span>${CHEV}</a>`};
   return`<div class="g-card"><div class="g-h">My contests<small>${ws.length>1?'Tap one to switch':'Stack · rank'}</small></div>${ws.map(row).join('')}
-  ${pub.length?`<div class="g-eyebrow" style="margin-top:4px">Public contests filling up</div>${pub.map(pc).join('')}`:''}<a class="g-more" href="${P.list}">All contests${all.length?' · '+all.length+' public open':''} &#8250;</a></div>`}
+  ${pub.length?`<div class="g-eyebrow" style="margin-top:4px">Public contests filling up</div>${pub.map(pc).join('')}`:''}<div class="g-foot"><button class="g-cta" data-act="joinopen">Join with a code</button><a class="g-cta" href="${P.list}">Public contests${all.length?' <small>'+all.length+' open</small>':''}</a></div>
+  <form id="g-joinf" class="g-two" hidden><input class="g-in" id="g-code" maxlength="80" placeholder="Code or invite link" autocomplete="off"><button class="g-cta b" type="submit">Join</button></form></div>`}
 function contestCard(c){return`<a class="g-card g-cl" href="${GS.CPAGE.one(c.id)}"><span class="g-h">${esc(c.name)} Ranks<small>${c.of?c.of+' in · ':''}Open &#8250;</small></span><span class="g-plain">${c.rank?`You are <b>#${c.rank}</b> of ${c.of}.`:'Ranks fill in as picks settle.'}${c.owner?' You run this contest.':''}</span></a>`}
 function render(){const ae=document.activeElement;if(ae&&(ae.id==='g-code'||ae.id==='g-name'||ae.id==='g-refname'))return;const me=GS.me(),now=Date.now(),ws=wallets(),act=WAL()?WAL().active():'rush',c=ws.find(w=>w.id===act)||null,rush=act==='rush'||!c,entered=rush?GS.entered():c.entered;
   const L=GAMES.filter(covered(act)),hero=heroGame(L),live=L.filter(g=>g.state==='in'&&g!==hero),next=L.filter(g=>g.state==='pre'&&g!==hero).slice(0,8);
