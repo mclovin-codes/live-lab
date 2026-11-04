@@ -18,18 +18,21 @@ Site: https://mclovin-codes.github.io/live-lab/teams/blue/app/ (Crew tab). Resul
   - Crew page: countdown ring (alive, under 48 h, hurry under 12 h, cold), boost meter with the next member's step, invite (share sheet, copy link, the invite text in Rush words), members with NEW TO RUSH and SIM tags, what happened, the curve, the rules, leave with confirm.
   - A Crew tab whose badge shows hours left under 48 h, or "!" when cold.
   - Home: a crew card with the live countdown; the crew boost is added to Your multiplier (capped at 3x).
-  - An invite link (crew.html?crew=CODE&cn=NAME&ref=WHO) lets a friend join on their own phone, counted as new to Rush if not yet in this week's Field.
-  - Prototype: the crew lives in the browser, and SIM crewmates join 60 to 200 h apart so the timer can be watched.
-- Sim (teams/blue/sim/crews-sim.mjs, 1,000 runs, seed 1000 + r with mulberry32, the same seed in each arm). Week 13 Field, mean (p10 to p90):
-  - Baseline: 42.0 (35 to 49); reaches 40 in 67% of seasons.
-  - Crews, cohort-supported only (adoption 0.55, recruiting lift 1.1, no return bonus): 42.5; average multiplier 1.09x against 1.01x; 61% of the Field in a crew.
-  - Crews, recruiting x2: 45.1. With x2 and +5 points return: 46.2; reaches 40 in 86% of seasons.
-  - Crews, recruiting x3 and +5 points return: 50.4.
-- Reading: Crews barely grows the Field unless it changes how often people bring someone in. The countdown has to do that work; the cohort shows the referral multiplier alone moved recruiting about 10% (0.044 against 0.040).
+  - Linking is explicit and two-sided (founder addendum, 41fbe8a). An invite link (crew.html?crew=CODE&cn=NAME&ref=WHO) only prefills the crew and "Who invited you?"; the new player can pick someone else from the Field. Their tap sends a request, and they count when the crew confirms with one tap. The inviter can also add a friend from the players who joined in the last 14 days; that friend confirms. Requests show in "Confirm your people". The timer starts at the confirm. No codes are typed. A friend not yet in this week's Field counts as new to Rush.
+  - Prototype: the crew lives in the browser. SIM players ask to join 60 to 200 h apart; a friend you add confirms after 15 s (9 in 10 do); a crew you ask to join confirms you after 10 s.
+  - contest-kit.js CSV export (Gold's flag): a cell that starts with = + - @ tab or CR gets a quote prefix, so it cannot run as a formula; plain numbers stay numbers.
+- Sim (teams/blue/sim/crews-sim.mjs, 1,000 runs, seed 1000 + r with mulberry32, the same seed in each arm; Red is porting this baseline). A crew member counts only once both sides confirm (assumed 0.9 within 24 h). Week 13 Field, mean (p10 to p90):
+  - Baseline, pooled return rates: 42.0 (35 to 49); reaches 40 in 67% of seasons.
+  - Crews, cohort-supported only (adoption 0.55, recruiting lift 1.1, no return bonus): 42.7; average multiplier 1.08x against 1.01x; 57% of the Field in a crew.
+  - Crews, recruiting x2: 45.1. With x2 and +5 points return: 46.4; reaches 40 in 86% of seasons.
+  - Crews, recruiting x3 and +5 points return: 49.9.
+  - On the W7 to W8 carryover (0.93, the pace behind the file's +4 a week trend): baseline 55.8, Crews cohort-supported 56.3, Crews x2 and +5 points 62.5.
+- Reading: Crews barely grows the Field unless it changes how often people bring someone in. The countdown has to do that work. In the cohort data, the referral multiplier alone moved recruiting about 10% (0.044 against 0.040).
 - Assumptions not in the cohort file, each shown with and without on the page:
   - adoption 0.55 (anchored on 18 of 33 Week 8 entrants who came by a friend);
   - recruiting lift 2 or 3;
-  - +5 points return for members of a live crew.
+  - +5 points return for members of a live crew;
+  - confirm rate 0.9 within 24 h.
 
 ## NHL live, Nov 3 (app/game.html, 54ba7c9 and 2135b49)
 Measured on 8 live NHL games, 1st period, 19:27 to 19:46 ET, recording ESPN fastcast (gp-hockey-nhl-<id>) and the REST summary side by side.
