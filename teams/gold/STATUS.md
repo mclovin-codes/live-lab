@@ -31,6 +31,8 @@
 - My contests sits right under the Field. Every contest you are in is a tappable card with its colour dot, name, its own Stack, your rank and its settle clock, plus a chevron. The active one carries an ACTIVE tag and a blue outline and opens its Ranks. Any other card switches to that contest. "Run your own contest" and "Join with a code" are outlined secondary buttons under the cards, with no gradient. Up to three public contests follow under "Public contests to join", then "All contests".
 - The separate "Your other contests" row and the old bottom Contests card are gone, so contests live in one place.
 
+**Run your own door (founder, screen 45).** Home now runs: live moment, prize card, then a Run your own contest card (Barlow Condensed headline, "Your Field, your rules. Any sports, any days, your Stack.", Start a contest in Rush blue, Join with a code filled beside it). My contests is one 52 px row per contest (dot, name, Stack, rank, chevron); the settle date lives on the contest itself. Public contests stay hidden behind "All contests · N public open" until one has entries, then show as cards with sport chips and the Field count. Slips marks in-game picks LIVE with score and clock (5769b56).
+
 **Next:** test the live strip into game.html once Blue ships it, show game.html timed picks in Slips, and give finished games a Lounge thread with graded results.
 
 # Closing summary for the scorecard (MNF build)
