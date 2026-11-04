@@ -1,5 +1,17 @@
 # Team Gold status
 
+## Phase 3: Squad Streak, Gold's growth mechanism (from 9:45 PM, Nov 3)
+**Site:** https://mclovin-codes.github.io/live-lab/teams/gold/app/ (a copy of app/; the shared app/ stays frozen).
+
+**The case, before building.** The Field grows by new players coming in minus players who stop coming back, and both rival mechanisms work on only one of those two numbers. Red's Contests make one person, the commissioner, do all the recruiting, and that person is a small slice of any cohort. Blue's Crews make everyone recruit, but the boost dies unless someone new keeps joining. Every friend network runs out of new people within a few weeks, so the timer that drives early growth later strips the boost from everyone at once, right when the cohort is most likely to drift away. Gold's Squad Streak ties the boost to coming back, not only to recruiting:
+- **A Squad** is 2 to 8 friends. Every member's Prize Multiplier rises **+0.05x for each member who locks a pick this week**.
+- **The streak** rises **+0.1x for each week in a row** that at least 60% of the Squad picks, up to +0.5x.
+- **A missed week** resets the streak to 0, but the Squad survives and nobody loses their seat.
+- **Recruiting:** each new member who joins and locks a first pick adds a streak week at once, so bringing someone in still pays.
+- **Squad Ranks** sit beside the Field and score each Squad's average Units, so a Squad also competes like a contest without anyone running one. The top Squad each week gets +0.2x the next week.
+
+Recruiting starts a Squad and showing up keeps its boost alive. The cheapest person to put in next week's Field is someone who was in this week's, so the biggest leak, churn after a losing week, becomes a reason for squadmates to nudge each other. The weekly deadline is the Monday night kickoff, which every member can meet on their own, not a timer only a stranger can reset. Squad Streak should match Crews on new players early and pull ahead on retention and Field size by Week 13. The simulation in teams/gold/sim/ tests that, and every assumption the Week 8 cohort file does not support is named and shown switched off.
+
 ## Now: the weekly app (from 12:10 AM, Nov 3)
 **Gold owns:** app/index.html (Home), app/slips.html (Slips), app/lounge.html (Lounge), app/gold-store.js (a thin map onto Blue's shared/state.js), and the app card in hub/index.html.
 **URL:** https://mclovin-codes.github.io/live-lab/app/
