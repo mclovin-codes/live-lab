@@ -1,5 +1,8 @@
 # Changelog: Team Red, Rush Live
 
+## p3.1 (2026-11-03, Phase 3 Contests)
+- teams/red/app/ copied from app/. Contests quick start (plan, name, visibility, Create and invite), Contest Boost for every member (4/8/15 in: +0.1/+0.2/+0.3x, winner +0.2x), Invite tab with the explainer card and Send, Text, Copy, Run it back, Contest Boost row on the Home multiplier.
+
 ## app r13c (2026-11-03)
 - Board Live cards show the book's last posted live line; the Board never prices a game itself, labelled last seen with its time. No line while the book is OFF.
 

@@ -1,5 +1,11 @@
 # Team Red status
 
+## Phase 3: Contests (from 2026-11-03, 9:45 PM ET)
+- Site: https://mclovin-codes.github.io/live-lab/teams/red/app/ (a copy of app/; the shared app/ stays frozen). Sim page: teams/red/app/sim.html.
+- p3.1 creation is the hero: Contests opens on a quick start. Pick a game plan (Friends, all sports; NFL Sunday; Hoops nights; Lines only, on record), the name fills itself ("Nic's Week 9"), Private or Public, then Create and invite. Three taps to a live contest. "Set every rule" opens the full form (stake limits, odds limits, injury protection, ties, entry close).
+- Incentive for every player, not only the commissioner: the Contest Boost on the Prize Multiplier. Real players in the contest (SIM stand-ins never count): 4 in +0.1x, 8 in +0.2x, 15 in +0.3x; 1st place in the contest adds +0.2x. Inside the same 3x cap as referrals; a player's best contest this week counts. Shown on the contest hero for every member, on the quick start, and as a row in the Home multiplier sheet.
+- Commissioner tools: the Invite tab (open on creation, for every member) shows the explainer card (what it is, how it works, what you get, right now, code) with Send (one tap: the card text and the link through the share sheet), Text and Copy. The link opens Rush on the contest, so a friend joins with no account and no download. Invites carry how many are in, so a joiner's phone shows the contest's size. Run it back: one tap makes next week's contest with the same rules and opens the invite.
+
 ## Weekly app (from 2026-11-03)
 - Role: app/board.html and app/ranks.html, plus app/week-games.js (Red's shared loader for this week's games and the simulated Field, used by both pages).
 - URLs: https://mclovin-codes.github.io/live-lab/app/board.html and https://mclovin-codes.github.io/live-lab/app/ranks.html
