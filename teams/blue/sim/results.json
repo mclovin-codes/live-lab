@@ -39,7 +39,7 @@
  "scenarios": {
   "baseline": {
    "label": "Baseline, no mechanism",
-   "why": "cohort tendencies only",
+   "why": "cohort tendencies only (pooled W1 to W7 return rates)",
    "assumptions": null,
    "weeks": [
     {
@@ -154,13 +154,377 @@
     }
    ]
   },
+  "baseline_recent": {
+   "label": "Baseline, W7 to W8 carryover",
+   "why": "everyone in the Field comes back at 0.93 (26 of 28, W7 to W8) instead of the pooled 0.77 and 0.92; matches the +4 a week trend in the file",
+   "assumptions": {
+    "rates": "recent"
+   },
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 38.1,
+      "p10": 34,
+      "p50": 38,
+      "p90": 42
+     },
+     "newIn": 4.5,
+     "retention": 0.91,
+     "avgMult": 1.014,
+     "touched": 0,
+     "aliveShare": 0,
+     "crews": 0,
+     "rungShare": [
+      1,
+      0.321,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 42.7,
+      "p10": 37,
+      "p50": 43,
+      "p90": 48
+     },
+     "newIn": 4.68,
+     "retention": 0.911,
+     "avgMult": 1.014,
+     "touched": 0,
+     "aliveShare": 0,
+     "crews": 0,
+     "rungShare": [
+      1,
+      0.775,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 47.1,
+      "p10": 41,
+      "p50": 47,
+      "p90": 53
+     },
+     "newIn": 4.84,
+     "retention": 0.91,
+     "avgMult": 1.014,
+     "touched": 0,
+     "aliveShare": 0,
+     "crews": 0,
+     "rungShare": [
+      1,
+      0.945,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 51.4,
+      "p10": 44,
+      "p50": 51,
+      "p90": 58
+     },
+     "newIn": 5.03,
+     "retention": 0.908,
+     "avgMult": 1.015,
+     "touched": 0,
+     "aliveShare": 0,
+     "crews": 0,
+     "rungShare": [
+      1,
+      0.993,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 55.8,
+      "p10": 48,
+      "p50": 55,
+      "p90": 64
+     },
+     "newIn": 5.2,
+     "retention": 0.91,
+     "avgMult": 1.016,
+     "touched": 0,
+     "aliveShare": 0,
+     "crews": 0,
+     "rungShare": [
+      1,
+      0.999,
+      0.003,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "crews7_recent": {
+   "label": "7-day window, cohort-supported, W7 to W8 carryover",
+   "why": "as the cohort-supported run, on the recent carryover",
+   "assumptions": {
+    "adopt": 0.55,
+    "lift": 1.1,
+    "keep": 0,
+    "rates": "recent"
+   },
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 38.1,
+      "p10": 34,
+      "p50": 38,
+      "p90": 42
+     },
+     "newIn": 4.5,
+     "retention": 0.91,
+     "avgMult": 1.108,
+     "touched": 0.476,
+     "aliveShare": 0.179,
+     "crews": 4,
+     "rungShare": [
+      1,
+      0.307,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 42.8,
+      "p10": 37,
+      "p50": 43,
+      "p90": 48
+     },
+     "newIn": 4.71,
+     "retention": 0.91,
+     "avgMult": 1.116,
+     "touched": 0.514,
+     "aliveShare": 0.194,
+     "crews": 5.1,
+     "rungShare": [
+      1,
+      0.77,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 47.4,
+      "p10": 41,
+      "p50": 47,
+      "p90": 54
+     },
+     "newIn": 4.9,
+     "retention": 0.911,
+     "avgMult": 1.113,
+     "touched": 0.551,
+     "aliveShare": 0.185,
+     "crews": 6.2,
+     "rungShare": [
+      1,
+      0.946,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 51.9,
+      "p10": 45,
+      "p50": 52,
+      "p90": 59
+     },
+     "newIn": 5.12,
+     "retention": 0.911,
+     "avgMult": 1.111,
+     "touched": 0.582,
+     "aliveShare": 0.181,
+     "crews": 7.3,
+     "rungShare": [
+      1,
+      0.988,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 56.3,
+      "p10": 49,
+      "p50": 56,
+      "p90": 64
+     },
+     "newIn": 5.27,
+     "retention": 0.911,
+     "avgMult": 1.11,
+     "touched": 0.61,
+     "aliveShare": 0.179,
+     "crews": 8.4,
+     "rungShare": [
+      1,
+      1,
+      0.004,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "crews7_lift2_keep_recent": {
+   "label": "7-day window, recruiting x2, +5 pts return, W7 to W8 carryover",
+   "why": "assumptions: recruiting x2 and +5 points return, on the recent carryover",
+   "assumptions": {
+    "adopt": 0.55,
+    "lift": 2,
+    "keep": 0.05,
+    "rates": "recent"
+   },
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 38.6,
+      "p10": 34,
+      "p50": 38,
+      "p90": 43
+     },
+     "newIn": 5.04,
+     "retention": 0.91,
+     "avgMult": 1.133,
+     "touched": 0.481,
+     "aliveShare": 0.219,
+     "crews": 4,
+     "rungShare": [
+      1,
+      0.359,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 44.5,
+      "p10": 38,
+      "p50": 44,
+      "p90": 50
+     },
+     "newIn": 5.44,
+     "retention": 0.92,
+     "avgMult": 1.152,
+     "touched": 0.527,
+     "aliveShare": 0.243,
+     "crews": 5.1,
+     "rungShare": [
+      1,
+      0.86,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 50.6,
+      "p10": 44,
+      "p50": 50,
+      "p90": 58
+     },
+     "newIn": 6,
+     "retention": 0.925,
+     "avgMult": 1.17,
+     "touched": 0.569,
+     "aliveShare": 0.26,
+     "crews": 6.2,
+     "rungShare": [
+      1,
+      0.978,
+      0.001,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 56.6,
+      "p10": 48,
+      "p50": 56,
+      "p90": 66
+     },
+     "newIn": 6.29,
+     "retention": 0.924,
+     "avgMult": 1.175,
+     "touched": 0.605,
+     "aliveShare": 0.259,
+     "crews": 7.4,
+     "rungShare": [
+      1,
+      0.999,
+      0.004,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 62.5,
+      "p10": 54,
+      "p50": 62,
+      "p90": 72
+     },
+     "newIn": 6.61,
+     "retention": 0.924,
+     "avgMult": 1.178,
+     "touched": 0.637,
+     "aliveShare": 0.26,
+     "crews": 8.5,
+     "rungShare": [
+      1,
+      0.999,
+      0.045,
+      0,
+      0
+     ]
+    }
+   ]
+  },
   "crews_supported": {
    "label": "72 h window (first design), cohort-supported only",
    "why": "adoption 0.55 = 18 of 33 Week 8 entrants came by a friend; recruiting lift 1.1 = referral signups per entrant-week in the multiplier era (0.044) over the season (0.040); no return bonus",
    "assumptions": {
     "adopt": 0.55,
     "lift": 1.1,
-    "keep": 0
+    "keep": 0,
+    "rates": "pooled"
    },
    "weeks": [
     {
@@ -171,15 +535,15 @@
       "p50": 35,
       "p90": 39
      },
-     "newIn": 4.45,
+     "newIn": 4.39,
      "retention": 0.808,
-     "avgMult": 1.079,
-     "touched": 0.528,
-     "aliveShare": 0.11,
+     "avgMult": 1.073,
+     "touched": 0.475,
+     "aliveShare": 0.108,
      "crews": 3.7,
      "rungShare": [
       1,
-      0.088,
+      0.073,
       0,
       0,
       0
@@ -188,20 +552,20 @@
     {
      "w": 10,
      "field": {
-      "mean": 35.9,
+      "mean": 36,
       "p10": 30,
       "p50": 36,
       "p90": 42
      },
-     "newIn": 4.48,
-     "retention": 0.793,
-     "avgMult": 1.064,
-     "touched": 0.548,
-     "aliveShare": 0.097,
-     "crews": 4.6,
+     "newIn": 4.54,
+     "retention": 0.794,
+     "avgMult": 1.057,
+     "touched": 0.495,
+     "aliveShare": 0.093,
+     "crews": 4.7,
      "rungShare": [
       1,
-      0.201,
+      0.216,
       0,
       0,
       0
@@ -210,20 +574,20 @@
     {
      "w": 11,
      "field": {
-      "mean": 37.6,
-      "p10": 31,
+      "mean": 38,
+      "p10": 32,
       "p50": 38,
       "p90": 44
      },
-     "newIn": 4.65,
-     "retention": 0.791,
-     "avgMult": 1.057,
-     "touched": 0.565,
-     "aliveShare": 0.093,
-     "crews": 5.5,
+     "newIn": 4.61,
+     "retention": 0.795,
+     "avgMult": 1.052,
+     "touched": 0.517,
+     "aliveShare": 0.087,
+     "crews": 5.6,
      "rungShare": [
       1,
-      0.331,
+      0.368,
       0,
       0,
       0
@@ -232,20 +596,20 @@
     {
      "w": 12,
      "field": {
-      "mean": 40,
+      "mean": 40.2,
       "p10": 33,
       "p50": 40,
       "p90": 47
      },
-     "newIn": 4.75,
+     "newIn": 4.69,
      "retention": 0.797,
-     "avgMult": 1.053,
-     "touched": 0.586,
-     "aliveShare": 0.085,
-     "crews": 6.4,
+     "avgMult": 1.051,
+     "touched": 0.546,
+     "aliveShare": 0.087,
+     "crews": 6.5,
      "rungShare": [
       1,
-      0.523,
+      0.546,
       0,
       0,
       0
@@ -254,20 +618,20 @@
     {
      "w": 13,
      "field": {
-      "mean": 42.5,
+      "mean": 42.7,
       "p10": 35,
-      "p50": 42,
+      "p50": 43,
       "p90": 50
      },
-     "newIn": 4.85,
+     "newIn": 4.82,
      "retention": 0.797,
-     "avgMult": 1.05,
-     "touched": 0.608,
-     "aliveShare": 0.083,
-     "crews": 7.3,
+     "avgMult": 1.048,
+     "touched": 0.57,
+     "aliveShare": 0.081,
+     "crews": 7.4,
      "rungShare": [
       1,
-      0.702,
+      0.695,
       0,
       0,
       0
@@ -281,26 +645,27 @@
    "assumptions": {
     "adopt": 0.55,
     "lift": 2,
-    "keep": 0
+    "keep": 0,
+    "rates": "pooled"
    },
    "weeks": [
     {
      "w": 9,
      "field": {
-      "mean": 35.2,
+      "mean": 35.1,
       "p10": 31,
       "p50": 35,
-      "p90": 40
+      "p90": 39
      },
-     "newIn": 5,
+     "newIn": 4.89,
      "retention": 0.808,
-     "avgMult": 1.1,
-     "touched": 0.535,
-     "aliveShare": 0.141,
+     "avgMult": 1.091,
+     "touched": 0.48,
+     "aliveShare": 0.138,
      "crews": 3.7,
      "rungShare": [
       1,
-      0.122,
+      0.095,
       0,
       0,
       0
@@ -309,20 +674,20 @@
     {
      "w": 10,
      "field": {
-      "mean": 36.9,
+      "mean": 37,
       "p10": 31,
       "p50": 37,
       "p90": 43
      },
-     "newIn": 5.09,
-     "retention": 0.792,
-     "avgMult": 1.088,
-     "touched": 0.557,
-     "aliveShare": 0.131,
+     "newIn": 5.06,
+     "retention": 0.796,
+     "avgMult": 1.076,
+     "touched": 0.503,
+     "aliveShare": 0.12,
      "crews": 4.6,
      "rungShare": [
       1,
-      0.271,
+      0.29,
       0,
       0,
       0
@@ -331,20 +696,20 @@
     {
      "w": 11,
      "field": {
-      "mean": 39.1,
-      "p10": 33,
+      "mean": 39.4,
+      "p10": 32,
       "p50": 39,
       "p90": 46
      },
-     "newIn": 5.27,
-     "retention": 0.791,
-     "avgMult": 1.078,
-     "touched": 0.581,
-     "aliveShare": 0.121,
-     "crews": 5.5,
+     "newIn": 5.31,
+     "retention": 0.795,
+     "avgMult": 1.073,
+     "touched": 0.528,
+     "aliveShare": 0.119,
+     "crews": 5.6,
      "rungShare": [
       1,
-      0.445,
+      0.491,
       0,
       0,
       0
@@ -358,15 +723,15 @@
       "p50": 42,
       "p90": 50
      },
-     "newIn": 5.85,
-     "retention": 0.793,
-     "avgMult": 1.082,
-     "touched": 0.605,
-     "aliveShare": 0.127,
-     "crews": 6.4,
+     "newIn": 5.53,
+     "retention": 0.796,
+     "avgMult": 1.071,
+     "touched": 0.558,
+     "aliveShare": 0.115,
+     "crews": 6.5,
      "rungShare": [
       1,
-      0.671,
+      0.651,
       0,
       0,
       0
@@ -378,18 +743,18 @@
       "mean": 45.1,
       "p10": 37,
       "p50": 45,
-      "p90": 54
+      "p90": 53
      },
-     "newIn": 5.67,
-     "retention": 0.795,
-     "avgMult": 1.072,
-     "touched": 0.626,
+     "newIn": 5.75,
+     "retention": 0.794,
+     "avgMult": 1.069,
+     "touched": 0.581,
      "aliveShare": 0.114,
-     "crews": 7.3,
+     "crews": 7.5,
      "rungShare": [
       1,
-      0.812,
-      0.001,
+      0.808,
+      0,
       0,
       0
      ]
@@ -402,26 +767,27 @@
    "assumptions": {
     "adopt": 0.55,
     "lift": 2,
-    "keep": 0.05
+    "keep": 0.05,
+    "rates": "pooled"
    },
    "weeks": [
     {
      "w": 9,
      "field": {
-      "mean": 35.2,
+      "mean": 35.1,
       "p10": 31,
       "p50": 35,
-      "p90": 40
+      "p90": 39
      },
-     "newIn": 5,
+     "newIn": 4.89,
      "retention": 0.808,
-     "avgMult": 1.1,
-     "touched": 0.535,
-     "aliveShare": 0.141,
+     "avgMult": 1.091,
+     "touched": 0.48,
+     "aliveShare": 0.138,
      "crews": 3.7,
      "rungShare": [
       1,
-      0.122,
+      0.095,
       0,
       0,
       0
@@ -431,19 +797,19 @@
      "w": 10,
      "field": {
       "mean": 37.2,
-      "p10": 32,
+      "p10": 31,
       "p50": 37,
       "p90": 43
      },
-     "newIn": 5.11,
-     "retention": 0.8,
-     "avgMult": 1.09,
-     "touched": 0.56,
-     "aliveShare": 0.133,
+     "newIn": 5.07,
+     "retention": 0.802,
+     "avgMult": 1.077,
+     "touched": 0.506,
+     "aliveShare": 0.119,
      "crews": 4.6,
      "rungShare": [
       1,
-      0.292,
+      0.305,
       0,
       0,
       0
@@ -454,18 +820,18 @@
      "field": {
       "mean": 39.7,
       "p10": 33,
-      "p50": 39,
+      "p50": 40,
       "p90": 47
      },
-     "newIn": 5.33,
-     "retention": 0.799,
-     "avgMult": 1.082,
-     "touched": 0.584,
+     "newIn": 5.31,
+     "retention": 0.8,
+     "avgMult": 1.078,
+     "touched": 0.532,
      "aliveShare": 0.124,
-     "crews": 5.5,
+     "crews": 5.6,
      "rungShare": [
       1,
-      0.495,
+      0.517,
       0,
       0,
       0
@@ -474,20 +840,20 @@
     {
      "w": 12,
      "field": {
-      "mean": 42.6,
+      "mean": 42.7,
       "p10": 35,
       "p50": 42,
-      "p90": 50
+      "p90": 51
      },
-     "newIn": 5.67,
-     "retention": 0.8,
-     "avgMult": 1.079,
-     "touched": 0.609,
+     "newIn": 5.56,
+     "retention": 0.803,
+     "avgMult": 1.075,
+     "touched": 0.56,
      "aliveShare": 0.121,
-     "crews": 6.4,
+     "crews": 6.5,
      "rungShare": [
       1,
-      0.692,
+      0.69,
       0,
       0,
       0
@@ -496,20 +862,20 @@
     {
      "w": 13,
      "field": {
-      "mean": 45.5,
+      "mean": 45.8,
       "p10": 37,
       "p50": 45,
       "p90": 54
      },
-     "newIn": 5.61,
-     "retention": 0.801,
-     "avgMult": 1.074,
-     "touched": 0.63,
-     "aliveShare": 0.114,
-     "crews": 7.3,
+     "newIn": 5.75,
+     "retention": 0.802,
+     "avgMult": 1.069,
+     "touched": 0.583,
+     "aliveShare": 0.111,
+     "crews": 7.5,
      "rungShare": [
       1,
-      0.819,
+      0.844,
       0,
       0,
       0
@@ -523,7 +889,8 @@
    "assumptions": {
     "adopt": 0.55,
     "lift": 1.1,
-    "keep": 0
+    "keep": 0,
+    "rates": "pooled"
    },
    "weeks": [
     {
@@ -534,15 +901,15 @@
       "p50": 35,
       "p90": 39
      },
-     "newIn": 4.45,
+     "newIn": 4.39,
      "retention": 0.808,
-     "avgMult": 1.145,
-     "touched": 0.528,
-     "aliveShare": 0.228,
+     "avgMult": 1.111,
+     "touched": 0.475,
+     "aliveShare": 0.187,
      "crews": 3.7,
      "rungShare": [
       1,
-      0.088,
+      0.073,
       0,
       0,
       0
@@ -551,20 +918,20 @@
     {
      "w": 10,
      "field": {
-      "mean": 35.9,
+      "mean": 36,
       "p10": 30,
       "p50": 36,
       "p90": 42
      },
-     "newIn": 4.48,
-     "retention": 0.793,
-     "avgMult": 1.124,
-     "touched": 0.548,
-     "aliveShare": 0.215,
-     "crews": 4.6,
+     "newIn": 4.54,
+     "retention": 0.794,
+     "avgMult": 1.095,
+     "touched": 0.495,
+     "aliveShare": 0.178,
+     "crews": 4.7,
      "rungShare": [
       1,
-      0.201,
+      0.216,
       0,
       0,
       0
@@ -573,20 +940,20 @@
     {
      "w": 11,
      "field": {
-      "mean": 37.6,
-      "p10": 31,
+      "mean": 38,
+      "p10": 32,
       "p50": 38,
       "p90": 44
      },
-     "newIn": 4.65,
-     "retention": 0.791,
-     "avgMult": 1.104,
-     "touched": 0.565,
-     "aliveShare": 0.191,
-     "crews": 5.5,
+     "newIn": 4.61,
+     "retention": 0.795,
+     "avgMult": 1.085,
+     "touched": 0.517,
+     "aliveShare": 0.165,
+     "crews": 5.6,
      "rungShare": [
       1,
-      0.331,
+      0.368,
       0,
       0,
       0
@@ -595,20 +962,20 @@
     {
      "w": 12,
      "field": {
-      "mean": 40,
+      "mean": 40.2,
       "p10": 33,
       "p50": 40,
       "p90": 47
      },
-     "newIn": 4.75,
+     "newIn": 4.69,
      "retention": 0.797,
-     "avgMult": 1.096,
-     "touched": 0.586,
-     "aliveShare": 0.18,
-     "crews": 6.4,
+     "avgMult": 1.085,
+     "touched": 0.546,
+     "aliveShare": 0.165,
+     "crews": 6.5,
      "rungShare": [
       1,
-      0.523,
+      0.546,
       0,
       0,
       0
@@ -617,20 +984,20 @@
     {
      "w": 13,
      "field": {
-      "mean": 42.5,
+      "mean": 42.7,
       "p10": 35,
-      "p50": 42,
+      "p50": 43,
       "p90": 50
      },
-     "newIn": 4.85,
+     "newIn": 4.82,
      "retention": 0.797,
-     "avgMult": 1.093,
-     "touched": 0.608,
-     "aliveShare": 0.179,
-     "crews": 7.3,
+     "avgMult": 1.079,
+     "touched": 0.57,
+     "aliveShare": 0.157,
+     "crews": 7.4,
      "rungShare": [
       1,
-      0.702,
+      0.695,
       0,
       0,
       0
@@ -644,26 +1011,27 @@
    "assumptions": {
     "adopt": 0.55,
     "lift": 2,
-    "keep": 0.05
+    "keep": 0.05,
+    "rates": "pooled"
    },
    "weeks": [
     {
      "w": 9,
      "field": {
-      "mean": 35.2,
+      "mean": 35.1,
       "p10": 31,
       "p50": 35,
-      "p90": 40
+      "p90": 39
      },
-     "newIn": 5,
+     "newIn": 4.89,
      "retention": 0.808,
-     "avgMult": 1.182,
-     "touched": 0.535,
-     "aliveShare": 0.286,
+     "avgMult": 1.137,
+     "touched": 0.48,
+     "aliveShare": 0.23,
      "crews": 3.7,
      "rungShare": [
       1,
-      0.122,
+      0.095,
       0,
       0,
       0
@@ -673,19 +1041,19 @@
      "w": 10,
      "field": {
       "mean": 37.4,
-      "p10": 32,
+      "p10": 31,
       "p50": 37,
       "p90": 43
      },
      "newIn": 5.07,
-     "retention": 0.806,
-     "avgMult": 1.164,
-     "touched": 0.564,
-     "aliveShare": 0.268,
+     "retention": 0.807,
+     "avgMult": 1.132,
+     "touched": 0.509,
+     "aliveShare": 0.229,
      "crews": 4.6,
      "rungShare": [
       1,
-      0.314,
+      0.319,
       0,
       0,
       0
@@ -694,20 +1062,20 @@
     {
      "w": 11,
      "field": {
-      "mean": 40.1,
+      "mean": 40,
       "p10": 33,
       "p50": 40,
       "p90": 47
      },
-     "newIn": 5.41,
-     "retention": 0.804,
-     "avgMult": 1.156,
-     "touched": 0.588,
-     "aliveShare": 0.265,
-     "crews": 5.5,
+     "newIn": 5.3,
+     "retention": 0.805,
+     "avgMult": 1.13,
+     "touched": 0.537,
+     "aliveShare": 0.227,
+     "crews": 5.6,
      "rungShare": [
       1,
-      0.539,
+      0.53,
       0,
       0,
       0
@@ -717,19 +1085,19 @@
      "w": 12,
      "field": {
       "mean": 43.2,
-      "p10": 36,
+      "p10": 35,
       "p50": 43,
       "p90": 51
      },
-     "newIn": 5.71,
-     "retention": 0.807,
-     "avgMult": 1.153,
-     "touched": 0.613,
-     "aliveShare": 0.261,
-     "crews": 6.4,
+     "newIn": 5.64,
+     "retention": 0.809,
+     "avgMult": 1.126,
+     "touched": 0.564,
+     "aliveShare": 0.224,
+     "crews": 6.5,
      "rungShare": [
       1,
-      0.734,
+      0.718,
       0,
       0,
       0
@@ -738,20 +1106,20 @@
     {
      "w": 13,
      "field": {
-      "mean": 46.2,
+      "mean": 46.4,
       "p10": 38,
       "p50": 46,
       "p90": 55
      },
-     "newIn": 5.65,
-     "retention": 0.808,
-     "avgMult": 1.137,
-     "touched": 0.634,
-     "aliveShare": 0.237,
-     "crews": 7.2,
+     "newIn": 5.81,
+     "retention": 0.806,
+     "avgMult": 1.12,
+     "touched": 0.589,
+     "aliveShare": 0.215,
+     "crews": 7.5,
      "rungShare": [
       1,
-      0.858,
+      0.862,
       0,
       0,
       0
@@ -765,26 +1133,27 @@
    "assumptions": {
     "adopt": 0.55,
     "lift": 2,
-    "keep": 0
+    "keep": 0,
+    "rates": "pooled"
    },
    "weeks": [
     {
      "w": 9,
      "field": {
-      "mean": 35.2,
+      "mean": 35.1,
       "p10": 31,
       "p50": 35,
-      "p90": 40
+      "p90": 39
      },
-     "newIn": 5,
+     "newIn": 4.89,
      "retention": 0.808,
-     "avgMult": 1.182,
-     "touched": 0.535,
-     "aliveShare": 0.286,
+     "avgMult": 1.137,
+     "touched": 0.48,
+     "aliveShare": 0.23,
      "crews": 3.7,
      "rungShare": [
       1,
-      0.122,
+      0.095,
       0,
       0,
       0
@@ -793,20 +1162,20 @@
     {
      "w": 10,
      "field": {
-      "mean": 36.9,
+      "mean": 37,
       "p10": 31,
       "p50": 37,
       "p90": 43
      },
-     "newIn": 5.09,
-     "retention": 0.792,
-     "avgMult": 1.156,
-     "touched": 0.557,
-     "aliveShare": 0.263,
+     "newIn": 5.06,
+     "retention": 0.796,
+     "avgMult": 1.126,
+     "touched": 0.503,
+     "aliveShare": 0.224,
      "crews": 4.6,
      "rungShare": [
       1,
-      0.271,
+      0.29,
       0,
       0,
       0
@@ -815,20 +1184,20 @@
     {
      "w": 11,
      "field": {
-      "mean": 39.1,
-      "p10": 33,
+      "mean": 39.4,
+      "p10": 32,
       "p50": 39,
       "p90": 46
      },
-     "newIn": 5.27,
-     "retention": 0.791,
-     "avgMult": 1.144,
-     "touched": 0.581,
-     "aliveShare": 0.254,
-     "crews": 5.5,
+     "newIn": 5.31,
+     "retention": 0.795,
+     "avgMult": 1.121,
+     "touched": 0.528,
+     "aliveShare": 0.221,
+     "crews": 5.6,
      "rungShare": [
       1,
-      0.445,
+      0.491,
       0,
       0,
       0
@@ -842,15 +1211,15 @@
       "p50": 42,
       "p90": 50
      },
-     "newIn": 5.85,
-     "retention": 0.793,
-     "avgMult": 1.145,
-     "touched": 0.605,
-     "aliveShare": 0.256,
-     "crews": 6.4,
+     "newIn": 5.53,
+     "retention": 0.796,
+     "avgMult": 1.119,
+     "touched": 0.558,
+     "aliveShare": 0.222,
+     "crews": 6.5,
      "rungShare": [
       1,
-      0.671,
+      0.651,
       0,
       0,
       0
@@ -862,18 +1231,18 @@
       "mean": 45.1,
       "p10": 37,
       "p50": 45,
-      "p90": 54
+      "p90": 53
      },
-     "newIn": 5.67,
-     "retention": 0.795,
-     "avgMult": 1.131,
-     "touched": 0.626,
-     "aliveShare": 0.236,
-     "crews": 7.3,
+     "newIn": 5.75,
+     "retention": 0.794,
+     "avgMult": 1.111,
+     "touched": 0.581,
+     "aliveShare": 0.211,
+     "crews": 7.5,
      "rungShare": [
       1,
-      0.812,
-      0.001,
+      0.808,
+      0,
       0,
       0
      ]
@@ -886,26 +1255,27 @@
    "assumptions": {
     "adopt": 0.55,
     "lift": 3,
-    "keep": 0.05
+    "keep": 0.05,
+    "rates": "pooled"
    },
    "weeks": [
     {
      "w": 9,
      "field": {
-      "mean": 35.8,
+      "mean": 35.6,
       "p10": 31,
       "p50": 36,
-      "p90": 41
+      "p90": 40
      },
-     "newIn": 5.63,
+     "newIn": 5.45,
      "retention": 0.808,
-     "avgMult": 1.219,
-     "touched": 0.542,
-     "aliveShare": 0.339,
+     "avgMult": 1.161,
+     "touched": 0.486,
+     "aliveShare": 0.269,
      "crews": 3.7,
      "rungShare": [
       1,
-      0.162,
+      0.134,
       0,
       0,
       0
@@ -915,19 +1285,19 @@
      "w": 10,
      "field": {
       "mean": 38.8,
-      "p10": 33,
+      "p10": 32,
       "p50": 39,
       "p90": 45
      },
-     "newIn": 5.84,
-     "retention": 0.809,
-     "avgMult": 1.213,
-     "touched": 0.577,
-     "aliveShare": 0.332,
+     "newIn": 5.9,
+     "retention": 0.808,
+     "avgMult": 1.173,
+     "touched": 0.521,
+     "aliveShare": 0.288,
      "crews": 4.6,
      "rungShare": [
       1,
-      0.44,
+      0.425,
       0,
       0,
       0
@@ -936,20 +1306,20 @@
     {
      "w": 11,
      "field": {
-      "mean": 42.4,
+      "mean": 42.2,
       "p10": 35,
       "p50": 42,
       "p90": 50
      },
-     "newIn": 6.39,
-     "retention": 0.812,
-     "avgMult": 1.208,
-     "touched": 0.606,
-     "aliveShare": 0.326,
-     "crews": 5.5,
+     "newIn": 6.2,
+     "retention": 0.81,
+     "avgMult": 1.173,
+     "touched": 0.556,
+     "aliveShare": 0.29,
+     "crews": 5.6,
      "rungShare": [
       1,
-      0.675,
+      0.653,
       0,
       0,
       0
@@ -958,21 +1328,21 @@
     {
      "w": 12,
      "field": {
-      "mean": 46.3,
-      "p10": 38,
+      "mean": 45.9,
+      "p10": 37,
       "p50": 46,
-      "p90": 55
+      "p90": 54
      },
-     "newIn": 6.66,
-     "retention": 0.813,
-     "avgMult": 1.195,
-     "touched": 0.632,
-     "aliveShare": 0.315,
-     "crews": 6.4,
+     "newIn": 6.43,
+     "retention": 0.811,
+     "avgMult": 1.169,
+     "touched": 0.585,
+     "aliveShare": 0.284,
+     "crews": 6.6,
      "rungShare": [
       1,
-      0.852,
-      0,
+      0.835,
+      0.002,
       0,
       0
      ]
@@ -980,20 +1350,20 @@
     {
      "w": 13,
      "field": {
-      "mean": 50.4,
+      "mean": 49.9,
       "p10": 41,
       "p50": 50,
-      "p90": 60
+      "p90": 59
      },
-     "newIn": 6.97,
-     "retention": 0.811,
-     "avgMult": 1.184,
-     "touched": 0.653,
-     "aliveShare": 0.3,
-     "crews": 7.3,
+     "newIn": 6.9,
+     "retention": 0.81,
+     "avgMult": 1.167,
+     "touched": 0.609,
+     "aliveShare": 0.277,
+     "crews": 7.5,
      "rungShare": [
       1,
-      0.94,
+      0.929,
       0.002,
       0,
       0

@@ -20,7 +20,7 @@ const chart = `<svg viewBox="0 0 ${W + 30} ${H}" role="img" aria-label="Field si
 const legend = SERIES.map(([k, n, c]) => `<span><i style="background:${c}"></i>${esc(n)}</span>`).join('');
 const pct = v => (v * 100).toFixed(0) + '%';
 const table = k => { const s = S[k]; return `<div class="tw"><table><thead><tr><th>Week</th><th>Field (p10 to p90)</th><th>New in</th><th>Kept from last week</th><th>Avg multiplier</th><th>In a crew</th><th>Crew alive at settle</th><th>Reached 40 in</th></tr></thead><tbody>${s.weeks.map(x => `<tr><td>W${x.w}</td><td>${x.field.mean} <small>(${x.field.p10} to ${x.field.p90})</small></td><td>${x.newIn}</td><td>${(x.retention * 100).toFixed(1)}%</td><td>${x.avgMult.toFixed(2)}x</td><td>${pct(x.touched)}</td><td>${pct(x.aliveShare)}</td><td>${pct(x.rungShare[1])}</td></tr>`).join('')}</tbody></table></div>`; };
-const order = ['baseline', 'crews7_supported', 'crews7_lift2', 'crews7_lift2_keep', 'crews_lift3_keep', 'crews_supported', 'crews_lift2', 'crews_lift2_keep'];
+const order = ['baseline', 'baseline_recent', 'crews7_recent', 'crews7_lift2_keep_recent', 'crews7_supported', 'crews7_lift2', 'crews7_lift2_keep', 'crews_lift3_keep', 'crews_supported', 'crews_lift2', 'crews_lift2_keep'];
 const w13 = k => S[k].weeks[4];
 const summaryRows = order.map(k => `<tr${k === 'baseline' ? ' class="base"' : ''}><td>${esc(S[k].label)}</td><td>${w13(k).field.mean}</td><td>${(w13(k).field.mean - w13('baseline').field.mean >= 0 ? '+' : '') + (w13(k).field.mean - w13('baseline').field.mean).toFixed(1)}</td><td>${pct(w13(k).rungShare[1])}</td><td>${(S[k].weeks.reduce((a, x) => a + x.retention, 0) / 5 * 100).toFixed(1)}%</td><td>${w13(k).avgMult.toFixed(2)}x</td><td>${pct(w13(k).touched)}</td></tr>`).join('');
 const html = `<!doctype html>
@@ -60,6 +60,8 @@ ${['baseline', 'crews7_supported', 'crews7_lift2_keep', 'crews_lift3_keep'].map(
 <li><b>Adoption 0.55</b> of the Field joins a crew in Week 9 (anchored on 18 of 33 Week 8 entrants who came by a friend), then 0.19 a week of those not yet in one; half the new players who come in on their own join an open crew.</li>
 <li><b>Recruiting lift</b>: a crew member brings someone new at the cohort's referral rate times the lift. 1.1 is the only lift the file supports (multiplier era 0.044 against 0.040 a season); 2 and 3 are assumptions, shown separately.</li>
 <li><b>Return bonus</b>: +5 points on coming back next week for members of a crew alive at settle. No data in the file; shown with and without.</li>
+<li><b>Two-sided linking</b> (founder addendum): a crew membership counts only once both sides confirm; assumed 9 in 10 requests are confirmed, within 24 hours. The baseline keeps the observed referral numbers.</li>
+<li><b>Return pace</b>: the main runs use the pooled return rates (0.77 after a loss, 0.92 after a win), which grow the Field about 2 a week. The file also shows 26 of 28 coming back from Week 7 to Week 8 (0.93), the pace behind its +4 a week trend; the rows marked W7 to W8 carryover rerun the baseline and Crews on that.</li>
 <li>Crews form among friends in groups of 3 to 6; a player stays in their crew across weeks; joins happen through the week at random hours.</li></ul></div>
 <div class="card"><h2>Reproduce</h2><p><code>node teams/blue/sim/crews-sim.mjs</code> runs ${R.runs.toLocaleString()} seasons per scenario (seed for run r is 1000 + r, mulberry32, the same for every arm) and writes <code>results.json</code>; <code>node teams/blue/sim/make-page.mjs</code> builds this page.</p></div>
 </div></body></html>`;
