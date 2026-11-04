@@ -1,0 +1,1005 @@
+{
+ "runs": 1000,
+ "seeds": "1000 + run, mulberry32",
+ "cohort": {
+  "start": {
+   "won": 12,
+   "lost": 20,
+   "noPick": 1,
+   "outside": 19
+  },
+  "backAfterWin": 0.92,
+  "backAfterLoss": 0.77,
+  "backAfterNoPick": 0.4,
+  "reactivate": 0.18,
+  "pickIfEntered": 0.9696969696969697,
+  "winShare": 0.27,
+  "signupsPerWeek": 4.5,
+  "referralPerEntrantWeek": 0.04,
+  "newEnters": 0.92,
+  "newFirstPick": 0.81,
+  "refFirstPick": 1,
+  "ladder": [
+   0,
+   40,
+   75,
+   125,
+   200
+  ]
+ },
+ "organicSignupsPerWeek": 3.62,
+ "rules": {
+  "per": 0.1,
+  "cap": 1,
+  "max": 12,
+  "minAlive": 3,
+  "winNew": 168,
+  "winMove": 48
+ },
+ "scenarios": {
+  "baseline": {
+   "label": "Baseline, no mechanism",
+   "why": "cohort tendencies only",
+   "assumptions": null,
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 34.5,
+      "p10": 30,
+      "p50": 34,
+      "p90": 39
+     },
+     "newIn": 4.33,
+     "retention": 0.808,
+     "avgMult": 1.015,
+     "touched": 0,
+     "aliveShare": 0,
+     "crews": 0,
+     "rungShare": [
+      1,
+      0.068,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 35.8,
+      "p10": 30,
+      "p50": 36,
+      "p90": 42
+     },
+     "newIn": 4.43,
+     "retention": 0.795,
+     "avgMult": 1.012,
+     "touched": 0,
+     "aliveShare": 0,
+     "crews": 0,
+     "rungShare": [
+      1,
+      0.21,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 37.6,
+      "p10": 32,
+      "p50": 37,
+      "p90": 44
+     },
+     "newIn": 4.53,
+     "retention": 0.796,
+     "avgMult": 1.011,
+     "touched": 0,
+     "aliveShare": 0,
+     "crews": 0,
+     "rungShare": [
+      1,
+      0.346,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 39.8,
+      "p10": 33,
+      "p50": 40,
+      "p90": 47
+     },
+     "newIn": 4.64,
+     "retention": 0.797,
+     "avgMult": 1.011,
+     "touched": 0,
+     "aliveShare": 0,
+     "crews": 0,
+     "rungShare": [
+      1,
+      0.516,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 42,
+      "p10": 35,
+      "p50": 42,
+      "p90": 49
+     },
+     "newIn": 4.63,
+     "retention": 0.794,
+     "avgMult": 1.011,
+     "touched": 0,
+     "aliveShare": 0,
+     "crews": 0,
+     "rungShare": [
+      1,
+      0.666,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "crews_supported": {
+   "label": "72 h window (first design), cohort-supported only",
+   "why": "adoption 0.55 = 18 of 33 Week 8 entrants came by a friend; recruiting lift 1.1 = referral signups per entrant-week in the multiplier era (0.044) over the season (0.040); no return bonus",
+   "assumptions": {
+    "adopt": 0.55,
+    "lift": 1.1,
+    "keep": 0
+   },
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 34.6,
+      "p10": 30,
+      "p50": 35,
+      "p90": 39
+     },
+     "newIn": 4.45,
+     "retention": 0.808,
+     "avgMult": 1.079,
+     "touched": 0.528,
+     "aliveShare": 0.11,
+     "crews": 3.7,
+     "rungShare": [
+      1,
+      0.088,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 35.9,
+      "p10": 30,
+      "p50": 36,
+      "p90": 42
+     },
+     "newIn": 4.48,
+     "retention": 0.793,
+     "avgMult": 1.064,
+     "touched": 0.548,
+     "aliveShare": 0.097,
+     "crews": 4.6,
+     "rungShare": [
+      1,
+      0.201,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 37.6,
+      "p10": 31,
+      "p50": 38,
+      "p90": 44
+     },
+     "newIn": 4.65,
+     "retention": 0.791,
+     "avgMult": 1.057,
+     "touched": 0.565,
+     "aliveShare": 0.093,
+     "crews": 5.5,
+     "rungShare": [
+      1,
+      0.331,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 40,
+      "p10": 33,
+      "p50": 40,
+      "p90": 47
+     },
+     "newIn": 4.75,
+     "retention": 0.797,
+     "avgMult": 1.053,
+     "touched": 0.586,
+     "aliveShare": 0.085,
+     "crews": 6.4,
+     "rungShare": [
+      1,
+      0.523,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 42.5,
+      "p10": 35,
+      "p50": 42,
+      "p90": 50
+     },
+     "newIn": 4.85,
+     "retention": 0.797,
+     "avgMult": 1.05,
+     "touched": 0.608,
+     "aliveShare": 0.083,
+     "crews": 7.3,
+     "rungShare": [
+      1,
+      0.702,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "crews_lift2": {
+   "label": "72 h window, recruiting x2",
+   "why": "assumption: the countdown doubles how often a crew member brings someone in",
+   "assumptions": {
+    "adopt": 0.55,
+    "lift": 2,
+    "keep": 0
+   },
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 35.2,
+      "p10": 31,
+      "p50": 35,
+      "p90": 40
+     },
+     "newIn": 5,
+     "retention": 0.808,
+     "avgMult": 1.1,
+     "touched": 0.535,
+     "aliveShare": 0.141,
+     "crews": 3.7,
+     "rungShare": [
+      1,
+      0.122,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 36.9,
+      "p10": 31,
+      "p50": 37,
+      "p90": 43
+     },
+     "newIn": 5.09,
+     "retention": 0.792,
+     "avgMult": 1.088,
+     "touched": 0.557,
+     "aliveShare": 0.131,
+     "crews": 4.6,
+     "rungShare": [
+      1,
+      0.271,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 39.1,
+      "p10": 33,
+      "p50": 39,
+      "p90": 46
+     },
+     "newIn": 5.27,
+     "retention": 0.791,
+     "avgMult": 1.078,
+     "touched": 0.581,
+     "aliveShare": 0.121,
+     "crews": 5.5,
+     "rungShare": [
+      1,
+      0.445,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 42.2,
+      "p10": 35,
+      "p50": 42,
+      "p90": 50
+     },
+     "newIn": 5.85,
+     "retention": 0.793,
+     "avgMult": 1.082,
+     "touched": 0.605,
+     "aliveShare": 0.127,
+     "crews": 6.4,
+     "rungShare": [
+      1,
+      0.671,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 45.1,
+      "p10": 37,
+      "p50": 45,
+      "p90": 54
+     },
+     "newIn": 5.67,
+     "retention": 0.795,
+     "avgMult": 1.072,
+     "touched": 0.626,
+     "aliveShare": 0.114,
+     "crews": 7.3,
+     "rungShare": [
+      1,
+      0.812,
+      0.001,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "crews_lift2_keep": {
+   "label": "72 h window, recruiting x2, +5 pts return",
+   "why": "assumptions: recruiting x2, and a member of a crew that is alive at settle comes back 5 points more often",
+   "assumptions": {
+    "adopt": 0.55,
+    "lift": 2,
+    "keep": 0.05
+   },
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 35.2,
+      "p10": 31,
+      "p50": 35,
+      "p90": 40
+     },
+     "newIn": 5,
+     "retention": 0.808,
+     "avgMult": 1.1,
+     "touched": 0.535,
+     "aliveShare": 0.141,
+     "crews": 3.7,
+     "rungShare": [
+      1,
+      0.122,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 37.2,
+      "p10": 32,
+      "p50": 37,
+      "p90": 43
+     },
+     "newIn": 5.11,
+     "retention": 0.8,
+     "avgMult": 1.09,
+     "touched": 0.56,
+     "aliveShare": 0.133,
+     "crews": 4.6,
+     "rungShare": [
+      1,
+      0.292,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 39.7,
+      "p10": 33,
+      "p50": 39,
+      "p90": 47
+     },
+     "newIn": 5.33,
+     "retention": 0.799,
+     "avgMult": 1.082,
+     "touched": 0.584,
+     "aliveShare": 0.124,
+     "crews": 5.5,
+     "rungShare": [
+      1,
+      0.495,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 42.6,
+      "p10": 35,
+      "p50": 42,
+      "p90": 50
+     },
+     "newIn": 5.67,
+     "retention": 0.8,
+     "avgMult": 1.079,
+     "touched": 0.609,
+     "aliveShare": 0.121,
+     "crews": 6.4,
+     "rungShare": [
+      1,
+      0.692,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 45.5,
+      "p10": 37,
+      "p50": 45,
+      "p90": 54
+     },
+     "newIn": 5.61,
+     "retention": 0.801,
+     "avgMult": 1.074,
+     "touched": 0.63,
+     "aliveShare": 0.114,
+     "crews": 7.3,
+     "rungShare": [
+      1,
+      0.819,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "crews7_supported": {
+   "label": "7-day window, cohort-supported only",
+   "why": "someone new to Rush keeps the boost 7 days, a mover 48 h; adoption 0.55 and lift 1.1 as above; no return bonus",
+   "assumptions": {
+    "adopt": 0.55,
+    "lift": 1.1,
+    "keep": 0
+   },
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 34.6,
+      "p10": 30,
+      "p50": 35,
+      "p90": 39
+     },
+     "newIn": 4.45,
+     "retention": 0.808,
+     "avgMult": 1.145,
+     "touched": 0.528,
+     "aliveShare": 0.228,
+     "crews": 3.7,
+     "rungShare": [
+      1,
+      0.088,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 35.9,
+      "p10": 30,
+      "p50": 36,
+      "p90": 42
+     },
+     "newIn": 4.48,
+     "retention": 0.793,
+     "avgMult": 1.124,
+     "touched": 0.548,
+     "aliveShare": 0.215,
+     "crews": 4.6,
+     "rungShare": [
+      1,
+      0.201,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 37.6,
+      "p10": 31,
+      "p50": 38,
+      "p90": 44
+     },
+     "newIn": 4.65,
+     "retention": 0.791,
+     "avgMult": 1.104,
+     "touched": 0.565,
+     "aliveShare": 0.191,
+     "crews": 5.5,
+     "rungShare": [
+      1,
+      0.331,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 40,
+      "p10": 33,
+      "p50": 40,
+      "p90": 47
+     },
+     "newIn": 4.75,
+     "retention": 0.797,
+     "avgMult": 1.096,
+     "touched": 0.586,
+     "aliveShare": 0.18,
+     "crews": 6.4,
+     "rungShare": [
+      1,
+      0.523,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 42.5,
+      "p10": 35,
+      "p50": 42,
+      "p90": 50
+     },
+     "newIn": 4.85,
+     "retention": 0.797,
+     "avgMult": 1.093,
+     "touched": 0.608,
+     "aliveShare": 0.179,
+     "crews": 7.3,
+     "rungShare": [
+      1,
+      0.702,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "crews7_lift2_keep": {
+   "label": "7-day window, recruiting x2, +5 pts return",
+   "why": "assumptions: recruiting x2 and +5 points return for members of a crew alive at settle",
+   "assumptions": {
+    "adopt": 0.55,
+    "lift": 2,
+    "keep": 0.05
+   },
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 35.2,
+      "p10": 31,
+      "p50": 35,
+      "p90": 40
+     },
+     "newIn": 5,
+     "retention": 0.808,
+     "avgMult": 1.182,
+     "touched": 0.535,
+     "aliveShare": 0.286,
+     "crews": 3.7,
+     "rungShare": [
+      1,
+      0.122,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 37.4,
+      "p10": 32,
+      "p50": 37,
+      "p90": 43
+     },
+     "newIn": 5.07,
+     "retention": 0.806,
+     "avgMult": 1.164,
+     "touched": 0.564,
+     "aliveShare": 0.268,
+     "crews": 4.6,
+     "rungShare": [
+      1,
+      0.314,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 40.1,
+      "p10": 33,
+      "p50": 40,
+      "p90": 47
+     },
+     "newIn": 5.41,
+     "retention": 0.804,
+     "avgMult": 1.156,
+     "touched": 0.588,
+     "aliveShare": 0.265,
+     "crews": 5.5,
+     "rungShare": [
+      1,
+      0.539,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 43.2,
+      "p10": 36,
+      "p50": 43,
+      "p90": 51
+     },
+     "newIn": 5.71,
+     "retention": 0.807,
+     "avgMult": 1.153,
+     "touched": 0.613,
+     "aliveShare": 0.261,
+     "crews": 6.4,
+     "rungShare": [
+      1,
+      0.734,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 46.2,
+      "p10": 38,
+      "p50": 46,
+      "p90": 55
+     },
+     "newIn": 5.65,
+     "retention": 0.808,
+     "avgMult": 1.137,
+     "touched": 0.634,
+     "aliveShare": 0.237,
+     "crews": 7.2,
+     "rungShare": [
+      1,
+      0.858,
+      0,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "crews7_lift2": {
+   "label": "7-day window, recruiting x2",
+   "why": "assumption: the countdown doubles how often a crew member brings someone in",
+   "assumptions": {
+    "adopt": 0.55,
+    "lift": 2,
+    "keep": 0
+   },
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 35.2,
+      "p10": 31,
+      "p50": 35,
+      "p90": 40
+     },
+     "newIn": 5,
+     "retention": 0.808,
+     "avgMult": 1.182,
+     "touched": 0.535,
+     "aliveShare": 0.286,
+     "crews": 3.7,
+     "rungShare": [
+      1,
+      0.122,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 36.9,
+      "p10": 31,
+      "p50": 37,
+      "p90": 43
+     },
+     "newIn": 5.09,
+     "retention": 0.792,
+     "avgMult": 1.156,
+     "touched": 0.557,
+     "aliveShare": 0.263,
+     "crews": 4.6,
+     "rungShare": [
+      1,
+      0.271,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 39.1,
+      "p10": 33,
+      "p50": 39,
+      "p90": 46
+     },
+     "newIn": 5.27,
+     "retention": 0.791,
+     "avgMult": 1.144,
+     "touched": 0.581,
+     "aliveShare": 0.254,
+     "crews": 5.5,
+     "rungShare": [
+      1,
+      0.445,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 42.2,
+      "p10": 35,
+      "p50": 42,
+      "p90": 50
+     },
+     "newIn": 5.85,
+     "retention": 0.793,
+     "avgMult": 1.145,
+     "touched": 0.605,
+     "aliveShare": 0.256,
+     "crews": 6.4,
+     "rungShare": [
+      1,
+      0.671,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 45.1,
+      "p10": 37,
+      "p50": 45,
+      "p90": 54
+     },
+     "newIn": 5.67,
+     "retention": 0.795,
+     "avgMult": 1.131,
+     "touched": 0.626,
+     "aliveShare": 0.236,
+     "crews": 7.3,
+     "rungShare": [
+      1,
+      0.812,
+      0.001,
+      0,
+      0
+     ]
+    }
+   ]
+  },
+  "crews_lift3_keep": {
+   "label": "7-day window, recruiting x3, +5 pts return",
+   "why": "assumptions: recruiting x3 and +5 points return; the top of the plausible range",
+   "assumptions": {
+    "adopt": 0.55,
+    "lift": 3,
+    "keep": 0.05
+   },
+   "weeks": [
+    {
+     "w": 9,
+     "field": {
+      "mean": 35.8,
+      "p10": 31,
+      "p50": 36,
+      "p90": 41
+     },
+     "newIn": 5.63,
+     "retention": 0.808,
+     "avgMult": 1.219,
+     "touched": 0.542,
+     "aliveShare": 0.339,
+     "crews": 3.7,
+     "rungShare": [
+      1,
+      0.162,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 10,
+     "field": {
+      "mean": 38.8,
+      "p10": 33,
+      "p50": 39,
+      "p90": 45
+     },
+     "newIn": 5.84,
+     "retention": 0.809,
+     "avgMult": 1.213,
+     "touched": 0.577,
+     "aliveShare": 0.332,
+     "crews": 4.6,
+     "rungShare": [
+      1,
+      0.44,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 11,
+     "field": {
+      "mean": 42.4,
+      "p10": 35,
+      "p50": 42,
+      "p90": 50
+     },
+     "newIn": 6.39,
+     "retention": 0.812,
+     "avgMult": 1.208,
+     "touched": 0.606,
+     "aliveShare": 0.326,
+     "crews": 5.5,
+     "rungShare": [
+      1,
+      0.675,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 12,
+     "field": {
+      "mean": 46.3,
+      "p10": 38,
+      "p50": 46,
+      "p90": 55
+     },
+     "newIn": 6.66,
+     "retention": 0.813,
+     "avgMult": 1.195,
+     "touched": 0.632,
+     "aliveShare": 0.315,
+     "crews": 6.4,
+     "rungShare": [
+      1,
+      0.852,
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "w": 13,
+     "field": {
+      "mean": 50.4,
+      "p10": 41,
+      "p50": 50,
+      "p90": 60
+     },
+     "newIn": 6.97,
+     "retention": 0.811,
+     "avgMult": 1.184,
+     "touched": 0.653,
+     "aliveShare": 0.3,
+     "crews": 7.3,
+     "rungShare": [
+      1,
+      0.94,
+      0.002,
+      0,
+      0
+     ]
+    }
+   ]
+  }
+ }
+}
