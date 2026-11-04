@@ -18,27 +18,29 @@ const num=x=>{if(x==null||x==='')return null;const t=String(x).toUpperCase();if(
 function norm(league,e){const c=e.competitions&&e.competitions[0]||{},st=e.status||c.status||{},ty=st.type||{};const side=h=>{const x=(c.competitors||[]).find(k=>k.homeAway===h)||{},t=x.team||{};return{id:t.id,abbr:t.abbreviation||'',name:t.shortDisplayName||t.displayName||'',logo:t.logo||(t.abbreviation?`https://a.espncdn.com/i/teamlogos/${league}/500/${t.abbreviation.toLowerCase()}.png`:''),score:x.score!=null?+x.score:null,record:x.records&&x.records[0]&&x.records[0].summary||''}};
  const o=(c.odds||[])[0]||{},ml=o.moneyline||{};const hml=num(o.homeTeamOdds&&o.homeTeamOdds.moneyLine)??num(ml.home&&(ml.home.close||ml.home.open||{}).odds),aml=num(o.awayTeamOdds&&o.awayTeamOdds.moneyLine)??num(ml.away&&(ml.away.close||ml.away.open||{}).odds);
  return{league,id:e.id,date:Date.parse(e.date),state:ty.state||'pre',done:!!ty.completed,detail:ty.shortDetail||ty.detail||'',period:st.period||0,clock:st.displayClock||'',home:side('home'),away:side('away'),line:{details:o.details||'',ou:num(o.overUnder),spread:num(o.spread),hml,aml},broadcast:(c.broadcasts||[]).flatMap(b=>b.names||[]).join(', ')}}
-/* live line: the scoreboard drops odds once a game starts, so the closing line from the summary becomes a full-game baseline
-   moved by score and clock, the same model game.html prices live picks with */
+/* live line: the scoreboard drops odds once a game starts, so the Board reads the summary (every 60 s per live game), like game.html:
+   posted live odds as they are; live odds that were posted and then go OFF are a suspension (no line); never posted, the closing
+   line becomes a full-game baseline moved by score and clock, the same model game.html prices live picks with */
 const SP={nfl:{total:3600,per:4,len:900,sdM:13.4,sdT:13.2},nba:{total:2880,per:4,len:720,sdM:12.5,sdT:17.5},nhl:{total:3600,per:3,len:1200,sdM:2.3,sdT:2.25}};
 function Phi(x){const t=1/(1+.2316419*Math.abs(x)),d=.3989423*Math.exp(-x*x/2),p=d*t*(.3193815+t*(-.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return x>0?1-p:p}
 function inv(p){p=Math.min(1-1e-4,Math.max(1e-4,p));const a=[-39.6968,220.9461,-275.9285,138.3577,-30.6648,2.5066],b=[-54.4761,161.5858,-155.699,66.8013,-13.2806],c=[-.00778,-.3224,-2.4008,-2.5497,4.3747,2.9382],d=[.00778,.3225,2.4451,3.7544],pl=.02425;let q,r;if(p<pl){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}if(p>1-pl){q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)}q=p-.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1)}
 function amer(p){let a=p>=.5?-100*p/(1-p):100*(1-p)/p,s=Math.abs(a)<500?5:Math.abs(a)<1000?10:Math.abs(a)<2000?25:50;a=Math.round(a/s)*s;if(a>-100&&a<100)a=a<0?-100:100;return a}
 const cl=(x,a,b)=>Math.min(b,Math.max(a,x)),tp=o=>o<0?-o/(100-o):100/(100+o),nv=(a,b)=>a!=null&&b!=null?tp(a)/(tp(a)+tp(b)):null;
-function closeLine(pc,league){if(!pc||!pc.moneyline)return null;const P=(o,...k)=>{let n=o;for(const x of k){if(n==null)return null;n=n[x]}return n},s=(o,a)=>P(o,a,'close')||P(o,a,'open'),o=x=>{const v=num(x);return v!=null&&Math.abs(v)>=100?v:null},l=x=>x==null?null:/^(pk|ev)$/i.test(x)?0:num(String(x).replace(/^[ou]/i,''));
- const hw=nv(o(P(s(pc.moneyline,'home'),'odds')),o(P(s(pc.moneyline,'away'),'odds')));if(hw==null)return null;const tot=l(P(s(pc.total,'over'),'line')),ov=nv(o(P(s(pc.total,'over'),'odds')),o(P(s(pc.total,'under'),'odds'))),S=SP[league];
- return{mu0:S.sdM*inv(cl(hw,.01,.99)),tm0:tot!=null?tot+S.sdT*inv(cl(ov==null?.5:ov,.02,.98)):null}}
-function liveLine(g,c){const S=SP[g.league],m=/(\d+):(\d+)/.exec(g.clock||''),clk=m?+m[1]*60+ +m[2]:0,p=g.period||0,secs=p<=S.per?(S.per-p)*S.len+clk:clk,f=cl(secs/S.total,0,1),fl=secs>=90?.28*S.sdM:.1*S.sdM,sm=Math.max(fl,S.sdM*Math.sqrt(f));
+function closeLine(pc,league){if(!pc||!pc.moneyline)return null;const P=(o,...k)=>{let n=o;for(const x of k){if(n==null)return null;n=n[x]}return n},s=(o,a)=>P(o,a,'close')||P(o,a,'open'),q=(o,a)=>P(o,a,'live'),o=x=>{const v=num(x);return v!=null&&Math.abs(v)>=100?v:null},l=x=>x==null?null:/^(pk|ev)$/i.test(x)?0:num(String(x).replace(/^[ou]/i,''));
+ const lH=o(P(q(pc.moneyline,'home'),'odds')),lA=o(P(q(pc.moneyline,'away'),'odds')),lT=l(P(q(pc.total,'over'),'line')),live=lH!=null&&lA!=null?{h:lH,a:lA,ou:lT}:null;
+ const hw=nv(o(P(s(pc.moneyline,'home'),'odds')),o(P(s(pc.moneyline,'away'),'odds')));if(hw==null)return live?{live}:null;const tot=l(P(s(pc.total,'over'),'line')),ov=nv(o(P(s(pc.total,'over'),'odds')),o(P(s(pc.total,'under'),'odds'))),S=SP[league];
+ return{live,mu0:S.sdM*inv(cl(hw,.01,.99)),tm0:tot!=null?tot+S.sdT*inv(cl(ov==null?.5:ov,.02,.98)):null}}
+function liveLine(g,c){if(c.live){const L=c.live,fav=L.h<=L.a?g.home:g.away;return{details:`${fav.abbr} ${L.h<=L.a?L.h:L.a}`,ou:L.ou}}if(c.saw||c.mu0==null)return null;const S=SP[g.league],m=/(\d+):(\d+)/.exec(g.clock||''),clk=m?+m[1]*60+ +m[2]:0,p=g.period||0,secs=p<=S.per?(S.per-p)*S.len+clk:clk,f=cl(secs/S.total,0,1),fl=secs>=90?.28*S.sdM:.1*S.sdM,sm=Math.max(fl,S.sdM*Math.sqrt(f));
  const H=g.home.score||0,A=g.away.score||0,mu=H-A+c.mu0*f,z=x=>Phi((x-mu)/sm),hw=1-z(.5)+.5*(z(.5)-z(-.5)),fav=hw>=.5?g.home:g.away,pw=Math.max(hw,1-hw)*1.045;
- const tm=c.tm0!=null?Math.max(H+A+c.tm0*f,H+A+.1):null;return{details:pw>.975?'':`${fav.abbr} ${amer(pw)}`,ou:tm!=null?Math.round(tm*2)/2:null}}
-const CL={};
+ const tm=c.tm0!=null?Math.max(H+A+c.tm0*f,H+A+.1):null;return{details:pw>.975?'':`${fav.abbr} ${amer(pw)}`,ou:tm==null?null:g.league==='nhl'?Math.floor(tm)+.5:Math.round(tm*2)/2}}
+const CL={},SAW={};
 async function J(u){const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
 let cache=null,cacheAt=0;
 async function load(force){if(!force&&cache&&Date.now()-cacheAt<15000)return cache;const w=week(),ds=days(w),jobs=[];
  jobs.push(J(`${SB}${LEAGUES.nfl.path}/scoreboard?week=${w.n}&seasontype=2`).then(d=>(d.events||[]).map(e=>norm('nfl',e))).catch(()=>[]));
  for(const lg of['nba','nhl'])for(const d of ds)jobs.push(J(`${SB}${LEAGUES[lg].path}/scoreboard?dates=${d}`).then(r=>(r.events||[]).map(e=>norm(lg,e))).catch(()=>[]));
  const all=(await Promise.all(jobs)).flat(),seen=new Set,games=[];for(const g of all){const k=g.league+g.id;if(seen.has(k))continue;seen.add(k);if(g.date>=w.start-6*36e5&&g.date<=w.end)games.push(g)}
- await Promise.all(games.filter(g=>g.state==='in'&&g.line.hml==null&&SP[g.league]).map(async g=>{const k=g.league+g.id;if(!(k in CL)){try{const r=await J(`${SB}${LEAGUES[g.league].path}/summary?event=${g.id}`);CL[k]=closeLine((r.pickcenter||[])[0],g.league)}catch(e){return}}if(CL[k])g.liveLine=liveLine(g,CL[k])}));
+ await Promise.all(games.filter(g=>g.state==='in'&&g.line.hml==null&&SP[g.league]).map(async g=>{const k=g.league+g.id,c0=CL[k];if(!c0||Date.now()-c0.at>60e3){try{const r=await J(`${SB}${LEAGUES[g.league].path}/summary?event=${g.id}`),c=closeLine((r.pickcenter||[])[0],g.league)||{};if(c.live)SAW[k]=1;c.saw=!c.live&&!!SAW[k];c.at=Date.now();CL[k]=c}catch(e){if(!c0)return}}const L=liveLine(g,CL[k]);if(L)g.liveLine=L}));
  games.sort((a,b)=>a.date-b.date);cache=games;cacheAt=Date.now();try{localStorage.setItem('rw.games',JSON.stringify({at:cacheAt,w:w.n,games}));localStorage.setItem('rw.live',JSON.stringify({n:games.filter(g=>g.state==='in').length,at:cacheAt}))}catch(e){}badge();return games}
 let cRaw=null,cVal=null;function cached(){try{const raw=localStorage.getItem('rw.games');if(raw!==cRaw){cRaw=raw;const j=JSON.parse(raw||'null');cVal=j&&j.w===week().n?j.games:null}return cVal}catch(e){}return null}
 
