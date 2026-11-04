@@ -210,16 +210,18 @@ function model(){const g=game(),b=book(),h=team('home'),a=team('away'),f=clamp(g
 function stopInfo(){const L=S.plays,last=L[L.length-1];if(!last)return null;const t=((last.type&&last.type.text)||'')+' '+(last.text||''),w=Date.parse(last.wallclock||'');if(!w)return null;
   if(/end (of )?(the )?(game)/i.test(t))return null;
   if(/halftime|end of (the )?2nd quarter|end of half/i.test(t)||(LG==='nba'&&/end (of )?(the )?2nd/i.test(t)))return{k:'Halftime',w:600,at:w};
-  if(/end (of )?(the )?(\d(st|nd|rd|th) )?(period|quarter)|end period|end quarter/i.test(t))return{k:LG==='nhl'?'Intermission':'End of the quarter',w:LG==='nhl'?600:LG==='nba'?90:150,at:w};
+  if(/end (of )?(the )?(\d(st|nd|rd|th) )?(period|quarter)|end period|end quarter/i.test(t))return{k:LG==='nhl'?'Intermission':'End of the quarter',w:LG==='nhl'?960:LG==='nba'?90:150,at:w};
   if(/official|tv timeout/i.test(t))return{k:'Commercial break',w:LG==='nfl'?150:75,at:w};
   if(/timeout/i.test(t))return{k:'Timeout',w:LG==='nfl'?42:35,at:w};
   return null}
 function gate(M){const g=M.g;if(g.done)return{open:false,why:'Final'};if(!g.live)return g.state==='pre'?{open:true,pre:true,why:''}:{open:false,why:'Not started'};
-  if(!S.ok.sum||Date.now()-S.ok.sum>20000)return{open:false,why:'Feed paused'};if(!M.b||M.b.off)return{open:false,why:LG==='nhl'?'Book suspended. Lines open at the next whistle':'Book suspended'};
+  if(!S.ok.sum||Date.now()-S.ok.sum>20000)return{open:false,why:'Feed paused'};if(!M.b||M.b.off)return{open:false,why:LG==='nhl'?'Book suspended. Lines reopen when the book posts':'Book suspended'};
   /* hockey: the book's own state is the lock. It keeps pricing the moneyline and total while the puck is live and marks them OFF
      when it suspends. While it posts, game lines open at its exact price; model-priced markets wait for an intermission or timeout.
      The play feed (17-60 s late) is only a backstop: a goal or penalty stamped after the book's last price locks everything. */
-  if(LG==='nhl'&&fcLive()){const big=S.plays.filter(p=>/^(goal|penalty)/i.test((p.type&&p.type.text)||'')).pop(),bw=big&&Date.parse(big.wallclock||'');if(bw&&bw>FC.priceAt)return{open:false,why:'Waiting for the book after the '+((big.type.text||'').toLowerCase().startsWith('goal')?'goal':'penalty')};if(Date.now()-FC.priceAt>300000)return{open:false,why:'Waiting for the book to move'};const s=stopInfo(),sl=s?s.w-(Date.now()-s.at)/1000:0;return{open:true,book:true,stop:sl>0,left:sl,name:sl>0?s.k:'Live'}}
+  if(LG==='nhl'&&fcLive()){if(!FC.priceAt)return{open:false,why:'Connecting to the live book'};const big=S.plays.filter(p=>/^(goal|penalty)/i.test((p.type&&p.type.text)||'')).pop(),bw=big&&Date.parse(big.wallclock||'');if(bw&&bw>FC.priceAt)return{open:false,why:'Waiting for the book after the '+((big.type.text||'').toLowerCase().startsWith('goal')?'goal':'penalty')};
+    /* a book that has not moved in 5 min of running clock may be a stalled relay; intermissions and timeouts are allowed to sit still */
+    const s=stopInfo(),sl=s?s.w-(Date.now()-s.at)/1000:0;if(!(sl>0)&&Date.now()-FC.priceAt>300000)return{open:false,why:'Waiting for the book to move'};return{open:true,book:true,stop:sl>0,left:sl,name:sl>0?s.k:'Live'}}
   const s=stopInfo();if(!s)return{open:false,why:LG==='nhl'?'Puck in play. Lines open at the next intermission or timeout':'Ball in play. Lines open at the next stoppage'};const left=s.w-(Date.now()-s.at)/1000;return left>0?{open:true,left,w:s.w,name:s.k}:{open:false,why:'Stoppage ending'}}
 
 /* ---------- quote ---------- */
@@ -268,7 +270,7 @@ function toast(m){const d=document.createElement('div');d.className='ts';d.textC
 function gameName(){return team('away').abbr+' at '+team('home').abbr}
 async function confirm(sp,stake){if(!canPick()){openSheet('enter');return}const q0=quote(sp);if(!q0.ok){toast('Not placed: '+q0.why+'.');return}
   /* in hockey book mode the push book is the check (requoted below); otherwise a play newer than the screen refuses the pick */
-  if(game().live&&!gate(model()).book){try{const t0=Date.now(),r=await j(`${SITE}/summary?event=${ID}`);const n0=(S.sum.plays||[]).length,n1=(r.plays||[]).length;S.sum=r;fcReapply(t0);S.ok.sum=Date.now();if(n1>n0){toast('Not placed: a new play just went in.');render();return}}catch(e){toast('Not placed: could not confirm the stoppage. Try again.');return}}
+  if(game().live&&!gate(model()).book){try{const t0=Date.now(),r=await j(`${SITE}/summary?event=${ID}`);const n0=(S.sum.plays||[]).length,n1=(r.plays||[]).length;S.sum=r;fcReapply();S.ok.sum=Date.now();if(n1>n0){toast('Not placed: a new play just went in.');render();return}}catch(e){toast('Not placed: could not confirm the stoppage. Try again.');return}}
   const q=quote(sp);if(!q.ok){toast('Not placed: '+q.why+'.');paintSlip(model());return}const seen=slip&&slip.shown!=null?slip.shown:q0.odds,pref=Rush.settings().pref||'ask';if(q.odds!==seen&&!(pref==='any'||(pref==='higher'&&F.dec(q.odds)>=F.dec(seen)))){if(slip)slip.shown=q.odds;toast('Price changed to '+fo(q.odds)+'. Tap Accept to take it.');paintSlip(model());return}
   const m=pinPlace({live:!!game().live,league:LG,gameId:ID,start:game().start,game:gameName(),spec:sp,label:q.label,odds:q.odds});if(!m)return;toast(q.label+' '+fo(q.odds)+' '+m);closeSheet();render()}
 function plOdds(odds){const d=odds.reduce((x,o)=>x*F.dec(o),1),dd=1+(d-1)*.92;return dd>=2?Math.round((dd-1)*100/5)*5:Math.round(-100/(dd-1)/5)*5}
@@ -391,24 +393,25 @@ document.addEventListener('scroll',e=>{const c=$('car');if(e.target!==c)return;c
 
 /* ---------- feeds ---------- */
 /* push book: ESPN fastcast topic gp-<sport>-<league>-<id> sends JSON patches of the game doc; the /pickcenter ones are applied to
-   S.sum as they land and kept for 30 s, so a REST poll that started before a patch cannot put an older price back (pollSum reapplies them).
+   S.sum as they land. The REST summary lags the push by minutes in hockey (MTL -410 on REST ten minutes after the push moved it
+   to -345), so every path the push has set stays authoritative: FC.pc keeps the latest op per path and each REST poll reapplies them.
    fcLive() is true while the socket is up and a message arrived in the last 60 s. FC.priceAt is when the book last posted a moneyline. */
-const FC={ws:null,on:false,mid:0,last:0,backoff:1000,posted:false,priceAt:0,log:[],q:Promise.resolve()};
+const FC={ws:null,on:false,mid:0,last:0,backoff:1000,posted:false,priceAt:0,pc:new Map(),q:Promise.resolve()};
 const FCT=`gp-${SPORT?SPORT.path.replace('/','-'):''}-${ID}`;
 const fcLive=()=>FC.on&&Date.now()-FC.last<60000;
 async function inflate64(b){const bin=Uint8Array.from(atob(b),c=>c.charCodeAt(0));return new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('deflate'))).text()}
 function jpatch(doc,o){const k=String(o.path||'').split('/').slice(1).map(s=>s.replace(/~1/g,'/').replace(/~0/g,'~'));if(k[0]!=='pickcenter')return;let n=doc;for(let i=0;i<k.length-1;i++){if(n[k[i]]==null)n[k[i]]=/^\d+$|^-$/.test(k[i+1])?[]:{};n=n[k[i]];if(typeof n!=='object')return}const l=k[k.length-1];
   if(o.op==='remove'){if(Array.isArray(n))n.splice(+l,1);else delete n[l]}else if(Array.isArray(n)&&l==='-')n.push(o.value);else if(Array.isArray(n)&&o.op==='add')n.splice(+l,0,o.value);else n[l]=o.value}
 function fcSeen(ts,ml){const pc=S.sum&&S.sum.pickcenter&&S.sum.pickcenter[0],v=pc&&pc.moneyline&&pc.moneyline.home&&pc.moneyline.home.live,p=!!v&&numO(v.odds)!=null;if(p&&ml)FC.priceAt=ts||Date.now();FC.posted=p}
-function fcReapply(t0){FC.log=FC.log.filter(x=>x[0]>Date.now()-30000);if(S.sum)FC.log.forEach(x=>{if(x[0]>=t0-1500)jpatch(S.sum,x[1])})}
+function fcReapply(){if(S.sum)FC.pc.forEach(x=>jpatch(S.sum,x))}
 function fcMsg(m){FC.last=Date.now();if(m.op!=='P')return;FC.q=FC.q.then(async()=>{let o,list;try{o=JSON.parse(m.pl);list=o['~c']?JSON.parse(await inflate64(o.pl)):o.pl}catch(e){return}if(!Array.isArray(list)||m.mid<=FC.mid||!S.sum)return;FC.mid=m.mid;let pc=false,ml=false;
-  list.forEach(x=>{const p=String(x.path||'');if(!/^\/pickcenter/.test(p))return;pc=true;jpatch(S.sum,x);FC.log.push([Date.now(),x]);if(/^\/pickcenter(\/0(\/moneyline(\/home(\/live(\/odds)?)?)?)?)?$/.test(p))ml=true});if(pc){fcSeen(o.ts,ml);render()}})}
+  list.forEach(x=>{const p=String(x.path||'');if(!/^\/pickcenter/.test(p))return;pc=true;jpatch(S.sum,x);FC.pc.delete(p);FC.pc.set(p,x);if(/^\/pickcenter(\/0(\/moneyline(\/home(\/live(\/odds)?)?)?)?)?$/.test(p))ml=true});if(pc){fcSeen(o.ts,ml);render()}})}
 async function fcConnect(){if(!SPORT||(FC.ws&&FC.ws.readyState<2))return;try{const h=await j('https://fastcast.semfs.engsvc.go.com/public/websockethost');const ws=new WebSocket(`wss://${h.ip}:${h.securePort}/FastcastService/pubsub/profiles/12000?TrafficManager-Token=${encodeURIComponent(h.token)}`);FC.ws=ws;let hb;
   ws.onopen=()=>ws.send(JSON.stringify({op:'C'}));
-  ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}if(m.op==='C'){ws.send(JSON.stringify({op:'S',sid:m.sid,tc:FCT}));hb=setInterval(()=>{try{ws.send(JSON.stringify({op:'H',sid:m.sid}))}catch(x){}},Math.max(10,(m.hbi||30)-5)*1000)}else if(m.op==='S'){FC.on=true;FC.backoff=1000;FC.last=FC.priceAt=Date.now()}else fcMsg(m)};
-  ws.onclose=()=>{FC.on=false;FC.mid=0;clearInterval(hb);setTimeout(fcConnect,FC.backoff);FC.backoff=Math.min(30000,FC.backoff*2);render()};ws.onerror=()=>{try{ws.close()}catch(x){}}}
+  ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}if(m.op==='C'){ws.send(JSON.stringify({op:'S',sid:m.sid,tc:FCT}));hb=setInterval(()=>{try{ws.send(JSON.stringify({op:'H',sid:m.sid}))}catch(x){}},Math.max(10,(m.hbi||30)-5)*1000)}else if(m.op==='S'){FC.on=true;FC.backoff=1000;FC.last=Date.now()}else fcMsg(m)};
+  ws.onclose=()=>{FC.on=false;FC.mid=0;FC.pc.clear();clearInterval(hb);setTimeout(fcConnect,FC.backoff);FC.backoff=Math.min(30000,FC.backoff*2);render()};ws.onerror=()=>{try{ws.close()}catch(x){}}}
   catch(e){setTimeout(fcConnect,FC.backoff);FC.backoff=Math.min(30000,FC.backoff*2)}}
-async function pollSum(){const firstSum=!S.sum,t0=Date.now();S.sum=await j(`${SITE}/summary?event=${ID}`);fcReapply(t0);S.ok.sum=Date.now();if(firstSum)pollRoster();const g=game();if(g.live)fcConnect();if(g.done)Rush.grade.sync().then(n=>{if(n)toast(n+' pick'+(n>1?'s':'')+' graded on the final.')}).catch(()=>{});render()}
+async function pollSum(){const firstSum=!S.sum,t0=Date.now();S.sum=await j(`${SITE}/summary?event=${ID}`);fcReapply();S.ok.sum=Date.now();if(firstSum)pollRoster();const g=game();if(g.live)fcConnect();if(g.done)Rush.grade.sync().then(n=>{if(n)toast(n+' pick'+(n>1?'s':'')+' graded on the final.')}).catch(()=>{});render()}
 async function pollProbs(){if(!game().live)return;const r0=await j(`${CORE}/probabilities?limit=1`);const r=await j(`${CORE}/probabilities?limit=25&page=${Math.max(1,Math.ceil(r0.count/25))}`);S.probs=r.items||[];render()}
 async function pollPlays(){if(!game().live)return;const r0=await j(`${CORE}/plays?limit=1`);const r=await j(`${CORE}/plays?limit=25&page=${Math.max(1,Math.ceil(r0.count/25))}`);const m=new Map(S.plays.map(p=>[p.id,p]));(r.items||[]).forEach(p=>m.set(p.id,p));S.plays=[...m.values()].sort((a,b)=>(+a.sequenceNumber)-(+b.sequenceNumber)).slice(-80);render()}
 async function pollRoster(){const c=comp();if(!c)return;for(const t of c.competitors){try{const r=await j(`${SITE}/teams/${t.team.id}/roster`);const add=a=>{if(a&&a.id)roster[a.id]=a.shortName||a.displayName};(r.athletes||[]).forEach(x=>x.items?x.items.forEach(add):add(x))}catch(e){}}render()}
