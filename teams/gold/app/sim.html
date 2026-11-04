@@ -43,7 +43,7 @@ ol,ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;colo
 <script src="sim-results.js"></script>
 <script>
 const S=window.SIM,V=S.variants,W=S.weeks,$=id=>document.getElementById(id);
-const SER=[['squad','Squad Streak','var(--s-squad)','#9085e9'],['base','No mechanism','var(--s-base)','#d95926'],['cohortOnly','Squad Streak, cohort rates only','var(--s-cohort)','#199e70']];
+const SER=[['squad','Squad Streak','var(--s-squad)','#9085e9'],['cohortOnly','Squad Streak, cohort rates only (dashed)','var(--s-cohort)','#199e70'],['base','No mechanism','var(--s-base)','#d95926']];
 const get=k=>V[k==='base'?'baseline':k];
 const last=k=>get(k).weeks[W.length-1];
 const pct=v=>(v*100).toFixed(1)+'%',f1=v=>v.toFixed(1);
@@ -59,7 +59,7 @@ function chart(id,metric,fmt,opt={}){
   if(opt.rung)g+=`<line x1="${L}" x2="${L+iw}" y1="${ys(40)}" y2="${ys(40)}" stroke="#C9D3DE" stroke-width="1" stroke-dasharray="4 4"/><text class="lab" x="${L+4}" y="${ys(40)-6}">40-in prize rung</text>`;
   for(const s of series){const d=get(s[0]).weeks;
     if(opt.band)g+=`<path d="M${d.map((x,i)=>xs(i)+' '+ys(x[metric].p90)).join(' L')} L${d.slice().reverse().map((x,i)=>xs(d.length-1-i)+' '+ys(x[metric].p10)).join(' L')} Z" fill="${s[3]}" opacity=".12"/>`;
-    g+=`<path d="M${d.map((x,i)=>xs(i)+' '+ys(x[metric].mean)).join(' L')}" fill="none" stroke="${s[3]}" stroke-width="2" stroke-linejoin="round"/>`;
+    g+=`<path d="M${d.map((x,i)=>xs(i)+' '+ys(x[metric].mean)).join(' L')}" fill="none" stroke="${s[3]}" stroke-width="2" stroke-linejoin="round"${s[0]==='cohortOnly'?' stroke-dasharray="6 4"':''}/>`;
     g+=d.map((x,i)=>`<circle cx="${xs(i)}" cy="${ys(x[metric].mean)}" r="4" fill="${s[3]}" stroke="#121A23" stroke-width="2"/>`).join('')}
   /* Direct labels at the right edge, nudged apart so they never collide. */
   const labs=series.map(s=>({s,y:ys(last(s[0])[metric].mean)})).sort((a,b)=>a.y-b.y);for(let i=1;i<labs.length;i++)if(labs[i].y-labs[i-1].y<14)labs[i].y=labs[i-1].y+14;
