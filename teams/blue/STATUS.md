@@ -69,6 +69,10 @@ Measured on 8 live NHL games, 1st period, 19:27 to 19:46 ET, recording ESPN fast
   - Book versus the real event: the only clean case is a penalty at 19:27:28 wallclock, which the book marked OFF at 19:28:16, 48 s later. The median play lag is 34 s, so the penalty backstop can lock before a relayed book suspension does.
   - Lock and reopen follow the book's OFF and repost within the push delivery time (well under a second); no wait on a play.
 - Probe on the host build (bbb8e4e), WPG at MTL: 25 placed of 25 tries with a line open (19 in the intermission, 6 in play at the book price), 0 refused at confirm, 0 after a goal or penalty the book had not repriced. 4 period-market tries in play were locked as designed. 84 more tries hit "Feed paused" while the browser pane was hidden (the page stops polling when not visible).
+- Grading at the final (host build, WPG at MTL, Final/OT WPG 5 MTL 4, after MTL led 4-0): every pick in both Stacks graded on the final, with 0 open and 0 voided.
+  - The Rush: 24 won, 19 lost; Stack 957 to 1,125.28.
+  - Blue Live Test: 24 won, 19 lost; Stack 457 to 625.28. Both moved by the same +168.28.
+  - WPG moneyline picks taken in play at the book's price while MTL led (+1300 to +2000) paid out.
 - Answer to the founder: NHL is usable. Game lines are open about 95% of the clock at the book's price. Only alts, periods and props wait for intermissions.
 
 ## Fair play
