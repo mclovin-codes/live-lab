@@ -196,7 +196,9 @@ function numL(x){if(x==null)return null;const s=String(x).toLowerCase();if(s==='
 function book(){const pc=S.sum&&(S.sum.pickcenter||[])[0];if(!pc||!pc.moneyline)return null;const g=game(),pick=(o,...k)=>{let n=o;for(const x of k){if(n==null)return null;n=n[x]}return n};
   const rd=when=>{const s=(o,a)=>pick(o,a,when)||(when!=='live'?pick(o,a,'open'):null);const mlH=numO(pick(s(pc.moneyline,'home'),'odds')),mlA=numO(pick(s(pc.moneyline,'away'),'odds')),spH=numL(pick(s(pc.pointSpread,'home'),'line')),spHo=numO(pick(s(pc.pointSpread,'home'),'odds')),spAo=numO(pick(s(pc.pointSpread,'away'),'odds')),tot=numL(pick(s(pc.total,'over'),'line')),ovO=numO(pick(s(pc.total,'over'),'odds')),unO=numO(pick(s(pc.total,'under'),'odds'));
     const nv=(a,b)=>a!=null&&b!=null?toProb(a)/(toProb(a)+toProb(b)):null;return{mlH,mlA,spH,spHo,spAo,tot,ovO,unO,hw:nv(mlH,mlA),cov:nv(spHo,spAo),ov:nv(ovO,unO),live:g.live}};
-  const b=rd(g.live?'live':'close');if(!g.live||b.mlH!=null)return b;
+  const b=rd(g.live?'live':'close');if(!g.live)return b;if(b.mlH!=null){S.sawLive=true;return b}
+  /* live odds that were posted and then go OFF are a suspension: stay locked (Book suspended) */
+  if(S.sawLive)return b;
   /* the feed marks live odds OFF: the closing line becomes a full-game baseline the model moves with score and clock; no exact prices */
   const c=rd('close');if(c.hw==null)return b;const mu0=SPORT.sdM*inv(clamp(c.hw,.01,.99)),tm0=c.tot!=null?c.tot+SPORT.sdT*inv(clamp(c.ov==null?.5:c.ov,.02,.98)):null;
   return{mlH:null,mlA:null,spH:null,spHo:null,spAo:null,tot:null,ovO:null,unO:null,hw:null,cov:null,ov:null,live:true,derived:true,mu0,tm0,main0:c.spH}}
@@ -204,7 +206,7 @@ function model(){const g=game(),b=book(),h=team('home'),a=team('away'),f=clamp(g
   const pr=S.probs[S.probs.length-1];let hw=g.live&&pr?pr.homeWinPercentage:b&&b.hw!=null?b.hw:.5;let mu=b&&b.spH!=null&&b.cov!=null?-b.spH+sm*inv(clamp(b.cov,.02,.98)):sm*inv(clamp(hw,.01,.99));const bd=(18*f+1.5)*SPORT.sdM/13.4;mu=clamp(mu,cur-bd,cur+bd);
   if(b&&b.derived&&!(g.live&&pr)){mu=cur+b.mu0*f;const z=x=>Phi((x-mu)/sm);hw=1-z(.5)+.5*(z(.5)-z(-.5))}
   let tm=b&&b.derived&&b.tm0!=null?sum+b.tm0*f:b&&b.tot!=null?b.tot+st*inv(clamp(b.ov==null?.5:b.ov,.02,.98)):sum+(SPORT.unit==='goals'?6*f:SPORT.sdT*3*f);tm=Math.max(tm,sum+.1);const hm=Math.max(h.score,(tm+mu)/2),am=Math.max(a.score,(tm-mu)/2);
-  return{g,b,h,a,f,cur,sum,sm,st,mu,tm,hm,am,sdT:Math.max(fl*.7,SPORT.sdT*.7*Math.sqrt(f)),hw,main:b&&b.spH!=null?b.spH:b&&b.derived&&LG==='nhl'&&b.main0!=null?b.main0:-half(mu),mt:b&&b.tot!=null?b.tot:half(tm)}}
+  return{g,b,h,a,f,cur,sum,sm,st,mu,tm,hm,am,sdT:Math.max(fl*.7,SPORT.sdT*.7*Math.sqrt(f)),hw,main:b&&b.spH!=null?b.spH:b&&b.derived&&LG==='nhl'&&b.main0!=null?b.main0:-half(mu),mt:b&&b.tot!=null?b.tot:LG==='nhl'?Math.floor(tm)+.5:half(tm)}}
 
 /* ---------- fair window: pregame open until the start; live only in stoppages ---------- */
 function stopInfo(){const L=S.plays,last=L[L.length-1];if(!last)return null;const t=((last.type&&last.type.text)||'')+' '+(last.text||''),w=Date.parse(last.wallclock||'');if(!w)return null;
@@ -216,7 +218,7 @@ function stopInfo(){const L=S.plays,last=L[L.length-1];if(!last)return null;cons
   return null}
 function gate(M){const g=M.g;if(g.done)return{open:false,why:'Final'};if(!g.live)return g.state==='pre'?{open:true,pre:true,why:''}:{open:false,why:'Not started'};
   if(!S.ok.sum||Date.now()-S.ok.sum>20000)return{open:false,why:'Feed paused'};if(!M.b||(M.b.mlH==null&&!M.b.derived))return{open:false,why:'Book suspended'};
-  const s=stopInfo();if(!s)return{open:false,why:'Ball in play. Lines open at the next stoppage'};const left=s.w-(Date.now()-s.at)/1000;return left>0?{open:true,left,w:s.w,name:s.k}:{open:false,why:'Stoppage ending'}}
+  const s=stopInfo();if(!s)return{open:false,why:LG==='nhl'?'Puck in play. Lines open at the next intermission or timeout':'Ball in play. Lines open at the next stoppage'};const left=s.w-(Date.now()-s.at)/1000;return left>0?{open:true,left,w:s.w,name:s.k}:{open:false,why:'Stoppage ending'}}
 
 /* ---------- quote ---------- */
 const HOLD={ml:.045,spread:.045,total:.045,tt:.05,qt:.05,qs:.05,prop:.06,td:.09};
