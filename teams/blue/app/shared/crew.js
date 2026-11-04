@@ -104,7 +104,8 @@
     return base + 'crew.html?crew=' + encodeURIComponent(c.code) + '&cn=' + encodeURIComponent(c.name) + '&ref=' + encodeURIComponent(me);
   }
 
-  function clock(ms) { if (ms <= 0) return '0:00:00'; const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h + ':' + String(m).padStart(2, '0') + ':' + String(x).padStart(2, '0'); }
+  /* over a day it reads 6d 23h; inside the last day it ticks 23:59:59 */
+  function clock(ms) { if (ms <= 0) return '0:00:00'; const s = Math.floor(ms / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; if (d) return d + 'd ' + h + 'h'; return h + ':' + String(m).padStart(2, '0') + ':' + String(x).padStart(2, '0'); }
 
   /* the invite text: what the crew is and what the friend gets, in Rush words */
   function invite(c) {
