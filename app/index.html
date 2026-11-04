@@ -278,7 +278,7 @@ function myContests(ws,act){const P=GS.CPAGE,all=GS.contests.open().filter(x=>!w
 function contestCard(c){return`<a class="g-card g-cl" href="${GS.CPAGE.one(c.id)}"><span class="g-h">${esc(c.name)} Ranks<small>${c.of?c.of+' in · ':''}Open &#8250;</small></span><span class="g-plain">${c.rank?`You are <b>#${c.rank}</b> of ${c.of}.`:'Ranks fill in as picks settle.'}${c.owner?' You run this contest.':''}</span></a>`}
 function render(){const ae=document.activeElement;if(ae&&(ae.id==='g-code'||ae.id==='g-name'||ae.id==='g-refname'))return;const me=GS.me(),now=Date.now(),ws=wallets(),act=WAL()?WAL().active():'rush',c=ws.find(w=>w.id===act)||null,rush=act==='rush'||!c,entered=rush?GS.entered():c.entered;
   const L=GAMES.filter(covered(act)),hero=heroGame(L),live=L.filter(g=>g.state==='in'&&g!==hero),next=L.filter(g=>g.state==='pre'&&g!==hero).slice(0,8);
-  let h=`<div class="g-top"><h1>Rush</h1>${rush?`<span class="g-chip">Week ${W.n}</span>`:''}<span data-rush-pill></span></div>`;
+  let h=`<div class="g-top"><h1>Rush</h1><span data-rush-pill></span></div>`;
   h+=heroCard(hero);if(rush)h+=prizeCard()+doorCard(ws);
   if(rush){
     if(!entered){h+=now<W.entryClose?`<div class="g-card"><input class="g-in" id="g-name" maxlength="20" placeholder="Your name in the Field" value="${esc(me.name&&me.name!=='You'?me.name:'')}"><button class="g-cta" id="g-enter">Enter Week ${W.n} · 1,000 Stack</button><div class="g-note">Free. Everyone starts with 1,000 Stack. The Field ranks on Units.</div></div>`:`<div class="g-line">Entry for Week ${W.n} closed at Monday night kickoff.</div>`}
