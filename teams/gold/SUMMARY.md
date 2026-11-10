@@ -32,14 +32,14 @@ The Lounge stops being one chat feed and becomes rooms you walk into:
   - a big scoreboard;
   - "How the room leans": the bar of who is on each side;
   - "On this game": who is in, with their side hidden until kickoff;
-  - one-tap reactions (Lock it, Fade, Sweating, Called it);
+  - one-tap reactions (Lock it, Fade, Sweating, Called it), and Reply on any line, which addresses that player;
   - the talk, with every name and avatar opening a profile.
 
 What makes it a place to hang out: you go where the game is, you see who is there, and you see what they are on once it kicks off.
 
 ## Profile
 - **Your profile (Me tab, or your avatar):** a big avatar, your Stack, this week's rank, your season record, your Season 1 weeks as green or red tiles, your Slips (Open and Settled), and this week's rival.
-- **Another player's profile (tap any name or avatar, anywhere):** their Stack, rank and record, a Challenge button, and their picks, which appear only as each game kicks off.
+- **Another player's profile (tap any name or avatar, anywhere):** their Stack, rank and record, a You vs them bar with the Stack gap, a Challenge button, and their picks, which appear only as each game kicks off.
 - **Tap your Stack (top right on every page):** a sheet with your Stack, your rank, your Stack free to stake, your open Slips, the free Reload when you have busted, and links to your profile and the Board.
 
 ## Where Slips went
