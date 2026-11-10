@@ -8,6 +8,13 @@
  */
 (function () {
   const ME = 'nickr';
+  /* One opponent per week: the first pairing computed is pinned, so every page shows the same matchup. */
+  (function pinRival() { const R = window.Rush; if (!R || !R.rival || R.rival._pinned) return; const orig = R.rival; const K = 'rush-rival-v1';
+    R.rival = function () { let wk = ''; try { wk = R.week().id; } catch (e) {} let pin = null; try { pin = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) {}
+      let f = []; try { f = R.field(); } catch (e) {}
+      if (pin && pin.wk === wk) { const row = f.find(r => r.sim && (r.id === pin.id || r.name === pin.name)); if (row) return row; }
+      const r = orig.apply(R, arguments); if (r && r.sim !== false) { try { localStorage.setItem(K, JSON.stringify({ wk, id: r.id, name: r.name })); } catch (e) {} } return r; };
+    R.rival._pinned = true; })();
   const TABS = [
     ['home', 'Home', 'index.html', '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],
     ['board', 'Board', 'board.html', '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M3 15h18M12 10v10"/>'],
