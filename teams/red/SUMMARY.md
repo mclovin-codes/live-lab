@@ -54,6 +54,8 @@ Every avatar and name opens that player's profile.
   - Chips: this week's gain or loss, Stack free to pick, Reload status.
   - Tiles: season record, your matchup (Up or Down vs whom), your rank.
   - A strip of your weeks.
+  - In the Lounge: your latest posts, each one opening its room.
+  - Challenges: the players you challenged, each one opening their profile.
   - Your Slips, with Open and Settled tabs.
 - Another player's: tap any name or avatar in Ranks, the Lounge, Matchup or Home.
   - Their Stack, record, hit rate and sport mix.
