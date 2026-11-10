@@ -59,7 +59,7 @@ Every number is Stack. Units are gone from every screen. The two buttons on the 
   - the same card;
   - "You and them" this week with a lead bar;
   - their picks, sealed until each game starts;
-  - Challenge to a matchup, and a door to the Lounge.
+  - Challenge to a matchup, and a door to the Lounge: your matchup room if they are your opponent, the week room otherwise.
 - **Tapping your Stack, anywhere**, opens:
   - your Stack against the 1,000 start;
   - your rank, the Stack you have riding and your number of open picks;
