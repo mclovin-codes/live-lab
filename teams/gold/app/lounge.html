@@ -50,13 +50,13 @@ function view(){
     h+=`<div class="lbl">On this game</div><section class="card">${ppl.slice(0,4).map(p=>`<div class="row">${G.av(p,36)}<div class="nm">${G.nameLink(p)}<small>${G.fmt(p.stack)} Stack</small></div>${started?`<span class="chip">${G.esc(G.hash('x'+p.id+room)<.5?g.away.abbr:g.home.abbr)}</span>`:'<span class="chip">SEALED</span>'}</div>`).join('')||'<div class="empty">Nobody yet. Be first.</div>'}</section>`;
   }else h+=`<section class="card"><div style="display:flex;align-items:center">${ppl.slice(0,8).map(p=>G.av(p,34)).join('<span style="width:6px"></span>')}</div><div style="color:var(--mute);margin-top:10px">${ppl.length} players in the Week room</div></section>`;
   h+=`<div class="lbl">The talk</div><div class="react">${['Lock it','Fade','Sweating','Called it'].map(x=>`<button data-r="${x}">${x}</button>`).join('')}</div>`;
-  h+=msgs.map(x=>`<div class="msg">${G.av(x.p,38)}<div class="bub"><b>${G.nameLink(x.p)}</b><small>${ago(x.t)}</small><p>${G.esc(x.text)}</p>${x.tag?`<span class="tag">On ${G.esc(x.tag)}</span>`:''}</div></div>`).join('');
+  h+=msgs.map(x=>`<div class="msg">${G.av(x.p,38)}<div class="bub"><b>${G.nameLink(x.p)}</b><small>${ago(x.t)}</small><p>${G.esc(x.text)}</p>${x.p.me?"":`<button data-at="${G.esc(x.p.name)}" style="margin-top:6px;margin-right:6px;padding:3px 10px;border-radius:8px;border:1px solid var(--line);background:none;color:var(--acc);font:700 12px -apple-system,sans-serif">Reply</button>`}${x.tag?`<span class="tag">On ${G.esc(x.tag)}</span>`:''}</div></div>`).join('');
   h+=`<form class="say" id="say"><input id="txt" maxlength="240" placeholder="Say something to the room" autocomplete="off"><button class="btn" style="width:auto">Send</button></form></main>`;
   return h;
 }
 function render(){if(document.activeElement&&document.activeElement.id==='txt')return;document.getElementById('app').innerHTML=gid?view():list();
   const s=document.getElementById('say');if(s)s.onsubmit=e=>{e.preventDefault();const v=document.getElementById('txt').value.trim();if(v){post(gid,v);document.getElementById('txt').blur();render();scrollTo(0,document.body.scrollHeight)}};
-  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{post(gid,b.dataset.r);render();scrollTo(0,document.body.scrollHeight)});}
+  document.querySelectorAll('[data-at]').forEach(b=>b.onclick=()=>{const t=document.getElementById('txt');t.value='@'+b.dataset.at+' ';t.focus()});document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{post(gid,b.dataset.r);render();scrollTo(0,document.body.scrollHeight)});}
 G.render=render;render();
 if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
 setInterval(render,30000);
