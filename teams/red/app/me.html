@@ -61,7 +61,7 @@ function render(){
  $('pk').innerHTML=L.length?L.map(p=>{const res=p.status==='won'?'won':p.status==='lost'?'lost':'';return `<div class="pk"><div><b>${esc(p.label)}</b><small>${esc(p.game||(p.legs?p.legs.length+'-leg parlay':''))}</small></div><span class="amt ${res}">${fmt(p.stake)}<i>${p.status==='open'?'to return '+fmt(p.stake+p.win):p.status==='won'?'+'+fmt(p.win):p.status==='lost'?'-'+fmt(p.stake):esc(p.status)}</i></span></div>`}).join(''):`<div class="empty">${tab==='open'?'No open picks yet this week.':'Nothing settled yet this week.'}</div>`;
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;tab=b.dataset.s;document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b));render()});
-render();if(Rush.on)Rush.on(render);
+render();if(Rush.on)Rush.on(render);if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
 </script>
 </body>
 </html>
