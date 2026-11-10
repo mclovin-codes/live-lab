@@ -26,7 +26,7 @@ const TAKES=['Taking the under, both defenses look sharp','Who else is riding th
 const LK='g4-lounge-v1';
 function mine(){try{return JSON.parse(localStorage.getItem(LK)||'{}')}catch(e){return{}}}
 function post(room,text){const a=mine();(a[room]=a[room]||[]).push({t:Date.now(),text:String(text).slice(0,240)});try{localStorage.setItem(LK,JSON.stringify(a))}catch(e){}}
-function people(f,room){return f.filter(r=>!r.me&&G.hash(r.id+room)<.3)}
+function people(f,room){return f.filter(r=>!r.me&&G.hash(G.hash(room)+':'+r.id)<.3)}
 function seed(f,room,g){const ppl=people(f,room),now=Date.now();return ppl.slice(0,6).map((p,i)=>({p,t:now-(i+1)*(7+Math.floor(G.hash(p.id+room)*30))*6e4,text:(g&&i%3===0?[`${g.away.abbr} covers this one easy`,`${g.home.abbr} at home is the play`,`Over in ${g.away.abbr} at ${g.home.abbr}, both offenses are rolling`][i%3===0?Math.floor(G.hash(room)*3):0]:TAKES[(Math.floor(G.hash(room)*TAKES.length)+i)%TAKES.length]),tag:g&&G.hash('s'+p.id+room)<.6?(G.hash('x'+p.id+room)<.5?g.away.abbr:g.home.abbr):null}));}
 function ago(t){const m=Math.max(1,Math.round((Date.now()-t)/6e4));return m<60?m+'m':Math.round(m/60)+'h'}
 function list(){
