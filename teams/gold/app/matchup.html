@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Matchup · Rush</title><meta name="theme-color" content="#0A0F15">
+<style>
+.face{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;gap:6px;padding:20px 12px;border-radius:24px;background:radial-gradient(circle at 25% 30%,rgba(61,184,255,.22),transparent 55%),radial-gradient(circle at 75% 30%,rgba(155,140,255,.22),transparent 55%),var(--card);border:1px solid var(--line);margin-top:14px}
+.face .side{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}
+.face b{font-size:16px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.face .vs{font:800 26px/1 "Barlow Condensed",sans-serif;color:var(--mute)}
+.tug{display:flex;height:14px;border-radius:7px;overflow:hidden;margin-top:16px;background:var(--card2)}.tug .a{background:var(--acc)}.tug .b{background:var(--vio)}
+.lock{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:var(--card2);margin-top:8px}
+.lock svg{width:22px;height:22px;flex:none;stroke:var(--mute);fill:none;stroke-width:2}
+.seg{display:flex;gap:6px;background:var(--card);padding:4px;border-radius:14px;margin-top:14px}.seg button{flex:1;min-height:42px;border:0;border-radius:10px;background:none;color:var(--mute);font:800 15px/1 -apple-system,sans-serif}.seg button.on{background:var(--card2);color:var(--tx)}
+</style></head>
+<body data-tab="matchup">
+<div id="app"></div>
+<script src="shared/state.js"></script><script src="week-games.js"></script><script src="shared/nav.js"></script><script src="g4.js"></script>
+<script>
+let tab='week';
+const lockSvg='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+function oppSlip(p){
+  // An opponent's Slip stays hidden until that game kicks off.
+  let picks=[];try{picks=(window.RW&&RW.playerPicks&&RW.playerPicks(p.id))||[]}catch(e){}
+  if(!picks.length)return `<div class="lock">${lockSvg}<div><b>Slip hidden</b><div style="color:var(--mute);font-size:14px">Each pick shows when its game kicks off.</div></div></div>`;
+  return picks.slice(0,8).map(x=>{const g=x.g,started=g&&(g.state!=='pre'||Date.now()>=g.date);
+    if(!started)return `<div class="lock">${lockSvg}<div style="flex:1"><b>${G.esc(x.game||'Pick')}</b><div style="color:var(--mute);font-size:14px">Shows at kickoff, in ${G.until(g?g.date:Date.now())}</div></div></div>`;
+    return G.slipHTML({label:x.label,sel:x.game,stake:x.stake,win:0,status:x.status,pay:x.status==='won'?x.stake*2:0,league:x.league})}).join('');
+}
+function duel(m,foe,title){
+  const a=Math.max(1,m.stack),b=Math.max(1,foe.stack),gap=m.stack-foe.stack;
+  return `<section class="face"><div class="side">${G.av(m,72)}<b>You</b><span class="big" style="font-size:34px">${G.fmt(m.stack)}</span></div><div class="vs">VS</div><div class="side">${G.av(foe,72)}<b>${G.nameLink(foe)}</b><span class="big" style="font-size:34px">${G.fmt(foe.stack)}</span></div></section>
+   <div class="tug"><div class="a" style="flex:${a}"></div><div class="b" style="flex:${b}"></div></div>
+   <div style="text-align:center;margin-top:12px;font:800 22px/1.2 'Barlow Condensed',sans-serif" class="${gap>=0?'up':'dn'}">${gap===0?'DEAD EVEN':gap>0?'YOU LEAD BY '+G.fmt(gap):'YOU TRAIL BY '+G.fmt(-gap)}</div>
+   <div style="text-align:center;color:var(--mute);font-size:14px;margin-top:4px">${G.esc(title)} · higher Stack Monday night takes it</div>
+   <div class="lbl">${G.esc(foe.name)}'s Slip</div>${oppSlip(foe)}
+   <div class="lbl">Your Slip <a href="me.html#slips">All</a></div>${G.openPicks().slice(0,5).map(G.slipHTML).join('')||'<div class="empty">No open picks yet. <a style="color:var(--acc)" href="board.html">Go to the Board</a></div>'}`;
+}
+function render(){
+  const f=G.field(),m=G.meRow(),wk=Rush.week(),pairT=G.pairingAt(),paired=Date.now()>=pairT,ch=G.chs();
+  let h=G.top('Matchup')+'<main class="wrap">';
+  h+=`<div class="seg"><button data-t="week" class="${tab==='week'?'on':''}">Week ${wk.n} matchup</button><button data-t="ch" class="${tab==='ch'?'on':''}">Challenges ${ch.length?'· '+ch.length:''}</button></div>`;
+  if(tab==='week'){
+    const op=G.opponent();
+    if(paired&&op)h+=duel(m,op,'Week '+wk.n+' pairing');
+    else{const pv=op;
+      h+=`<section class="card" style="text-align:center;padding:24px 16px"><div style="color:var(--mute);font-weight:800;letter-spacing:1.2px;font-size:12px">AUTO PAIRING</div><div class="big" style="margin-top:8px">${G.until(pairT)}</div><div style="color:var(--mute);margin-top:6px">Every entrant gets a 1v1 at Thursday 7:00 PM. Late entrants pair with each other.</div></section>
+       <div class="lbl">Want one now</div><section class="card">${f.filter(r=>!r.me).sort((a,b)=>Math.abs(a.stack-m.stack)-Math.abs(b.stack-m.stack)).slice(0,5).map(p=>{const c=ch.find(x=>x.opp===p.id);return `<div class="row">${G.av(p,44)}<div class="nm">${G.nameLink(p)}<small>#${p.rank} · ${G.fmt(p.stack)} Stack · ${G.record(p.id).w}-${G.record(p.id).l} season</small></div>${c?`<span class="chip">${c.state==='on'?'ON':'SENT'}</span>`:`<button class="btn" style="width:auto;min-height:40px;font-size:15px;background:var(--vio);color:#fff" data-ch="${p.id}">Challenge</button>`}</div>`}).join('')}</section>`;}
+  }else{
+    const on=ch.filter(c=>c.state==='on');
+    if(!ch.length)h+=`<div class="empty" style="margin-top:20px">No challenges this week. Tap Challenge on any player.</div>`;
+    on.forEach(c=>{const p=G.player(c.opp);if(p)h+=duel(m,p,'Challenge')});
+    ch.filter(c=>c.state==='sent').forEach(c=>{const p=G.player(c.opp);if(p)h+=`<section class="card"><div class="row">${G.av(p,44)}<div class="nm">${G.esc(p.name)}<small>Waiting for them to accept</small></div><span class="chip">SENT</span></div></section>`});
+  }
+  h+='</main>';
+  document.getElementById('app').innerHTML=h;
+  document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
+  document.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{G.challenge(b.dataset.ch);render()});
+}
+G.render=render;render();
+if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
+setInterval(render,30000);
+</script></body></html>

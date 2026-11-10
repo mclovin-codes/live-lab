@@ -1,329 +1,70 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Rush · Home</title>
-<link rel="stylesheet" href="shared/rush.css">
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&display=swap">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rush</title><meta name="theme-color" content="#0A0F15">
 <style>
-/* Home is the hub: the Lounge line, the week, the prize ladder and how the Field grows it, your multiplier and how friends grow it, what is live, the Field. */
-:root{--bg:#0B1118;--card:#121A23;--card2:#1A2530;--line:#22303D;--fg:#fff;--mute:#8C9BAD;--acc:#00BFFF;--grad:linear-gradient(135deg,#00C0FF,#0080FF);--win:#10B981;--loss:#D95151;--warn:#F59E0B;--gold:#E8B84A;--f:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 var(--f);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
-button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
-a{color:inherit}
-.g-wrap{padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 110px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px;max-width:640px;margin:0 auto}
-.g-top{display:flex;align-items:center;gap:10px}
-.g-top h1{font:800 26px/1 var(--f);letter-spacing:-.03em;margin:0}
-.g-chip{background:rgba(0,191,255,.14);color:var(--acc);font:700 12px var(--f);border-radius:999px;padding:4px 10px}
-.g-stack{margin-left:auto;background:var(--card);border-radius:999px;padding:7px 12px;font:700 14px var(--f)}
-.g-stack small{color:var(--mute);font-weight:600}
-.g-lounge{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:11px 12px;text-decoration:none;min-height:56px}
-.g-lounge .avs{display:flex}.g-lounge .avs span{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--f);border:2px solid var(--card);margin-left:-8px}
-.g-lounge .avs span:first-child{margin-left:0}
-.g-lounge .tx{min-width:0;flex:1}.g-lounge .tx small{display:block;font:700 11px var(--f);letter-spacing:.08em;color:var(--acc)}.g-lounge .tx small i{font-style:normal;color:var(--mute);letter-spacing:0;font-weight:600;margin-left:6px}
-.g-lounge .tx b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.g-card{background:var(--card);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px}
-.g-h{display:flex;align-items:baseline;gap:8px;font:700 17px var(--f)}
-.g-h small{margin-left:auto;font:500 12.5px var(--f);color:var(--mute)}
-.g-eyebrow{font:700 11px var(--f);letter-spacing:.1em;color:var(--mute);text-transform:uppercase}
-.g-start{display:flex;flex-direction:column;gap:2px;background:var(--card2);border-radius:14px;padding:11px 12px}
-.g-start b{font:700 15px var(--f)}.g-start b em{font-style:normal;color:var(--warn)}
-.g-start small{color:var(--mute);font-size:12.5px}
-.g-starts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.g-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:14px;background:var(--grad);color:#fff;font:700 16px var(--f);text-align:center;text-decoration:none;min-height:52px}
-.g-cta.s{background:var(--card2)}
-.g-cta.o{background:transparent;box-shadow:inset 0 0 0 1.5px var(--acc);color:var(--fg)}
-.g-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.g-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.g-tile{background:var(--card2);border-radius:12px;padding:9px;text-decoration:none;min-width:0}
-.g-tile span{display:block;color:var(--mute);font-size:11.5px}
-.g-tile b{display:block;font:700 18px/1.2 var(--f);letter-spacing:-.02em;white-space:nowrap}
-.up{color:var(--win)}.dn{color:var(--loss)}
-.g-prize{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
-.g-prize:last-of-type{border-bottom:0}.g-prize b{color:var(--gold);font:700 20px var(--f)}
-.g-bar{height:8px;background:var(--card2);border-radius:4px;overflow:hidden}.g-bar i{display:block;height:100%;background:var(--grad)}
-.g-ladder{display:flex;flex-direction:column;gap:4px;position:relative;padding-left:22px}
-.g-ladder::before{content:"";position:absolute;left:7px;top:12px;bottom:12px;width:2px;background:var(--line)}
-.g-rung{position:relative;padding:8px 10px;border-radius:12px}
-.g-rung::before{content:"";position:absolute;left:-20px;top:14px;width:12px;height:12px;border-radius:50%;background:#3A4A5A}
-.g-rung.on{background:rgba(0,191,255,.1)}.g-rung.on::before{background:var(--acc);box-shadow:0 0 0 4px rgba(0,191,255,.25)}
-.g-rung .rh{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600}.g-rung .rh small{color:var(--mute);font-weight:500}
-.g-rung .rh em{font-style:normal;color:var(--acc);font-size:11px;letter-spacing:.06em}
-.g-amts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.g-amts span{background:var(--card2);border-radius:8px;padding:4px 9px;font:700 14px var(--f);color:var(--mute)}
-.g-rung.on .g-amts span{background:var(--acc);color:#00131C}
-.g-mult{display:flex;align-items:center;gap:14px}
-.g-mult .x{font:800 44px/1 var(--f);letter-spacing:-.04em}
-.g-mult .x small{font-size:22px}
-.g-mult .why b{display:block;font-weight:700}.g-mult .why span{color:var(--mute);font-size:13px}
-.g-mrow{display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;padding:8px 0;font-size:14px}
-.g-mrow .dots{display:flex;gap:4px}.g-mrow .dots i{width:12px;height:12px;border-radius:50%;background:#3A4A5A}.g-mrow .dots i.on{background:var(--acc)}
-.g-mrow b{color:var(--acc);font-weight:700}
-.g-pays{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-top:1px solid var(--line);font-size:14px;color:var(--mute)}
-.g-pays b{color:var(--acc);font:800 22px var(--f)}
-.g-ref{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.g-ref:last-child{border-bottom:0}
-.g-ref b{flex:1;font-weight:600}.g-ref small{font:700 11px var(--f);letter-spacing:.08em;color:var(--mute)}.g-ref small.in{color:var(--win)}
-.g-ref button{font:600 13px var(--f);color:var(--acc);padding:8px 4px;min-height:40px}
-.g-in{width:100%;background:var(--card2);border:0;border-radius:12px;padding:13px;color:var(--fg);font:15px var(--f)}
-.g-caps{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-2px;padding:2px}
-.g-caps::-webkit-scrollbar{display:none}
-.g-cap{flex:none;display:flex;align-items:center;gap:10px;border:1.5px solid #2C3B4A;border-radius:999px;padding:7px 12px;text-decoration:none;min-height:48px;background:var(--card2)}
-.g-cap img{width:30px;height:30px}.g-cap b{font:700 17px var(--f)}
-.g-cap .ck{display:flex;flex-direction:column;align-items:center;line-height:1.05;font:600 13px var(--f);min-width:42px}.g-cap .ck small{color:var(--mute);font-size:11.5px}
-.g-cap.live{border-color:var(--acc)}.g-cap .at{color:var(--mute);font-weight:600}
-.g-note{font-size:12.5px;color:var(--mute)}
-.g-fr{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
-.g-fr:last-child{border-bottom:0}.g-fr.me{color:var(--acc)}.g-fr .r{color:var(--mute);font-weight:700;text-align:center}
-.g-plink{text-decoration:none;font-weight:600}.g-plink:active{opacity:.6}
-.g-pill{display:inline-block;padding:1px 6px;border-radius:6px;font:700 10px var(--f);background:var(--card2);color:var(--mute);margin-left:4px;vertical-align:1px}
-#g-sheet{position:fixed;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--card);border-radius:20px 20px 0 0;z-index:60;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px;box-shadow:0 -10px 40px rgba(0,0,0,.5);animation:up .26s cubic-bezier(.2,.8,.2,1)}
-#g-sheet::before{content:"";align-self:center;width:36px;height:5px;border-radius:3px;background:#2C3B4A;flex:none}
-#g-scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:59}
-@keyframes up{from{transform:translateY(100%)}}
-.g-sh{display:flex;align-items:center;font:800 18px var(--f);letter-spacing:.02em}.g-sh button{margin-left:auto;font-size:22px;color:var(--mute);min-width:44px;min-height:44px}
-/* The moment, your standing, the Field and the prize: Barlow Condensed for the big numbers, gold for prize money, green and red for results. */
-:root{--cond:"Barlow Condensed","Arial Narrow",var(--f)}
-.g-top h1{font:800 30px/1 var(--cond);letter-spacing:.01em;text-transform:uppercase}
-.g-stack{font:700 17px/1 var(--cond);letter-spacing:.02em}
-.g-hero{position:relative;overflow:hidden;border-radius:22px;padding:16px 14px 14px;text-decoration:none;display:flex;flex-direction:column;gap:12px;background:var(--card);isolation:isolate}
-.g-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,var(--ca) 0%,transparent 48%,transparent 52%,var(--ch) 100%);opacity:.55}
-.g-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(120% 90% at 50% 0%,transparent 40%,rgba(11,17,24,.85))}
-.g-hero .g-tag{display:flex;align-items:center;gap:8px;font:700 12px var(--f);letter-spacing:.1em;color:rgba(255,255,255,.85)}
-.g-hero .g-tag i{width:8px;height:8px;border-radius:50%;background:var(--loss);box-shadow:0 0 0 0 rgba(217,81,81,.7);animation:beat 1.6s infinite}
-@keyframes beat{70%{box-shadow:0 0 0 10px rgba(217,81,81,0)}100%{box-shadow:0 0 0 0 rgba(217,81,81,0)}}
-.g-hero .g-tag span{margin-left:auto;font-weight:600;letter-spacing:.02em;color:rgba(255,255,255,.7)}
-.g-match{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
-.g-side{display:flex;flex-direction:column;align-items:center;gap:4px}
-.g-side img{width:68px;height:68px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
-.g-side b{font:700 18px/1 var(--cond);letter-spacing:.04em}
-.g-mid{text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
-.g-mid .sc{font:800 46px/1 var(--cond);letter-spacing:.01em;white-space:nowrap}
-.g-mid .sc em{font-style:normal;color:rgba(255,255,255,.4);margin:0 6px}
-.g-mid small{font:600 13px var(--f);color:rgba(255,255,255,.8)}
-.g-mid .tm{font:800 30px/1 var(--cond)}
-.g-hero .go{align-self:stretch;text-align:center;background:rgba(255,255,255,.95);color:#0B1118;border-radius:14px;padding:13px;font:700 16px var(--f)}
-.g-me{display:flex;align-items:baseline;gap:10px;padding:2px 4px}
-.g-me .u{font:800 40px/1 var(--cond);letter-spacing:.01em}
-.g-me .r{font:700 22px/1 var(--cond);color:var(--fg)}.g-me .r small{font:600 14px var(--f);color:var(--mute)}
-.g-me a{margin-left:auto;font:600 13px var(--f);color:var(--acc);text-decoration:none;padding:8px 0}
-.g-top [data-rush-pill]{margin-left:auto;min-width:0;max-width:64%}
-.g-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
-.g-wal{flex:none;display:flex;flex-direction:column;gap:4px;min-width:132px;max-width:180px;text-align:left;background:var(--card2);border-radius:12px;padding:10px 12px;color:var(--fg);font:inherit;border:0;cursor:pointer}.g-wal .n{display:flex;align-items:center;gap:6px;min-width:0}.g-wal b{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.g-wal small{color:var(--mute);font-size:12.5px}.g-wal:active{transform:scale(.97)}
-.g-cl{text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:8px}
-.g-prz{border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;background:linear-gradient(180deg,rgba(0,191,255,.13),rgba(0,128,255,.06));box-shadow:inset 0 0 0 1.5px rgba(0,191,255,.5)}
-.g-prz button{background:none;border:0;color:inherit;font:inherit;padding:0;text-align:left;cursor:pointer}
-.g-prz .top{display:flex;align-items:flex-end;gap:12px}.g-prz .big{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
-.g-prz .k{font:700 11px var(--f);letter-spacing:.1em;color:var(--acc);text-transform:uppercase}
-.g-prz .amt{display:flex;align-items:baseline;gap:8px}.g-prz .amt b{font:800 56px/.9 var(--cond);color:#fff;letter-spacing:.01em}.g-prz .amt span{font:600 15px var(--f);color:rgba(255,255,255,.8)}
-.g-prz .mx{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;background:rgba(0,191,255,.14)!important;border-radius:14px!important;padding:10px 12px!important;min-width:84px}.g-prz .mx b{font:800 28px/1 var(--cond);color:#fff}.g-prz .mx small{font:600 10.5px var(--f);color:var(--acc);text-align:center;line-height:1.2}
-.g-prz .g-pg{display:flex;flex-direction:column;gap:7px;width:100%}.g-prz .nx{display:flex;align-items:baseline;gap:8px;font:600 15px var(--f);color:#fff}.g-prz .nx b{color:#fff;font-weight:800}.g-prz .nx em{margin-left:auto;font-style:normal;font-size:13px;color:var(--acc);white-space:nowrap}
-.g-prz .g-pb{height:10px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden}.g-prz .g-pb i{display:block;height:100%;border-radius:5px;background:var(--acc)}
-.g-prz .ends{display:flex;justify-content:space-between;font:600 12px var(--f);color:var(--mute)}
-.g-prz .acts{display:grid;grid-template-columns:2fr 1fr;gap:8px}.g-prz .g-cta{min-height:48px;padding:12px;font:700 16px var(--f);border-radius:14px;text-align:center}
-.g-cta.b{background:var(--acc);color:#04121C}.g-cta.o2{background:transparent;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.22);color:var(--fg);min-height:46px;padding:10px 6px;font-size:14px;white-space:nowrap;border:0;cursor:pointer}
-.g-cc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card2);border:0;border-radius:14px;padding:13px 12px 13px 14px;color:var(--fg);font:inherit;text-decoration:none;cursor:pointer;min-height:60px}
-.g-cc:active{transform:scale(.985)}.g-cc.on{box-shadow:inset 0 0 0 1.5px var(--acc);background:rgba(0,191,255,.08)}
-.g-cc .m{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.g-cc .t{display:flex;align-items:center;gap:8px;min-width:0}.g-cc b{font:700 15.5px var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.g-cc small{font-size:12.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.g-cc .on-tag{flex:none;font:700 10px var(--f);letter-spacing:.08em;color:var(--acc);background:rgba(0,191,255,.16);border-radius:6px;padding:2px 6px}
-.g-cc .chev{flex:none;width:18px;height:18px;fill:none;stroke:var(--mute);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.g-cc.pub{min-height:52px;padding:10px 12px 10px 14px}
-.g-cc.r1{min-height:52px;padding:10px 12px 10px 14px}.g-cc .nums{flex:none;font:500 13px var(--f);color:var(--mute);white-space:nowrap}.g-cc .nums b{font:700 17px/1 var(--cond);color:var(--fg);letter-spacing:.01em}
-.g-cc .sp{display:flex;align-items:center;gap:6px;min-width:0}.g-sp{flex:none;font:700 10px var(--f);letter-spacing:.06em;color:var(--fg);background:rgba(255,255,255,.1);border-radius:6px;padding:2px 6px}
-.g-door{display:flex;align-items:center;gap:12px;border-radius:18px;padding:12px 12px 12px 14px;min-height:64px;background:var(--card);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);color:var(--fg);text-decoration:none}.g-door:active{transform:scale(.985)}
-.g-door .ic{flex:none;width:38px;height:38px;border-radius:12px;background:rgba(167,139,250,.16);display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 8px}.g-door .ic i{display:block;height:4px;border-radius:2px;background:var(--c)}.g-door .ic i:nth-child(2){width:70%}.g-door .ic i:nth-child(3){width:45%}
-.g-door .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.g-door .tx b{font:700 19px/1.05 var(--cond);text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.g-door .tx small{font:500 12.5px var(--f);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.g-door .go{flex:none;display:flex;align-items:center;gap:2px;background:var(--acc);color:#04121C;font:700 14px var(--f);border-radius:12px;padding:9px 8px 9px 12px}.g-door .go .chev{width:16px;height:16px;fill:none;stroke:#04121C;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.g-foot{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g-foot .g-cta{min-height:46px;padding:10px 8px;font:700 14px var(--f);border-radius:14px;white-space:nowrap;border:0;cursor:pointer;background:var(--card2);color:var(--fg)}.g-foot .g-cta small{color:var(--acc);font:700 12px var(--f)}
-.g-sq{display:flex;flex-direction:column;gap:10px;border-radius:20px;padding:14px 16px;text-decoration:none;color:var(--fg);background:radial-gradient(130% 120% at 100% 0%,rgba(167,139,250,.22),transparent 60%),var(--card);box-shadow:inset 0 0 0 1.5px rgba(167,139,250,.45)}.g-sq:active{transform:scale(.985)}
-.g-sq .top{display:flex;align-items:flex-end;gap:12px}.g-sq .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.g-sq .tx b{font:700 24px/1 var(--cond);text-transform:uppercase;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.g-sq .bx{flex:none;display:flex;flex-direction:column;align-items:flex-end}.g-sq .bx b{font:700 34px/.9 var(--cond);color:#C4B5FD}.g-sq .bx small{font:600 11px var(--f);color:var(--mute)}
-.g-sq .pips{display:flex;gap:5px}.g-sq .pips i{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.1)}.g-sq .pips i.on{background:#A78BFA}
-.g-sq .ln{display:flex;align-items:center;gap:8px;font:600 13.5px var(--f)}.g-sq .ln.ok{color:var(--win)}.g-sq .ln.no{color:#F5B14A}.g-sq .ln em{margin-left:auto;font-style:normal;color:var(--acc);display:flex;align-items:center;gap:2px}.g-sq .ln .chev{width:16px;height:16px;fill:none;stroke:var(--acc);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.g-sq.new{flex-direction:row;align-items:center;gap:12px;padding:12px 12px 12px 14px;min-height:64px}.g-sq.new .tx b{font-size:19px}.g-sq.new .tx small{font:500 12.5px var(--f);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.g-sq .ic{flex:none;width:38px;height:38px;border-radius:12px;background:rgba(167,139,250,.2);display:flex;align-items:center;justify-content:center;gap:3px}.g-sq .ic i{width:8px;height:8px;border-radius:50%;background:#C4B5FD}.g-sq .ic i:nth-child(2){width:10px;height:10px}
-.g-sq .go{flex:none;display:flex;align-items:center;gap:2px;background:var(--acc);color:#04121C;font:700 14px var(--f);border-radius:12px;padding:9px 8px 9px 12px}.g-sq .go .chev{width:16px;height:16px;fill:none;stroke:#04121C;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.g-more{align-self:flex-end;font:600 13px var(--f);color:var(--acc);text-decoration:none;padding:4px 2px}
-.g-line{font-size:13.5px;color:var(--mute);padding:0 4px}.g-line b{color:var(--fg);font-weight:600}.g-line em{font-style:normal;color:var(--warn);font-weight:700}
-.g-move{display:flex;flex-direction:column;gap:2px}
-.g-mv{display:grid;grid-template-columns:20px 34px 1fr auto 18px;gap:10px;align-items:center;padding:7px 0}
-.g-mv .n{font:700 18px var(--cond);color:var(--mute);text-align:center}
-.g-mv .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--f);color:#fff}
-.g-mv .v{font:700 20px var(--cond)}
-.g-mv .ar{font-size:12px;text-align:center}.ar.up{color:var(--win)}.ar.dn{color:var(--loss)}.ar.eq{color:#3A4A5A}
-.g-mv.me{background:rgba(0,191,255,.08);border-radius:12px;margin-inline:-6px;padding-inline:6px}
-.g-hot{position:relative;overflow:hidden;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(135deg,#2A2108 0%,#17130A 55%,#121A23 100%);box-shadow:inset 0 0 0 1px rgba(232,184,74,.35)}
-.g-hot .k{font:700 11px var(--f);letter-spacing:.12em;color:var(--gold)}
-.g-hot .big{display:flex;align-items:baseline;gap:10px}
-.g-hot .big b{font:800 54px/1 var(--cond);color:var(--gold);letter-spacing:.01em;text-shadow:0 0 24px rgba(232,184,74,.35)}
-.g-hot .big span{font:600 15px var(--f);color:rgba(255,255,255,.85)}
-.g-hot .nx{font-size:14px;color:rgba(255,255,255,.85)}.g-hot .nx b{color:var(--gold)}
-.g-hot .bar{height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}.g-hot .bar i{display:block;height:100%;background:linear-gradient(90deg,#E8B84A,#F5D27A)}
-.g-hot .row{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:center}
-.g-hot .mx{font:800 24px/1 var(--cond);color:var(--fg);padding:0 6px}.g-hot .mx small{display:block;font:600 10px var(--f);letter-spacing:.08em;color:var(--mute)}
-.g-hot .g-cta{min-height:46px;padding:11px}
-.g-hot .g-cta.gold{background:linear-gradient(135deg,#F5D27A,#E8B84A);color:#231A02}
-.g-next{display:grid;grid-template-columns:1fr auto;grid-template-areas:"lg when" "tms g-go";gap:6px 10px;align-items:center;background:var(--card);border-radius:16px;padding:11px 12px;text-decoration:none}
-.g-next .lg{grid-area:lg;font:700 11px var(--f);letter-spacing:.08em;color:var(--mute);display:flex;align-items:center;gap:6px}
-.g-next .lg i{width:7px;height:7px;border-radius:50%;background:var(--loss);box-shadow:0 0 0 0 rgba(217,81,81,.7);animation:beat 1.6s infinite}
-.g-next .tms{grid-area:tms;display:flex;align-items:center;gap:6px;min-width:0}
-.g-next .tms img{width:26px;height:26px}.g-next .tms b{font:700 17px var(--cond);letter-spacing:.03em}.g-next .tms .at{color:var(--mute);font-size:13px}
-.g-next .when{grid-area:when;font-size:12.5px;color:var(--mute);text-align:right}
-.g-next .g-go{grid-area:g-go;font:600 14px var(--f);color:var(--acc);white-space:nowrap}
-.g-plain{font-size:15px;color:var(--fg)}.g-plain b{font:700 22px var(--cond);letter-spacing:.02em}
-.g-prow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
-.g-prow .g-cta{min-height:44px;padding:10px 16px;width:auto;font-size:15px}
-.g-mx{text-align:left;font-size:13.5px;color:var(--mute)}.g-mx b{color:var(--fg);font:700 18px var(--cond)}
-.g-cap.live{animation:glow 2s infinite}
-.g-cap .tmc{display:flex;flex-direction:column;align-items:center;gap:1px}
-.g-cap .tmc img{width:26px;height:26px}
-.g-cap .tmc i{font:700 11px/1 var(--cond);font-style:normal;letter-spacing:.04em;color:var(--mute)}
-@keyframes glow{50%{box-shadow:0 0 0 3px rgba(0,191,255,.25)}}
-.g-lounge .tx b{transition:opacity .35s}
-@media (prefers-reduced-motion:reduce){.g-hero .g-tag i,.g-cap.live{animation:none}}
-#g-flash{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:rgba(26,37,48,.96);border-radius:14px;padding:12px 16px;font-weight:600;z-index:70;box-shadow:0 10px 30px rgba(0,0,0,.45);max-width:90%}
-</style>
-</head>
-<body>
-<div class="g-wrap" id="home"></div>
-<div id="g-scrim" hidden></div><div id="g-sheet" hidden></div><div id="g-flash" hidden></div>
-<nav id="g-nav"></nav>
-<script src="shared/state.js"></script>
-<script src="week-games.js"></script>
-<script src="contest-kit.js"></script>
-<script src="shared/nav.js"></script>
-<script src="gold-store.js"></script>
-<script src="squad-kit.js"></script>
+.hero{background:linear-gradient(160deg,#17324A 0%,#141C26 60%);border:1px solid rgba(61,184,255,.28)}
+.hero .wk{display:flex;justify-content:space-between;align-items:center}
+.hero .rkbig{display:flex;align-items:baseline;gap:8px;margin-top:10px}
+.hero .rkbig .big{font-size:64px}
+.spread{position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,#FF6B6B33,#3DD68C33);margin:18px 0 6px}
+.spread i{position:absolute;top:-4px;width:18px;height:18px;border-radius:50%;background:var(--acc);border:3px solid #0A0F15;transform:translateX(-50%)}
+.spread em{position:absolute;top:1px;width:4px;height:8px;border-radius:2px;background:rgba(255,255,255,.35);transform:translateX(-50%)}
+.mu{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center}
+.mu .side{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.mu .side b{font-size:15px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mu .vs{font:800 18px/1 "Barlow Condensed",sans-serif;color:var(--mute)}
+.tug{display:flex;height:12px;border-radius:6px;overflow:hidden;margin-top:14px;background:var(--card2)}
+.tug .a{background:var(--acc)}.tug .b{background:var(--vio)}
+.rooms{display:flex;gap:10px;overflow-x:auto;margin:14px -16px 0;padding:0 16px 4px;scroll-snap-type:x mandatory}
+.room{flex:none;width:200px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+.room .tm{display:flex;justify-content:space-between;font:800 22px/1.2 "Barlow Condensed",sans-serif}
+.stackav{display:flex;margin-top:10px}.stackav .av{margin-right:-8px}
+.cta{display:flex;gap:10px;margin-top:16px}
+</style></head>
+<body data-tab="home">
+<div id="app"></div>
+<script src="shared/state.js"></script><script src="week-games.js"></script><script src="shared/nav.js"></script><script src="g4.js"></script>
 <script>
-const $=id=>document.getElementById(id);
-const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const LOGO=(lg,ab)=>`https://a.espncdn.com/i/teamlogos/${lg}/500/${String(ab).toLowerCase()}.png`;
-const PATHS={nfl:'football/nfl',nba:'basketball/nba',nhl:'hockey/nhl'};
-const W=GS.week();
-const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0)/4294967296};
-const AVC=['#0080FF','#10B981','#F59E0B','#D95151','#8B5CF6','#06B6D4','#EC4899','#64748B'];
-/* Prize ladder by Field size and the Prize Multiplier, as Rush runs them (Week 9). */
-const LADDER=[{at:0,name:'To start',pay:[100,50,25]},{at:40,name:'40 in',pay:[150,60,30]},{at:75,name:'75 in',pay:[200,80,40]},{at:125,name:'125 in',pay:[250,90,45,20,15]},{at:200,name:'200 in',pay:[300,100,50,25,20]}];
-const usd=n=>'$'+n;
-const RKEY='rush-referrals-v1';
-const refs=()=>{try{return JSON.parse(localStorage.getItem(RKEY))||{list:[],nudged:{},invitedBy:null}}catch(e){return{list:[],nudged:{},invitedBy:null}}};
-const saveRefs=r=>{try{localStorage.setItem(RKEY,JSON.stringify(r))}catch(e){}};
-(function(){const by=new URLSearchParams(location.search).get('ref');if(by){const r=refs();if(!r.invitedBy){r.invitedBy=by.slice(0,24);saveRefs(r)}}})();
-function rungOf(n){let i=0;for(let k=0;k<LADDER.length;k++)if(n>=LADDER[k].at)i=k;return i}
-function multiplier(){const r=refs(),me=GS.me(),picked=GS.picks().length>0;const inN=r.list.filter(x=>x.in).length,theirs=r.list.reduce((t,x)=>t+(x.theirs||0),0);const sq=window.SQ?SQ.boost():0,m=Math.min(3,1+.1*Math.min(inN,20)+.05*theirs+sq);return{m:+m.toFixed(2),inN,theirs,sq,picked:me.entered&&picked}}
-function flash(t){const el=$('g-flash');el.textContent=t;el.hidden=false;clearTimeout(flash.t);flash.t=setTimeout(()=>el.hidden=true,2200)}
-function link(){const me=GS.me();return location.origin+location.pathname.replace(/[^/]*$/,'')+'?ref='+encodeURIComponent(me.name||'friend')}
-async function shareText(text){const url=link();try{if(navigator.share){await navigator.share({title:'Rush Week '+W.n,text,url});return'Shared'}}catch(e){if(e&&e.name==='AbortError')return null}try{await navigator.clipboard.writeText(text+' '+url);return'Link copied'}catch(e){return'Copy this link: '+url}}
-function fmtDay(t){return new Date(t).toLocaleString([], {weekday:'short',hour:'numeric',minute:'2-digit'})}
-function startsIn(ms){if(ms<=0)return'Closed';const m=Math.floor(ms/60000),d=Math.floor(m/1440),h=Math.floor(m%1440/60),mm=m%60;return d?`${d} Day${d>1?'s':''} ${h} Hr${h===1?'':'s'}`:h?`${h} Hr${h===1?'':'s'} ${mm} Min`:`${mm} Min`}
-const etDay=off=>new Date(Date.now()+off*864e5).toLocaleDateString('en-CA',{timeZone:'America/New_York'}).replace(/-/g,'');
-let GAMES=[];
-async function loadGames(){const days=[etDay(-1),etDay(0),etDay(1)];const urls=[['nfl','https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard']];for(const lg of['nba','nhl'])for(const d of days)urls.push([lg,`https://site.api.espn.com/apis/site/v2/sports/${PATHS[lg]}/scoreboard?dates=${d}`]);const out=[];await Promise.all(urls.map(async([lg,u])=>{try{const d=await(await fetch(u)).json();for(const e of d.events||[]){const c=e.competitions[0],h=c.competitors.find(x=>x.homeAway==='home'),a=c.competitors.find(x=>x.homeAway==='away');const hex=v=>/^[0-9a-f]{6}$/i.test(v||'')?v:null,lum=v=>{const n=parseInt(v,16);return(.299*(n>>16)+.587*((n>>8)&255)+.114*(n&255))/255};const col=t=>{const a=hex(t.team.color),b=hex(t.team.alternateColor);const c=a&&lum(a)>.12?a:b&&lum(b)>.12?b:a||b;return c?'#'+c:'#1A2530'};out.push({lg,id:e.id,date:Date.parse(e.date),state:c.status.type.state,detail:c.status.type.shortDetail,h:{ab:h.team.abbreviation,s:h.score,logo:h.team.logo,c:col(h),name:h.team.shortDisplayName||h.team.abbreviation},a:{ab:a.team.abbreviation,s:a.score,logo:a.team.logo,c:col(a),name:a.team.shortDisplayName||a.team.abbreviation}})}}catch(e){}}));const seen={};GAMES=out.filter(g=>!seen[g.lg+g.id]&&(seen[g.lg+g.id]=1)).sort((x,y)=>x.date-y.date);render()}
-function capChip(g){const live=g.state==='in',pre=g.state==='pre',parts=String(g.detail||'').split(' - ');const ck=live?`<span class="ck">${esc(parts[0])}<small>${esc(parts[1]||'')}</small></span>`:pre?`<span class="ck">${esc(new Date(g.date).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}))}<small>${esc(new Date(g.date).toLocaleDateString([], {weekday:'short'}))}</small></span>`:`<span class="ck">Final<small>${g.lg.toUpperCase()}</small></span>`;return`<a class="g-cap${live?' live':''}" href="game.html?league=${g.lg}&id=${encodeURIComponent(g.id)}" aria-label="${esc(g.a.ab)} at ${esc(g.h.ab)}"><span class="tmc"><img alt="${esc(g.a.ab)}" src="${esc(g.a.logo||LOGO(g.lg,g.a.ab))}"><i>${esc(g.a.ab)}</i></span>${pre?'<span class="at">@</span>':`<b>${esc(g.a.s)}</b>`}${ck}${pre?'':`<b>${esc(g.h.s)}</b>`}<span class="tmc"><img alt="${esc(g.h.ab)}" src="${esc(g.h.logo||LOGO(g.lg,g.h.ab))}"><i>${esc(g.h.ab)}</i></span></a>`}
-function loungeLine(){const f=GS.field(),top=f[0],live=GAMES.filter(g=>g.state==='in');const who=f.filter(r=>r.sim).slice(0,3);const msg=live.length?`${live.length} game${live.length>1?'s':''} live. ${top?top.name+' leads the Field at '+(top.units>=0?'+':'')+top.units.toFixed(1)+' Units.':''}`:top?`${top.name} leads Week ${W.n} at ${(top.units>=0?'+':'')+top.units.toFixed(1)} Units. Come get them.`:`Week ${W.n} is open.`;const here=Math.max(3,Math.round(f.length*.35));return`<a class="g-lounge" href="lounge.html"><span class="avs">${who.map(r=>`<span style="background:${AVC[Math.floor(hash(r.name)*AVC.length)]}">${esc(r.name.split(' ').map(w=>w[0]).join('').slice(0,2))}</span>`).join('')}</span><span class="tx"><small>LOUNGE<i>${here} here today</i></small><b>${esc(msg)}</b></span><span style="color:var(--mute)">&#8250;</span></a>`}
-function multCard(){const x=multiplier(),r=refs(),first=LADDER[rungOf(GS.field().length)].pay[0];return`<div class="g-card"><button data-sheet="mult" style="text-align:left;display:flex;flex-direction:column;gap:8px"><div class="g-eyebrow">Your multiplier</div><div class="g-mult"><div class="x">${x.m.toFixed(1)}<small>X</small></div><div class="why"><b>${x.inN?x.inN+' referral'+(x.inN>1?'s':'')+' active':'No referrals active'}</b><span>${x.picked?`1st place pays ${usd(Math.round(first*x.m))} at ${x.m.toFixed(1)}x`:'Enter and make a pick to collect it'}</span></div></div></button><div class="g-two"><button class="g-cta" data-act="nudge">Nudge</button><button class="g-cta o" data-act="invite">Invite a friend</button></div>${r.invitedBy?`<div class="g-note">You came in on ${esc(r.invitedBy)}’s invite.</div>`:''}</div>`}
-/* Commissioner mode doors: run your own contest, the ones you are in, join with a code. */
-function contestsCard(){const P=GS.CPAGE,mine=GS.contests.mine(),open=GS.contests.open().filter(x=>!mine.some(m=>m.id===x.id)).slice(0,3);
-  return`<div class="g-card"><div class="g-h">Contests<small>Your own Field, your rules</small></div>
-  <a class="g-cta" href="${P.create}">Run your own contest</a>
-  <div class="g-two"><a class="g-cta s" href="${P.list}">My contests${mine.length?' ('+mine.length+')':''}</a><button class="g-cta s" data-act="joinopen">Join with a code</button></div>
-  <form id="g-joinf" class="g-two" hidden><input class="g-in" id="g-code" maxlength="80" placeholder="Code or invite link" autocomplete="off"><button class="g-cta" type="submit">Join</button></form>
-  ${mine.slice(0,3).map(x=>`<a class="g-ref" href="${P.one(x.id)}" style="text-decoration:none"><b>${esc(GS.contests.name(x))}</b><small>${x.public||x.visibility==='public'?'PUBLIC':'PRIVATE'}${GS.contests.count(x)!=null?' · '+GS.contests.count(x)+' IN':''}</small></a>`).join('')}
-  ${open.length?`<div class="g-eyebrow">Open to join</div>${open.map(x=>`<a class="g-ref" href="${P.one(x.id)}" style="text-decoration:none"><b>${esc(GS.contests.name(x))}</b><small>${GS.contests.count(x)!=null?GS.contests.count(x)+' IN':'PUBLIC'}</small></a>`).join('')}`:''}
-  <div class="g-note">Pick the sports, days, Stack, markets and scoring. Public contests list here. Private ones join by code or link.</div></div>`}
-document.addEventListener('submit',e=>{if(e.target.id!=='g-joinf')return;e.preventDefault();const v=(($('g-code')||{}).value||'').trim();if(!v)return;
-  const inv=v.match(/[?&]i=([^&#\s]+)/);if(inv){location.href=GS.CPAGE.invite(decodeURIComponent(inv[1]));return}
-  const cid=v.match(/[?&]c=([^&#\s]+)/);if(cid){location.href=GS.CPAGE.one(decodeURIComponent(cid[1]));return}
-  const r=GS.contests.join(v.toUpperCase());if(r&&r.id){location.href=GS.CPAGE.one(r.id);return}
-  location.href='contests.html?join='+encodeURIComponent(v)});
-/* The moment: the live game if one is on (NFL first), else the next one to start. */
-function heroGame(L){L=L||GAMES;const live=L.filter(g=>g.state==='in');if(live.length)return live.find(g=>g.lg==='nfl')||live[0];return L.find(g=>g.state==='pre')||null}
-/* The next or live game as one quiet row. */
-function heroCard(g){if(!g)return'';const live=g.state==='in';const when=new Date(g.date),day=when.toLocaleDateString([], {weekday:'short'}),tm=when.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
-  return`<a class="g-next" href="game.html?league=${g.lg}&id=${encodeURIComponent(g.id)}"><span class="lg">${live?'<i></i>LIVE':'NEXT'} · ${g.lg.toUpperCase()}</span><span class="tms"><img alt="${esc(g.a.ab)}" src="${esc(g.a.logo||LOGO(g.lg,g.a.ab))}"><b>${esc(g.a.ab)}${live?' '+esc(g.a.s):''}</b><span class="at">@</span><img alt="${esc(g.h.ab)}" src="${esc(g.h.logo||LOGO(g.lg,g.h.ab))}"><b>${esc(g.h.ab)}${live?' '+esc(g.h.s):''}</b></span><span class="when">${live?esc(g.detail):esc(day+' '+tm)}</span><span class="g-go">Pick this game &#8250;</span></a>`}
-/* Rank arrows against the last snapshot taken at least 10 minutes ago. */
-const SNAP='rush-home-ranks';
-function rankMoves(f){let s=null;try{s=JSON.parse(localStorage.getItem(SNAP))}catch(e){}const prev=s&&s.r||{};if(!s||Date.now()-s.t>600000){try{localStorage.setItem(SNAP,JSON.stringify({t:Date.now(),r:Object.fromEntries(f.map(x=>[x.id,x.rank]))}))}catch(e){}}return id=>{const r=f.find(x=>x.id===id);if(!r||prev[id]==null)return 0;return prev[id]-r.rank}}
-function fieldMover(me){const f=GS.field(),you=f.find(r=>r.you),top=f[0],mv=rankMoves(f);const rows=f.slice(0,3);if(you&&you.rank>3)rows.push(you);const gap=top&&you&&!top.you?(top.units-you.units):0;
-  const level=!top||top.units<=0.05||f.every(x=>Math.abs(x.units-top.units)<0.05);
-  const head=level?'The Field is level. First picks tonight.':(top.you?`You lead the Field at ${(top.units>=0?'+':'')+top.units.toFixed(1)} U.`:`${GS.card(top.id,top.name)} leads at ${(top.units>=0?'+':'')+top.units.toFixed(1)} U${you?`, you are ${gap.toFixed(1)} back`:''}.`);
-  return`<div class="g-card"><div class="g-h">The Field<small><a href="ranks.html" style="color:var(--acc);text-decoration:none">All Ranks</a></small></div><div class="g-line" style="padding:0">${head}</div><div class="g-move">${rows.map(r=>{const d=mv(r.id),nm=r.you?(me.name||'You'):r.name;return`<div class="g-mv${r.you?' me':''}"><span class="n">${r.rank}</span><span class="av" style="background:${AVC[Math.floor(hash(nm)*AVC.length)]}">${esc(nm.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase())}</span><span>${GS.card(r.id,nm)}${r.sim?'<span class="g-pill">SIM</span>':''}</span><b class="v ${r.units>0?'up':r.units<0?'dn':''}">${r.units>0?'+':''}${r.units.toFixed(1)}</b><span class="ar ${d>0?'up':d<0?'dn':'eq'}">${d>0?'&#9650;':d<0?'&#9660;':'&#8226;'}</span></div>`}).join('')}</div></div>`}
-function hotCard(){const n=GS.field().length,i=rungOf(n),r=LADDER[i],nx=LADDER[i+1],x=multiplier(),pct=nx?Math.round((n-r.at)/(nx.at-r.at)*100):100;
-  return`<div class="g-card"><button data-sheet="ladder" style="text-align:left;display:flex;flex-direction:column;gap:8px"><span class="g-h">Week ${W.n} prizes<small>${n} in the Field · Ladder &#8250;</small></span><span class="g-plain"><b data-tick="prize">${usd(r.pay[0])}</b> to 1st.${nx?` ${nx.at-n} more in and it pays ${usd(nx.pay[0])}.`:' Top rung reached.'}</span>${nx?`<span class="g-bar"><i style="width:${Math.max(5,pct)}%"></i></span>`:''}</button><div class="g-prow"><button data-sheet="mult" class="g-mx">Multiplier <b>${x.m.toFixed(1)}x</b></button><button class="g-cta s" data-act="invite">Invite</button><button class="g-cta s" data-act="nudge">Nudge</button></div></div>`}
-/* Numbers tick from their last value. */
-const TICK={};function tickAll(){document.querySelectorAll('[data-tick]').forEach(el=>{const k=el.dataset.tick,txt=el.textContent,m=txt.match(/-?[\d,.]+/);if(!m)return;const to=parseFloat(m[0].replace(/,/g,'')),from=TICK[k];TICK[k]=to;if(from==null||from===to||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const dec=(m[0].split('.')[1]||'').length,pre=txt.slice(0,m.index),post=txt.slice(m.index+m[0].length),t0=performance.now();const step=t=>{const p=Math.min(1,(t-t0)/600),v=from+(to-from)*(1-Math.pow(1-p,3));el.textContent=pre+(dec?v.toFixed(dec):Math.round(v).toLocaleString('en-US'))+post;if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)})}
-/* The Lounge line rotates through a few live lines. */
-let LMSG=[],LI=0;
-function loungeLines(){const f=GS.field(),top=f[0],live=GAMES.filter(g=>g.state==='in'),out=[];for(const p of GS.picks().filter(p=>p.status==='open')){const ls=p.legs&&p.legs.length?p.legs:[p];for(const l of ls){const g=GAMES.find(x=>x.lg===l.league&&x.id===l.gameId&&x.state==='in');if(g){out.push(`Your ${p.label} is live: ${g.a.ab} ${g.a.s}, ${g.h.ab} ${g.h.s}, ${g.detail}.`);break}}if(out.length>=2)break}if(top)out.push(`${top.you?"You lead":top.name+" leads"} Week ${W.n} at ${(top.units>=0?'+':'')+top.units.toFixed(1)} U.`);if(live.length)out.push(`${live.length} game${live.length>1?'s':''} live right now. Board is wide open.`);const g=heroGame();if(g&&g.state==='pre')out.push(`Who is on ${g.a.ab} at ${g.h.ab}? Starts ${new Date(g.date).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}.`);out.push('Reload is free once a week if you run dry.');return out}
-setInterval(()=>{const el=document.querySelector('.g-lounge .tx b');if(!el||!LMSG.length)return;LI=(LI+1)%LMSG.length;el.style.opacity=0;setTimeout(()=>{el.textContent=LMSG[LI];el.style.opacity=1},350)},4500);
-/* One contest at a time (3:05 AM addendum): the active contest leads with its own Stack, Ranks and clocks.
-   Stacks are each contest's own and never summed. Other contests sit in one row, one tap to switch. */
-const WAL=()=>window.Rush&&Rush.wallet?Rush.wallet:null;
-function wallets(){const w=WAL();if(w)try{return w.list()}catch(e){}return[]}
-const okc=c=>/^#[0-9a-f]{3,8}$/i.test(c||'')?c:'#00BFFF';
-const wdot=c=>`<span class="g-dot" style="background:${okc(c)}"></span>`;
-function covered(id){const w=WAL();return g=>!w||id==='rush'||w.covers(id,{league:g.lg,start:g.date}).ok}
-function contestScope(c){const sp=c.sports&&c.sports.length&&c.sports.length<3?c.sports.map(s=>s.toUpperCase()).join(' and ')+' only':'';const ds=(c.days||[]).slice().sort().map(d=>new Date(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6,8)).toLocaleDateString([], {weekday:'short'}));const u=[...new Set(ds)];return[sp,u.length>2?u[0]+' to '+u[u.length-1]:u.join(' and ')].filter(Boolean).join(' · ')}
-function contestClock(c,now){if(c.phase==='settled')return`${esc(c.name)} has settled.`;if(c.phase==='upcoming')return`${esc(c.name)} opens in <em>${startsIn(c.opens-now)}</em>.`;const s=c.settles-now,j=c.entryClose?c.entryClose-now:0;return`${j>0?`Joins close in <em>${startsIn(j)}</em>. `:''}Settles ${s<864e5?`in <em>${startsIn(s)}</em>`:`<b>${esc(new Date(c.settles).toLocaleString([], {weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</b>`}.${contestScope(c)?' '+esc(contestScope(c))+'.':''}`}
-function otherRow(ws,act){const o=ws.filter(w=>w.id!==act);if(!o.length)return'';return`<div class="g-card"><div class="g-h">Your other contests<small>Tap to switch</small></div><div class="g-caps">${o.map(w=>`<button class="g-wal" data-wallet="${esc(w.id)}" aria-label="Switch to ${esc(w.name)}"><span class="n">${wdot(w.color)}<b>${esc(w.name)}</b></span><small>${w.entered?GS.fmt(w.stack)+' Stack'+(w.rank?' · #'+w.rank:''):'Not entered'}</small></button>`).join('')}</div></div>`}
-/* Prize and invite: one Rush-blue card, second after the live moment. The prize is the number; Invite is the one strong button. */
-function prizeCard(){const n=GS.field().length,i=rungOf(n),r=LADDER[i],nx=LADDER[i+1],x=multiplier(),pct=nx?Math.round((n-r.at)/(nx.at-r.at)*100):100;
-  return`<div class="g-prz"><div class="top"><button data-sheet="ladder" class="big"><span class="k">Week ${W.n} prize · ${n} in the Field</span><span class="amt"><b data-tick="prize">${usd(r.pay[0])}</b><span>to 1st</span></span></button><button data-sheet="mult" class="mx" aria-label="Your multiplier ${x.m.toFixed(1)}x"><b>${x.m.toFixed(1)}x</b><small>Your multiplier</small></button></div>
-  <button data-sheet="ladder" class="g-pg"><span class="nx">${nx?`${nx.at-n} more in and 1st pays <b>${usd(nx.pay[0])}</b>`:`Top rung: ${r.pay.length} places paid`}<em>Ladder &#8250;</em></span>${nx?`<span class="g-pb"><i style="width:${Math.max(5,pct)}%"></i></span><span class="ends"><span>${n} in</span><span>${nx.at} in</span></span>`:''}</button>
-  <div class="acts"><button class="g-cta b" data-act="invite">Invite a friend</button><button class="g-cta o2" data-act="nudge">Nudge</button></div></div>`}
-/* My contests: every contest the player is in as one tappable card. The active one opens its Ranks; any other switches to it. */
-const CHEV='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
-/* Run your own: the door into contest creation, third on Home. Join with a code sits beside it. */
-/* Squad Streak (Phase 3): the Squad sits right under the prize, because its boost is part of what 1st pays you. */
-function squadCard(){const s=window.SQ?SQ.status():null,bx=v=>'+'+v.toFixed(2).replace(/0$/,'')+'x';
-  if(!s)return`<a class="g-sq new" href="squad.html"><span class="ic" aria-hidden="true"><i></i><i></i><i></i></span><span class="tx"><b>Squad up</b><small>Friends who pick lift your multiplier</small></span><span class="go">Start${CHEV}</span></a>`;
-  if(s.waiting)return`<a class="g-sq new" href="squad.html"><span class="ic" aria-hidden="true"><i></i><i></i><i></i></span><span class="tx"><b>${esc(s.name)}</b><small>Waiting for ${esc(s.host)} to confirm</small></span>${CHEV}</a>`;
-  const togo=Math.max(0,s.need-s.picked);
-  return`<a class="g-sq" href="squad.html"><span class="top"><span class="tx"><span class="g-eyebrow">Squad · streak ${s.streak}</span><b>${esc(s.name)}</b></span><span class="bx"><b>${bx(s.boost.total)}</b><small>on your multiplier</small></span></span>
-  <span class="pips">${Array.from({length:SQ.RULES.maxStreak},(_,i)=>`<i class="${i<s.streak?'on':''}"></i>`).join('')}</span>
-  <span class="ln ${s.onTrack?'ok':'no'}">${s.onTrack?`Streak safe: ${s.picked} of ${s.of} picked`:`${togo} more pick${togo>1?'s':''} keeps the streak · ${s.picked} of ${s.of} in`}<em>Open ${CHEV}</em></span></a>`}
-function doorCard(ws){const own=ws.some(w=>w.owner);
-  return`<a class="g-door" href="${GS.CPAGE.create}" aria-label="Run your own contest"><span class="ic" aria-hidden="true"><i style="--c:#F59E0B"></i><i style="--c:#A78BFA"></i><i style="--c:#34D399"></i></span><span class="tx"><b>Run your own contest</b><small>Your Field, your rules.</small></span><span class="go">${own?'New':'Start'}${CHEV}</span></a>`}
-/* My contests: one tight row per contest. The active one opens its Ranks; any other switches to it. Public contests show only once they have entries. */
-function myContests(ws,act){const P=GS.CPAGE,all=GS.contests.open().filter(x=>!ws.some(w=>w.id===x.id)),pub=all.filter(x=>GS.contests.count(x)>0).slice(0,3);
-  const row=w=>{const on=w.id===act,nums=w.entered?`<b>${GS.fmt(w.stack)}</b>${w.rank?' · #'+w.rank:''}`:'Not entered';const inner=`<span class="g-dot" style="background:${okc(w.color)}"></span><span class="m"><span class="t"><b>${esc(w.name)}</b>${on?'<span class="on-tag">ACTIVE</span>':''}</span></span><span class="nums">${nums}</span>${CHEV}`;
-    return on?`<a class="g-cc r1 on" href="${w.id==='rush'?'ranks.html':P.one(w.id)}" aria-label="${esc(w.name)}, active. Open Ranks">${inner}</a>`:`<button class="g-cc r1" data-wallet="${esc(w.id)}" aria-label="Switch to ${esc(w.name)}">${inner}</button>`};
-  const pc=x=>{const c=GS.contests.count(x),lg=((x.schedule&&x.schedule.leagues)||[]).slice(0,3);return`<a class="g-cc pub" href="${P.one(x.id)}"><span class="m"><b>${esc(GS.contests.name(x))}</b><span class="sp">${lg.map(l=>`<span class="g-sp">${esc(String(l).toUpperCase())}</span>`).join('')}<small>${c} in the Field${x.host?' · by '+esc(x.host):''}</small></span></span>${CHEV}</a>`};
-  return`<div class="g-card"><div class="g-h">My contests<small>${ws.length>1?'Tap one to switch':'Stack · rank'}</small></div>${ws.map(row).join('')}
-  ${pub.length?`<div class="g-eyebrow" style="margin-top:4px">Public contests filling up</div>${pub.map(pc).join('')}`:''}<div class="g-foot"><button class="g-cta" data-act="joinopen">Join with a code</button><a class="g-cta" href="${P.list}">Public contests${all.length?' <small>'+all.length+' open</small>':''}</a></div>
-  <form id="g-joinf" class="g-two" hidden><input class="g-in" id="g-code" maxlength="80" placeholder="Code or invite link" autocomplete="off"><button class="g-cta b" type="submit">Join</button></form></div>`}
-function contestCard(c){return`<a class="g-card g-cl" href="${GS.CPAGE.one(c.id)}"><span class="g-h">${esc(c.name)} Ranks<small>${c.of?c.of+' in · ':''}Open &#8250;</small></span><span class="g-plain">${c.rank?`You are <b>#${c.rank}</b> of ${c.of}.`:'Ranks fill in as picks settle.'}${c.owner?' You run this contest.':''}</span></a>`}
-function render(){const ae=document.activeElement;if(ae&&(ae.id==='g-code'||ae.id==='g-name'||ae.id==='g-refname'))return;const me=GS.me(),now=Date.now(),ws=wallets(),act=WAL()?WAL().active():'rush',c=ws.find(w=>w.id===act)||null,rush=act==='rush'||!c,entered=rush?GS.entered():c.entered;
-  const L=GAMES.filter(covered(act)),hero=heroGame(L),live=L.filter(g=>g.state==='in'&&g!==hero),next=L.filter(g=>g.state==='pre'&&g!==hero).slice(0,8);
-  let h=`<div class="g-top"><h1>Rush</h1><span data-rush-pill></span></div>`;
-  h+=heroCard(hero);if(rush)h+=prizeCard()+squadCard()+doorCard(ws);
-  if(rush){
-    if(!entered){h+=now<W.entryClose?`<div class="g-card"><input class="g-in" id="g-name" maxlength="20" placeholder="Your name in the Field" value="${esc(me.name&&me.name!=='You'?me.name:'')}"><button class="g-cta" id="g-enter">Enter Week ${W.n} · 1,000 Stack</button><div class="g-note">Free. Everyone starts with 1,000 Stack. The Field ranks on Units.</div></div>`:`<div class="g-line">Entry for Week ${W.n} closed at Monday night kickoff.</div>`}
-    else{const u=GS.units(),rk=GS.rank(),rec=GS.record(),open=GS.picks().filter(p=>p.status==='open').length;h+=`<div class="g-me"><span class="u ${u>0?'up':u<0?'dn':''}" data-tick="units">${u>0?'+':''}${u.toFixed(1)} U</span><span class="r">#${rk.rank} <small>of ${rk.of}${rec.w+rec.l?' · '+rec.w+'-'+rec.l+' season':''}</small></span><a href="slips.html">${open?open+' open':'Slips'} &#8250;</a></div>`;
-      if(me.stack<10&&!me.reloaded)h+=`<button class="g-cta" id="g-reload">Reload: 1,000 Stack back, free once a week</button>`}
-    const left=W.entryClose-now;h+=`<div class="g-line">${left>864e5?`Picks open through <b>${esc(fmtDay(W.entryClose))}</b>. Each game locks at its start.`:left>0?`Entry closes in <em>${startsIn(left)}</em>.`:'Entry is closed. Picks in play settle after Monday night.'}</div>`;
-    h+=fieldMover(me)+myContests(ws,act)}
-  else{const u=+c.units||0;h+=`<div class="g-me"><span class="u ${u>0?'up':u<0?'dn':''}">${u>0?'+':''}${u.toFixed(1)} U</span><span class="r">${c.rank?'#'+c.rank:'&#8212;'} <small>${c.of?'of '+c.of:''}</small></span><a href="slips.html">${c.open?c.open+' open':'Slips'} &#8250;</a></div>`;
-    if(c.canReload)h+=`<button class="g-cta" data-act="wreload">Reload ${esc(c.name)}: once, under 50 Stack</button>`;
-    h+=`<div class="g-line">${contestClock(c,now)}</div>`+contestCard(c)+doorCard(ws)+myContests(ws,act)}
-  LMSG=loungeLines();if(LI>=LMSG.length)LI=0;h+=loungeLine().replace(/<b>[^<]*<\/b>/,`<b>${esc(LMSG[LI]||'')}</b>`);
-  if(live.length||next.length)h+=`<div class="g-card"><div class="g-h">${live.length?'More live':'Up next'}<small><a href="board.html" style="color:var(--acc);text-decoration:none">Board</a></small></div><div class="g-caps">${(live.length?live:next).map(capChip).join('')}</div></div>`;
-  $('home').innerHTML=h;tickAll();const bd=document.getElementById('rpill-band');if(bd)bd.remove();if(Rush.nav)try{Rush.nav.refresh()}catch(e){}const e=$('g-enter');if(e)e.onclick=()=>{GS.enter(($('g-name')||{}).value);render()};const rl=$('g-reload');if(rl)rl.onclick=()=>{GS.reload();render()}}
-window.render=render;
-function sheet(kind){const el=$('g-sheet');let h='';if(kind==='ladder'){const n=GS.field().length,i=rungOf(n),r=LADDER[i];h=`<div class="g-sh">THE RUSH · WEEK ${W.n}<button data-close="1" aria-label="Close">&#215;</button></div><div class="g-eyebrow">Prizes right now</div>${r.pay.map((p,k)=>`<div class="g-prize"><span>${['1st','2nd','3rd','4th','5th'][k]}</span><b>${usd(p)}</b></div>`).join('')}<div class="g-note">Tied Stacks share a rank and split the combined prizes. Prizes step up at 40, 75, 125 and 200 in the Field.</div><div class="g-eyebrow">By Field size</div><div class="g-ladder">${LADDER.map((x,k)=>`<div class="g-rung${k===i?' on':''}"><div class="rh"><span>${x.name}${k===i?` <em>THIS WEEK · ${n} IN</em>`:''}</span><small>top ${x.pay.length} paid</small></div><div class="g-amts">${x.pay.map(p=>`<span>${usd(p)}</span>`).join('')}</div></div>`).join('')}</div><button class="g-cta o" data-act="invite">Invite a friend to grow the Field</button>`}
-  else{const x=multiplier(),r=refs(),first=LADDER[rungOf(GS.field().length)].pay[0],dots=(n,max)=>Array.from({length:max},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('');h=`<div class="g-sh">YOUR MULTIPLIER<button data-close="1" aria-label="Close">&#215;</button></div><div class="g-mult"><div class="x">${x.m.toFixed(1)}<small>X</small></div><div class="why"><b>${[x.inN?x.inN+' referral'+(x.inN>1?'s':'')+' active':'',x.sq?'Squad +'+x.sq.toFixed(2).replace(/0$/,'')+'x':''].filter(Boolean).join(' · ')||'No referrals or Squad yet'}</b><span>${x.picked?'You are in with a pick':'Enter and make a pick to collect it'}</span></div></div><a class="g-note" href="squad.html" style="color:var(--acc);text-decoration:none">${x.sq?'Your Squad adds to this every week you all pick. Open your Squad ›':'Squad up: every friend who picks adds to this. Start a Squad ›'}</a><div class="g-two"><button class="g-cta" data-act="nudge">Nudge</button><button class="g-cta o" data-act="invite">Invite a friend</button></div><div class="g-card" style="background:var(--card2)"><div class="g-mrow"><span class="g-pill" style="background:#fff;color:#0B1118">YOU</span><span>In with a pick</span><b>1.0X</b></div><div class="g-mrow"><span class="dots">${dots(x.inN,3)}</span><span>${x.inN} referral${x.inN===1?'':'s'} in · +10% each</span><b>+${(x.inN*.1).toFixed(1)}</b></div><div class="g-mrow"><span class="dots">${dots(x.theirs,2)}</span><span>${x.theirs} of theirs in · +5% each</span><b>+${(x.theirs*.05).toFixed(1)}</b></div><div class="g-pays">${usd(first)} to 1st at ${x.m.toFixed(1)}x pays <b>${usd(Math.round(first*x.m))}</b></div></div><div class="g-note">Counts referrals who are in this week with a pick placed. Up to 3x, on the weekly prize when you finish in a paid place and you are in with a pick yourself. Nudge and Invite are free.</div><div class="g-eyebrow">Your referrals</div><div>${r.list.length?r.list.map((p,k)=>`<div class="g-ref"><b>${esc(p.name)}</b><small class="${p.in?'in':''}">${p.in?'IN':'NOT IN'}</small>${p.in?'':`<button data-nudge1="${k}">${r.nudged[p.name]===W.n?'Nudged':'Nudge'}</button>`}</div>`).join(''):'<div class="g-note">No referrals yet. Invite a friend and add their name here so you can nudge them.</div>'}</div><div class="g-two"><input class="g-in" id="g-refname" maxlength="20" placeholder="Friend’s name"><button class="g-cta s" data-act="addref">Add</button></div><div class="g-note">This prototype runs on one phone, so a friend shows as in only when they enter on their own phone through your link. That needs the Rush backend.</div>`}
-  el.innerHTML=h;el.hidden=false;$('g-scrim').hidden=false}
-function closeSheet(){$('g-sheet').hidden=true;$('g-scrim').hidden=true}
-document.addEventListener('click',async e=>{const t=e.target.closest('[data-sheet],[data-close],[data-act],[data-nudge1],[data-wallet]');if(!t){if(e.target.id==='g-scrim')closeSheet();return}const d=t.dataset;
-  if(d.wallet){const w=WAL();if(w&&w.setActive(d.wallet)){window.scrollTo(0,0);render()}return}
-  if(d.act==='wreload'){const w=WAL();if(w)w.reload(w.active());render();return}
-  if(d.sheet)sheet(d.sheet);else if(d.close)closeSheet();
-  else if(d.act==='joinopen'){const f=$('g-joinf');f.hidden=!f.hidden;if(!f.hidden)$('g-code').focus()}
-  else if(d.act==='invite'){const m=await shareText(`I'm in Rush Week ${W.n}. Free entry, 1,000 Stack, the Field ranks on Units. Join through my link so we both climb.`);if(m)flash(m)}
-  else if(d.act==='nudge'){const r=refs(),out=r.list.filter(p=>!p.in&&r.nudged[p.name]!==W.n);const m=await shareText(`Week ${W.n} is open and entry closes at Monday night kickoff. Get in with a pick.`);if(m){out.forEach(p=>r.nudged[p.name]=W.n);saveRefs(r);flash(out.length?`Nudged ${out.length}. ${m}`:m)}if(!$('g-sheet').hidden)sheet('mult')}
-  else if(d.nudge1!=null){const r=refs(),p=r.list[+d.nudge1];if(p){const m=await shareText(`${p.name}, Week ${W.n} is open. Get in with a pick before Monday night.`);if(m){r.nudged[p.name]=W.n;saveRefs(r);flash(m)}}sheet('mult')}
-  else if(d.act==='addref'){const v=(($('g-refname')||{}).value||'').trim();if(v){const r=refs();if(!r.list.some(p=>p.name===v))r.list.push({name:v.slice(0,20),in:false,theirs:0});saveRefs(r)}sheet('mult');render()}});
-GS.nav('home');render();loadGames();setInterval(loadGames,30000);setInterval(render,30000);
-</script>
-</body>
-</html>
+function render(){
+  const f=G.field(),m=G.meRow(),wk=Rush.week(),op=G.opponent(),ch=G.chs();
+  const lo=Math.min(...f.map(r=>r.stack)),hi=Math.max(...f.map(r=>r.stack)),pos=s=>hi===lo?50:((s-lo)/(hi-lo))*100;
+  const d=m.stack-1000,lead=f[0];
+  const pairT=G.pairingAt(),paired=Date.now()>=pairT,on=ch.filter(c=>c.state==='on'),sent=ch.filter(c=>c.state==='sent');
+  const foe=paired?op:(on[0]?G.player(on[0].opp):null);
+  const near=f.filter(r=>!r.me&&!ch.some(c=>c.opp===r.id)).sort((a,b)=>Math.abs(a.stack-m.stack)-Math.abs(b.stack-m.stack)).slice(0,3);
+  const gs=G.games().filter(g=>!g.done).sort((a,b)=>(b.state==='in')-(a.state==='in')||a.date-b.date).slice(0,8);
+  let h=G.top('Rush')+'<main class="wrap">';
+  // 1. The weekly contest
+  h+=`<section class="card hero"><div class="wk"><span class="chip" style="background:rgba(61,184,255,.16);color:var(--acc)">WEEK ${wk.n} CONTEST</span><span class="chip">Ends Mon night</span></div>
+   <div class="rkbig"><span class="big">#${m.rank||'-'}</span><span style="color:var(--mute);font-weight:700">of ${f.length} in the Field</span></div>
+   <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:6px"><div><div style="color:var(--mute);font-size:12px;font-weight:800;letter-spacing:1.2px">STACK</div><div class="big" style="font-size:38px">${G.fmt(m.stack)}</div></div>
+   <div style="text-align:right"><div class="num ${d>=0?'up':'dn'}">${d>=0?'+':''}${G.fmt(d)}</div><small style="color:var(--mute)">since Tuesday</small></div></div>
+   <div class="spread">${f.map(r=>r.me?'':`<em style="left:${pos(r.stack)}%"></em>`).join('')}<i style="left:${pos(m.stack)}%"></i></div>
+   <div style="display:flex;justify-content:space-between;color:var(--mute);font-size:13px"><span>${G.fmt(lo)}</span><span>1st: ${G.esc(lead.me?'you':lead.name)} ${G.fmt(lead.stack)}</span></div>
+   <div class="cta"><a class="btn" href="board.html">Make picks</a><a class="btn ghost" href="ranks.html">Ranks</a></div></section>`;
+  // 2. The matchup
+  if(foe){const a=Math.max(1,m.stack),b=Math.max(1,foe.stack),gap=m.stack-foe.stack;
+   h+=`<div class="lbl">Your matchup <a href="matchup.html">Open</a></div><a class="card" style="display:block" href="matchup.html"><div class="mu"><div class="side">${G.av(m,56)}<b>You</b><span class="num">${G.fmt(m.stack)}</span></div><div class="vs">VS</div><div class="side">${G.av(foe,56)}<b>${G.esc(foe.name)}</b><span class="num">${G.fmt(foe.stack)}</span></div></div>
+   <div class="tug"><div class="a" style="flex:${a}"></div><div class="b" style="flex:${b}"></div></div>
+   <div style="text-align:center;margin-top:10px;font-weight:800;font-size:17px" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You lead by '+G.fmt(gap):'You trail by '+G.fmt(-gap)}</div></a>`;}
+  else{h+=`<div class="lbl">Your matchup</div><section class="card"><div style="display:flex;align-items:center;gap:14px"><div style="flex:1"><div style="font-weight:800;font-size:19px">Paired Thursday 7:00 PM</div><div style="color:var(--mute);margin-top:4px">Your 1v1 for Week ${wk.n} is set in <b style="color:var(--tx)">${G.until(pairT)}</b>. Challenge someone now.</div></div><div class="num" style="font-size:30px;color:var(--vio)">1v1</div></div>
+   ${sent.map(c=>{const p=G.player(c.opp);return p?`<div class="row">${G.av(p,40)}<div class="nm">${G.esc(p.name)}<small>Challenge sent, waiting</small></div><span class="chip">SENT</span></div>`:''}).join('')}
+   ${near.map(p=>`<div class="row">${G.av(p,40)}<div class="nm">${G.nameLink(p)}<small>#${p.rank} · ${G.fmt(p.stack)} Stack</small></div><button class="btn ghost" style="width:auto;min-height:40px;font-size:15px" data-ch="${p.id}">Challenge</button></div>`).join('')}</section>`;}
+  // 3. Lounge rooms
+  h+=`<div class="lbl">Lounge rooms <a href="lounge.html">All rooms</a></div>`;
+  h+=gs.length?`<div class="rooms">${gs.map(g=>{const ppl=f.filter(r=>G.hash(r.id+g.id)<.28).slice(0,4),live=g.state==='in';
+   return `<a class="room" href="lounge.html?g=${encodeURIComponent(g.id)}"><div style="display:flex;justify-content:space-between;align-items:center"><span class="chip ${live?'live':''}">${live?'LIVE':G.esc((g.league||'').toUpperCase())}</span><small style="color:var(--mute)">${live?G.esc(g.detail):new Date(g.date).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})}</small></div>
+   <div class="tm" style="margin-top:10px"><span>${G.esc(g.away.abbr)}</span><span>${live?G.esc(g.away.score||0):''}</span></div><div class="tm"><span>${G.esc(g.home.abbr)}</span><span>${live?G.esc(g.home.score||0):''}</span></div>
+   <div class="stackav">${ppl.map(p=>G.av(p,26)).join('')}<span style="margin-left:16px;color:var(--mute);font-size:13px;align-self:center">${ppl.length+Math.floor(G.hash(g.id)*6)} in the room</span></div></a>`}).join('')}</div>`
+   :`<a class="card" style="display:block" href="lounge.html"><b>The Week ${wk.n} room is open</b><div style="color:var(--mute);margin-top:4px">Game rooms open as this week's games load.</div></a>`;
+  // 4. The Field
+  const top5=f.slice(0,5);if(!top5.some(r=>r.me))top5.push(m);
+  h+=`<div class="lbl">The Field <a href="ranks.html">Ranks</a></div><section class="card">${top5.map(r=>`<div class="row"><span class="rk">${r.rank}</span>${G.av(r,40)}<div class="nm">${G.nameLink(r)}${r.me?'<small>You</small>':''}</div><span class="num">${G.fmt(r.stack)}</span></div>`).join('')}</section>`;
+  h+='</main>';
+  document.getElementById('app').innerHTML=h;
+  document.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{G.challenge(b.dataset.ch);render();});
+}
+G.render=render;render();
+if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
+setInterval(render,30000);
+</script></body></html>

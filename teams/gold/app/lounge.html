@@ -1,78 +1,63 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Rush · Lounge</title>
-<link rel="stylesheet" href="shared/rush.css">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lounge · Rush</title><meta name="theme-color" content="#0A0F15">
 <style>
-/* Lounge: the Field talking across the week. A week thread and one thread per game. */
-:root{--bg:#0B1118;--card:#121A23;--card2:#1A2530;--line:#22303D;--fg:#fff;--mute:#8C9BAD;--acc:#00BFFF;--grad:linear-gradient(135deg,#00C0FF,#0080FF);--win:#10B981;--loss:#D95151;--f:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 var(--f);-webkit-font-smoothing:antialiased}
-button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
-.g-wrap{padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 170px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px;max-width:640px;margin:0 auto}
-.g-top{display:flex;align-items:center;gap:10px}.g-top h1{font:800 26px/1 var(--f);letter-spacing:-.03em;margin:0}.g-top small{margin-left:auto;color:var(--mute);font-size:13px}.g-top [data-rush-pill]{margin-left:auto;min-width:0;max-width:70%}
-.threads{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.threads::-webkit-scrollbar{display:none}
-.th{flex:none;display:flex;align-items:center;gap:6px;background:var(--card);border-radius:999px;padding:9px 13px;font:600 14px var(--f);color:var(--mute);min-height:40px;white-space:nowrap}
-.th.on{background:var(--card2);color:var(--fg);box-shadow:inset 0 0 0 1.5px var(--acc)}
-.th img{width:18px;height:18px}.th i{width:7px;height:7px;border-radius:50%;background:var(--loss);display:inline-block}
-.g-card{background:var(--card);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:2px}
-.g-h{display:flex;align-items:center;gap:8px;font:700 17px var(--f);margin-bottom:6px}.g-h a{margin-left:auto;font:600 13px var(--f);color:var(--acc);text-decoration:none;padding:8px 0}
-.msg{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.msg:last-child{border-bottom:0}
-.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--f);color:#fff;flex:none}
-.msg .t{min-width:0;flex:1}.msg .t b{font-weight:600}.msg .t small{color:var(--mute);font-size:12px;margin-left:6px}
-.msg .t p{margin:2px 0 0}
-.pill{display:inline-block;padding:1px 6px;border-radius:6px;font:700 10px var(--f);background:var(--card2);color:var(--mute);margin-left:4px}.pill.you{background:var(--acc);color:#00131C}
-.compose{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:rgba(11,17,24,.94);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);z-index:9}
-.compose input{flex:1;min-width:0;background:var(--card2);border:0;border-radius:12px;padding:13px;color:var(--fg);font:15px var(--f)}
-.compose button{background:var(--grad);color:#fff;border-radius:12px;padding:0 18px;font-weight:700;min-height:46px}
-.g-note{font-size:12.5px;color:var(--mute)}
-.g-plink{color:inherit;text-decoration:none;font-weight:600}
-#g-nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(18,26,35,.9);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:.5px solid #2C3B4A;padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
-#g-nav a{padding:9px 0 8px;text-align:center;font:600 11px var(--f);color:#5E6E80;text-decoration:none;min-height:44px}
-#g-nav a.on{color:var(--acc)}#g-nav svg{display:block;width:24px;height:24px;margin:0 auto 2px}
-</style>
-</head>
-<body>
-<div class="g-wrap" id="lounge"></div>
-<form class="compose" id="cf"><input id="ci" maxlength="160" placeholder="Say something to the Field" autocomplete="off"><button type="submit">Post</button></form>
-<nav id="g-nav"></nav>
-<script src="shared/state.js"></script>
-<script src="week-games.js"></script>
-<script src="contest-kit.js"></script>
-<script src="shared/nav.js"></script>
-<script src="gold-store.js"></script>
+.rm{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:10px}
+.rm .tms{flex:1;min-width:0}.rm .tms div{display:flex;justify-content:space-between;font:800 22px/1.15 "Barlow Condensed",sans-serif}
+.rm .side{text-align:right;min-width:92px}
+.stackav{display:flex;justify-content:flex-end}.stackav .av{margin-left:-8px}
+.sb{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;padding:18px 12px;border-radius:22px;background:var(--card);border:1px solid var(--line);margin-top:14px}
+.sb .t{font:800 34px/1 "Barlow Condensed",sans-serif}.sb .s{font:800 48px/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
+.lean{display:flex;height:30px;border-radius:10px;overflow:hidden;margin-top:10px;font-weight:800;font-size:13px}
+.lean div{display:flex;align-items:center;padding:0 10px}.lean .a{background:#2B6E99}.lean .b{background:#5B4FB0;justify-content:flex-end}
+.msg{display:flex;gap:10px;margin-top:14px}.msg .bub{flex:1;min-width:0}.msg .bub b{font-size:14px}.msg .bub small{color:var(--dim);font-size:12px;margin-left:6px}
+.msg .bub p{margin:3px 0 0;font-size:16px;line-height:1.35}
+.msg .tag{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:8px;background:var(--card2);font-size:12px;font-weight:700;color:var(--mute)}
+.say{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;padding:10px 0;background:var(--bg)}
+.say input{flex:1;min-width:0;min-height:48px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--tx);padding:0 14px;font:16px -apple-system,sans-serif}
+.react{display:flex;gap:8px;margin-top:12px;overflow-x:auto}.react button{flex:none;min-height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font:700 14px -apple-system,sans-serif}
+</style></head>
+<body data-tab="lounge">
+<div id="app"></div>
+<script src="shared/state.js"></script><script src="week-games.js"></script><script src="shared/nav.js"></script><script src="g4.js"></script>
 <script>
-const $=id=>document.getElementById(id);
-const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const PATHS={nfl:'football/nfl',nba:'basketball/nba',nhl:'hockey/nhl'},KEY='rush-lounge-v1';
-const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0)/4294967296};
-const AVC=['#0080FF','#10B981','#F59E0B','#D95151','#8B5CF6','#06B6D4','#EC4899','#64748B'];
-const avatar=n=>{const ini=String(n).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();return`<span class="av" style="background:${AVC[Math.floor(hash(n)*AVC.length)]}">${esc(ini)}</span>`};
-let GAMES=[],thread=new URLSearchParams(location.search).get('t')||'week';
-const mine=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
-const saveMine=m=>{try{localStorage.setItem(KEY,JSON.stringify(m))}catch(e){}};
-const names=()=>GS.field().filter(r=>r.sim).map(r=>r.name);
-function pickName(seed){const n=names();return n.length?n[Math.floor(hash(seed)*n.length)]:'Field player'}
-const TEMPL={pre:['Who is on {fav} tonight? {line}.','{fav} feels too easy. Fading.','Locked in {dog} before the line moves.','Parlaying this with two others. Wish me luck.'],live:['{a} {as}, {h} {hs}. {det}. My Slip is sweating.','Live line on {h} looks soft right now.','Tailing whoever said under in this one.','This is why you watch every play.'],post:['{win} closes it out. My Slip says thanks.','{lose} cost me Units tonight. Next game.','Final in {a} at {h}. Called it in here first.']};
-function fill(t,g){const fav=g.line?String(g.line).split(' ')[0]:g.h.ab,dog=fav===g.h.ab?g.a.ab:g.h.ab,win=+g.h.s>+g.a.s?g.h.ab:g.a.ab,lose=win===g.h.ab?g.a.ab:g.h.ab;return t.replace('{fav}',fav).replace('{dog}',dog).replace('{line}',g.line||'line posted').replace('{a}',g.a.ab).replace('{h}',g.h.ab).replace('{as}',g.a.s).replace('{hs}',g.h.s).replace('{det}',g.detail).replace('{win}',win).replace('{lose}',lose)}
-function gameMsgs(g){const out=[],ts=TEMPL[g.state]||TEMPL.pre,n=g.state==='live'||g.state==='in'?5:3;for(let i=0;i<n;i++){const seed=g.id+g.state+i+(g.state==='in'?g.detail:'');out.push({who:pickName(seed),txt:fill(ts[Math.floor(hash(seed+'t')*ts.length)],g),at:g.state==='pre'?g.date-3600e3*(n-i):Date.now()-60e3*(n-i)})}return out}
-function weekMsgs(){const f=GS.field(),top=f[0],me=f.find(r=>r.you),riv=Rush.rival&&Rush.rival(),out=[];if(top)out.push({who:top.you?'You':top.name,txt:`Top of the Field at ${top.units>=0?'+':''}${top.units.toFixed(1)} Units. Come get me.`,at:Date.now()-5400e3});if(riv&&me)out.push({who:riv.name,txt:me.units>=riv.units?`You are up on me this week. Monday night decides it.`:`Up ${(riv.units-me.units).toFixed(1)} Units on you this week. Your move.`,at:Date.now()-3600e3});const live=GAMES.filter(g=>g.state==='in');if(live.length)out.push({who:pickName('wk'+live[0].id),txt:`${live.length} game${live.length>1?'s':''} live right now. Board is wide open.`,at:Date.now()-600e3});out.push({who:pickName('mnf'),txt:'Entry closes at Monday night kickoff. Reload is free once a week if you run dry.',at:Date.now()-7200e3});return out}
-/* One thread per contest the player is in, linking to that contest's page. */
-function contestMsgs(c){const nm=GS.contests.name(c),n=GS.contests.count(c),T=[`Who else is in ${nm}? ${n?n+' in so far.':'Field is filling up.'}`,`Commissioner, are live picks on in ${nm}?`,`Top of ${nm} by Monday night. Calling it.`,`Just joined ${nm}. Taking the underdogs.`];return T.map((t,i)=>({who:pickName(c.id+'c'+i),txt:t,at:Date.now()-(4-i)*1800e3}))}
-function render(){const m=mine(),me=GS.me();const g=GAMES.find(x=>x.lg+':'+x.id===thread);const CS=GS.contests.mine(),ct=thread.startsWith('c:')?CS.find(x=>'c:'+x.id===thread):null;let msgs=thread==='week'?weekMsgs():g?gameMsgs(g):ct?contestMsgs(ct):[];msgs=msgs.concat((m[thread]||[]).map(x=>({...x,you:1})));msgs.sort((a,b)=>a.at-b.at);
-  const order=[...GAMES.filter(x=>x.state==='in'),...GAMES.filter(x=>x.state==='pre').slice(0,8),...GAMES.filter(x=>x.state==='post').slice(-4)];
-  let h=`<div class="g-top"><h1>Lounge</h1><span data-rush-pill></span></div><div class="threads"><button class="th${thread==='week'?' on':''}" data-t="week">Week ${GS.week().n}</button>${CS.map(x=>`<button class="th${thread==='c:'+x.id?' on':''}" data-t="c:${esc(x.id)}">&#9733; ${esc(GS.contests.name(x))}</button>`).join('')}${order.map(x=>`<button class="th${thread===x.lg+':'+x.id?' on':''}" data-t="${x.lg}:${esc(x.id)}">${x.state==='in'?'<i></i>':''}<img alt="" src="${esc(x.a.logo)}">${esc(x.a.ab)} at ${esc(x.h.ab)}</button>`).join('')}</div>`;
-  h+=`<div class="g-card"><div class="g-h">${thread==='week'?`Week ${GS.week().n} thread`:g?`${esc(g.a.ab)} at ${esc(g.h.ab)}`:ct?esc(GS.contests.name(ct)):'Thread'}${g?`<a href="game.html?league=${g.lg}&id=${encodeURIComponent(g.id)}">Open game</a>`:ct?`<a href="${GS.CPAGE.one(ct.id)}">Open contest</a>`:''}</div>${msgs.slice(-40).map(x=>`<div class="msg">${avatar(x.you?'You':x.who)}<div class="t"><b>${x.you?GS.card('me',me.name||'You'):(GS.idOf(x.who)?GS.card(GS.idOf(x.who),x.who):esc(x.who))}</b>${x.you?'<span class="pill you">YOU</span>':'<span class="pill">SIM</span>'}<small>${new Date(x.at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</small><p>${esc(x.txt)}</p></div></div>`).join('')||'<div class="g-note">Quiet so far. Say something.</div>'}</div><div class="g-note">SIM players stand in for the real Field. Your posts stay on this phone in the prototype.</div>`;
-  $('lounge').innerHTML=h;const bd=document.getElementById('rpill-band');if(bd)bd.remove();if(Rush.nav)try{Rush.nav.refresh()}catch(e){}}
-window.render=render;
-document.addEventListener('click',e=>{const t=e.target.closest('[data-t]');if(!t)return;thread=t.dataset.t;history.replaceState(null,'','?t='+encodeURIComponent(thread));render();scrollTo(0,0)});
-$('cf').addEventListener('submit',e=>{e.preventDefault();const i=$('ci'),txt=(i.value||'').trim();if(!txt)return;const m=mine();(m[thread]=m[thread]||[]).push({who:'You',txt,at:Date.now()});const reply=['Bold. Show me the Slip.','Respect.','We will see at the final.','Tailing that.','No chance. Fading you.'];(m[thread]).push({who:pickName(txt),txt:reply[Math.floor(hash(txt)*reply.length)],at:Date.now()+1500,sim:1});saveMine(m);i.value='';render();setTimeout(()=>scrollTo(0,document.body.scrollHeight),30)});
-const etDay=off=>new Date(Date.now()+off*864e5).toLocaleDateString('en-CA',{timeZone:'America/New_York'}).replace(/-/g,'');
-async function loadGames(){const days=[etDay(-1),etDay(0),etDay(1)];const urls=[['nfl','https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard']];for(const lg of['nba','nhl'])for(const d of days)urls.push([lg,`https://site.api.espn.com/apis/site/v2/sports/${PATHS[lg]}/scoreboard?dates=${d}`]);const out=[];await Promise.all(urls.map(async([lg,u])=>{try{const d=await(await fetch(u)).json();for(const e of d.events||[]){const c=e.competitions[0],h=c.competitors.find(x=>x.homeAway==='home'),a=c.competitors.find(x=>x.homeAway==='away');out.push({lg,id:e.id,date:Date.parse(e.date),state:c.status.type.state,detail:c.status.type.shortDetail,h:{ab:h.team.abbreviation,s:h.score,logo:h.team.logo},a:{ab:a.team.abbreviation,s:a.score,logo:a.team.logo},line:(c.odds||[])[0]&&c.odds[0].details})}}catch(e){}}));const seen={};GAMES=out.filter(g=>!seen[g.lg+g.id]&&(seen[g.lg+g.id]=1)).sort((x,y)=>x.date-y.date);render()}
-GS.nav('lounge');render();loadGames();setInterval(loadGames,60000);
-</script>
-</body>
-</html>
+const gid=new URLSearchParams(location.search).get('g');
+const TAKES=['Taking the under, both defenses look sharp','Who else is riding the home side tonight','That line moved half a point since noon','My whole Stack is leaning on this one','Fading the public here','Need this one to climb back into the top 5','Live and loud in here','If this hits I pass my matchup'];
+const LK='g4-lounge-v1';
+function mine(){try{return JSON.parse(localStorage.getItem(LK)||'{}')}catch(e){return{}}}
+function post(room,text){const a=mine();(a[room]=a[room]||[]).push({t:Date.now(),text:String(text).slice(0,240)});try{localStorage.setItem(LK,JSON.stringify(a))}catch(e){}}
+function people(f,room){return f.filter(r=>!r.me&&G.hash(r.id+room)<.3)}
+function seed(f,room,g){const ppl=people(f,room),now=Date.now();return ppl.slice(0,6).map((p,i)=>({p,t:now-(i+1)*(7+Math.floor(G.hash(p.id+room)*30))*6e4,text:TAKES[Math.floor(G.hash(room+p.id)*TAKES.length)],tag:g&&G.hash('s'+p.id+room)<.6?(G.hash('x'+p.id)<.5?g.away.abbr:g.home.abbr):null}));}
+function ago(t){const m=Math.max(1,Math.round((Date.now()-t)/6e4));return m<60?m+'m':Math.round(m/60)+'h'}
+function list(){
+  const f=G.field(),wk=Rush.week(),gs=G.games().filter(g=>!g.done||Date.now()-g.date<5*36e5).sort((a,b)=>(b.state==='in')-(a.state==='in')||a.date-b.date);
+  let h=G.top('Lounge')+'<main class="wrap">';
+  h+=`<a class="rm" href="lounge.html?g=week" style="background:linear-gradient(135deg,#3A2E10,#141C26);border-color:rgba(242,193,78,.35)"><div class="tms"><div style="font-size:24px">WEEK ${wk.n} ROOM</div><small style="color:var(--mute)">The whole Field, all week</small></div><div class="side"><div class="stackav">${people(f,'week').slice(0,4).map(p=>G.av(p,28)).join('')}</div><small style="color:var(--mute)">${people(f,'week').length} here</small></div></a>`;
+  const live=gs.filter(g=>g.state==='in'),next=gs.filter(g=>g.state!=='in');
+  if(live.length)h+=`<div class="lbl">Live now</div>`+live.map(room).join('');
+  h+=`<div class="lbl">Game rooms</div>`+(next.slice(0,14).map(room).join('')||'<div class="empty">Rooms open as the week\'s games load.</div>');
+  h+='</main>';return h;
+  function room(g){const ppl=people(f,g.id),lv=g.state==='in';return `<a class="rm" href="lounge.html?g=${encodeURIComponent(g.id)}"><div class="tms"><div><span>${G.esc(g.away.abbr)}</span><span>${lv||g.done?G.esc(g.away.score||0):''}</span></div><div><span>${G.esc(g.home.abbr)}</span><span>${lv||g.done?G.esc(g.home.score||0):''}</span></div></div><div class="side"><span class="chip ${lv?'live':''}">${lv?G.esc(g.detail||'LIVE'):g.done?'FINAL':new Date(g.date).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})}</span><div class="stackav" style="margin-top:8px">${ppl.slice(0,3).map(p=>G.av(p,26)).join('')}</div><small style="color:var(--mute)">${ppl.length} here</small></div></a>`}
+}
+function view(){
+  const f=G.field(),m=G.meRow(),g=gid==='week'?null:G.games().find(x=>String(x.id)===gid),room=gid;
+  const ppl=people(f,room),msgs=seed(f,room,g).concat((mine()[room]||[]).map(x=>({p:m,t:x.t,text:x.text}))).sort((a,b)=>a.t-b.t);
+  let h=G.top(g?`${g.away.abbr} at ${g.home.abbr}`:'Week room')+'<main class="wrap"><a href="lounge.html" style="display:inline-block;margin-top:12px;color:var(--acc);font-weight:700">‹ All rooms</a>';
+  if(g){const lv=g.state==='in',started=lv||g.done||Date.now()>=g.date;
+    h+=`<section class="sb"><div><div class="t">${G.esc(g.away.abbr)}</div>${started?`<div class="s">${G.esc(g.away.score||0)}</div>`:''}</div><div><span class="chip ${lv?'live':''}">${lv?G.esc(g.detail||'LIVE'):g.done?'FINAL':new Date(g.date).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})}</span></div><div><div class="t">${G.esc(g.home.abbr)}</div>${started?`<div class="s">${G.esc(g.home.score||0)}</div>`:''}</div></section>`;
+    const a=ppl.filter(p=>G.hash('x'+p.id)<.5).length||1,b=Math.max(1,ppl.length-a);
+    h+=`<div class="lbl">How the room leans</div><div class="lean"><div class="a" style="flex:${a}">${G.esc(g.away.abbr)} ${a}</div><div class="b" style="flex:${b}">${b} ${G.esc(g.home.abbr)}</div></div>`;
+    h+=`<div class="lbl">On this game</div><section class="card">${ppl.slice(0,6).map(p=>`<div class="row">${G.av(p,36)}<div class="nm">${G.nameLink(p)}<small>${G.fmt(p.stack)} Stack</small></div>${started?`<span class="chip">${G.esc(G.hash('x'+p.id)<.5?g.away.abbr:g.home.abbr)}</span>`:'<span class="chip">HIDDEN TILL KICKOFF</span>'}</div>`).join('')||'<div class="empty">Nobody yet. Be first.</div>'}</section>`;
+  }else h+=`<section class="card"><div style="display:flex;align-items:center">${ppl.slice(0,8).map(p=>G.av(p,34)).join('<span style="width:6px"></span>')}</div><div style="color:var(--mute);margin-top:10px">${ppl.length} players in the Week room</div></section>`;
+  h+=`<div class="lbl">The talk</div><div class="react">${['Lock it','Fade','Sweating','Called it'].map(x=>`<button data-r="${x}">${x}</button>`).join('')}</div>`;
+  h+=msgs.map(x=>`<div class="msg">${G.av(x.p,38)}<div class="bub"><b>${G.nameLink(x.p)}</b><small>${ago(x.t)}</small><p>${G.esc(x.text)}</p>${x.tag?`<span class="tag">On ${G.esc(x.tag)}</span>`:''}</div></div>`).join('');
+  h+=`<form class="say" id="say"><input id="txt" maxlength="240" placeholder="Say something to the room" autocomplete="off"><button class="btn" style="width:auto">Send</button></form></main>`;
+  return h;
+}
+function render(){if(document.activeElement&&document.activeElement.id==='txt')return;document.getElementById('app').innerHTML=gid?view():list();
+  const s=document.getElementById('say');if(s)s.onsubmit=e=>{e.preventDefault();const v=document.getElementById('txt').value.trim();if(v){post(gid,v);document.getElementById('txt').blur();render();scrollTo(0,document.body.scrollHeight)}};
+  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{post(gid,b.dataset.r);render();scrollTo(0,document.body.scrollHeight)});}
+G.render=render;render();
+if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
+setInterval(render,30000);
+</script></body></html>

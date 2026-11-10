@@ -1,109 +1,15 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0B1118">
-<title>Rush Ranks</title>
-<link rel="stylesheet" href="shared/rush.css">
-<style>
-/* Ranks: large title, This week / Season segmented control, matchup card, the Field list with your row pinned and the top-3 prize line. */
-:root{--rb-bg:#0B1118;--rb-card:#121A23;--rb-card2:#1A2530;--rb-line:rgba(255,255,255,.07);--rb-fg:#fff;--rb-mut:#9AA8B6;--rb-dim:#66768A;--rb-acc:#00BFFF;--rb-win:#10B981;--rb-loss:#D95151;--rb-warn:#F59E0B;--rb-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Inter,Roboto,system-ui,sans-serif;color-scheme:dark}
-html,body{margin:0}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
-body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.38 var(--rb-font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
-.rk-wrap{max-width:620px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 14px) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
-.rk-top h1{margin:0;font:800 32px/1.1 var(--rb-font);letter-spacing:-.02em}.rk-top small{display:block;color:var(--rb-mut);font-size:13px;margin:2px 0 12px}
-.rk-seg{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;padding:2px;border-radius:10px;background:var(--rb-card2);margin-bottom:14px;box-shadow:0 6px 16px rgba(11,17,24,.8)}
-.rk-seg button{font:600 13px var(--rb-font);color:var(--rb-mut);background:none;border:0;padding:8px 0;border-radius:8px;cursor:pointer}.rk-seg button.on{background:#2A3644;color:var(--rb-fg);box-shadow:0 1px 3px rgba(0,0,0,.3)}
-.rk-card{background:var(--rb-card);border-radius:14px;padding:14px;margin-bottom:16px}
-.rk-card h2{margin:0 0 8px;font:700 17px/1.2 var(--rb-font);display:flex;justify-content:space-between;align-items:baseline;gap:8px}.rk-card h2 span{font:500 13px var(--rb-font);color:var(--rb-mut)}
-.rk-mu{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}.rk-mu>div{min-width:0}.rk-mu b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rk-mu strong{display:block;font:800 28px/1.05 var(--rb-font);letter-spacing:-.02em}.rk-mu i{font-style:normal;font-size:12px;color:var(--rb-mut)}.rk-mu em{font:600 12px var(--rb-font);font-style:normal;color:var(--rb-acc);text-align:center}.rk-mu .r{text-align:right}
-.rk-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.rk-stats div{background:var(--rb-card2);border-radius:11px;padding:10px}.rk-stats b{display:block;font:700 19px var(--rb-font)}.rk-stats i{font-style:normal;font-size:12px;color:var(--rb-mut)}
-.rk-list{background:var(--rb-card);border-radius:14px;overflow:hidden;margin-bottom:16px}
-a.rk-row{text-decoration:none;color:inherit}a.rk-row:active{background:var(--rb-card2)}.rk-row{display:grid;grid-template-columns:26px 32px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 14px;border-top:.5px solid var(--rb-line)}
-.rk-row:first-child{border-top:0}.rk-row.cut{border-bottom:2px solid var(--rb-acc)}
-.rk-row.me{background:rgba(0,191,255,.12)}
-.rk-pos{font:600 14px var(--rb-font);color:var(--rb-mut);text-align:center}
-.rk-av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--rb-font);color:#fff}
-.rk-nm{min-width:0}.rk-nm b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rk-nm i{font-style:normal;font-size:12px;color:var(--rb-mut)}
-.rk-u{font:700 16px var(--rb-font);text-align:right}.rk-u.up{color:var(--rb-win)}.rk-u.dn{color:var(--rb-loss)}.rk-u small{display:block;font:500 11.5px var(--rb-font);color:var(--rb-mut)}
-.rk-tag{font:600 10px var(--rb-font);letter-spacing:.04em;padding:1px 6px;border-radius:99px;background:rgba(255,255,255,.08);color:var(--rb-mut);margin-left:6px;vertical-align:1px}.rk-tag.you{background:var(--rb-acc);color:#002233}
-.rk-cutl{font:600 11.5px var(--rb-font);color:var(--rb-acc);padding:6px 14px;background:rgba(0,191,255,.08)}
-.rk-hist{display:inline-flex;gap:3px;margin-left:6px;vertical-align:1px}.rk-hist i{width:7px;height:7px;border-radius:2px;background:var(--rb-dim)}.rk-hist i.w{background:var(--rb-win)}.rk-hist i.l{background:var(--rb-loss)}
-.rk-pin{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));z-index:5;padding:0 max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
-.rk-pin .rk-row{max-width:620px;margin:0 auto;border-radius:14px;background:#163246;box-shadow:0 8px 24px rgba(0,0,0,.5);border:0}
-.rk-cs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 12px;padding:0 16px}.rk-cs::-webkit-scrollbar{display:none}
-.rk-cs button,.rk-cs a{flex:none;display:inline-flex;align-items:center;gap:7px;font:600 13px var(--rb-font);color:var(--rb-mut);background:var(--rb-card);border:1px solid var(--rb-line);border-radius:99px;padding:7px 12px;cursor:pointer;text-decoration:none;white-space:nowrap}
-.rk-cs button.on{color:var(--rb-fg);background:#22303D;border-color:rgba(255,255,255,.22)}.rk-cs small{font:600 11.5px var(--rb-font);color:var(--rb-mut)}.rk-cs a{background:none;border-style:dashed}
-.rk-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none;margin-right:7px;vertical-align:1px}.rk-cs .rk-dot{margin:0}
-.rk-open{display:block;margin-top:10px;color:var(--rb-acc);font:600 13px var(--rb-font);text-decoration:none}
-.rk-note{color:var(--rb-mut);font-size:13px;padding:0 2px 16px}
-.rk-skel{height:64px;border-radius:14px;background:linear-gradient(90deg,var(--rb-card),var(--rb-card2),var(--rb-card));background-size:200% 100%;animation:rks 1.2s infinite;margin-bottom:10px}@keyframes rks{to{background-position:-200% 0}}
-#rb-tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(18,26,35,.9);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid rgba(255,255,255,.1);padding-bottom:env(safe-area-inset-bottom,0px)}
-#rb-tabs a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0 9px;font:500 10.5px var(--rb-font);color:var(--rb-dim);text-decoration:none}#rb-tabs a svg{width:24px;height:24px}#rb-tabs a.on{color:var(--rb-acc)}
-@media (prefers-reduced-motion:reduce){*{animation:none!important}}
-</style>
-</head>
-<body data-tab="ranks">
-<div class="rk-wrap">
- <div class="rk-top"><h1>Ranks</h1><small id="rk-week">This week</small></div>
- <div class="rk-cs" id="rk-cs" role="tablist" aria-label="Contest"></div>
- <div class="rk-seg" role="tablist" id="rk-seg"></div>
- <div id="rk-main"><div class="rk-skel"></div><div class="rk-skel"></div><div class="rk-skel"></div></div>
-</div>
-<div class="rk-pin" id="rk-pin" hidden></div>
-<nav id="rb-tabs" hidden></nav>
-<script src="shared/state.js"></script>
-<script src="week-games.js"></script>
-<script src="contest-kit.js"></script>
-<script src="shared/nav.js"></script>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ranks · Rush</title><meta name="theme-color" content="#0A0F15">
+<style>.row.me{background:rgba(61,184,255,.1);border-radius:12px;padding-left:8px;padding-right:8px}.pod{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end;margin-top:14px;text-align:center}.pod div{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}.pod b{font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}</style></head>
+<body data-tab="home">
+<div id="app"></div>
+<script src="shared/state.js"></script><script src="week-games.js"></script><script src="shared/nav.js"></script><script src="g4.js"></script>
 <script>
-'use strict';
-const $=id=>document.getElementById(id);
-const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const U=n=>(n<0?'-':'+')+(Math.round(Math.abs(n)*10)/10).toFixed(1);
-let tab='week';try{tab=localStorage.getItem('rk.tab')||'week'}catch(e){}
-let games=RW.cached()||[];
-const av=r=>`<span class="rk-av" style="background:${r.me?'#0080FF':`hsl(${Math.floor(RW.hash(r.id+'c')*360)} 50% 36%)`}">${esc(r.name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`;
-function seg(){$('rk-seg').innerHTML=[['week','This week'],['season','Season']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" class="${tab===k?'on':''}" data-t="${k}">${l}</button>`).join('')}
-function wkRow(r,cut){return`<a href="player.html?u=${encodeURIComponent(r.id)}" class="rk-row${r.me?' me':''}${cut?' cut':''}"><span class="rk-pos">${r.out?'-':r.rank}</span>${av(r)}<span class="rk-nm"><b>${esc(r.name)}${r.me?'<span class="rk-tag you">YOU</span>':'<span class="rk-tag">SIM</span>'}</b><i>${r.out?'Not entered yet':(r.w||r.l)?`${r.w}-${r.l} graded`:r.me?(r.open?`${r.open} open pick${r.open>1?'s':''}`:'No picks yet'):'Picking this week'}${!r.me&&r.open?` &middot; ${r.open} open`:''}</i></span><span class="rk-u ${r.units>0?'up':r.units<0?'dn':''}">${U(r.units)}<small>Units</small></span></a>`}
-const R=window.Rush&&typeof Rush.field==='function'?Rush:null;
-function fieldRows(){if(!R)return RW.field(games);const m=R.me();let mw=0,ml=0;try{const ps=R.picks({week:R.week().id});mw=ps.filter(p=>p.status==='won').length;ml=ps.filter(p=>p.status==='lost').length}catch(e){}const rows=R.field().map(r=>({...r,w:r.me?mw:(r.w||0),l:r.me?ml:(r.l||0),open:r.me?m.open:(r.open||0),today:0}));if(!rows.some(r=>r.me))rows.push({id:'me',name:m.handle||'You',me:true,units:0,w:0,l:0,open:0,today:0,out:true});rows.forEach(r=>r.rank=1+rows.filter(x=>x.units>r.units+1e-9).length);rows.sort((a,b)=>b.units-a.units||(a.me?-1:b.me?1:0));return rows}
-function vWeek(){const rows=fieldRows(),mine=rows.find(r=>r.me),opp=R?(R.rival()||RW.opponent(rows)):RW.opponent(rows),done=games.filter(g=>g.state==='post').length,live=games.filter(g=>g.state==='in').length;
- const third=rows[2],gap=mine.rank>3?third.units-mine.units:0;
- let h=(R&&!R.me().entered)?`<div class="rk-card"><h2>Join the Field</h2><div class="rk-note" style="padding:0">Enter Week ${RW.week().n} on Home to get 1,000 Stack and a place on this list.</div><a href="index.html" style="display:block;margin-top:10px;text-align:center;padding:13px;border-radius:12px;background:linear-gradient(135deg,#00C0FF,#0080FF);color:#fff;font-weight:700;text-decoration:none">Enter the week</a></div>`:'';h+=`<div class="rk-card"><h2>Your week <span>${mine.rank<=3?'In the prize spots':`${gap.toFixed(1)} Units from the top 3`}</span></h2><div class="rk-stats"><div><b>#${mine.rank}</b><i>of ${rows.length} in the Field</i></div><div><b class="${mine.units>0?'up':''}">${U(mine.units)}</b><i>Units this week</i></div><div><b>${done}/${games.length}</b><i>games final${live?` &middot; ${live} live`:''}</i></div></div></div>`;
- if(opp){const d=mine.units-opp.units;h+=`<div class="rk-card"><h2>This week's matchup <span>Simulated opponent</span></h2><div class="rk-mu"><div><b>${esc(mine.name)}</b><strong>${U(mine.units)}</strong><i>#${mine.rank}</i></div><em>${d>=0?'Leading':'Chasing'} by ${Math.abs(d).toFixed(1)}</em><a class="r" href="player.html?u=${encodeURIComponent(opp.id)}" style="color:inherit;text-decoration:none"><b>${esc(opp.name)}</b><strong>${U(opp.units)}</strong><i>#${opp.rank} &middot; card &rsaquo;</i></a></div></div>`}
- const td=[...rows].sort((a,b)=>b.today-a.today).slice(0,3);if(td.some(r=>r.today!==0))h+=`<div class="rk-card"><h2>Today's race <span>Units won today</span></h2>${td.map((r,i)=>`<div class="rk-row" style="padding-inline:0"><span class="rk-pos">${i+1}</span>${av(r)}<span class="rk-nm"><b>${esc(r.name)}</b></span><span class="rk-u ${r.today>0?'up':'dn'}">${U(r.today)}</span></div>`).join('')}</div>`;
- h+=`<div class="rk-list">${rows.map((r,i)=>wkRow(r,i===2)).join('').replace('</div><div class="rk-row','</div><div class="rk-row')}</div>`;
- h=h.replace(/(<a [^>]*class="rk-row[^"]*cut[^"]*">[\s\S]*?<\/span><\/a>)/,'$1<div class="rk-cutl">Top 3 take the week\'s prizes</div>');
- h+=`<div class="rk-note">The Field ranks on Units: profit and loss for the week, 1 Unit = 10 Stack. SIM players stand in for the real Field. Their Units move through the week as games are played.</div>`;
- const pin=$('rk-pin');pin.hidden=mine.rank<=8;if(!pin.hidden)pin.innerHTML=wkRow(mine,false);return h}
-function vSeason(){const n=RW.week().n;let rows;if(R){const se=R.season(),cur=fieldRows();rows=(se.table||[]).map((t,i)=>{const c=cur.find(x=>x.name===t.name)||{};return{id:t.me?'me':'s'+i,name:t.name,me:!!t.me,sim:!!t.sim,sw:t.w||0,sl:t.l||0,units:c.units||0,hist:t.me?(se.weeks||[]).map(w=>w.result):[]}}).sort((a,b)=>b.sw-a.sw||a.sl-b.sl||b.units-a.units)}else rows=RW.season(RW.field(games));$('rk-pin').hidden=true;
- return`<div class="rk-card"><h2>Season record <span>Season 1 opens with Week ${n}</span></h2><div class="rk-note" style="padding:0">A week finished above 1,000 Stack is a win, at or below with a settled pick is a loss, no settled pick is not played. Most wins leads. Week ${n} is in progress.</div></div><div class="rk-list">${rows.map((r,i)=>`<a href="player.html?u=${encodeURIComponent(r.me?'me':r.id)}" class="rk-row${r.me?' me':''}"><span class="rk-pos">${i+1}</span>${av(r)}<span class="rk-nm"><b>${esc(r.name)}${r.me?'<span class="rk-tag you">YOU</span>':'<span class="rk-tag">SIM</span>'}</b><i>Week ${n}: ${U(r.units)} Units<span class="rk-hist">${r.hist.slice(-8).map(x=>`<i class="${x==='W'?'w':x==='L'?'l':''}"></i>`).join('')}</span></i></span><span class="rk-u">${r.sw}-${r.sl}<small>W-L</small></span></a>`).join('')}</div>`}
-/* contest selector: The Rush first, then every contest you are in; picking one makes it the active contest everywhere (Rush.wallet) */
-const COLOK=x=>/^#[0-9a-fA-F]{3,8}$/.test(x||'')?x:'#66768A';
-let actLocal='rush';
-function wl(){const W=R&&R.wallet;if(W&&typeof W.list==='function'){try{return W.list()}catch(e){}}const cs=window.RC?RC.list().filter(c=>(c.owner||c.joined)&&c.status!=='archived'):[];return[{id:'rush',name:'The Rush',color:'#00BFFF',weekly:true}].concat(cs.map(c=>({id:c.id,name:c.name,color:RC.dot(c.id)||'#66768A'})))}
-function act(L){const W=R&&R.wallet,a=W&&typeof W.active==='function'?W.active():actLocal;return L.some(e=>e.id===a)?a:'rush'}
-function csBar(L,a){$('rk-cs').innerHTML=L.map(e=>`<button role="tab" aria-selected="${e.id===a}" class="${e.id===a?'on':''}" data-cs="${esc(e.id)}"><i class="rk-dot" style="background:${COLOK(e.color)}"></i>${esc(e.name)}${e.rank?`<small>#${esc(e.rank)}</small>`:''}</button>`).join('')+`<a href="contests.html">${L.length>1?'All contests':'Join or create a contest'} &rsaquo;</a>`}
-const dayLbl=d=>new Date(Date.UTC(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6,8),17)).toLocaleDateString('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric'});
-function clockLine(c){if(c.status==='closed'||c.status==='archived')return'Final';const ds=c.schedule.days.slice().sort(),span=ds.length?(ds.length>1?dayLbl(ds[0])+' to '+dayLbl(ds[ds.length-1]):dayLbl(ds[0])):'';const ec=c.schedule.entryClose;return span+(ec&&ec>Date.now()?' · entry closes '+new Date(ec).toLocaleString('en-US',{timeZone:'America/New_York',weekday:'short',hour:'numeric',minute:'2-digit'})+' ET':'')}
-function cRow(r,rec){const tag=r.me?'<span class="rk-tag you">YOU</span>':r.sim?'<span class="rk-tag">SIM</span>':'';const nm=r.me?'You':r.name;const inner=`<span class="rk-pos">${esc(r.finish)}</span>${av(Object.assign({},r,{name:nm||'?'}))}<span class="rk-nm"><b>${esc(nm)}${tag}</b><i>${esc(r.w)}-${esc(r.l)}${r.p?'-'+esc(r.p):''} graded${r.open?` &middot; ${esc(r.open)} open`:''}</i></span><span class="rk-u ${r.units>0?'up':r.units<0?'dn':''}">${rec?`${esc(r.w)}-${esc(r.l)}<small>${esc(U(r.units))} U</small>`:`${esc(U(r.units))}<small>Units</small>`}</span>`;return(r.me||r.sim)?`<a href="player.html?u=${encodeURIComponent(r.me?'me':r.id)}" class="rk-row${r.me?' me':''}">${inner}</a>`:`<div class="rk-row">${inner}</div>`}
-function vContest(id,ent){const c=window.RC&&RC.get(id);if(!c){$('rk-pin').hidden=true;return'<div class="rk-card"><div class="rk-note" style="padding:0">This contest is not on this phone any more.</div></div>'}
- const st=RC.standings(c,games),mine=st.find(r=>r.me),rec=c.rules.scoring==='record',col=COLOK(ent&&ent.color||RC.dot(id));const stack=ent&&ent.stack!=null?ent.stack:c.rules.stack;
- let h=`<div class="rk-card" style="box-shadow:inset 0 3px 0 ${col}"><h2><b style="font:700 17px var(--rb-font);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><i class="rk-dot" style="background:${col}"></i>${esc(c.name)}</b><span>${esc(clockLine(c))}</span></h2><div class="rk-stats"><div><b>${mine?'#'+esc(mine.finish):'-'}</b><i>of ${esc(st.length)} in this contest</i></div><div><b>${esc(Math.round(+stack||0).toLocaleString())}</b><i>Stack in this contest</i></div><div><b>${mine?(rec?`${esc(mine.w)}-${esc(mine.l)}`:esc(U(mine.units))):'-'}</b><i>${rec?'Record':'Units'}</i></div></div><a class="rk-open" href="contest.html?c=${encodeURIComponent(c.id)}">Rules, picks and results &rsaquo;</a></div>`;
- h+=`<div class="rk-list">${st.map(r=>cRow(r,rec)).join('')}</div><div class="rk-note">Ranked on ${rec?'record, wins minus losses,':'Units, profit and loss (1 Unit = 10 Stack),'} inside this contest only. Its Stack and picks are its own, apart from The Rush and every other contest.</div>`;
- const pin=$('rk-pin'),i=mine?st.indexOf(mine):0;pin.hidden=!mine||i<8;if(!pin.hidden)pin.innerHTML=cRow(mine,rec);return h}
-function render(){const L=wl(),a=act(L);csBar(L,a);const w=RW.week();if(!games.length){$('rk-main').innerHTML='<div class="rk-skel"></div><div class="rk-skel"></div>';return}
- if(a!=='rush'){$('rk-seg').hidden=true;$('rk-week').textContent='Contest standings';const h=vContest(a,L.find(e=>e.id===a));const m=$('rk-main');if(m._h!==h){m.innerHTML=h;m._h=h}return}
- $('rk-seg').hidden=false;seg();$('rk-week').textContent=`Week ${w.n} · Tuesday to Monday night`;const h=tab==='week'?vWeek():vSeason();const m=$('rk-main');if(m._h!==h){m.innerHTML=h;m._h=h}}
-async function refresh(){try{games=await RW.load(true)}catch(e){}render()}
-document.addEventListener('click',e=>{const cb=e.target.closest('[data-cs]');if(cb){const id=cb.dataset.cs,W=R&&R.wallet;if(W&&typeof W.setActive==='function')W.setActive(id);else actLocal=id;render();scrollTo(0,0);return}const b=e.target.closest('[data-t]');if(b&&b.dataset.t==='contests'){location.href='contests.html';return}if(b){tab=b.dataset.t;try{localStorage.setItem('rk.tab',tab)}catch(x){}render();scrollTo(0,0)}});
-function loop(){refresh().finally(()=>setTimeout(loop,games.some(g=>g.state==='in')?20000:60000))}
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
-window.addEventListener('storage',()=>render());if(R&&R.on)R.on(()=>render());if(window.RC&&!RC.shared())RC.on(()=>render());
-setTimeout(()=>{if(document.querySelector('#rnav,[data-rush-nav],.rush-nav,nav.tabbar')||(window.RushNav&&window.RushNav.mounted))return;const T=[['index.html','Home','<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],['board.html','Board','<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M9 10v10"/>'],['slips.html','Slips','<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],['ranks.html','Ranks','<path d="M8 21V11M12 21V5M16 21v-7"/>'],['lounge.html','Lounge','<path d="M4 5h16v11H8l-4 4z"/>']];const here=location.pathname.split('/').pop()||'index.html';const n=$('rb-tabs');n.innerHTML=T.map(([u,l,p])=>`<a href="${u}" class="${u===here?'on':''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>${l}</a>`).join('');n.hidden=false},300);
-render();loop();
-</script>
-</body>
-</html>
+function render(){const f=G.field(),wk=Rush.week(),p=[f[1],f[0],f[2]].filter(Boolean);
+let h=G.top('Ranks')+'<main class="wrap">';
+h+=`<div class="pod">${p.map((r,i)=>`<div style="padding-top:${i===1?26:14}px;${i===1?'border-color:rgba(242,193,78,.5)':''}"><span class="num" style="color:${i===1?'var(--gold)':'var(--mute)'}">${r.rank}</span>${G.av(r,i===1?60:48)}<b>${G.esc(r.me?'You':r.name)}</b><span class="num">${G.fmt(r.stack)}</span></div>`).join('')}</div>`;
+h+=`<div class="lbl">Week ${wk.n} · the Field by Stack</div><section class="card">${f.map(r=>`<div class="row${r.me?' me':''}"><span class="rk">${r.rank}</span>${G.av(r,38)}<div class="nm">${G.nameLink(r)}</div><span class="num">${G.fmt(r.stack)}</span></div>`).join('')}</section></main>`;
+document.getElementById('app').innerHTML=h;}
+G.render=render;render();if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});setInterval(render,30000);
+</script></body></html>

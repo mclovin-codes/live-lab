@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Profile · Rush</title><meta name="theme-color" content="#0A0F15">
+<style>
+.pf{text-align:center;padding:26px 16px 20px;border-radius:24px;margin-top:14px;border:1px solid var(--line)}
+.pf h2{margin:12px 0 2px;font:800 30px/1.1 "Barlow Condensed",sans-serif}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.stats div{background:rgba(10,15,21,.55);border-radius:14px;padding:12px 6px}
+.stats small{display:block;color:var(--mute);font-size:11px;font-weight:800;letter-spacing:1px;margin-top:4px}
+.wks{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.wks span{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:13px;background:var(--card2);color:var(--mute)}
+.wks .w{background:rgba(61,214,140,.18);color:var(--grn)}.wks .l{background:rgba(255,107,107,.14);color:var(--red)}
+.seg{display:flex;gap:6px;background:var(--card);padding:4px;border-radius:14px;margin-top:18px}.seg button{flex:1;min-height:42px;border:0;border-radius:10px;background:none;color:var(--mute);font:800 15px/1 -apple-system,sans-serif}.seg button.on{background:var(--card2);color:var(--tx)}
+</style></head>
+<body data-tab="me">
+<div id="app"></div>
+<script src="shared/state.js"></script><script src="week-games.js"></script><script src="shared/nav.js"></script><script src="g4.js"></script>
+<script>
+const uid=new URLSearchParams(location.search).get('u');
+let tab=location.hash==='#slips'?'slips':'slips';
+function render(){
+  const f=G.field(),m=G.meRow(),p=uid?G.player(uid):m,isMe=!uid||!p||p.me,who=p||m;
+  const rec=G.record(isMe?'me':who.id),wk=Rush.week(),d=who.stack-1000,opp=G.opponent();
+  const hu=G.hue(isMe?G.ME.handle:who.name);
+  let h=G.top(isMe?'Profile':'Player')+'<main class="wrap">';
+  h+=`<section class="pf" style="background:linear-gradient(180deg,hsl(${hu} 45% 22%) 0%,var(--card) 75%)">${G.av(who,96)}<h2>${G.esc(isMe?G.ME.handle:who.name)}</h2><div style="color:var(--mute)">${isMe?'You':'In the Field'} · Season 1</div>
+   <div class="stats"><div><div class="num">${G.fmt(who.stack)}</div><small>STACK</small></div><div><div class="num">#${who.rank||'-'}</div><small>WEEK ${wk.n}</small></div><div><div class="num">${rec.w}-${rec.l}</div><small>SEASON</small></div></div>
+   <div style="margin-top:12px;font-weight:800" class="${d>=0?'up':'dn'}">${d>=0?'+':''}${G.fmt(d)} this week</div>
+   ${isMe?'':`<div style="display:flex;gap:10px;margin-top:16px"><button class="btn" id="chb" style="background:var(--vio);color:#fff">Challenge</button><a class="btn ghost" href="lounge.html">Lounge</a></div>`}</section>`;
+  // Season weeks: a green week or a matchup win counts as a win.
+  let weeks=[];try{weeks=isMe?Rush.season().weeks:[]}catch(e){}
+  if(isMe){h+=`<div class="lbl">Season 1 weeks</div><section class="card"><div class="wks">${weeks.length?weeks.map(w=>`<span class="${w.result==='W'?'w':w.result==='L'?'l':''}">${w.n}</span>`).join(''):'<span style="width:auto;padding:0 12px">Week 9 settles first</span>'}</div><div style="color:var(--mute);font-size:14px;margin-top:10px">A green week or a matchup win is a win. Most wins at the Super Bowl takes the season. 3 weeks played to qualify.</div></section>`;}
+  h+=`<div class="lbl">${isMe?'Your Slips':'Their picks'}</div>`;
+  if(isMe){const all=G.allPicks(),open=all.filter(x=>x.status==='open'),done=all.filter(x=>x.status!=='open');
+    h+=`<div class="seg"><button data-t="slips" class="${tab==='slips'?'on':''}">Open · ${open.length}</button><button data-t="done" class="${tab==='done'?'on':''}">Settled · ${done.length}</button></div><div id="sl">${(tab==='slips'?open:done).map(G.slipHTML).join('')||`<div class="empty">${tab==='slips'?'No open Slips. <a style="color:var(--acc)" href="board.html">Make a pick</a>':'Nothing settled yet this week.'}</div>`}</div>`;}
+  else{let picks=[];try{picks=(window.RW&&RW.playerPicks&&RW.playerPicks(who.id))||[]}catch(e){}
+    const shown=picks.filter(x=>x.g&&(x.g.state!=='pre'||Date.now()>=x.g.date));
+    h+=shown.length?shown.slice(0,10).map(x=>G.slipHTML({label:x.label,sel:x.game,stake:x.stake,status:x.status,pay:x.status==='won'?x.stake*2:0,league:x.league,win:0})).join(''):`<div class="empty">Picks show here as their games kick off.${picks.length?' '+picks.length+' hidden until kickoff.':''}</div>`;}
+  if(isMe&&opp){h+=`<div class="lbl">This week's rival</div><a class="card" style="display:flex;align-items:center;gap:12px" href="matchup.html">${G.av(opp,44)}<div style="flex:1;font-weight:700">${G.esc(opp.name)}<div style="color:var(--mute);font-weight:500;font-size:14px">${G.fmt(opp.stack)} Stack</div></div><span style="color:var(--acc);font-weight:800">Matchup</span></a>`;}
+  h+='</main>';
+  document.getElementById('app').innerHTML=h;
+  document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
+  const c=document.getElementById('chb');if(c)c.onclick=()=>{G.challenge(who.id);location.href='matchup.html'};
+}
+G.render=render;render();
+if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
+</script></body></html>
