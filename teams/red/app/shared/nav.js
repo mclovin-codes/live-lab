@@ -16,7 +16,7 @@
   const TABS = [
     ['home', 'Home', 'index.html', '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],
     ['board', 'Board', 'board.html', '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M3 15h18M12 10v10"/>'],
-    ['slips', 'Slips', 'slips.html', '<path d="M5 3h14a1 1 0 0 1 1 1v17l-2.67-2-2.66 2L12 19l-2.67 2-2.66-2L4 21V4a1 1 0 0 1 1-1z"/><path d="M8 8h8M8 12h8M8 15.5h5"/>'],
+    ['matchup', 'Matchup', 'matchup.html', '<circle cx="7" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-3 2.2-5 5-5s5 2 5 5M12 20c0-3 2.2-5 5-5s5 2 5 5"/>'],
     ['ranks', 'Ranks', 'ranks.html', '<path d="M9 21V9h6v12M3 21v-7h6M15 21v-5h6v5M2 21h20"/>'],
     ['lounge', 'Lounge', 'lounge.html', '<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"/><path d="M8 10h8M8 13h5"/>'],
   ];
@@ -39,7 +39,13 @@ body.has-rnav{padding-bottom:calc(60px + env(safe-area-inset-bottom,0px))}
 #rcx button.row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;padding:12px 4px;border:0;border-top:.5px solid rgba(255,255,255,.08);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
 #rcx .row b{display:block;font-weight:600}#rcx .row small{display:block;color:rgba(255,255,255,.55);font-size:12px}
 #rcx .row .st{text-align:right;font-weight:600;white-space:nowrap}#rcx .row.on .st::after{content:" ✓";color:#00BFFF}
-#rcx a.more{display:block;margin-top:10px;padding:12px;border-radius:12px;background:#1A2530;color:#00BFFF;text-align:center;text-decoration:none;font-weight:600}`;
+#rcx a.more{display:block;margin-top:10px;padding:12px;border-radius:12px;background:#1A2530;color:#00BFFF;text-align:center;text-decoration:none;font-weight:600}
+.rbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.racct{display:flex;align-items:center;gap:10px;min-width:0;color:#fff;text-decoration:none}
+.rav{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:800;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.12)}
+.rname{display:flex;flex-direction:column;min-width:0}.rname b{font:700 16px/20px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rname small{font:500 12px/16px -apple-system,BlinkMacSystemFont,sans-serif;color:rgba(255,255,255,.6)}
+.rstack{display:flex;flex-direction:column;align-items:flex-end;padding:6px 14px;border-radius:14px;background:#13202C;border:1px solid rgba(0,191,255,.45);color:#fff;text-decoration:none}.rstack small{font:700 10px/12px -apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.08em;color:#7FDBFF}.rstack b{font:800 22px/26px -apple-system,BlinkMacSystemFont,sans-serif;font-variant-numeric:tabular-nums}
+#rpill-band{padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:10px;border-bottom:.5px solid rgba(255,255,255,.08)}`;
   function current() { const forced = document.body && document.body.dataset.tab; if (forced) return forced; const f = (location.pathname.split('/').pop() || 'index.html').toLowerCase(); const t = TABS.find(x => x[2] === f); return t ? t[0] : f === 'game.html' ? 'board' : 'home'; }
   function badges() { if (!window.Rush) return {}; let open = 0, rank = null; try { const cur = Rush.wallet && Rush.wallet.current ? Rush.wallet.current() : null; if (cur) { open = cur.open || 0; rank = cur.entered ? cur.rank : null; } else { open = Rush.picks({ status: 'open', week: Rush.week().id }).length; const m = Rush.me(); rank = m.entered ? m.rank : null; } } catch (e) {} let live = ''; try { const l = JSON.parse(localStorage.getItem('rw.live') || 'null'); if (l && Date.now() - l.at < 3e5 && l.n > 0) live = String(Math.min(99, +l.n || 0)); } catch (e) {} return { slips: open ? String(open) : '', ranks: rank ? '#' + rank : '', board: live }; }
   function draw() { let nav = document.getElementById('rnav'); if (!nav) { nav = document.createElement('nav'); nav.id = 'rnav'; nav.setAttribute('aria-label', 'Rush'); document.body.appendChild(nav); document.body.classList.add('has-rnav'); } const cur = current(), b = badges(); nav.innerHTML = TABS.map(([k, label, href, path]) => `<a href="${href}" class="${k === cur ? 'on' : ''}"${k === cur ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg><span>${label}</span>${b[k] ? `<em class="${k === 'ranks' ? 'rk' : ''}">${b[k]}</em>` : ''}</a>`).join(''); }
@@ -47,14 +53,17 @@ body.has-rnav{padding-bottom:calc(60px + env(safe-area-inset-bottom,0px))}
   const okColor = c => /^#[0-9a-f]{6}$/i.test(String(c)) ? c : '#00BFFF';
   const stk = n => Math.round(+n || 0).toLocaleString('en-US');
   function clockOf(e) { const t = Date.now(), C = window.Rush && Rush.clock ? Rush.clock : (ms => Math.round(ms / 36e5) + 'h'); if (e.phase === 'settled') return 'Settled'; if (e.phase === 'upcoming') return 'Opens in ' + C(e.opens - t); return 'Settles in ' + C(e.settles - t); }
-  function pillHTML(e) { return `<span class="rdot" style="background:${okColor(e.color)}"></span><b>${esc(e.name)}</b><small>· ${e.entered ? stk(e.stack) + ' Stack' : 'Not entered'}${e.rank ? ' · #' + e.rank : ''}</small><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5"/></svg>`; }
+  /* Phase 4 account bar: your avatar and your Stack sit at the top of every page; both open your profile */
+  function avatar(name, size) { const n = String(name || '?'), h = [...n].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7), hue = h % 360; return `<span class="rav" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .42)}px;background:hsl(${hue} 55% 42%)">${esc(n.slice(0, 1).toUpperCase())}</span>`; }
+  function pillHTML(e) { const me = Rush.me(); return `<a class="racct" href="me.html" aria-label="Your profile">${avatar(me.handle, 34)}<span class="rname"><b>${esc(me.handle)}</b><small>${me.rank ? '#' + me.rank + ' of ' + me.of : Rush.week().label}</small></span></a><a class="rstack" href="me.html#slips" aria-label="Your Stack, open your Slips"><small>STACK</small><b>${stk(e.stack)}</b></a>`; }
   function drawPill() {
     if (!window.Rush || !Rush.wallet) return; let e; try { e = Rush.wallet.current(); } catch (x) { return; } if (!e) return;
     let host = document.querySelector('[data-rush-pill]');
     if (!host) { host = document.getElementById('rpill-band'); if (!host) { host = document.createElement('div'); host.id = 'rpill-band'; document.body.insertBefore(host, document.body.firstChild); } }
-    let b = host.querySelector('.rpill'); if (!b) { b = document.createElement('button'); b.type = 'button'; b.className = 'rpill'; b.addEventListener('click', openSwitch); host.appendChild(b); }
-    const h = pillHTML(e); if (b._h !== h) { b.innerHTML = h; b._h = h; b.setAttribute('aria-label', 'Active contest ' + e.name + ', ' + stk(e.stack) + ' Stack. Switch contest'); }
+    let b = host.querySelector('.rbar'); if (!b) { b = document.createElement('div'); b.className = 'rbar'; host.appendChild(b); }
+    const h = pillHTML(e); if (b._h !== h) { b.innerHTML = h; b._h = h; }
   }
+  if (window.Rush) Rush.avatar = avatar;
   function closeSwitch() { ['rcx', 'rcx-scrim'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); }
   function openSwitch() {
     closeSwitch(); let L = []; try { L = Rush.wallet.list(); } catch (x) {} const a = Rush.wallet.active();

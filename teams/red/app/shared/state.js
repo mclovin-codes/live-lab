@@ -126,6 +126,8 @@
   const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
   let S = Object.assign({ v: 1, handle: '', weeks: {}, season: {}, settings: { pref: 'ask', sound: true } }, load());
+  /* Phase 4: a signed-in account is assumed; the stand-in player is shotcaller */
+  if (!S.handle || S.handle === 'You') S.handle = 'shotcaller';
   const subs = [];
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} subs.forEach(f => { try { f(S); } catch (e) {} }); }
   window.addEventListener('storage', e => { if (e.key === KEY) { S = Object.assign(S, load()); subs.forEach(f => { try { f(S); } catch (x) {} }); } });
@@ -399,6 +401,8 @@
   function joinerCard(contestId, fields, allowed) { return b64.enc(JSON.stringify({ v: 1, c: String(contestId || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40), n: String(S.handle || 'Player').slice(0, 18), f: cleanFields(fields, allowed), t: Date.now() })); }
   function readJoinerCard(code, allowed) { try { const j = JSON.parse(b64.dec(String(code).slice(0, 4000))); if (!j || j.v !== 1) return null; return { contest: String(j.c || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40), name: String(j.n || 'Player').replace(/[<>"`]/g, '').slice(0, 18), fields: cleanFields(j.f || {}, allowed), at: +j.t || Date.now() }; } catch (e) { return null; } }
 
+  /* signed-in players are entered in the weekly contest without a name step */
+  try { if (week().phase === 'open' && !W().entered) enter(); } catch (e) {}
   window.Rush = {
     week, weekOf, clock, me, enter, setHandle: n => { S.handle = String(n || '').slice(0, 18); save(); }, stack: () => W().cash, units, reload, canReload,
     place, picks, settle, cashOut, updatePick, field, rival, season, closeWeek,
