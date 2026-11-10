@@ -50,7 +50,7 @@ body{background:var(--pc-bg);color:var(--pc-fg);font:15px/1.38 var(--pc-font);fo
 </head>
 <body data-tab="ranks">
 <div class="pc-wrap">
- <button class="pc-back" id="pc-back">&lsaquo; Back</button>
+ <button class="pc-back" id="pc-back">&lsaquo; Back</button><script>if(!new URLSearchParams(location.search).get("u")||new URLSearchParams(location.search).get("u")==="me")document.getElementById("pc-back").style.display="none"</script>
  <div id="pc-main"><div class="pc-sec"><div class="pc-empty">Loading the player.</div></div></div>
 </div>
 <script src="shared/state.js"></script>
