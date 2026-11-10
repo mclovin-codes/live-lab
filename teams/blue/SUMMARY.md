@@ -18,6 +18,7 @@ Every screen starts with who you are up against. You open the app to check your 
 - Five tabs: Home, Board, Contest, Lounge, Me.
 - Contest replaces Slips in the tab bar, as the review asked. The weekly contest and matchups sit on that tab.
 - Me is your profile.
+- The red badge on Lounge counts the games live right now, so a live room is one tap away. The badge on Contest is your rank.
 - Every screen carries the same top bar: your avatar and name on the left, your Stack on the right.
 - The avatar opens your profile and the Stack opens your Stack sheet. Your rank and opponent sit under your name, so no screen has to repeat them.
 
@@ -33,7 +34,8 @@ Every number is Stack. Units are gone from every screen. The two buttons on the 
 
 ## The contest and matchups
 
-- The Contest tab is Ranks for the week: the Field ordered by Stack, plus your matchup card with the lead in Stack.
+- The Contest tab opens on your matchup card, then your week, then the Field ordered by Stack. Players level on Stack share a rank.
+- Stack counts what you have riding, so placing a pick does not look like a loss. It is the same number in the top bar, the Stack sheet, Home, Ranks and the matchup.
 - One opponent is pinned for the week, so Home, Contest, Lounge and both profiles always show the same matchup.
 - From any player's profile you can challenge them to a matchup. In the prototype that marks "Challenge sent" and nothing more.
 
@@ -45,12 +47,13 @@ Every number is Stack. Units are gone from every screen. The two buttons on the 
   - **The week room**: everyone in the Field.
 - Inside a room every post carries the poster's side ("ON TOR"). You can Tail or Fade any post, and quick lines let you post in one tap.
 - Avatars across the top show who is in the room now. Every avatar and name opens that player's profile.
-- Live rooms open first while a game is on.
+- Live rooms open first while a game is on. On a game page, "Game room" opens that game's room.
 
 ## Profile
 
 - **Yours** (the Me tab, or tap your avatar):
   - your Stack, record, hit rate and open picks, plus your sport mix;
+  - your Season 1 record: winning weeks, other weeks and the weeks left to qualify;
   - buttons for your Stack sheet, your Slips and your matchup room.
 - **Another player's** (tap any name or avatar):
   - the same card;
