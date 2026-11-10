@@ -49,7 +49,7 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
   try { if (Rush.week().phase === 'open' && !Rush.me().entered) Rush.enter(ME.handle); } catch (e) {}
 
   const stackOf = r => Math.round(1000 + (+r.units || 0) * 10);
-  function field() { let f = []; try { f = Rush.field(); } catch (e) {} return f.map(r => Object.assign({}, r, { name: r.me ? ME.handle : r.name, stack: stackOf(r) })).sort((a, b) => b.stack - a.stack || (b.me ? 1 : 0) - (a.me ? 1 : 0)).map((r, i, all) => Object.assign(r, { rank: 1 + all.filter(x => x.stack > r.stack).length })); }
+  function field() { let f = []; try { f = Rush.field(); } catch (e) {} return f.map(r => Object.assign({}, r, { name: r.me ? ME.handle : String(r.name).replace(/Units?/g, "Stack").replace(/Points/g, "Spread"), stack: stackOf(r) })).sort((a, b) => b.stack - a.stack || (b.me ? 1 : 0) - (a.me ? 1 : 0)).map((r, i, all) => Object.assign(r, { rank: 1 + all.filter(x => x.stack > r.stack).length })); }
   function meRow() { return field().find(r => r.me) || { id: 'me', me: true, name: ME.handle, stack: 1000, rank: null }; }
   function player(id) { return field().find(r => String(r.id) === String(id)) || null; }
   function opponent() { let r = null; try { r = Rush.rival(); } catch (e) {} return r ? player(r.id) : null; }
