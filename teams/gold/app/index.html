@@ -52,7 +52,7 @@ function render(){
    ${near.map(p=>`<div class="row">${G.av(p,40)}<div class="nm">${G.nameLink(p)}<small>#${p.rank} · ${G.fmt(p.stack)} Stack</small></div><button class="btn ghost" style="width:auto;min-height:40px;font-size:15px" data-ch="${p.id}">Challenge</button></div>`).join('')}</section>`;}
   // 3. Lounge rooms
   h+=`<div class="lbl">Lounge rooms <a href="lounge.html">All rooms</a></div>`;
-  h+=gs.length?`<div class="rooms">${gs.map(g=>{const ppl=f.filter(r=>G.hash(G.hash(g.id)+':'+r.id)<.28).slice(0,4),live=g.state==='in';
+  h+=gs.length?`<div class="rooms">${gs.map(g=>{const ppl=f.filter(r=>G.mix(g.id+':'+r.id)<.28).slice(0,4),live=g.state==='in';
    return `<a class="room" href="lounge.html?g=${encodeURIComponent(g.id)}"><div style="display:flex;justify-content:space-between;align-items:center"><span class="chip ${live?'live':''}">${live?'LIVE':G.esc((g.league||'').toUpperCase())}</span><small style="color:var(--mute)">${live?G.esc(g.detail):new Date(g.date).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})}</small></div>
    <div class="tm" style="margin-top:10px"><span>${G.esc(g.away.abbr)}</span><span>${live?G.esc(g.away.score||0):''}</span></div><div class="tm"><span>${G.esc(g.home.abbr)}</span><span>${live?G.esc(g.home.score||0):''}</span></div>
    <div class="stackav">${ppl.map(p=>G.av(p,26,1)).join('')}<span style="margin-left:16px;color:var(--mute);font-size:13px;align-self:center">${ppl.length+Math.floor(G.hash(g.id)*6)} in the room</span></div></a>`}).join('')}</div>`

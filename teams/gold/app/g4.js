@@ -43,6 +43,7 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
 
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const hash = s => { let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
+  const mix = s => { let h = Math.floor(hash(s) * 4294967296) >>> 0; h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
   const fmt = n => Math.round(n).toLocaleString('en-US');
 
   // Signed-in account assumed: enter this week's contest on first open, no name step.
@@ -106,5 +107,5 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
   function games() { try { return (window.RW && RW.cached && RW.cached()) || []; } catch (e) { return []; } }
 
   let render = null;
-  window.G = { chs, challenge, record, games, ME, esc, hash, fmt, field, meRow, player, opponent, myStack, av, nameLink, top, sheet, close, stackSheet, openPicks, allPicks, slipHTML, pairingAt, until, hue, initials, set render(f) { render = f; }, get render() { return render; } };
+  window.G = { mix, chs, challenge, record, games, ME, esc, hash, fmt, field, meRow, player, opponent, myStack, av, nameLink, top, sheet, close, stackSheet, openPicks, allPicks, slipHTML, pairingAt, until, hue, initials, set render(f) { render = f; }, get render() { return render; } };
 })();
