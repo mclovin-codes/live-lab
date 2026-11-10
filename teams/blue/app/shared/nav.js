@@ -63,7 +63,7 @@ body.has-rnav{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
   function draw() {
     let nav = document.getElementById('rnav'); if (!nav) { nav = document.createElement('nav'); nav.id = 'rnav'; nav.setAttribute('aria-label', 'Rush'); document.body.appendChild(nav); document.body.classList.add('has-rnav'); }
     const cur = current(), d = mine(); let live = ''; try { const l = JSON.parse(localStorage.getItem('rw.live') || 'null'); if (l && Date.now() - l.at < 3e5 && l.n > 0) live = String(Math.min(99, +l.n || 0)); } catch (e) {}
-    const b = { board: live, contest: d.rank ? '#' + d.rank : '', me: d.open.length ? String(d.open.length) : '' };
+    const b = { lounge: live, contest: d.rank ? '#' + d.rank : '', me: d.open.length ? String(d.open.length) : '' };
     const h = TABS.map(([k, label, href, path]) => `<a href="${href}${k === 'me' ? '?u=me' : ''}" class="${k === cur ? 'on' : ''}"${k === cur ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg><span>${label}</span>${b[k] ? `<em class="${k === 'contest' ? 'rk' : ''}">${b[k]}</em>` : ''}</a>`).join('');
     if (nav._h !== h) { nav.innerHTML = h; nav._h = h; }
   }

@@ -296,7 +296,7 @@ function render(){const ae=document.activeElement;if(ae&&(ae.id==='g-code'||ae.i
       if(me.stack<10&&!me.reloaded)h+=`<button class="g-cta" id="g-reload">Reload: 1,000 Stack back, free once a week</button>`}
     const left=W.entryClose-now;h+=`<div class="g-line">${left>864e5?`Picks open through <b>${esc(fmtDay(W.entryClose))}</b>. Each game locks at its start.`:left>0?`Entry closes in <em>${startsIn(left)}</em>.`:'Entry is closed. Picks in play settle after Monday night.'}</div>`;
     h+=fieldMover(me)}
-  else{const u=+c.units||0;h+=`<div class="g-me"><span class="u ${u>0?'up':u<0?'dn':''}">${GS.fmt(c.stack||1000)} Stack</span><span class="r">${c.rank?'#'+c.rank:'&#8212;'} <small>${c.of?'of '+c.of:''}</small></span><a href="slips.html">${c.open?c.open+' open':'Slips'} &#8250;</a></div>`;
+  else{const u=+c.units||0;h+=`<div class="g-me"><span class="u ${u>0?'up':u<0?'dn':''}">${GS.fmt(c.stack||1000)} Stack</span><span class="r">${c.rank?'#'+c.rank:'-'} <small>${c.of?'of '+c.of:''}</small></span><a href="slips.html">${c.open?c.open+' open':'Slips'} &#8250;</a></div>`;
     if(c.canReload)h+=`<button class="g-cta" data-act="wreload">Reload ${esc(c.name)}: once, under 50 Stack</button>`;
     h+=`<div class="g-line">${contestClock(c,now)}</div>`+contestCard(c)+doorCard(ws)+myContests(ws,act)}
   LMSG=loungeLines();if(LI>=LMSG.length)LI=0;h+=loungeLine().replace(/<b>[^<]*<\/b>/,`<b>${esc(LMSG[LI]||'')}</b>`);
