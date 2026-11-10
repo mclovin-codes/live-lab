@@ -9,7 +9,7 @@
 .sb{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;padding:18px 12px;border-radius:22px;background:var(--card);border:1px solid var(--line);margin-top:14px}
 .sb .t{font:800 34px/1 "Barlow Condensed",sans-serif}.sb .s{font:800 48px/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
 .lean{display:flex;height:30px;border-radius:10px;overflow:hidden;margin-top:10px;font-weight:800;font-size:13px}
-.lean div{display:flex;align-items:center;padding:0 10px}.lean .a{background:#2B6E99}.lean .b{background:#5B4FB0;justify-content:flex-end}
+.lean div{display:flex;align-items:center;padding:0 10px;min-width:72px;white-space:nowrap}.lean .a{background:#2B6E99}.lean .b{background:#5B4FB0;justify-content:flex-end}
 .msg{display:flex;gap:10px;margin-top:14px}.msg .bub{flex:1;min-width:0}.msg .bub b{font-size:14px}.msg .bub small{color:var(--dim);font-size:12px;margin-left:6px}
 .msg .bub p{margin:3px 0 0;font-size:16px;line-height:1.35}
 .msg .tag{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:8px;background:var(--card2);font-size:12px;font-weight:700;color:var(--mute)}
@@ -27,7 +27,7 @@ const LK='g4-lounge-v1';
 function mine(){try{return JSON.parse(localStorage.getItem(LK)||'{}')}catch(e){return{}}}
 function post(room,text){const a=mine();(a[room]=a[room]||[]).push({t:Date.now(),text:String(text).slice(0,240)});try{localStorage.setItem(LK,JSON.stringify(a))}catch(e){}}
 function people(f,room){return f.filter(r=>!r.me&&G.hash(r.id+room)<.3)}
-function seed(f,room,g){const ppl=people(f,room),now=Date.now();return ppl.slice(0,6).map((p,i)=>({p,t:now-(i+1)*(7+Math.floor(G.hash(p.id+room)*30))*6e4,text:(g&&i%3===0?[`${g.away.abbr} covers this one easy`,`${g.home.abbr} at home is the play`,`Over in ${g.away.abbr} at ${g.home.abbr}, both offenses are rolling`][i%3===0?Math.floor(G.hash(room)*3):0]:TAKES[(Math.floor(G.hash(room)*TAKES.length)+i)%TAKES.length]),tag:g&&G.hash('s'+p.id+room)<.6?(G.hash('x'+p.id)<.5?g.away.abbr:g.home.abbr):null}));}
+function seed(f,room,g){const ppl=people(f,room),now=Date.now();return ppl.slice(0,6).map((p,i)=>({p,t:now-(i+1)*(7+Math.floor(G.hash(p.id+room)*30))*6e4,text:(g&&i%3===0?[`${g.away.abbr} covers this one easy`,`${g.home.abbr} at home is the play`,`Over in ${g.away.abbr} at ${g.home.abbr}, both offenses are rolling`][i%3===0?Math.floor(G.hash(room)*3):0]:TAKES[(Math.floor(G.hash(room)*TAKES.length)+i)%TAKES.length]),tag:g&&G.hash('s'+p.id+room)<.6?(G.hash('x'+p.id+room)<.5?g.away.abbr:g.home.abbr):null}));}
 function ago(t){const m=Math.max(1,Math.round((Date.now()-t)/6e4));return m<60?m+'m':Math.round(m/60)+'h'}
 function list(){
   const f=G.field(),wk=Rush.week(),gs=G.games().filter(g=>!g.done||Date.now()-g.date<5*36e5).sort((a,b)=>(b.state==='in')-(a.state==='in')||a.date-b.date);
@@ -45,9 +45,9 @@ function view(){
   let h=G.top(g?`${g.away.abbr} at ${g.home.abbr}`:'Week room')+'<main class="wrap"><a href="lounge.html" style="display:inline-block;margin-top:12px;color:var(--acc);font-weight:700">‹ All rooms</a>';
   if(g){const lv=g.state==='in',started=lv||g.done||Date.now()>=g.date;
     h+=`<section class="sb"><div><div class="t">${G.esc(g.away.abbr)}</div>${started?`<div class="s">${G.esc(g.away.score||0)}</div>`:''}</div><div><span class="chip ${lv?'live':''}">${lv?G.esc(g.detail||'LIVE'):g.done?'FINAL':new Date(g.date).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})}</span></div><div><div class="t">${G.esc(g.home.abbr)}</div>${started?`<div class="s">${G.esc(g.home.score||0)}</div>`:''}</div></section>`;
-    const a=ppl.filter(p=>G.hash('x'+p.id)<.5).length||1,b=Math.max(1,ppl.length-a);
+    const a=ppl.filter(p=>G.hash('x'+p.id+room)<.5).length||1,b=Math.max(1,ppl.length-a);
     h+=`<div class="lbl">How the room leans</div><div class="lean"><div class="a" style="flex:${a}">${G.esc(g.away.abbr)} ${a}</div><div class="b" style="flex:${b}">${b} ${G.esc(g.home.abbr)}</div></div>`;
-    h+=`<div class="lbl">On this game</div><section class="card">${ppl.slice(0,6).map(p=>`<div class="row">${G.av(p,36)}<div class="nm">${G.nameLink(p)}<small>${G.fmt(p.stack)} Stack</small></div>${started?`<span class="chip">${G.esc(G.hash('x'+p.id)<.5?g.away.abbr:g.home.abbr)}</span>`:'<span class="chip">HIDDEN TILL KICKOFF</span>'}</div>`).join('')||'<div class="empty">Nobody yet. Be first.</div>'}</section>`;
+    h+=`<div class="lbl">On this game</div><section class="card">${ppl.slice(0,4).map(p=>`<div class="row">${G.av(p,36)}<div class="nm">${G.nameLink(p)}<small>${G.fmt(p.stack)} Stack</small></div>${started?`<span class="chip">${G.esc(G.hash('x'+p.id+room)<.5?g.away.abbr:g.home.abbr)}</span>`:'<span class="chip">SEALED</span>'}</div>`).join('')||'<div class="empty">Nobody yet. Be first.</div>'}</section>`;
   }else h+=`<section class="card"><div style="display:flex;align-items:center">${ppl.slice(0,8).map(p=>G.av(p,34)).join('<span style="width:6px"></span>')}</div><div style="color:var(--mute);margin-top:10px">${ppl.length} players in the Week room</div></section>`;
   h+=`<div class="lbl">The talk</div><div class="react">${['Lock it','Fade','Sweating','Called it'].map(x=>`<button data-r="${x}">${x}</button>`).join('')}</div>`;
   h+=msgs.map(x=>`<div class="msg">${G.av(x.p,38)}<div class="bub"><b>${G.nameLink(x.p)}</b><small>${ago(x.t)}</small><p>${G.esc(x.text)}</p>${x.tag?`<span class="tag">On ${G.esc(x.tag)}</span>`:''}</div></div>`).join('');
