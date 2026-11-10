@@ -296,7 +296,7 @@ function contestCard(c){return`<a class="g-card g-cl" href="${GS.CPAGE.one(c.id)
 function render(){const ae=document.activeElement;if(ae&&(ae.id==='g-code'||ae.id==='g-name'||ae.id==='g-refname'))return;const me=GS.me(),now=Date.now(),ws=wallets(),act=WAL()?WAL().active():'rush',c=ws.find(w=>w.id===act)||null,rush=act==='rush'||!c,entered=rush?GS.entered():c.entered;
   const L=GAMES.filter(covered(act)),hero=heroGame(L),live=L.filter(g=>g.state==='in'&&g!==hero),next=L.filter(g=>g.state==='pre'&&g!==hero).slice(0,8);
   let h=`<div class="g-top"><span data-rush-pill style="flex:1;max-width:none"></span></div>`;
-  h+=heroCard(hero);if(rush)h+=contestHero()+prizeCard();
+  if(rush)h+=contestHero();h+=heroCard(hero);if(rush)h+=prizeCard();
   if(rush){
     if(!entered){h+=now<W.entryClose?`<div class="g-card"><input class="g-in" id="g-name" maxlength="20" placeholder="Your name in the Field" value="${esc(me.name&&me.name!=='You'?me.name:'')}"><button class="g-cta" id="g-enter">Enter Week ${W.n} · 1,000 Stack</button><div class="g-note">Free. Everyone starts with 1,000 Stack. The Field ranks on Stack.</div></div>`:`<div class="g-line">Entry for Week ${W.n} closed at Monday night kickoff.</div>`}
     else{const u=GS.units(),rk=GS.rank(),rec=GS.record(),open=GS.picks().filter(p=>p.status==='open').length;h+=`<div class="g-me"><span class="u ${u>0?'up':u<0?'dn':''}" data-tick="units">${u>0?'+':''}${u.toFixed(1)} U</span><span class="r">#${rk.rank} <small>of ${rk.of}${rec.w+rec.l?' · '+rec.w+'-'+rec.l+' season':''}</small></span><a href="slips.html">${open?open+' open':'Slips'} &#8250;</a></div>`;

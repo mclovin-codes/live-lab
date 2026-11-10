@@ -72,5 +72,5 @@ Into your profile. Tapping your Stack in the top bar opens the profile at your S
 - The Field is made of stand-in players. Their picks, the room head counts, reaction counts and Lounge lines are generated on the phone.
 - Your posts, reactions and challenges stay on this phone only.
 - Challenges are recorded as sent but never answered.
-- Two stand-in Fields exist under the hood. Before games load a page can briefly show a different opponent name; it settles once games load.
+- Two stand-in Fields exist under the hood. Your opponent is chosen by name, so it stays the same everywhere, but your rank in the top bar can shift for a moment while the games load.
 - Contest pages (contest.html, contests.html) still say Units in places, and they are no longer linked.
