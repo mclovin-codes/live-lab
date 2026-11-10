@@ -8,11 +8,16 @@
  */
 (function () {
   const ME = 'nickr';
+  /* Ties share a rank everywhere: rank = 1 + players with a higher Stack. */
+  (function shareRanks() { const R = window.Rush; if (!R || !R.field || R.field._shared) return; const orig = R.field;
+    R.field = function () { const f = orig.apply(R, arguments); try { f.forEach(r => { r.rank = 1 + f.filter(x => (+x.units || 0) > (+r.units || 0) + 1e-9).length; }); } catch (e) {} return f; };
+    R.field._shared = true;
+    if (R.me && !R.me._shared) { const om = R.me; R.me = function () { const m = om.apply(R, arguments); try { const f = R.field(), r = f.find(x => x.me); if (r && m) { m.rank = r.rank; m.of = f.length; } } catch (e) {} return m; }; R.me._shared = true; } })();
   /* One opponent per week: the first pairing computed is pinned, so every page shows the same matchup. */
   (function pinRival() { const R = window.Rush; if (!R || !R.rival || R.rival._pinned) return; const orig = R.rival; const K = 'rush-rival-v1';
     R.rival = function () { let wk = ''; try { wk = R.week().id; } catch (e) {} let pin = null; try { pin = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) {}
       let f = []; try { f = R.field(); } catch (e) {}
-      if (pin && pin.wk === wk) { const row = f.find(r => r.sim && (r.id === pin.id || r.name === pin.name)); if (row) return row; }
+      if (pin && pin.wk === wk) { const row = f.find(r => r.sim && (r.id === pin.id || r.name === pin.name)); return row || { id: pin.id, name: pin.name, sim: true, units: 0 }; }
       const r = orig.apply(R, arguments); if (r && r.sim !== false) { try { localStorage.setItem(K, JSON.stringify({ wk, id: r.id, name: r.name })); } catch (e) {} } return r; };
     R.rival._pinned = true; })();
   const TABS = [
