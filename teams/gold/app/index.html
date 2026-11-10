@@ -44,7 +44,7 @@ function render(){
    <div class="cta"><a class="btn" href="board.html">Make picks</a><a class="btn ghost" href="ranks.html">Ranks</a></div></section>`;
   // 2. The matchup
   if(foe){const a=Math.max(1,m.stack),b=Math.max(1,foe.stack),gap=m.stack-foe.stack;
-   h+=`<div class="lbl">Your matchup <a href="matchup.html">Open</a></div><a class="card" style="display:block" href="matchup.html"><div class="mu"><div class="side">${G.av(m,56)}<b>You</b><span class="num">${G.fmt(m.stack)}</span></div><div class="vs">VS</div><div class="side">${G.av(foe,56)}<b>${G.esc(foe.name)}</b><span class="num">${G.fmt(foe.stack)}</span></div></div>
+   h+=`<div class="lbl">Your matchup <a href="matchup.html">Open</a></div><a class="card" style="display:block" href="matchup.html"><div class="mu"><div class="side">${G.av(m,56,1)}<b>You</b><span class="num">${G.fmt(m.stack)}</span></div><div class="vs">VS</div><div class="side">${G.av(foe,56,1)}<b>${G.esc(foe.name)}</b><span class="num">${G.fmt(foe.stack)}</span></div></div>
    <div class="tug"><div class="a" style="flex:${a}"></div><div class="b" style="flex:${b}"></div></div>
    <div style="text-align:center;margin-top:10px;font-weight:800;font-size:17px" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You lead by '+G.fmt(gap):'You trail by '+G.fmt(-gap)}</div></a>`;}
   else{h+=`<div class="lbl">Your matchup</div><section class="card"><div style="display:flex;align-items:center;gap:14px"><div style="flex:1"><div style="font-weight:800;font-size:19px">Paired Thursday 7:00 PM</div><div style="color:var(--mute);margin-top:4px">Your 1v1 for Week ${wk.n} is set in <b style="color:var(--tx)">${G.until(pairT)}</b>. Challenge someone now.</div></div><div class="num" style="font-size:30px;color:var(--vio)">1v1</div></div>
@@ -55,7 +55,7 @@ function render(){
   h+=gs.length?`<div class="rooms">${gs.map(g=>{const ppl=f.filter(r=>G.hash(r.id+g.id)<.28).slice(0,4),live=g.state==='in';
    return `<a class="room" href="lounge.html?g=${encodeURIComponent(g.id)}"><div style="display:flex;justify-content:space-between;align-items:center"><span class="chip ${live?'live':''}">${live?'LIVE':G.esc((g.league||'').toUpperCase())}</span><small style="color:var(--mute)">${live?G.esc(g.detail):new Date(g.date).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})}</small></div>
    <div class="tm" style="margin-top:10px"><span>${G.esc(g.away.abbr)}</span><span>${live?G.esc(g.away.score||0):''}</span></div><div class="tm"><span>${G.esc(g.home.abbr)}</span><span>${live?G.esc(g.home.score||0):''}</span></div>
-   <div class="stackav">${ppl.map(p=>G.av(p,26)).join('')}<span style="margin-left:16px;color:var(--mute);font-size:13px;align-self:center">${ppl.length+Math.floor(G.hash(g.id)*6)} in the room</span></div></a>`}).join('')}</div>`
+   <div class="stackav">${ppl.map(p=>G.av(p,26,1)).join('')}<span style="margin-left:16px;color:var(--mute);font-size:13px;align-self:center">${ppl.length+Math.floor(G.hash(g.id)*6)} in the room</span></div></a>`}).join('')}</div>`
    :`<a class="card" style="display:block" href="lounge.html"><b>The Week ${wk.n} room is open</b><div style="color:var(--mute);margin-top:4px">Game rooms open as this week's games load.</div></a>`;
   // 4. The Field
   const top5=f.slice(0,5);if(!top5.some(r=>r.me))top5.push(m);

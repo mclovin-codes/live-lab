@@ -35,7 +35,7 @@ function render(){
   else{let picks=[];try{picks=(window.RW&&RW.playerPicks&&RW.playerPicks(who.id))||[]}catch(e){}
     const shown=picks.filter(x=>x.g&&(x.g.state!=='pre'||Date.now()>=x.g.date));
     h+=shown.length?shown.slice(0,10).map(x=>G.slipHTML({label:x.label,sel:x.game,stake:x.stake,status:x.status,pay:x.status==='won'?x.stake*2:0,league:x.league,win:0})).join(''):`<div class="empty">Picks show here as their games kick off.${picks.length?' '+picks.length+' hidden until kickoff.':''}</div>`;}
-  if(isMe&&opp){h+=`<div class="lbl">This week's rival</div><a class="card" style="display:flex;align-items:center;gap:12px" href="matchup.html">${G.av(opp,44)}<div style="flex:1;font-weight:700">${G.esc(opp.name)}<div style="color:var(--mute);font-weight:500;font-size:14px">${G.fmt(opp.stack)} Stack</div></div><span style="color:var(--acc);font-weight:800">Matchup</span></a>`;}
+  if(isMe&&opp){h+=`<div class="lbl">This week's rival</div><a class="card" style="display:flex;align-items:center;gap:12px" href="matchup.html">${G.av(opp,44,1)}<div style="flex:1;font-weight:700">${G.esc(opp.name)}<div style="color:var(--mute);font-weight:500;font-size:14px">${G.fmt(opp.stack)} Stack</div></div><span style="color:var(--acc);font-weight:800">Matchup</span></a>`;}
   h+='</main>';
   document.getElementById('app').innerHTML=h;
   document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});

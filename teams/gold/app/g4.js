@@ -49,14 +49,14 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
   try { if (Rush.week().phase === 'open' && !Rush.me().entered) Rush.enter(ME.handle); } catch (e) {}
 
   const stackOf = r => Math.round(1000 + (+r.units || 0) * 10);
-  function field() { let f = []; try { f = Rush.field(); } catch (e) {} return f.map(r => Object.assign({}, r, { name: r.me ? ME.handle : r.name, stack: stackOf(r) })).sort((a, b) => b.stack - a.stack).map((r, i) => Object.assign(r, { rank: i + 1 })); }
+  function field() { let f = []; try { f = Rush.field(); } catch (e) {} return f.map(r => Object.assign({}, r, { name: r.me ? ME.handle : r.name, stack: stackOf(r) })).sort((a, b) => b.stack - a.stack || (b.me ? 1 : 0) - (a.me ? 1 : 0)).map((r, i, all) => Object.assign(r, { rank: 1 + all.filter(x => x.stack > r.stack).length })); }
   function meRow() { return field().find(r => r.me) || { id: 'me', me: true, name: ME.handle, stack: 1000, rank: null }; }
   function player(id) { return field().find(r => String(r.id) === String(id)) || null; }
   function opponent() { let r = null; try { r = Rush.rival(); } catch (e) {} return r ? player(r.id) : null; }
   function myStack() { try { return Math.round(Rush.me().stack); } catch (e) { return 1000; } }
   function initials(n) { const p = String(n).trim().split(/\s+/); return ((p[0] || '?')[0] + (p[1] ? p[1][0] : (p[0][1] || ''))).toUpperCase(); }
   function hue(n) { return Math.floor(hash('h' + n) * 360); }
-  function av(r, size) { size = size || 40; const n = r.me ? ME.handle : r.name; return `<a class="av${r.me ? ' me' : ''}" href="me.html${r.me ? '' : '?u=' + encodeURIComponent(r.id)}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .38)}px;background:hsl(${hue(n)} 70% 66%)" aria-label="${esc(n)} profile">${esc(initials(n))}</a>`; }
+  function av(r, size, plain) { size = size || 40; const n = r.me ? ME.handle : r.name; const tag = plain ? "span" : "a"; return `<${tag} class="av${r.me ? ' me' : ''}" ${plain ? '' : `href="me.html${r.me ? '' : '?u=' + encodeURIComponent(r.id)}"`} style="width:${size}px;height:${size}px;font-size:${Math.round(size * .38)}px;background:hsl(${hue(n)} 70% 66%)" aria-label="${esc(n)} profile">${esc(initials(n))}</${tag}>`; }
   function nameLink(r) { return `<a href="me.html${r.me ? '' : '?u=' + encodeURIComponent(r.id)}">${esc(r.me ? ME.handle : r.name)}</a>`; }
 
   function openPicks() { try { return Rush.picks({ status: 'open', week: Rush.week().id }); } catch (e) { return []; } }
