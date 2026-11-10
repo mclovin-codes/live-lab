@@ -45,7 +45,7 @@ Every number is Stack. Units are gone from every screen. The two buttons on the 
   - **Your matchup room**: you against your opponent. Their Slip shows as sealed cards until each game kicks off.
   - **One room per game today**: a live dot and the score, plus how the Field is split between the two teams.
   - **The week room**: everyone in the Field.
-- Inside a room every post carries the poster's side ("ON TOR"). You can Tail or Fade any post, and quick lines let you post in one tap.
+- Inside a room every post carries the poster's side ("ON TOR"), yours too when you hold a pick on that game. You can Tail or Fade any post, and quick lines let you post in one tap.
 - Avatars across the top show who is in the room now. Every avatar and name opens that player's profile.
 - Live rooms open first while a game is on. On a game page, "Game room" opens that game's room.
 
