@@ -58,7 +58,7 @@ const PATHS={nfl:'football/nfl',nba:'basketball/nba',nhl:'hockey/nhl'},KEY='rush
 const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0)/4294967296};
 const AV=(n,sm)=>Rush.nav&&Rush.nav.avatar?Rush.nav.avatar(n,sm):'';
 const fmt=n=>Math.round(+n||0).toLocaleString('en-US');
-const stackOf=r=>r?(r.stack!=null?r.stack:1000+Math.round((r.units||0)*100)):1000;
+const stackOf=r=>r?(r.stack!=null?r.stack:1000+Math.round((r.units||0)*10)):1000;
 let GAMES=[],room=new URLSearchParams(location.search).get('r')||'';
 const store=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
 const save=m=>{try{localStorage.setItem(KEY,JSON.stringify(m))}catch(e){}};
