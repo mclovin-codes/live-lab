@@ -54,7 +54,7 @@ Slips live in two places: the Stack sheet (open Slips, one tap from anywhere) an
 ## What is unfinished or faked
 - **The Field and the room talk are SIM players.** Room talk is seeded from short lines, so it repeats, and your own posts stay on your phone.
 - **Challenges are on this phone only,** and a SIM player accepts after 3 seconds.
-- **The challenge record isn't counted yet.** The season record comes from the engine's season table.
+- **The challenge record isn't counted yet.** The season record comes from the engine's season table, so SIM players on this week's live Field show 0-0.
 - **The Week 10 pairing is the engine's rival pick,** shown as your opponent after Thursday 7:00 PM. Before that, Matchup shows the countdown and challenges.
 - **The Board and the game page are the existing pages** under the new tab bar, not redrawn.
 - **Who leans which way in a room is simulated.**
