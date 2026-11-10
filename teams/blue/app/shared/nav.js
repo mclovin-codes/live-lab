@@ -69,13 +69,13 @@ body.has-rnav{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
   }
   function drawTop() {
     let t = document.getElementById('rtop'); if (!t) { t = document.createElement('header'); t.id = 'rtop'; document.body.insertBefore(t, document.body.firstChild); t.addEventListener('click', e => { if (e.target.closest('.stk')) openStack(); }); }
-    const d = mine(), s = d.m.entered ? d.m.stack : 1000, dl = s - 1000;
+    const d = mine(), s = (d.m.entered ? (Rush.units ? 1000 + Math.round(Rush.units() * 10) : d.m.stack) : 1000), dl = s - 1000;
     const h = `<a class="av" href="player.html?u=me" aria-label="Your profile">${avatar(d.m.handle || ME)}<span class="who"><span class="nm">${esc(d.m.handle || ME)}</span><span class="sub">${d.rank ? 'Rank ' + d.rank + ' of ' + d.of : 'The Field'}${d.rival ? ' · vs ' + esc(d.rival.name) : ''}</span></span></a><button type="button" class="stk" aria-label="Your Stack, ${stk(s)}. Open"><small>STACK</small><b>${stk(s)}</b><span class="d ${dl > 0 ? 'up' : dl < 0 ? 'dn' : ''}">${dl > 0 ? '+' : ''}${dl ? stk(dl) : 'even'}</span></button>`;
     if (t._h !== h) { t.innerHTML = h; t._h = h; }
   }
   function closeStack() { ['rsx', 'rsx-scrim'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); }
   function openStack() {
-    closeStack(); const d = mine(), s = d.m.entered ? d.m.stack : 1000, dl = s - 1000, pct = Math.max(2, Math.min(100, s / 20));
+    closeStack(); const d = mine(), s = (d.m.entered ? (Rush.units ? 1000 + Math.round(Rush.units() * 10) : d.m.stack) : 1000), dl = s - 1000, pct = Math.max(2, Math.min(100, s / 20));
     const atStake = d.open.reduce((a, p) => a + (+p.stake || 0), 0);
     let rv = ''; if (d.rival) { const rs = d.rival.stack != null ? d.rival.stack : 1000 + Math.round((d.rival.units || 0) * 10); const lead = s - rs; rv = `<h4>Your matchup</h4><a class="mu" href="ranks.html">${avatar(d.m.handle, 1)}<b>${stk(s)}</b><span style="flex:1;text-align:center;font-weight:800;color:${lead >= 0 ? '#3DDC84' : '#FF6B6B'}">${lead === 0 ? 'Level' : (lead > 0 ? 'Up ' : 'Down ') + stk(Math.abs(lead))}</span><b>${stk(rs)}</b>${avatar(d.rival.name, 1)}</a>`; }
     const sc = document.createElement('div'); sc.id = 'rsx-scrim'; sc.addEventListener('click', closeStack);
