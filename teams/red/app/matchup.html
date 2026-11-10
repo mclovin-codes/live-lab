@@ -34,6 +34,7 @@ h1{margin:4px 0 2px;font:800 30px/1.1 var(--font);letter-spacing:-.02em}.sub{col
 .pl a{color:inherit;text-decoration:none;min-width:0}.pl b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pl small{color:var(--mut);font-size:13px}
 .rec{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.rec div{background:var(--card);border-radius:14px;padding:12px;text-align:center}.rec b{display:block;font:800 24px/1.1 var(--font)}.rec small{color:var(--mut);font-size:12px}
 .cta{display:block;margin-top:14px;text-align:center}
+.talk{display:flex;margin-top:14px;width:100%}
 </style>
 </head>
 <body>
@@ -68,6 +69,7 @@ function render(){
  $('vs').innerHTML=`<div class="vs-row"><a class="side" href="me.html">${av(me.handle,64)}<b>${esc(me.handle)}</b><span class="stk">${fmt(a)}</span><small>#${me.rank||'-'} in the Field</small></a><span class="vsx">VS</span>${op?`<a class="side" href="player.html?u=${encodeURIComponent(op.id)}">${av(op.name,64)}<b>${esc(op.name)}</b><span class="stk">${fmt(b)}</span><small>#${op.rank} in the Field</small></a>`:`<div class="side"><b>Need one more person in this week.</b><a class="btn" href="#ch">Challenge a player</a></div>`}</div>
  <div class="bar"><i style="width:${a/tot*100}%;background:var(--acc)"></i><i style="width:${b/tot*100}%;background:#E879F9"></i></div>
  <div class="verdict ${cls}">${txt}</div>
+ ${op?`<a class="btn talk" href="lounge.html?t=week">Talk to ${esc(op.name.split(' ')[0])} in your matchup room</a>`:''}
  <div class="clock">${paired?`Week ends <b>${Rush.clock(w.settles-Date.now())}</b>`:`Pairing in <b>${Rush.clock(pairAt()-Date.now())}</b>`}</div>`;
  /* their Slip: sealed until each game kicks off (stand-in picks for the simulated Field) */
  const games=(window.RW&&RW.cached&&RW.cached())||[],up=games.filter(g=>g.state!=='post').sort((x,y)=>new Date(x.date)-new Date(y.date));
