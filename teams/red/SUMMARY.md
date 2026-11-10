@@ -36,7 +36,7 @@ There is no name step, because the signed-in player (stand-in: shotcaller) is en
 - Ranks orders the Field by Stack. Stack is the only number a player sees; Units are gone from every main screen.
 
 ## The social space: Lounge rooms
-The Lounge is no longer one chat feed. It is a set of rooms:
+The Lounge is no longer one chat feed. It opens on "In the Lounge now", a row of the players around right now (tap a face for their profile). Then come the rooms:
 - Your matchup room is pinned on top.
 - Then live games (red LIVE tag, score and clock), then what is up next, then just finished.
 

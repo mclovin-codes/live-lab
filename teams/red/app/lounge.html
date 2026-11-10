@@ -54,6 +54,7 @@ body:not(.in-room) .compose{display:none}
 .msg .t p{font-size:16px}.av{width:36px;height:36px;font-size:13px}
 .rm-mine{margin-top:10px;display:inline-block;padding:6px 10px;border-radius:10px;background:rgba(0,191,255,.14);color:#7FDBFF;font:800 13px var(--f)}.rm-mine.big{display:block;margin-top:14px;font-size:15px;text-align:center}
 .who{display:block!important}.who .split{width:100%}
+.here-row{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}.here-row::-webkit-scrollbar{display:none}.here-p{display:flex;flex-direction:column;align-items:center;gap:4px;width:52px}.here-p .av{width:44px;height:44px;font-size:15px;box-shadow:0 0 0 2px var(--bg),0 0 0 4px #22C55E}.here-p small{font:700 11px var(--f);color:var(--mute);max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -95,6 +96,7 @@ const plink=(name,inner)=>{const id=name==='You'?'me':GS.idOf(name);return id?`<
 function lobby(){const me=GS.me(),riv=Rush.rival&&Rush.rival(),f=GS.field(),mr=f.find(r=>r.you);
  const live=GAMES.filter(x=>x.state==='in'),pre=GAMES.filter(x=>x.state==='pre').slice(0,10),post=GAMES.filter(x=>x.state==='post').slice(-3);
  let h=`<div class="g-top"><h1>Lounge</h1><small>${live.length?live.length+' rooms live':'Rooms open before kickoff'}</small></div>`;
+ {const N=names(),k=Math.floor(Date.now()/6e5),on=N.filter((n,i)=>hash(n+k)<.45).slice(0,8);if(on.length)h+=`<div class="here"><div class="sh" style="margin:0 0 8px">In the Lounge now</div><div class="here-row">${on.map(n=>plink(n,`<span class="here-p">${avatar(n)}<small>${esc(n.split(' ')[0])}</small></span>`)).join('')}</div></div>`}
  if(riv&&mr){const a=Math.round(1000+mr.units*10),b=Math.round(1000+riv.units*10);h+=`<button class="room mu" data-t="week"><div class="rm-h"><span class="lv mu">YOUR MATCHUP</span><span class="rm-n">${faces('mu',2)} 2 in the room</span></div><div class="rm-sc"><span>${esc(me.name||'You')}</span><b>${a.toLocaleString('en-US')}</b><em>vs</em><b>${b.toLocaleString('en-US')}</b><span>${esc(riv.name)}</span></div><div class="rm-last">Talk to ${esc(riv.name)} before Monday night</div></button>`}
  const card=x=>{const n=inRoom(x.id),last=gameMsgs(x).slice(-1)[0];return`<button class="room${x.state==='in'?' on':''}" data-t="${x.lg}:${esc(x.id)}"><div class="rm-h">${x.state==='in'?'<span class="lv">LIVE</span>':x.state==='post'?'<span class="lv fin">FINAL</span>':`<span class="lv pre">${esc(kick(x))}</span>`}<span class="rm-n">${faces(x.id,n)} ${n} in the room</span></div><div class="rm-sc"><img alt="" src="${esc(x.a.logo)}"><span>${esc(x.a.ab)}</span><b>${x.state==='pre'?'':esc(x.a.s)}</b><em>${x.state==='in'?esc(x.detail||''):'at'}</em><b>${x.state==='pre'?'':esc(x.h.s)}</b><span>${esc(x.h.ab)}</span><img alt="" src="${esc(x.h.logo)}"></div>${myPick(x)?`<div class="rm-mine">Your pick: ${esc(myPick(x).label)}</div>`:''}${last?`<div class="rm-last"><b>${esc(last.who)}:</b> ${esc(last.txt)}</div>`:''}</button>`};
  if(live.length)h+=`<div class="sh">Live now</div>`+live.map(card).join('');
