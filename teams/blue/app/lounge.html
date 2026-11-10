@@ -6,74 +6,93 @@
 <title>Rush · Lounge</title>
 <link rel="stylesheet" href="shared/rush.css">
 <style>
-/* Lounge: the Field talking across the week. A week thread and one thread per game. */
-:root{--bg:#0B1118;--card:#121A23;--card2:#1A2530;--line:#22303D;--fg:#fff;--mute:#8C9BAD;--acc:#00BFFF;--grad:linear-gradient(135deg,#00C0FF,#0080FF);--win:#10B981;--loss:#D95151;--f:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif}
+/* Lounge r4: rooms, not a feed. Your matchup room first, then one room per game tonight (live score, how the Field
+   is split, who is in the room), then the week room. Every message carries the poster's side; Tail or Fade it. */
+:root{--bg:#0A0F15;--card:#111A24;--card2:#18242F;--line:#23313F;--fg:#F4F7FA;--mute:#93A3B5;--acc:#3CC8FF;--win:#3DDC84;--loss:#FF6B6B;--f:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 var(--f);-webkit-font-smoothing:antialiased}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 var(--f);-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
-.g-wrap{padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 170px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px;max-width:640px;margin:0 auto}
-.g-top{display:flex;align-items:center;gap:10px}.g-top h1{font:800 26px/1 var(--f);letter-spacing:-.03em;margin:0}.g-top small{margin-left:auto;color:var(--mute);font-size:13px}
-.threads{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.threads::-webkit-scrollbar{display:none}
-.th{flex:none;display:flex;align-items:center;gap:6px;background:var(--card);border-radius:999px;padding:9px 13px;font:600 14px var(--f);color:var(--mute);min-height:40px;white-space:nowrap}
-.th.on{background:var(--card2);color:var(--fg);box-shadow:inset 0 0 0 1.5px var(--acc)}
-.th img{width:18px;height:18px}.th i{width:7px;height:7px;border-radius:50%;background:var(--loss);display:inline-block}
-.g-card{background:var(--card);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:2px}
-.g-h{display:flex;align-items:center;gap:8px;font:700 17px var(--f);margin-bottom:6px}.g-h a{margin-left:auto;font:600 13px var(--f);color:var(--acc);text-decoration:none;padding:8px 0}
-.msg{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.msg:last-child{border-bottom:0}
-.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--f);color:#fff;flex:none}
-.msg .t{min-width:0;flex:1}.msg .t b{font-weight:600}.msg .t small{color:var(--mute);font-size:12px;margin-left:6px}
-.msg .t p{margin:2px 0 0}
-.pill{display:inline-block;padding:1px 6px;border-radius:6px;font:700 10px var(--f);background:var(--card2);color:var(--mute);margin-left:4px}.pill.you{background:var(--acc);color:#00131C}
-.compose{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:rgba(11,17,24,.94);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);z-index:9}
-.compose input{flex:1;min-width:0;background:var(--card2);border:0;border-radius:12px;padding:13px;color:var(--fg);font:15px var(--f)}
-.compose button{background:var(--grad);color:#fff;border-radius:12px;padding:0 18px;font-weight:700;min-height:46px}
-.g-note{font-size:12.5px;color:var(--mute)}
-.g-plink{color:inherit;text-decoration:none;font-weight:600}
-#g-nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(18,26,35,.9);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:.5px solid #2C3B4A;padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
-#g-nav a{padding:9px 0 8px;text-align:center;font:600 11px var(--f);color:#5E6E80;text-decoration:none;min-height:44px}
-#g-nav a.on{color:var(--acc)}#g-nav svg{display:block;width:24px;height:24px;margin:0 auto 2px}
+a{color:inherit}
+.wrap{padding:14px max(16px,env(safe-area-inset-right,0px)) 150px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;max-width:640px;margin:0 auto}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}.top h1{font:800 30px/1 var(--f);letter-spacing:-.03em;margin:0}
+.here{display:flex;align-items:center}.here a{margin-left:-8px;border-radius:50%;box-shadow:0 0 0 2px var(--bg)}.here a:first-child{margin-left:0}.here small{margin-left:8px;color:var(--mute);font:600 13px var(--f);white-space:nowrap}
+.lbl{font:800 12px/16px var(--f);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:4px 0 -4px}
+.rooms{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:2px max(16px,env(safe-area-inset-left,0px))}.rooms::-webkit-scrollbar{display:none}
+.room{flex:none;width:236px;text-align:left;background:var(--card);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;border:2px solid transparent}
+.room.on{border-color:var(--acc);background:#0F2232}
+.room .rt{display:flex;align-items:center;justify-content:space-between;font:700 13px var(--f);color:var(--mute)}.room .rt .live{color:var(--loss);font-weight:800;letter-spacing:.06em}.room .rt .live::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--loss);margin-right:6px;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.tm{display:flex;align-items:center;gap:8px;font:800 18px/22px var(--f)}.tm img{width:26px;height:26px}.tm span{flex:1}.tm b{font-variant-numeric:tabular-nums}
+.split{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--card2)}.split i{display:block;height:100%}
+.sl{display:flex;justify-content:space-between;font:700 13px var(--f)}
+.mu{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;text-align:center}.mu b{display:block;font:800 22px/26px var(--f);font-variant-numeric:tabular-nums}.mu small{display:block;color:var(--mute);font:600 12px var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vs{font:900 13px var(--f);color:var(--mute)}
+.panel{background:var(--card);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ph{display:flex;align-items:center;gap:10px}.ph h2{margin:0;font:800 20px/24px var(--f);flex:1;min-width:0}.ph a{font:700 14px var(--f);color:var(--acc);text-decoration:none;padding:8px 0}
+.seal{display:flex;flex-wrap:wrap;gap:8px}.seal span{background:var(--card2);border:1px dashed #3A4B5C;border-radius:10px;padding:8px 10px;font:700 13px var(--f);color:var(--mute)}
+.msg{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
+.msg .bub{background:var(--card2);border-radius:4px 16px 16px 16px;padding:10px 12px;min-width:0}
+.msg.you{grid-template-columns:1fr auto}.msg.you .bub{background:#0F3550;border-radius:16px 4px 16px 16px;order:-1}
+.msg .who{display:flex;align-items:center;gap:6px;font:700 14px var(--f);flex-wrap:wrap}.msg .who a{text-decoration:none}.msg .who small{color:var(--mute);font-weight:600;font-size:12px}
+.side{display:inline-block;padding:2px 8px;border-radius:8px;font:800 11px/16px var(--f);letter-spacing:.04em;background:#22303D;color:var(--fg)}
+.msg p{margin:4px 0 6px}
+.acts{display:flex;gap:8px}.acts button{min-height:32px;padding:4px 12px;border-radius:16px;background:#0A0F15;font:700 13px var(--f);color:var(--mute)}.acts button.on{background:var(--acc);color:#06121C}
+.note{font-size:13px;color:var(--mute)}
+.compose{position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:rgba(10,15,21,.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);z-index:9}
+.quick{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}.quick::-webkit-scrollbar{display:none}.quick button{flex:none;min-height:34px;padding:6px 12px;border-radius:17px;background:var(--card2);font:700 13px var(--f);white-space:nowrap}
+.row{display:flex;gap:8px}.row input{flex:1;min-width:0;background:var(--card2);border:0;border-radius:14px;padding:13px;color:var(--fg);font:16px var(--f)}
+.row button{background:var(--acc);color:#06121C;border-radius:14px;padding:0 18px;font-weight:800;min-height:48px}
 </style>
 </head>
 <body>
-<div class="g-wrap" id="lounge"></div>
-<form class="compose" id="cf"><input id="ci" maxlength="160" placeholder="Say something to the Field" autocomplete="off"><button type="submit">Post</button></form>
-<nav id="g-nav"></nav>
+<div class="wrap" id="lounge"></div>
+<form class="compose" id="cf"><div class="quick" id="qk"></div><div class="row"><input id="ci" maxlength="160" placeholder="Talk about this game" autocomplete="off"><button type="submit">Send</button></div></form>
 <script src="shared/state.js"></script>
 <script src="week-games.js"></script>
-<script src="contest-kit.js"></script>
-<script src="shared/crew.js"></script>
 <script src="shared/nav.js"></script>
 <script src="gold-store.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const PATHS={nfl:'football/nfl',nba:'basketball/nba',nhl:'hockey/nhl'},KEY='rush-lounge-v1';
+const PATHS={nfl:'football/nfl',nba:'basketball/nba',nhl:'hockey/nhl'},KEY='rush-lounge-v2';
 const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0)/4294967296};
-const AVC=['#0080FF','#10B981','#F59E0B','#D95151','#8B5CF6','#06B6D4','#EC4899','#64748B'];
-const avatar=n=>{const ini=String(n).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();return`<span class="av" style="background:${AVC[Math.floor(hash(n)*AVC.length)]}">${esc(ini)}</span>`};
-let GAMES=[],thread=new URLSearchParams(location.search).get('t')||'week';
-const mine=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
-const saveMine=m=>{try{localStorage.setItem(KEY,JSON.stringify(m))}catch(e){}};
-const names=()=>GS.field().filter(r=>r.sim).map(r=>r.name);
-function pickName(seed){const n=names();return n.length?n[Math.floor(hash(seed)*n.length)]:'Field player'}
-const TEMPL={pre:['Who is on {fav} tonight? {line}.','{fav} feels too easy. Fading.','Locked in {dog} before the line moves.','Parlaying this with two others. Wish me luck.'],live:['{a} {as}, {h} {hs}. {det}. My Slip is sweating.','Live line on {h} looks soft right now.','Tailing whoever said under in this one.','This is why you watch every play.'],post:['{win} closes it out. My Slip says thanks.','{lose} cost me Stack tonight. Next game.','Final in {a} at {h}. Called it in here first.']};
-function fill(t,g){const fav=g.line?String(g.line).split(' ')[0]:g.h.ab,dog=fav===g.h.ab?g.a.ab:g.h.ab,win=+g.h.s>+g.a.s?g.h.ab:g.a.ab,lose=win===g.h.ab?g.a.ab:g.h.ab;return t.replace('{fav}',fav).replace('{dog}',dog).replace('{line}',g.line||'line posted').replace('{a}',g.a.ab).replace('{h}',g.h.ab).replace('{as}',g.a.s).replace('{hs}',g.h.s).replace('{det}',g.detail).replace('{win}',win).replace('{lose}',lose)}
-function gameMsgs(g){const out=[],ts=TEMPL[g.state]||TEMPL.pre,n=g.state==='live'||g.state==='in'?5:3;for(let i=0;i<n;i++){const seed=g.id+g.state+i+(g.state==='in'?g.detail:'');out.push({who:pickName(seed),txt:fill(ts[Math.floor(hash(seed+'t')*ts.length)],g),at:g.state==='pre'?g.date-3600e3*(n-i):Date.now()-60e3*(n-i)})}return out}
-function weekMsgs(){const f=GS.field(),top=f[0],me=f.find(r=>r.you),riv=Rush.rival&&Rush.rival(),out=[];if(top)out.push({who:top.you?'You':top.name,txt:`Top of the Field at ${Math.round(1000+top.units*100).toLocaleString('en-US')} Stack. Come get me.`,at:Date.now()-5400e3});if(riv&&me)out.push({who:riv.name,txt:me.units>=riv.units?`You are up on me this week. Monday night decides it.`:`Up ${Math.round((riv.units-me.units)*100).toLocaleString('en-US')} Stack on you this week. Your move.`,at:Date.now()-3600e3});const live=GAMES.filter(g=>g.state==='in');if(live.length)out.push({who:pickName('wk'+live[0].id),txt:`${live.length} game${live.length>1?'s':''} live right now. Board is wide open.`,at:Date.now()-600e3});out.push({who:pickName('mnf'),txt:'Entry closes at Monday night kickoff. Reload is free once a week if you run dry.',at:Date.now()-7200e3});return out}
-/* One thread per contest the player is in, linking to that contest's page. */
-function contestMsgs(c){const nm=GS.contests.name(c),n=GS.contests.count(c),T=[`Who else is in ${nm}? ${n?n+' in so far.':'Field is filling up.'}`,`Commissioner, are live picks on in ${nm}?`,`Top of ${nm} by Monday night. Calling it.`,`Just joined ${nm}. Taking the underdogs.`];return T.map((t,i)=>({who:pickName(c.id+'c'+i),txt:t,at:Date.now()-(4-i)*1800e3}))}
-function render(){const m=mine(),me=GS.me();const g=GAMES.find(x=>x.lg+':'+x.id===thread);const CS=GS.contests.mine(),ct=thread.startsWith('c:')?CS.find(x=>'c:'+x.id===thread):null;let msgs=thread==='week'?weekMsgs():g?gameMsgs(g):ct?contestMsgs(ct):[];msgs=msgs.concat((m[thread]||[]).map(x=>({...x,you:1})));msgs.sort((a,b)=>a.at-b.at);
-  const order=[...GAMES.filter(x=>x.state==='in'),...GAMES.filter(x=>x.state==='pre').slice(0,8),...GAMES.filter(x=>x.state==='post').slice(-4)];
-  let h=`<div class="g-top"><h1>Lounge</h1><small>The Field, all week</small></div><div class="threads"><button class="th${thread==='week'?' on':''}" data-t="week">Week ${GS.week().n}</button>${CS.map(x=>`<button class="th${thread==='c:'+x.id?' on':''}" data-t="c:${esc(x.id)}">&#9733; ${esc(GS.contests.name(x))}</button>`).join('')}${order.map(x=>`<button class="th${thread===x.lg+':'+x.id?' on':''}" data-t="${x.lg}:${esc(x.id)}">${x.state==='in'?'<i></i>':''}<img alt="" src="${esc(x.a.logo)}">${esc(x.a.ab)} at ${esc(x.h.ab)}</button>`).join('')}</div>`;
-  h+=`<div class="g-card"><div class="g-h">${thread==='week'?`Week ${GS.week().n} thread`:g?`${esc(g.a.ab)} at ${esc(g.h.ab)}`:ct?esc(GS.contests.name(ct)):'Thread'}${g?`<a href="game.html?league=${g.lg}&id=${encodeURIComponent(g.id)}">Open game</a>`:ct?`<a href="${GS.CPAGE.one(ct.id)}">Open contest</a>`:''}</div>${msgs.slice(-40).map(x=>`<div class="msg">${avatar(x.you?'You':x.who)}<div class="t"><b>${x.you?GS.card('me',me.name||'You'):(GS.idOf(x.who)?GS.card(GS.idOf(x.who),x.who):esc(x.who))}</b>${x.you?'<span class="pill you">YOU</span>':'<span class="pill">SIM</span>'}<small>${new Date(x.at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</small><p>${esc(x.txt)}</p></div></div>`).join('')||'<div class="g-note">Quiet so far. Say something.</div>'}</div><div class="g-note">SIM players stand in for the real Field. Your posts stay on this phone in the prototype.</div>`;
-  $('lounge').innerHTML=h}
-window.render=render;
-document.addEventListener('click',e=>{const t=e.target.closest('[data-t]');if(!t)return;thread=t.dataset.t;history.replaceState(null,'','?t='+encodeURIComponent(thread));render();scrollTo(0,0)});
-$('cf').addEventListener('submit',e=>{e.preventDefault();const i=$('ci'),txt=(i.value||'').trim();if(!txt)return;const m=mine();(m[thread]=m[thread]||[]).push({who:'You',txt,at:Date.now()});const reply=['Bold. Show me the Slip.','Respect.','We will see at the final.','Tailing that.','No chance. Fading you.'];(m[thread]).push({who:pickName(txt),txt:reply[Math.floor(hash(txt)*reply.length)],at:Date.now()+1500,sim:1});saveMine(m);i.value='';render();setTimeout(()=>scrollTo(0,document.body.scrollHeight),30)});
+const AV=(n,sm)=>Rush.nav&&Rush.nav.avatar?Rush.nav.avatar(n,sm):'';
+const fmt=n=>Math.round(+n||0).toLocaleString('en-US');
+const stackOf=r=>r?(r.stack!=null?r.stack:1000+Math.round((r.units||0)*100)):1000;
+let GAMES=[],room=new URLSearchParams(location.search).get('r')||'';
+const store=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
+const save=m=>{try{localStorage.setItem(KEY,JSON.stringify(m))}catch(e){}};
+const sims=()=>GS.field().filter(r=>r.sim);
+const plink=(id,name,inner)=>`<a href="player.html?u=${encodeURIComponent(id)}" aria-label="${esc(name)} profile">${inner||esc(name)}</a>`;
+function simAt(seed){const s=sims();return s.length?s[Math.floor(hash(seed)*s.length)]:{id:'sim0',name:'Field player'}}
+function inRoom(seed,n){const s=sims(),out=[];for(let i=0;i<s.length&&out.length<n;i++){const r=s[Math.floor(hash(seed+':'+i)*s.length)];if(!out.includes(r))out.push(r)}return out}
+function splitOf(g){return Math.round(30+hash(g.id+'split')*40)}
+const TEMPL={pre:['{side} tonight. Not overthinking it.','Line on {h} looks soft. Hammered it.','Fading the public, {side} all day.','Parlayed {side} with two others. Need all three.'],in:['{a} {as}, {h} {hs}. {det}. Sweating this one.','{side} needs one more stop.','Called {side} in here first. Receipts.','This is why you watch every play.'],post:['{side} hit. My Slip says thanks.','Final {a} {as}, {h} {hs}. Told you.','Lost this one. Moving on to the late game.']};
+function gameMsgs(g){const ts=TEMPL[g.state]||TEMPL.pre,n=g.state==='in'?6:4,out=[];for(let i=0;i<n;i++){const seed=g.id+g.state+i+(g.state==='in'?g.detail:''),who=simAt(seed),side=hash(seed+'s')*100<splitOf(g)?g.a.ab:g.h.ab;out.push({id:seed,who,side,txt:ts[Math.floor(hash(seed+'t')*ts.length)].replace('{side}',side).replace('{h}',g.h.ab).replace('{a}',g.a.ab).replace('{as}',g.a.s).replace('{hs}',g.h.s).replace('{det}',g.detail),at:g.state==='pre'?Math.min(Date.now(),g.date)-3600e3*(n-i)/2:Date.now()-90e3*(n-i)})}return out}
+function muMsgs(riv){const me=GS.field().find(r=>r.you),d=stackOf(me)-stackOf(riv);return[{id:'mu1',who:riv,txt:'Matchup week. Higher Stack Monday night takes it.',at:Date.now()-7200e3},{id:'mu2',who:riv,txt:d>0?`Up ${fmt(d)} on me. Enjoy it while it lasts.`:d<0?`Up ${fmt(-d)} on you. Your move.`:'Dead level. First pick decides the mood.',at:Date.now()-3600e3}]}
+function weekMsgs(){const f=GS.field(),top=f[0];const out=[];if(top)out.push({id:'w1',who:top.you?null:top,txt:`Top of the Field at ${fmt(stackOf(top))}. Come get me.`,at:Date.now()-5400e3});out.push({id:'w2',who:simAt('mnf'),txt:'Entry closes at Monday night kickoff. Reload is free once a week if you run dry.',at:Date.now()-7200e3});const live=GAMES.filter(g=>g.state==='in');if(live.length)out.push({id:'w3',who:simAt('live'+live[0].id),txt:`${live.length} game${live.length>1?'s':''} live right now. Pick a room.`,at:Date.now()-600e3});return out.filter(x=>x.who!==null)}
+function rooms(){const riv=Rush.rival&&Rush.rival(),R=[];if(riv)R.push({k:'mu',riv});const order=[...GAMES.filter(x=>x.state==='in'),...GAMES.filter(x=>x.state==='pre').slice(0,8),...GAMES.filter(x=>x.state==='post').slice(-3)];order.forEach(g=>R.push({k:g.lg+':'+g.id,g}));R.push({k:'week'});return R}
+function roomCard(r,on){const cls=`room${on?' on':''}`;if(r.k==='mu'){const me=GS.field().find(x=>x.you);return`<button class="${cls}" data-r="mu"><div class="rt"><span>YOUR MATCHUP</span><span>Week ${GS.week().n}</span></div><div class="mu"><div>${AV(me?me.name:'You')}<b>${fmt(stackOf(me))}</b><small>You</small></div><span class="vs">VS</span><div>${AV(r.riv.name)}<b>${fmt(stackOf(r.riv))}</b><small>${esc(r.riv.name)}</small></div></div></button>`}
+  if(r.k==='week')return`<button class="${cls}" data-r="week"><div class="rt"><span>THE FIELD</span><span>All week</span></div><div class="tm"><span>Week ${GS.week().n} room</span></div><div class="here">${inRoom('wk',4).map(x=>AV(x.name,1)).join('')}<small>${GS.field().length} in the Field</small></div></button>`;
+  const g=r.g,p=splitOf(g);return`<button class="${cls}" data-r="${esc(r.k)}"><div class="rt">${g.state==='in'?`<span class="live">LIVE</span><span>${esc(g.detail)}</span>`:`<span>${g.lg.toUpperCase()}</span><span>${esc(g.detail)}</span>`}</div><div class="tm"><img alt="" src="${esc(g.a.logo)}"><span>${esc(g.a.ab)}</span><b>${g.state==='pre'?'':esc(g.a.s)}</b></div><div class="tm"><img alt="" src="${esc(g.h.logo)}"><span>${esc(g.h.ab)}</span><b>${g.state==='pre'?'':esc(g.h.s)}</b></div><div class="split" aria-label="The Field is ${p} percent on ${esc(g.a.ab)}"><i style="width:${p}%;background:var(--acc)"></i><i style="width:${100-p}%;background:#FFB020"></i></div><div class="sl"><span style="color:var(--acc)">${p}% ${esc(g.a.ab)}</span><span style="color:#FFB020">${esc(g.h.ab)} ${100-p}%</span></div></button>`}
+function msgHTML(x,m){const you=!x.who;const r=(m.react||{})[x.id];const who=you?'You':x.who.name;return`<div class="msg${you?' you':''}">${you?'':plink(x.who.id,who,AV(who,1))}<div class="bub"><div class="who">${you?'<span>You</span>':plink(x.who.id,who)}${x.side?`<span class="side">ON ${esc(x.side)}</span>`:''}<small>${new Date(x.at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</small></div><p>${esc(x.txt)}</p>${you?'':`<div class="acts"><button type="button" class="${r==='tail'?'on':''}" data-x="${esc(x.id)}" data-a="tail">Tail ${1+Math.floor(hash(x.id+'t')*6)+(r==='tail'?1:0)}</button><button type="button" class="${r==='fade'?'on':''}" data-x="${esc(x.id)}" data-a="fade">Fade ${Math.floor(hash(x.id+'f')*4)+(r==='fade'?1:0)}</button></div>`}</div>${you?AV(GS.me().name||'You',1):''}</div>`}
+function render(){const m=store(),R=rooms();if(!R.find(r=>r.k===room))room=(R.find(r=>r.g&&r.g.state==='in')||R[0]).k;const cur=R.find(r=>r.k===room);
+  const here=inRoom(room,6);let h=`<div class="top"><h1>Lounge</h1><div class="here">${here.slice(0,5).map(x=>plink(x.id,x.name,AV(x.name,1))).join('')}<small>${here.length+2} here now</small></div></div><div class="lbl">Rooms</div><div class="rooms" id="rooms">${R.map(r=>roomCard(r,r.k===room)).join('')}</div>`;
+  let msgs=[],head='',extra='';
+  if(cur.k==='mu'){msgs=muMsgs(cur.riv);head=`You vs ${esc(cur.riv.name)}`;extra=`<div class="lbl">${esc(cur.riv.name)}'s Slip</div><div class="seal">${[0,1,2].map(i=>`<span>Sealed until kickoff</span>`).join('')}</div><div class="note">An opponent's picks open when each game kicks off.</div>`;head+=`</h2><a href="ranks.html">Matchup</a>`}
+  else if(cur.k==='week'){msgs=weekMsgs();head=`Week ${GS.week().n} room</h2><a href="ranks.html">Ranks</a>`}
+  else{const g=cur.g;msgs=gameMsgs(g);head=`${esc(g.a.ab)} at ${esc(g.h.ab)}</h2><a href="game.html?league=${g.lg}&id=${encodeURIComponent(g.id)}">Game</a>`}
+  msgs=msgs.concat((m[room]||[]).map(x=>({...x,who:x.sim?simAt(x.txt):null}))).sort((a,b)=>a.at-b.at);
+  h+=`<div class="panel"><div class="ph"><h2>${head}</div>${extra}${msgs.slice(-30).map(x=>msgHTML(x,m)).join('')||'<div class="note">Quiet so far. Say something.</div>'}</div><div class="note">SIM players stand in for the Field. Your posts stay on this phone in the prototype.</div>`;
+  $('lounge').innerHTML=h;const on=document.querySelector('.room.on');if(on&&!render.sc){render.sc=1;on.scrollIntoView({inline:'center',block:'nearest'});scrollTo(0,0)}
+  const g=cur.g;const Q=g?[`${g.a.ab} all day`,`${g.h.ab} all day`,'Who is tailing me','Sweating this one']:cur.k==='mu'?['Bring it','Monday decides it','Show me your Slip']:['Who is live tonight','Reload paid off'];$('qk').innerHTML=Q.map(q=>`<button type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('');$('ci').placeholder=g?'Talk about this game':cur.k==='mu'?'Talk to your opponent':'Talk to the Field'}
+document.addEventListener('click',e=>{const r=e.target.closest('[data-r]');if(r){room=r.dataset.r;history.replaceState(null,'','?r='+encodeURIComponent(room));render.sc=0;render();return}
+  const a=e.target.closest('[data-a]');if(a){const m=store();m.react=m.react||{};m.react[a.dataset.x]=m.react[a.dataset.x]===a.dataset.a?null:a.dataset.a;save(m);render();return}
+  const q=e.target.closest('[data-q]');if(q){$('ci').value=q.dataset.q;$('cf').requestSubmit()}});
+$('cf').addEventListener('submit',e=>{e.preventDefault();const i=$('ci'),txt=(i.value||'').trim();if(!txt)return;const m=store();(m[room]=m[room]||[]).push({id:'y'+Date.now(),txt,at:Date.now()});const reply=['Bold. Show me the Slip.','Respect.','We will see at the final.','Tailing that.','No chance. Fading you.'];m[room].push({id:'r'+Date.now(),txt:reply[Math.floor(hash(txt)*reply.length)],at:Date.now()+1500,sim:1});save(m);i.value='';render();setTimeout(()=>scrollTo(0,document.body.scrollHeight),30)});
 const etDay=off=>new Date(Date.now()+off*864e5).toLocaleDateString('en-CA',{timeZone:'America/New_York'}).replace(/-/g,'');
-async function loadGames(){const days=[etDay(-1),etDay(0),etDay(1)];const urls=[['nfl','https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard']];for(const lg of['nba','nhl'])for(const d of days)urls.push([lg,`https://site.api.espn.com/apis/site/v2/sports/${PATHS[lg]}/scoreboard?dates=${d}`]);const out=[];await Promise.all(urls.map(async([lg,u])=>{try{const d=await(await fetch(u)).json();for(const e of d.events||[]){const c=e.competitions[0],h=c.competitors.find(x=>x.homeAway==='home'),a=c.competitors.find(x=>x.homeAway==='away');out.push({lg,id:e.id,date:Date.parse(e.date),state:c.status.type.state,detail:c.status.type.shortDetail,h:{ab:h.team.abbreviation,s:h.score,logo:h.team.logo},a:{ab:a.team.abbreviation,s:a.score,logo:a.team.logo},line:(c.odds||[])[0]&&c.odds[0].details})}}catch(e){}}));const seen={};GAMES=out.filter(g=>!seen[g.lg+g.id]&&(seen[g.lg+g.id]=1)).sort((x,y)=>x.date-y.date);render()}
-GS.nav('lounge');render();loadGames();setInterval(loadGames,60000);
+async function loadGames(){const urls=[['nfl','https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard']];for(const lg of['nba','nhl'])urls.push([lg,`https://site.api.espn.com/apis/site/v2/sports/${PATHS[lg]}/scoreboard?dates=${etDay(0)}`]);const out=[];await Promise.all(urls.map(async([lg,u])=>{try{const d=await(await fetch(u)).json();for(const e of d.events||[]){const c=e.competitions[0],h=c.competitors.find(x=>x.homeAway==='home'),a=c.competitors.find(x=>x.homeAway==='away');out.push({lg,id:e.id,date:Date.parse(e.date),state:c.status.type.state,detail:c.status.type.shortDetail,h:{ab:h.team.abbreviation,s:h.score,logo:h.team.logo},a:{ab:a.team.abbreviation,s:a.score,logo:a.team.logo}})}}catch(e){}}));const seen={};GAMES=out.filter(g=>!seen[g.lg+g.id]&&(seen[g.lg+g.id]=1)).sort((x,y)=>x.date-y.date);render()}
+render();loadGames();setInterval(loadGames,60000);
 </script>
 </body>
 </html>

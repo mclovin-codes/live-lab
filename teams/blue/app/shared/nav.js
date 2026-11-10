@@ -28,7 +28,7 @@ body.has-rnav{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
 #rtop a.av{display:flex;align-items:center;gap:10px;min-width:0;flex:1;color:#fff;text-decoration:none}
 .rav{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;font:800 14px/1 ${F};color:#06121C;letter-spacing:.02em}
 .rav.sm{width:28px;height:28px;font-size:11px}
-#rtop .who{min-width:0;display:flex;flex-direction:column}#rtop .who .nm{display:block;font:700 17px/21px ${F};white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#rtop .who .sub{display:block;color:rgba(255,255,255,.62);font:600 12px/16px ${F};white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#rtop .who{min-width:0;display:flex;flex-direction:column;align-items:flex-start;text-align:left}#rtop .who .nm{display:block;font:700 17px/21px ${F};white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#rtop .who .sub{display:block;color:rgba(255,255,255,.62);font:600 12px/16px ${F};white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #rtop button.stk{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:1px;min-height:44px;padding:4px 12px;border-radius:12px;border:1px solid rgba(60,200,255,.35);background:#0F2232;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent}
 #rtop button.stk:active{transform:scale(.97)}#rtop .stk b{font:800 20px/22px ${F};font-variant-numeric:tabular-nums}#rtop .stk small{font:700 10px/12px ${F};letter-spacing:.1em;color:#3CC8FF}
 #rtop .stk .d{font:700 11px/12px ${F}}.up{color:#3DDC84}.dn{color:#FF6B6B}
