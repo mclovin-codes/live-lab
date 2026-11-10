@@ -102,7 +102,7 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
   function chs() { try { const a = JSON.parse(localStorage.getItem(CK) || '[]'); let ch = false; a.forEach(c => { if (c.state === 'sent' && Date.now() - c.at > 3000) { c.state = 'on'; ch = true; } }); if (ch) localStorage.setItem(CK, JSON.stringify(a)); return a.filter(c => c.week === Rush.week().id); } catch (e) { return []; } }
   function challenge(id) { try { const a = JSON.parse(localStorage.getItem(CK) || '[]'); if (a.some(c => c.opp === id && c.week === Rush.week().id)) return; a.push({ opp: id, at: Date.now(), state: 'sent', week: Rush.week().id }); localStorage.setItem(CK, JSON.stringify(a)); setTimeout(() => render && render(), 3200); } catch (e) {} }
   // Season record from the engine's season table; challenge record W-L from past weeks (none yet this season).
-  function record(id) { try { const t = Rush.season().table.find(r => String(r.id) === String(id)); return t ? { w: t.w, l: t.l, rank: t.rank } : { w: 0, l: 0 }; } catch (e) { return { w: 0, l: 0 }; } }
+  function record(id) { try { const tb = Rush.season().table, pl = id === 'me' ? null : field().find(r => String(r.id) === String(id)); const t = tb.find(r => String(r.id) === String(id)) || (pl && tb.find(r => r.name === pl.name || String(r.name).replace(/Units?/g, 'Stack').replace(/Points/g, 'Spread') === pl.name)); return t ? { w: t.w, l: t.l, rank: t.rank } : { w: 0, l: 0 }; } catch (e) { return { w: 0, l: 0 }; } }
   function games() { try { return (window.RW && RW.cached && RW.cached()) || []; } catch (e) { return []; } }
 
   let render = null;
