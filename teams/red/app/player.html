@@ -7,7 +7,7 @@
 <title>Player · Rush</title>
 <link rel="stylesheet" href="shared/rush.css">
 <style>
-/* Player card: hero card (avatar, rank, Units, record), head-to-head bar against you, then Open picks as sealed teasers that open at game start, then Settled picks in full. */
+/* Player card: hero card (avatar, rank, Stack, record), head-to-head bar against you, then Open picks as sealed teasers that open at game start, then Settled picks in full. */
 :root{--pc-bg:#0B1118;--pc-card:#121A23;--pc-card2:#1A2530;--pc-line:rgba(255,255,255,.07);--pc-fg:#fff;--pc-mut:#9AA8B6;--pc-dim:#66768A;--pc-acc:#00BFFF;--pc-win:#10B981;--pc-loss:#D95151;--pc-warn:#F59E0B;--pc-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Inter,Roboto,system-ui,sans-serif;color-scheme:dark}
 html,body{margin:0}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
 body{background:var(--pc-bg);color:var(--pc-fg);font:15px/1.38 var(--pc-font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
@@ -60,7 +60,8 @@ body{background:var(--pc-bg);color:var(--pc-fg);font:15px/1.38 var(--pc-font);fo
 'use strict';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const U=n=>(n<0?'-':'+')+(Math.round(Math.abs(n)*10)/10).toFixed(1);
+/* Phase 4: Stack is the one number; a row's Stack is 1,000 plus its week (Stack x 10 under the hood) */
+const U=n=>Math.round(1000+n*10).toLocaleString('en-US');
 const fo=o=>o==null?'':(o>0?'+':'')+o;
 const uid=new URLSearchParams(location.search).get('u')||'me';
 const R=window.Rush&&typeof Rush.field==='function'?Rush:null;
@@ -91,7 +92,7 @@ function render(){const rows=fieldRows(),row=rows.find(r=>String(r.id)===uid)||(
  const C={nfl:'#00BFFF',nba:'#F59E0B',nhl:'#7B61FF'};
  const name=row.name||'Player';document.title=`${name} · Rush`;
  let h=`<div class="pc-hero" style="--pc-c1:hsl(${mine?205:hue(row.id)} 45% 22%)"><div class="row1"><span class="pc-av" style="background:${mine?'linear-gradient(135deg,#00C0FF,#0080FF)':`hsl(${hue(row.id)} 50% 36%)`}">${esc(name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span><div><h1>${esc(name)}</h1><div class="pc-tags">${mine?'<span class="pc-tag you">YOU</span>':'<span class="pc-tag">SIM</span>'}${row.out?'<span class="pc-tag">Not entered</span>':`<span class="pc-tag rk">#${row.rank} of ${rows.length}</span>`}${row.rank<=3&&!row.out?'<span class="pc-tag rk">Prize spot</span>':''}</div></div></div>
-  <div class="pc-big"><b class="${row.units>0?'up':row.units<0?'dn':''}">${U(row.units)}</b><span>Units this week<br>Week ${RW.week().n}</span></div>
+  <div class="pc-big"><b class="${row.units>0?'up':row.units<0?'dn':''}">${U(row.units)}</b><span>Stack this week<br>Week ${RW.week().n}</span></div>
   <div class="pc-grid"><div><b>${w}-${l}</b><i>Record</i></div><div><b>${w+l?Math.round(100*w/(w+l))+'%':'-'}</b><i>Hit rate</i></div><div><b>${open.length}</b><i>Open</i></div><div><b>${best?U(best.units):'-'}</b><i>Best hit</i></div></div>
   ${picks.length?`<div class="pc-mix">${['nfl','nba','nhl'].map(k=>`<i style="width:${100*mix[k]/tot}%;background:${C[k]}"></i>`).join('')}</div><div class="pc-mixl">${['nfl','nba','nhl'].filter(k=>mix[k]).map(k=>`<span style="--c:${C[k]}">${RW.LEAGUES[k].name} ${Math.round(100*mix[k]/tot)}%</span>`).join('')}</div>`:''}</div>`;
  if(window.RC){const sh=RC.list().filter(c=>(c.owner||c.joined)&&c.status!=='archived'&&c.entrants.some(e=>e.id===(mine?'me':String(row.id)))&&!c.removed.includes(mine?'me':String(row.id))).map(c=>{const st=RC.standings(c,games),me=st.find(x=>x.me),them=st.find(x=>x.id===(mine?'me':String(row.id)));return{c,st,me,them,col:RC.dot(c.id)||'#66768A'}}).filter(x=>x.them);
