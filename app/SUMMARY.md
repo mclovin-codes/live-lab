@@ -96,7 +96,7 @@
 ## Making a pick: the Slip (Blue, after the founder's 10:00 PM note)
 
 **How it works now:**
-- A tap on a price fills the cell and adds the pick to one Slip, minimized as a bar above the tabs on every page. A second tap on the same cell removes it.
+- A tap on a price, on the game page or on a pregame Board row (moneylines), fills the cell and adds the pick to one Slip, minimized as a bar above the tabs on every page. A second tap on the same cell removes it.
 - Each further tap adds to the same Slip, from any game, and the bar updates in place: count, combined price, and "25 stake pays 91".
 - The Slip never opens by itself. Tapping the bar opens it with two tabs:
   - **Parlay:** the legs, remove per leg, and Add picks, which drops you back with the bar minimized.
@@ -117,7 +117,7 @@
 
 **Tap counts, before and after:**
 - **One straight:** 2 before (price, Lock in a sheet over the game). 3 after (price, bar, Place), and the game stays in view until you choose to open the Slip.
-- **Two-leg parlay across games:** not possible before (6 taps for two legs inside one game). 4 after (price, price on the other game, bar, Place), plus the taps to move between games.
+- **Two-leg parlay across games:** not possible before (6 taps for two legs inside one game). 4 after, straight from the Board: price, price on another row, bar, Place.
 - **Two picks from one game:** 4 before (price, Lock, price, Lock). 4 after (price, price, bar, Place) as a parlay, or one more tap (Straights) to place them as two straights.
 
 ## Profile and Slips (Gold)
