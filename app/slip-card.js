@@ -17,21 +17,22 @@
     const raw = p.raw || p;
     const legs = (raw.legs && raw.legs.length ? raw.legs : [raw]).map(l => {
       const g = gameOf(l.gameId, l.g);
-      return { label: l.label || l.sel || 'Pick', market: l.market || MK[l.t] || MK[l.kind] || (l.player ? 'Player prop' : ''), line: l.line, price: l.price != null ? l.price : l.odds, player: l.player, stat: l.stat,
+      if (l.sealed) return { sealed: true, game: l.game || (g ? g.away.abbr + ' at ' + g.home.abbr : 'Sealed leg'), g: g || (l.start ? { state: 'pre', date: +l.start } : null), st: 'open' };
+      return { label: l.label || l.sel || 'Pick', market: MK[l.market] || l.market || MK[l.t] || MK[l.kind] || (l.player ? 'Player prop' : ''), line: l.line, price: l.price != null ? l.price : l.odds, player: l.player, stat: l.stat,
         game: l.game || (g ? g.away.abbr + ' at ' + g.home.abbr : ''), g, st: legState(l.status || l.st || (raw.legs ? 'open' : raw.status)) };
     });
     const price = raw.price != null ? raw.price : raw.odds != null ? raw.odds : (legs.length > 1 ? (() => { const d = legs.reduce((a, l) => a * dec(+l.price || -110), 1); return d >= 2 ? (d - 1) * 100 : -100 / (d - 1); })() : legs[0].price);
-    const stake = +raw.stake || 0, toPay = raw.toPay != null ? +raw.toPay : raw.pay != null && raw.status !== 'open' ? +raw.pay : stake + (raw.win != null ? +raw.win : (price ? stake * (dec(+price) - 1) : 0));
+    const stake = +raw.stake || 0, toPay = raw.toPay != null ? +raw.toPay : raw.pay != null && raw.status !== 'open' ? +raw.pay : raw.kind && raw.win != null ? +raw.win : stake + (raw.win != null ? +raw.win : (price ? stake * (dec(+price) - 1) : 0));
     return { legs, stake, price, toPay, status: legState(raw.status), paid: raw.pay };
   }
   const ICON = { hit: '<i class="sc-i hit">✓</i>', miss: '<i class="sc-i miss">✗</i>', push: '<i class="sc-i push">=</i>', open: '<i class="sc-i open"></i>', live: '<i class="sc-i live"></i>', sealed: '<i class="sc-i sealed"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></i>' };
   function html(p, opts) {
     opts = opts || {}; const s = norm(p), n = s.legs.length, parlay = n > 1;
-    const anySealed = !!opts.sealed && s.legs.some(l => !started(l.g));
-    const kind = parlay ? (new Set(s.legs.map(l => l.game)).size === 1 ? 'Same-game parlay · ' + n + ' legs' : 'Parlay · ' + n + ' legs') : (s.legs[0].player ? 'Player prop' : s.legs[0].market || 'Straight');
+    const anySealed = s.legs.some(l => l.sealed) || (!!opts.sealed && s.legs.some(l => !started(l.g)));
+    const kind = parlay ? (n > 1 && new Set(s.legs.map(l => l.game)).size === 1 ? 'Same-game parlay · ' + n + ' legs' : 'Parlay · ' + n + ' legs') : (s.legs[0].player ? 'Player prop' : s.legs[0].market || 'Straight');
     const head = s.status === 'hit' ? '<span class="sc-st hit">HIT</span>' : s.status === 'miss' ? '<span class="sc-st miss">MISSED</span>' : s.status === 'push' ? '<span class="sc-st">PUSH</span>' : anySealed ? '<span class="sc-st sealed">SEALED</span>' : s.legs.some(l => l.g && l.g.state === 'in') ? '<span class="sc-st live">LIVE</span>' : '<span class="sc-st">OPEN</span>';
     const legs = s.legs.map(l => {
-      if (opts.sealed && !started(l.g)) return `<div class="sc-leg">${ICON.sealed}<div class="sc-l"><b>${esc(l.game || 'Sealed leg')}</b><small>Sealed until kickoff${l.g ? ', in ' + until(l.g.date) : ''}</small></div></div>`;
+      if (l.sealed || (opts.sealed && !started(l.g))) return `<div class="sc-leg">${ICON.sealed}<div class="sc-l"><b>${esc(l.game || 'Sealed leg')}</b><small>Sealed until kickoff${l.g ? ', in ' + until(l.g.date) : ''}</small></div></div>`;
       const live = l.st === 'open' && l.g && l.g.state === 'in';
       const sub = [l.player && l.stat ? esc(l.stat) : esc(l.market), esc(l.game), live ? esc((l.g.away.score || 0) + '-' + (l.g.home.score || 0) + ' ' + (l.g.detail || '')) : l.st === 'open' && l.g && !started(l.g) ? 'in ' + until(l.g.date) : ''].filter(Boolean).join(' · ');
       return `<div class="sc-leg ${l.st}">${ICON[live ? 'live' : l.st]}<div class="sc-l"><b>${esc(l.player ? l.player + ' ' + l.label.replace(l.player, '').trim() : l.label)}${l.line != null && String(l.label).indexOf(String(l.line)) < 0 ? ' ' + esc(l.line) : ''}</b><small>${sub}</small></div><span class="sc-p">${esc(am(l.price))}</span></div>`;

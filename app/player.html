@@ -36,7 +36,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body data-tab="me"><script>(function(){var u=new URLSearchParams(location.search).get("u");if(u&&u!=="me")document.body.dataset.tab="contest"})()</script>
 <div id="app" class="p-wrap"></div>
-<script src="shared/state.js?v=f1103"></script><script src="week-games.js?v=f1103"></script><script src="honest.js?v=g619"></script><script src="shared/nav.js?v=f1103"></script><script src="shared/events.js?v=f1103"></script><script src="gold-ui.js?v=g618"></script><script src="slip-card.js?v=s1"></script>
+<script src="shared/state.js?v=f1103"></script><script src="week-games.js?v=f1103"></script><script src="honest.js?v=g619"></script><script src="shared/nav.js?v=f1103"></script><script src="shared/events.js?v=f1103"></script><script src="gold-ui.js?v=g620"></script><script src="slip-card.js?v=s2"></script>
 <script>
 const E=GU.esc,F=GU.fmt,Q=new URLSearchParams(location.search),UID=Q.get('u')&&Q.get('u')!=='me'?Q.get('u'):null;
 let tab=location.hash==='#settled'?'done':'open';
@@ -68,11 +68,11 @@ function render(){
        .concat(theirs.map(x=>({at:x.at,html:`<a class="slip" href="lounge.html"><div class="l"><b>${nm}: ${E(x.text)}</b><small>Reply in the Lounge</small></div></a>`}))).sort((a,b)=>b.at-a.at).slice(0,4);
      h+=`<div class="p-lbl">Between you <a href="lounge.html">Lounge</a></div>`+(rows.length?rows.map(r=>r.html).join(''):`<div class="p-card" style="color:var(--mute);font-size:15px">Nothing between you yet. React to ${nm}'s pick or reply to them in the Lounge.</div>`);}
     // Their week: sealed picks show only the game until kickoff; then the side, and whether they are with you or against you.
-    const ps=GU.picksOf(who.id).sort((a,b)=>a.g.date-b.g.date),sealed=ps.filter(x=>!GU.started(x.g)),open=ps.filter(x=>GU.started(x.g)&&x.status==='open'),done=ps.filter(x=>x.status!=='open');
+    const T=x=>(x.g&&x.g.date)||(x.legs&&x.legs[0]&&((x.legs[0].g&&x.legs[0].g.date)||+x.legs[0].start))||+x.start||0;const ps=GU.picksOf(who.id).sort((a,b)=>T(a)-T(b)),sealed=ps.filter(x=>!GU.started(x.g)),open=ps.filter(x=>GU.started(x.g)&&x.status==='open'),done=ps.filter(x=>x.status!=='open');
     const mineBy={};GU.mine().forEach(p=>{if(p.g)mineBy[p.gameId]=GU.mySide(p)});
     const rel=x=>{const ms=mineBy[x.gameId];if(!ms)return'';const s=GU.sideOf(x);return s===ms?'<span class="tag with">WITH YOU</span>':({away:'home',home:'away',over:'under',under:'over'})[ms]===s?'<span class="tag vs">AGAINST YOU</span>':''};
     h+=`<div class="p-lbl">Their week</div>`;
-    h+=ps.slice().sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||a.g.date-b.g.date).slice(0,8).map(x=>{const r=GU.started(x.g)?rel(x):'';return (r?`<div style="margin:12px 2px -4px">${r}</div>`:'')+SlipCard.html(x,{sealed:true})}).join('');
+    h+=ps.slice().sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||T(a)-T(b)).slice(0,8).map(x=>{const r=GU.started(x.g)?rel(x):'';return (r?`<div style="margin:12px 2px -4px">${r}</div>`:'')+SlipCard.html(Rush.sealView?Rush.sealView(x):x,{sealed:true})}).join('');
     if(!ps.length)h+=`<div class="p-card empty">No picks yet this week.</div>`;
     const bl=blocked().includes(who.id);
     h+=`<div style="display:flex;gap:10px;margin-top:16px"><a class="p-btn" href="lounge.html">Talk in the Lounge</a>${isOpp?'':`<a class="p-btn ghost" href="ranks.html">The contest</a>`}</div>
