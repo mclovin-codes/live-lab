@@ -3,97 +3,112 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Rush · Lounge</title>
+<title>Rush · Reads</title>
 <link rel="stylesheet" href="shared/rush.css">
 <style>
-/* Lounge r4: rooms, not a feed. Your matchup room first, then one room per game tonight (live score, how the Field
-   is split, who is in the room), then the week room. Every message carries the poster's side; Tail or Fade it. */
-:root{--bg:#0A0F15;--card:#111A24;--card2:#18242F;--line:#23313F;--fg:#F4F7FA;--mute:#93A3B5;--acc:#3CC8FF;--win:#3DDC84;--loss:#FF6B6B;--f:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif}
+/* Reads (Blue, Phase 4 round two): the Field's social space. Every pick is sealed until kickoff. Before kickoff you
+   read another player's sealed pick with one tap (call the side they took). At kickoff the pick flips for everyone and
+   every read on it scores right or wrong; at the final the pick itself grades. Your own sealed picks are read by the Field.
+   ?field=7 is the honest view: exactly 7 players, nothing generated (no crowd reads, no counts). */
+:root{--bg:#0A0F15;--card:#111A24;--card2:#18242F;--line:#23313F;--fg:#F4F7FA;--mute:#93A3B5;--acc:#3CC8FF;--gold:#FFB020;--win:#3DDC84;--loss:#FF6B6B;--f:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 var(--f);-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 a{color:inherit}
-.wrap{padding:14px max(16px,env(safe-area-inset-right,0px)) 150px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;max-width:640px;margin:0 auto}
-.top{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}.top h1{font:800 30px/1 var(--f);letter-spacing:-.03em;margin:0}
-.here{display:flex;align-items:center}.here a{margin-left:-8px;border-radius:50%;box-shadow:0 0 0 2px var(--bg)}.here a:first-child{margin-left:0}.here small{margin-left:8px;color:var(--mute);font:600 13px var(--f);white-space:nowrap}
-.lbl{font:800 12px/16px var(--f);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:4px 0 -4px}
-.rooms{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:2px max(16px,env(safe-area-inset-left,0px))}.rooms::-webkit-scrollbar{display:none}
-.room{flex:none;width:236px;text-align:left;background:var(--card);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;border:2px solid transparent}
-.room.on{border-color:var(--acc);background:#0F2232}
-.room .rt{display:flex;align-items:center;justify-content:space-between;font:700 13px var(--f);color:var(--mute)}.room .rt .live{color:var(--loss);font-weight:800;letter-spacing:.06em}.room .rt .live::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--loss);margin-right:6px;animation:pulse 1.4s infinite}
-@keyframes pulse{50%{opacity:.3}}
-.tm{display:flex;align-items:center;gap:8px;font:800 18px/22px var(--f)}.tm img{width:26px;height:26px}.tm span{flex:1}.tm b{font-variant-numeric:tabular-nums}
-.split{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--card2)}.split i{display:block;height:100%}
-.sl{display:flex;justify-content:space-between;font:700 13px var(--f)}
-.mu{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;text-align:center}.mu b{display:block;font:800 22px/26px var(--f);font-variant-numeric:tabular-nums}.mu small{display:block;color:var(--mute);font:600 12px var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vs{font:900 13px var(--f);color:var(--mute)}
-.panel{background:var(--card);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px}
-.ph{display:flex;align-items:center;gap:10px}.ph h2{margin:0;font:800 20px/24px var(--f);flex:1;min-width:0}.ph a{font:700 14px var(--f);color:var(--acc);text-decoration:none;padding:8px 0}
-.seal{display:flex;flex-wrap:wrap;gap:8px}.seal span{background:var(--card2);border:1px dashed #3A4B5C;border-radius:10px;padding:8px 10px;font:700 13px var(--f);color:var(--mute)}
-.msg{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
-.msg .bub{background:var(--card2);border-radius:4px 16px 16px 16px;padding:10px 12px;min-width:0}
-.msg.you{grid-template-columns:1fr auto}.msg.you .bub{background:#0F3550;border-radius:16px 4px 16px 16px;order:-1}
-.msg .who{display:flex;align-items:center;gap:6px;font:700 14px var(--f);flex-wrap:wrap}.msg .who a{text-decoration:none}.msg .who small{color:var(--mute);font-weight:600;font-size:12px}
-.side{display:inline-block;padding:2px 8px;border-radius:8px;font:800 11px/16px var(--f);letter-spacing:.04em;background:#22303D;color:var(--fg)}
-.msg p{margin:4px 0 6px}
-.acts{display:flex;gap:8px}.acts button{min-height:32px;padding:4px 12px;border-radius:16px;background:#0A0F15;font:700 13px var(--f);color:var(--mute)}.acts button.on{background:var(--acc);color:#06121C}
-.note{font-size:13px;color:var(--mute)}
-.compose{position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:rgba(10,15,21,.96);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);z-index:9}
-.quick{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}.quick::-webkit-scrollbar{display:none}.quick button{flex:none;min-height:34px;padding:6px 12px;border-radius:17px;background:var(--card2);font:700 13px var(--f);white-space:nowrap}
-.row{display:flex;gap:8px}.row input{flex:1;min-width:0;background:var(--card2);border:0;border-radius:14px;padding:13px;color:var(--fg);font:16px var(--f)}
-.row button{background:var(--acc);color:#06121C;border-radius:14px;padding:0 18px;font-weight:800;min-height:48px}
+.rd-wrap{padding:14px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;max-width:640px;margin:0 auto}
+h1{font:800 30px/1 var(--f);letter-spacing:-.03em;margin:0}
+.rd-sub{margin:6px 0 0;color:var(--mute);font:600 15px/20px var(--f)}
+.rd-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rd-tile{background:var(--card);border-radius:16px;padding:12px}.rd-tile b{display:block;font:800 26px/30px var(--f);font-variant-numeric:tabular-nums}.rd-tile span{display:block;color:var(--mute);font:700 12px/15px var(--f)}
+.rd-lbl{display:flex;justify-content:space-between;align-items:baseline;font:800 12px/16px var(--f);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:6px 0 -4px}.rd-lbl small{letter-spacing:0;text-transform:none;font-weight:700}
+.rd-card{background:var(--card);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:12px;border:1px solid transparent}
+.rd-card.rd-mu{border-color:rgba(60,200,255,.45);background:linear-gradient(160deg,#0F2232,#111A24 60%)}
+.rd-who{display:flex;align-items:center;gap:10px;min-width:0}.rd-who a{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none;flex:1}
+.rd-who b{display:block;font:800 17px/21px var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rd-who small{display:block;color:var(--mute);font:600 13px/16px var(--f)}
+.rd-clock{flex:none;text-align:right;font:800 15px/18px var(--f);font-variant-numeric:tabular-nums}.rd-clock small{display:block;color:var(--mute);font:700 11px/14px var(--f);letter-spacing:.08em}
+.rd-game{display:flex;align-items:center;gap:10px}
+.rd-sealed{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;background:repeating-linear-gradient(135deg,#17222D 0 10px,#1B2734 10px 20px);border:1px dashed #3A4B5C;border-radius:14px;padding:12px 14px;min-height:56px}
+.rd-sealed b{font:800 16px/20px var(--f)}.rd-sealed span{color:var(--mute);font:800 12px/16px var(--f);letter-spacing:.12em;text-align:right}
+.rd-open{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card2);border-radius:14px;padding:12px 14px;min-height:56px}
+.rd-open b{font:800 18px/22px var(--f)}.rd-open em{font-style:normal;font:800 13px/16px var(--f);padding:4px 10px;border-radius:10px;background:#22303D}
+.rd-open em.rd-won{background:rgba(61,220,132,.16);color:var(--win)}.rd-open em.rd-lost{background:rgba(255,107,107,.14);color:var(--loss)}
+.rd-calls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rd-calls button{min-height:52px;border-radius:14px;background:#0A0F15;border:2px solid #2A3A4A;font:800 17px/20px var(--f)}
+.rd-calls button.rd-on{background:var(--acc);border-color:var(--acc);color:#06121C}
+.rd-calls button:active{transform:scale(.97)}
+.rd-res{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;font:800 15px/20px var(--f)}
+.rd-res.rd-right{background:rgba(61,220,132,.14);color:var(--win)}.rd-res.rd-wrong{background:rgba(255,107,107,.12);color:var(--loss)}.rd-res.rd-none{background:var(--card2);color:var(--mute)}
+.rd-side{display:inline-block;padding:3px 9px;border-radius:9px;font:800 12px/16px var(--f);background:#22303D;color:var(--fg)}
+.rd-side.rd-same{background:rgba(61,220,132,.16);color:var(--win)}.rd-side.rd-opp{background:rgba(255,176,32,.16);color:var(--gold)}
+.rd-mine{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:12px 14px}.rd-mine b{flex:1;font:800 16px/20px var(--f)}.rd-mine small{color:var(--mute);font:700 13px/16px var(--f);text-align:right}
+.rd-empty{background:var(--card);border-radius:16px;padding:16px;color:var(--mute);font:600 15px/21px var(--f)}
+.rd-empty a{color:var(--acc);font-weight:800;text-decoration:none}
+.rd-foot{display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:8px;color:var(--mute);font:600 13px/18px var(--f);text-align:center}
+.rd-foot a{display:inline-block;padding:10px 16px;border-radius:14px;background:var(--card2);color:var(--fg);font:800 14px var(--f);text-decoration:none}
+.rd-hon{display:inline-block;vertical-align:middle;padding:3px 9px;border-radius:9px;font:800 11px/16px var(--f);letter-spacing:.08em;background:rgba(255,176,32,.16);color:var(--gold)}
 </style>
 </head>
 <body>
-<div class="wrap" id="lounge"></div>
-<form class="compose" id="cf"><div class="quick" id="qk"></div><div class="row"><input id="ci" maxlength="160" placeholder="Talk about this game" autocomplete="off"><button type="submit">Send</button></div></form>
+<div class="rd-wrap" id="reads"><div class="rd-empty">Loading the Field's sealed picks...</div></div>
 <script src="shared/state.js"></script>
 <script src="week-games.js"></script>
 <script src="shared/nav.js"></script>
-<script src="gold-store.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const PATHS={nfl:'football/nfl',nba:'basketball/nba',nhl:'hockey/nhl'},KEY='rush-lounge-v2';
-const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0)/4294967296};
+const Q=new URLSearchParams(location.search),HONEST=Q.get('field')==='7',KEY='rush-reads-v1';
 const AV=(n,sm)=>Rush.nav&&Rush.nav.avatar?Rush.nav.avatar(n,sm):'';
 const fmt=n=>Math.round(+n||0).toLocaleString('en-US');
-const stackOf=r=>r?(r.stack!=null?r.stack:1000+Math.round((r.units||0)*10)):1000;
-let GAMES=[],room=new URLSearchParams(location.search).get('r')||'';
-const store=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
-const save=m=>{try{localStorage.setItem(KEY,JSON.stringify(m))}catch(e){}};
-const sims=()=>GS.field().filter(r=>r.sim);
-const plink=(id,name,inner)=>`<a href="player.html?u=${encodeURIComponent(id)}" aria-label="${esc(name)} profile">${inner||esc(name)}</a>`;
-function simAt(seed){const s=sims();return s.length?s[Math.floor(hash(seed)*s.length)]:{id:'sim0',name:'Field player'}}
-function inRoom(seed,n){const s=sims(),out=[];for(let i=0;i<s.length&&out.length<n;i++){const r=s[Math.floor(hash(seed+':'+i)*s.length)];if(!out.includes(r))out.push(r)}return out}
-function splitOf(g){return Math.round(30+hash(g.id+'split')*40)}
-const TEMPL={pre:['{side} tonight. Not overthinking it.','Line on {h} looks soft. Hammered it.','Fading the public, {side} all day.','Parlayed {side} with two others. Need all three.'],in:['{a} {as}, {h} {hs}. {det}. Sweating this one.','{side} needs one more stop.','Called {side} in here first. Receipts.','This is why you watch every play.'],post:['{side} hit. My Slip says thanks.','Final {a} {as}, {h} {hs}. Told you.','Lost this one. Moving on to the late game.']};
-function gameMsgs(g){const ts=TEMPL[g.state]||TEMPL.pre,n=g.state==='in'?6:4,out=[];for(let i=0;i<n;i++){const seed=g.id+g.state+i+(g.state==='in'?g.detail:''),who=simAt(seed),side=hash(seed+'s')*100<splitOf(g)?g.a.ab:g.h.ab;out.push({id:seed,who,side,txt:ts[Math.floor(hash(seed+'t')*ts.length)].replace('{side}',side).replace('{h}',g.h.ab).replace('{a}',g.a.ab).replace('{as}',g.a.s).replace('{hs}',g.h.s).replace('{det}',g.detail),at:g.state==='pre'?Math.min(Date.now(),g.date)-3600e3*(n-i)/2:Date.now()-90e3*(n-i)})}return out}
-function muMsgs(riv){const me=GS.field().find(r=>r.you),d=stackOf(me)-stackOf(riv);return[{id:'mu1',who:riv,txt:'Matchup week. Higher Stack Monday night takes it.',at:Date.now()-7200e3},{id:'mu2',who:riv,txt:d>0?`Up ${fmt(d)} on me. Enjoy it while it lasts.`:d<0?`Up ${fmt(-d)} on you. Your move.`:'Dead level. First pick decides the mood.',at:Date.now()-3600e3}]}
-function weekMsgs(){const f=GS.field(),top=f[0];const out=[];if(top)out.push({id:'w1',who:top.you?null:top,txt:`Top of the Field at ${fmt(stackOf(top))}. Come get me.`,at:Date.now()-5400e3});out.push({id:'w2',who:simAt('mnf'),txt:'Entry closes at Monday night kickoff. Reload is free once a week if you run dry.',at:Date.now()-7200e3});const live=GAMES.filter(g=>g.state==='in');if(live.length)out.push({id:'w3',who:simAt('live'+live[0].id),txt:`${live.length} game${live.length>1?'s':''} live right now. Pick a room.`,at:Date.now()-600e3});return out.filter(x=>x.who!==null)}
-function rooms(){const riv=Rush.rival&&Rush.rival(),R=[];if(riv)R.push({k:'mu',riv});const order=[...GAMES.filter(x=>x.state==='in'),...GAMES.filter(x=>x.state==='pre').slice(0,8),...GAMES.filter(x=>x.state==='post').slice(-3)];order.forEach(g=>R.push({k:g.lg+':'+g.id,g}));R.push({k:'week'});return R}
-function roomCard(r,on){const cls=`room${on?' on':''}`;if(r.k==='mu'){const me=GS.field().find(x=>x.you);return`<button class="${cls}" data-r="mu"><div class="rt"><span>YOUR MATCHUP</span><span>Week ${GS.week().n}</span></div><div class="mu"><div>${AV(me?me.name:'You')}<b>${fmt(stackOf(me))}</b><small>You</small></div><span class="vs">VS</span><div>${AV(r.riv.name)}<b>${fmt(stackOf(r.riv))}</b><small>${esc(r.riv.name)}</small></div></div></button>`}
-  if(r.k==='week')return`<button class="${cls}" data-r="week"><div class="rt"><span>THE FIELD</span><span>All week</span></div><div class="tm"><span>Week ${GS.week().n} room</span></div><div class="here">${inRoom('wk',4).map(x=>AV(x.name,1)).join('')}<small>${GS.field().length} in the Field</small></div></button>`;
-  const g=r.g,p=splitOf(g);return`<button class="${cls}" data-r="${esc(r.k)}"><div class="rt">${g.state==='in'?`<span class="live">LIVE</span><span>${esc(g.detail)}</span>`:`<span>${g.lg.toUpperCase()}</span><span>${esc(g.detail)}</span>`}</div><div class="tm"><img alt="" src="${esc(g.a.logo)}"><span>${esc(g.a.ab)}</span><b>${g.state==='pre'?'':esc(g.a.s)}</b></div><div class="tm"><img alt="" src="${esc(g.h.logo)}"><span>${esc(g.h.ab)}</span><b>${g.state==='pre'?'':esc(g.h.s)}</b></div><div class="split" aria-label="The Field is ${p} percent on ${esc(g.a.ab)}"><i style="width:${p}%;background:var(--acc)"></i><i style="width:${100-p}%;background:#FFB020"></i></div><div class="sl"><span style="color:var(--acc)">${p}% ${esc(g.a.ab)}</span><span style="color:#FFB020">${esc(g.h.ab)} ${100-p}%</span></div></button>`}
-function mySide(){if(!String(room).includes(':'))return'';const gid=room.split(':')[1];let p=null;try{p=Rush.picks({status:'open'}).find(q=>String(q.gameId)===gid)}catch(e){}return p?String(p.label||'').split(' ')[0]:''}
-function msgHTML(x,m){const you=!x.who;if(you&&!x.side)x={...x,side:mySide()};const r=(m.react||{})[x.id];const who=you?'You':x.who.name;return`<div class="msg${you?' you':''}">${you?'':plink(x.who.id,who,AV(who,1))}<div class="bub"><div class="who">${you?'<span>You</span>':plink(x.who.id,who)}${x.side?`<span class="side">ON ${esc(x.side)}</span>`:''}<small>${new Date(x.at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</small></div><p>${esc(x.txt)}</p>${you?'':`<div class="acts"><button type="button" class="${r==='tail'?'on':''}" data-x="${esc(x.id)}" data-a="tail">Tail ${1+Math.floor(hash(x.id+'t')*6)+(r==='tail'?1:0)}</button><button type="button" class="${r==='fade'?'on':''}" data-x="${esc(x.id)}" data-a="fade">Fade ${Math.floor(hash(x.id+'f')*4)+(r==='fade'?1:0)}</button></div>`}</div>${you?AV(GS.me().name||'You',1):''}</div>`}
-function render(){const m=store(),R=rooms();if(!R.find(r=>r.k===room)&&render.loaded)room=(R.find(r=>r.g&&r.g.state==='in')||R[0]).k;const cur=R.find(r=>r.k===room)||R.find(r=>r.g&&r.g.state==='in')||R[0];
-  const here=inRoom(room,6);let h=`<div class="top"><h1>Lounge</h1><div class="here">${here.slice(0,5).map(x=>plink(x.id,x.name,AV(x.name,1))).join('')}<small>${here.length+2} here now</small></div></div><div class="lbl">Rooms</div><div class="rooms" id="rooms">${R.map(r=>roomCard(r,r.k===room)).join('')}</div>`;
-  let msgs=[],head='',extra='';
-  if(cur.k==='mu'){msgs=muMsgs(cur.riv);head=`You vs ${esc(cur.riv.name)}`;extra=`<div class="lbl">${esc(cur.riv.name)}'s Slip</div><div class="seal">${[0,1,2].map(i=>`<span>Sealed until kickoff</span>`).join('')}</div><div class="note">An opponent's picks open when each game kicks off.</div>`;head+=`</h2><a href="ranks.html">Matchup</a>`}
-  else if(cur.k==='week'){msgs=weekMsgs();head=`Week ${GS.week().n} room</h2><a href="ranks.html">Ranks</a>`}
-  else{const g=cur.g;msgs=gameMsgs(g);head=`${esc(g.a.ab)} at ${esc(g.h.ab)}</h2><a href="game.html?league=${g.lg}&id=${encodeURIComponent(g.id)}">Game</a>`}
-  msgs=msgs.concat((m[room]||[]).map(x=>({...x,who:x.sim?simAt(x.txt):null}))).sort((a,b)=>a.at-b.at);
-  h+=`<div class="panel"><div class="ph"><h2>${head}</div>${extra}${msgs.slice(-30).map(x=>msgHTML(x,m)).join('')||'<div class="note">Quiet so far. Say something.</div>'}</div><div class="note">SIM players stand in for the Field. Your posts stay on this phone in the prototype.</div>`;
-  $('lounge').innerHTML=h;const on=document.querySelector('.room.on');if(on&&!render.sc){render.sc=1;on.scrollIntoView({inline:'center',block:'nearest'});scrollTo(0,0)}
-  const g=cur.g;const Q=g?[`${g.a.ab} all day`,`${g.h.ab} all day`,'Who is tailing me','Sweating this one']:cur.k==='mu'?['Bring it','Monday decides it','Show me your Slip']:['Who is live tonight','Reload paid off'];$('qk').innerHTML=Q.map(q=>`<button type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('');$('ci').placeholder=g?'Talk about this game':cur.k==='mu'?'Talk to your opponent':'Talk to the Field'}
-document.addEventListener('click',e=>{const r=e.target.closest('[data-r]');if(r){room=r.dataset.r;history.replaceState(null,'','?r='+encodeURIComponent(room));render.sc=0;render();return}
-  const a=e.target.closest('[data-a]');if(a){const m=store();m.react=m.react||{};m.react[a.dataset.x]=m.react[a.dataset.x]===a.dataset.a?null:a.dataset.a;save(m);render();return}
-  const q=e.target.closest('[data-q]');if(q){$('ci').value=q.dataset.q;$('cf').requestSubmit()}});
-$('cf').addEventListener('submit',e=>{e.preventDefault();const i=$('ci'),txt=(i.value||'').trim();if(!txt)return;const m=store();(m[room]=m[room]||[]).push({id:'y'+Date.now(),txt,at:Date.now()});const reply=['Bold. Show me the Slip.','Respect.','We will see at the final.','Tailing that.','No chance. Fading you.'];m[room].push({id:'r'+Date.now(),txt:reply[Math.floor(hash(txt)*reply.length)],at:Date.now()+1500,sim:1});save(m);i.value='';render();setTimeout(()=>scrollTo(0,document.body.scrollHeight),30)});
-const etDay=off=>new Date(Date.now()+off*864e5).toLocaleDateString('en-CA',{timeZone:'America/New_York'}).replace(/-/g,'');
-async function loadGames(){const urls=[['nfl','https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard']];for(const lg of['nba','nhl'])urls.push([lg,`https://site.api.espn.com/apis/site/v2/sports/${PATHS[lg]}/scoreboard?dates=${etDay(0)}`]);const out=[];await Promise.all(urls.map(async([lg,u])=>{try{const d=await(await fetch(u)).json();for(const e of d.events||[]){const c=e.competitions[0],h=c.competitors.find(x=>x.homeAway==='home'),a=c.competitors.find(x=>x.homeAway==='away');out.push({lg,id:e.id,date:Date.parse(e.date),state:c.status.type.state,detail:c.status.type.shortDetail,h:{ab:h.team.abbreviation,s:h.score,logo:h.team.logo},a:{ab:a.team.abbreviation,s:a.score,logo:a.team.logo}})}}catch(e){}}));const seen={};GAMES=out.filter(g=>!seen[g.lg+g.id]&&(seen[g.lg+g.id]=1)).sort((x,y)=>x.date-y.date);render.loaded=true;render.sc=0;render()}
-render();loadGames();setInterval(loadGames,60000);
+const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0)/4294967296};
+const reads=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
+const saveReads=r=>{try{localStorage.setItem(KEY,JSON.stringify(r))}catch(e){}};
+const etTime=ms=>new Date(ms).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit'});
+const left=ms=>{ms=Math.max(0,ms);const h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4);return h>23?Math.floor(h/24)+'d '+(h%24)+'h':h?h+'h '+m+'m':m+'m'};
+let GAMES=[];
+/* the Field this page shows: everyone, or (honest view) exactly 7: you, your opponent and the next five by the Field's own order */
+function people(){let f=[];try{f=RW.field(GAMES)}catch(e){}const me=f.find(r=>r.me);let others=f.filter(r=>!r.me);let riv=null;try{riv=Rush.rival()}catch(e){}
+  const rv=riv&&others.find(r=>String(r.id)===String(riv.id)||r.name===riv.name);
+  if(HONEST){const rest=others.filter(r=>r!==rv).sort((a,b)=>String(a.id).localeCompare(String(b.id),undefined,{numeric:true}));others=(rv?[rv]:[]).concat(rest).slice(0,6)}
+  return{me,others,rv}}
+/* the side a pick took, from its label: home, away, over or under */
+function sideOf(p){const g=p.g,l=String(p.label||'');if(/^over/i.test(l))return'over';if(/^under/i.test(l))return'under';if(g&&l.startsWith(g.home.abbr))return'home';if(g&&l.startsWith(g.away.abbr))return'away';return null}
+function optsOf(p){return/^(over|under)/i.test(String(p.label||''))?[['over','Over'],['under','Under']]:[['away',p.g.away.abbr],['home',p.g.home.abbr]]}
+const keyOf=(id,p)=>id+'|'+p.league+'|'+p.gameId+'|'+(p.t||'');
+const started=g=>g.state!=='pre'||Date.now()>=g.date;
+/* one card per player per game, soonest kickoff first; within the next day and a half, or flipped in the last 8 hours */
+function cardsFor(r){let ps=[];try{ps=RW.playerPicks(r.id,GAMES)||[]}catch(e){}const horizon=Date.now()+36*36e5,seen=new Set;
+  return ps.filter(p=>p.g&&p.g.date<horizon&&p.g.date>Date.now()-8*36e5&&sideOf(p)).sort((a,b)=>a.g.date-b.g.date).filter(p=>{const k=p.league+p.gameId;if(seen.has(k))return false;seen.add(k);return true}).slice(0,HONEST?4:3)}
+function myPickOn(g){try{const p=Rush.picks({week:Rush.week().id}).find(q=>String(q.gameId)===String(g.id)&&!q.legs);if(!p)return null;const l=String(p.label||'');return /^over/i.test(l)?'over':/^under/i.test(l)?'under':l.startsWith(g.home.abbr)?'home':l.startsWith(g.away.abbr)?'away':null}catch(e){return null}}
+function sideName(p,s){return s==='over'?'Over':s==='under'?'Under':s==='home'?p.g.home.abbr:p.g.away.abbr}
+function card(r,p,isMu){const R=reads(),k=keyOf(r.id,p),mine=R[k],truth=sideOf(p),g=p.g,flip=started(g),mySide=myPickOn(g);
+  const crowd=HONEST?0:Math.floor(hash(k+'c')*5);const stack=1000+Math.round((r.units||0)*10);
+  let h=`<div class="rd-card${isMu?' rd-mu':''}"><div class="rd-who"><a href="player.html?u=${encodeURIComponent(r.id)}">${AV(r.name)}<span style="min-width:0"><b>${esc(r.name)}</b><small>${isMu?'Your matchup · ':''}#${r.rank} · ${fmt(stack)} Stack</small></span></a><div class="rd-clock">${flip?(g.state==='post'?'Final':'Flipped'):left(g.date-Date.now())}<small>${flip?esc(g.away.abbr+' '+(g.away.score??'')+' '+g.home.abbr+' '+(g.home.score??'')):'FLIPS '+etTime(g.date)}</small></div></div>`;
+  if(!flip){h+=`<div class="rd-game"><div class="rd-sealed"><b>${esc(g.away.abbr)} at ${esc(g.home.abbr)}</b><span>${esc(String(p.market||'Pick').toUpperCase())}<br>SEALED</span></div></div><div class="rd-calls">${optsOf(p).map(([v,t])=>`<button type="button" data-k="${esc(k)}" data-v="${v}" class="${mine===v?'rd-on':''}" aria-pressed="${mine===v}">${esc(t)}</button>`).join('')}</div>`;
+    const bits=[];if(mine)bits.push(`Your read: <b style="color:var(--fg)">${esc(sideName(p,mine))}</b>. It scores at ${etTime(g.date)}.`);else bits.push(`Which side did ${esc(r.name.split(' ')[0])} take?`);if(mySide)bits.push(`You are on <span class="rd-side">${esc(sideName(p,mySide))}</span>.`);if(crowd)bits.push(`${crowd} other${crowd>1?'s':''} read this.`);h+=`<div class="rd-sub" style="margin:0;font-size:14px">${bits.join(' ')}</div>`}
+  else{const st=p.status==='rd-won'?'rd-won':p.status==='rd-lost'?'rd-lost':'';h+=`<div class="rd-game"><div class="rd-open"><b>${esc(p.label)}</b><em class="rd-${st}">${st==='rd-won'?'Hit':st==='rd-lost'?'Missed':'Live'}</em></div></div>`;
+    h+=mine?`<div class="rd-res ${mine===truth?'rd-right':'rd-wrong'}">${mine===truth?'Read right':'Misread'}: you called ${esc(sideName(p,mine))}</div>`:`<div class="rd-res rd-none">You did not read this one</div>`;
+    if(mySide)h+=`<div><span class="rd-side ${mySide===truth?'rd-same':'rd-opp'}">${mySide===truth?'Same side as you':'Against you'}</span></div>`}
+  return h+'</div>'}
+function render(){if(!GAMES.length)return;const {others,rv}=people();
+  const R=reads();let right=0,pending=0,nextFlip=Infinity;const all=[];
+  others.forEach(r=>cardsFor(r).forEach(p=>{all.push({r,p});const v=R[keyOf(r.id,p)];if(!started(p.g))nextFlip=Math.min(nextFlip,p.g.date);if(v){if(started(p.g)){if(v===sideOf(p))right++}else pending++}}));
+  const scored=all.filter(x=>R[keyOf(x.r.id,x.p)]&&started(x.p.g)).length;
+  let h=`<div><h1>Reads ${HONEST?'<span class="rd-hon">7 PLAYERS</span>':''}</h1><p class="rd-sub">Every pick is sealed until kickoff. Call which side a player took. At kickoff it flips for everyone.</p></div>`;
+  h+=`<div class="rd-tiles"><div class="rd-tile"><b>${scored?right+'/'+scored:'-'}</b><span>Read right</span></div><div class="rd-tile"><b>${pending}</b><span>Waiting to flip</span></div><div class="rd-tile"><b>${nextFlip<Infinity?etTime(nextFlip).replace(' ',''):'-'}</b><span>Next flip</span></div></div>`;
+  const sealed=all.filter(x=>!started(x.p.g)),flipped=all.filter(x=>started(x.p.g)).sort((a,b)=>b.p.g.date-a.p.g.date);
+  const muCards=rv?sealed.filter(x=>x.r===rv):[],rest=sealed.filter(x=>x.r!==rv);
+  if(rv){h+=`<div class="rd-lbl"><span>Your matchup</span><small>${esc(rv.name)}</small></div>`;h+=muCards.length?muCards.map(x=>card(x.r,x.p,true)).join(''):`<div class="rd-empty">${esc(rv.name)} has no sealed pick in the next day. When they pick, it shows here first.</div>`}
+  h+=`<div class="rd-lbl"><span>Sealed now</span><small>${rest.length} to read</small></div>`;
+  h+=rest.length?rest.map(x=>card(x.r,x.p,false)).join(''):`<div class="rd-empty">No sealed picks to read right now. They appear as soon as anyone in the Field picks a game.</div>`;
+  let mine=[];try{mine=Rush.picks({status:'open'}).filter(p=>p.start>Date.now())}catch(e){}
+  h+=`<div class="rd-lbl"><span>Your sealed picks</span><small>${mine.length}</small></div>`;
+  h+=mine.length?mine.map(p=>{const n=HONEST?0:Math.floor(hash(p.id+'r')*5);return`<div class="rd-mine"><b>${esc(p.game)}</b><small>${n?n+' read you':'Nobody has read you yet'}<br>flips ${etTime(p.start)}</small></div>`}).join(''):`<div class="rd-empty">You have no sealed pick, so the Field has nothing to read on you. <a href="board.html">Make a pick</a> and it seals until kickoff.</div>`;
+  if(flipped.length){h+=`<div class="rd-lbl"><span>Flipped</span><small>${right} right of ${scored}</small></div>`+flipped.slice(0,12).map(x=>card(x.r,x.p,x.r===rv)).join('')}
+  h+=`<div class="rd-foot">${HONEST?'Honest view: exactly 7 players, nothing generated. Every card is a pick in the Field.':'Full Field view. Counts of other readers are simulated in the prototype.'}<a href="lounge.html${HONEST?'':'?field=7'}">${HONEST?'Show the full Field':'Honest view: 7 players'}</a></div>`;
+  const el=$('reads');if(el._h!==h){el.innerHTML=h;el._h=h}}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;const R=reads(),k=b.dataset.k;if(R[k]===b.dataset.v)delete R[k];else R[k]=b.dataset.v;saveReads(R);render()});
+async function load(){try{GAMES=await RW.load()}catch(e){GAMES=RW.cached()||[]}render()}
+GAMES=(window.RW&&RW.cached&&RW.cached())||[];render();load();setInterval(load,60000);setInterval(render,30000);
 </script>
 </body>
 </html>

@@ -24,7 +24,7 @@
     ['home', 'Home', 'index.html', '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],
     ['board', 'Board', 'board.html', '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M3 15h18M12 10v10"/>'],
     ['contest', 'Contest', 'ranks.html', '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>'],
-    ['lounge', 'Lounge', 'lounge.html', '<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"/><path d="M8 10h8M8 13h5"/>'],
+    ['lounge', 'Reads', 'lounge.html', '<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"/><path d="M8 10h8M8 13h5"/>'],
     ['me', 'Me', 'player.html', '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>'],
   ];
   const PAGE = { 'index.html': 'home', 'board.html': 'board', 'game.html': 'board', 'ranks.html': 'contest', 'lounge.html': 'lounge', 'player.html': 'me', 'slips.html': 'me', };
@@ -75,7 +75,7 @@ body.has-rnav{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
   function drawTop() {
     let t = document.getElementById('rtop'); if (!t) { t = document.createElement('header'); t.id = 'rtop'; document.body.insertBefore(t, document.body.firstChild); t.addEventListener('click', e => { if (e.target.closest('.stk')) openStack(); }); }
     const d = mine(), s = (d.m.entered ? (Rush.units ? 1000 + Math.round(Rush.units() * 10) : d.m.stack) : 1000), dl = s - 1000;
-    const h = `<a class="av" href="player.html?u=me" aria-label="Your profile">${avatar(d.m.handle || ME)}<span class="who"><span class="nm">${esc(d.m.handle || ME)}</span><span class="sub">${d.rank ? 'Rank ' + d.rank + ' of ' + d.of : 'The Field'}${d.rival ? ' · vs ' + esc(d.rival.name) : ''}</span></span></a><button type="button" class="stk" aria-label="Your Stack, ${stk(s)}. Open"><small>STACK</small><b>${stk(s)}</b><span class="d ${dl > 0 ? 'up' : dl < 0 ? 'dn' : ''}">${dl > 0 ? '+' : ''}${dl ? stk(dl) : 'even'}</span></button>`;
+    const h = `<a class="av" href="player.html?u=me" aria-label="Your profile">${avatar(d.m.handle || ME)}<span class="who"><span class="nm">${esc(d.m.handle || ME)}</span><span class="sub">${/[?&]field=7/.test(location.search) ? 'Honest view, 7 players' : d.rank ? 'Rank ' + d.rank + ' of ' + d.of : 'The Field'}${d.rival ? ' · vs ' + esc(d.rival.name) : ''}</span></span></a><button type="button" class="stk" aria-label="Your Stack, ${stk(s)}. Open"><small>STACK</small><b>${stk(s)}</b><span class="d ${dl > 0 ? 'up' : dl < 0 ? 'dn' : ''}">${dl > 0 ? '+' : ''}${dl ? stk(dl) : 'even'}</span></button>`;
     if (t._h !== h) { t.innerHTML = h; t._h = h; }
   }
   function closeStack() { ['rsx', 'rsx-scrim'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); }
