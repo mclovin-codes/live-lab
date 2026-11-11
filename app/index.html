@@ -43,22 +43,19 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body>
 <div id="app" class="h-wrap"></div>
-<script src="shared/state.js?v=f1106"></script><script src="week-games.js?v=f1106"></script><script src="honest.js?v=g620"></script><script src="shared/nav.js?v=f1106"></script><script src="shared/events.js?v=f1106"></script><script src="faces.js?v=f1"></script><script src="gold-ui.js?v=g623"></script>
+<script src="shared/state.js?v=f1107"></script><script src="week-games.js?v=f1107"></script><script src="honest.js?v=g620"></script><script src="shared/nav.js?v=f1107"></script><script src="shared/events.js?v=f1107"></script><script src="faces.js?v=f1"></script><script src="team-mark.js?v=m1"></script><script src="game-card.js?v=c1"></script><script src="gold-ui.js?v=g623"></script>
 <script>
 const E=GU.esc,F=GU.fmt;
 let VIEW=(()=>{try{return localStorage.getItem('gu-home-view')||'field'}catch(e){return'field'}})();
 const REF=new URLSearchParams(location.search).get('ref');
 function sideFaces(list,n){return list.length?`<div class="faces">${[...new Map(list.map(o=>[o.pl.id,o.pl])).values()].slice(0,n||5).map(p=>GU.av(p,30)).join('')}</div>`:'<span style="color:var(--mute);font-size:13px">Nobody</span>'}
 function gameCard(g){
-  const v=GU.gameView(g),live=g.state==='in',done=g.done,st=GU.started(g);
-  let h=`<div class="gm"><div style="display:flex;justify-content:space-between;align-items:center"><span class="h-chip ${live?'live':''}">${live?E(g.detail||'LIVE'):done?'FINAL':E(String(g.league||'').toUpperCase())+' · '+GU.when(g.date)}</span>${v.mine?`<span class="h-chip" style="background:rgba(61,184,255,.16);color:var(--acc)">YOUR PICK</span>`:''}</div>
-   <a href="game.html?id=${encodeURIComponent(g.id)}&league=${encodeURIComponent(g.league||'')}" style="display:block;margin-top:10px"><div class="g-tm"><span>${E(g.away.abbr)}</span><span>${st?E(g.away.score||0):''}</span><span>${E(g.home.abbr)}</span><span>${st?E(g.home.score||0):''}</span></div></a>`;
-  if(!st){h+=`<div style="display:flex;align-items:center;gap:10px;margin-top:12px">${v.players.length?`<div class="faces">${v.players.slice(0,6).map(p=>GU.av(p,30)).join('')}</div><span style="color:var(--mute);font-size:14px">${v.sealed} sealed pick${v.sealed===1?'':'s'}, seal breaks in ${GU.until(g.date)}</span>`:`<span style="color:var(--mute);font-size:14px">No picks from the Field yet. Seal breaks at kickoff in ${GU.until(g.date)}.</span>`}</div>`;}
-  else if(v.ms){h+=`<div class="sides"><div><small>WITH YOU</small>${sideFaces(v.withYou)}</div><div><small>AGAINST YOU</small>${sideFaces(v.against)}</div></div>`;}
-  else if(v.players.length){const by={away:[],home:[],over:[],under:[]};(v.on||[]).forEach(o=>by[GU.sideOf(o.x)].push(o));const cols=[['ON '+g.away.abbr,by.away],['ON '+g.home.abbr,by.home],['OVER',by.over],['UNDER',by.under]].filter(c=>c[1].length);h+=`<div class="sides">${cols.slice(0,4).map(c=>`<div><small>${E(c[0])}</small>${sideFaces(c[1])}</div>`).join('')}</div>`;}
-  return h+`<a href="lounge.html?g=${encodeURIComponent(g.id)}" style="display:block;margin-top:12px;color:var(--acc);font-weight:700;font-size:15px">${v.mine?'Who is with you, in the Lounge ›':'Open it in the Lounge ›'}</a></div>`;
+  // The one game card (game-card.js), the Board's card, plus the quiet line of who in the Field is on it: faces beside the side they took, a sealed count before kickoff.
+  const v=GU.gameView(g),fa=list=>[...new Map(list.map(o=>[o.pl.id,o.pl])).values()].map(p=>GU.av(p,22,1));let who=null;
+  if(!GU.started(g)){if(v.sealed)who={sealed:v.sealed,sealedFaces:v.players.map(p=>GU.av(p,22,1))}}
+  else if(v.on&&v.on.length){const by={away:[],home:[],over:[],under:[]};v.on.forEach(o=>{const sd=GU.sideOf(o.x);if(by[sd])by[sd].push(o)});who={away:fa(by.away),home:fa(by.home),over:fa(by.over),under:fa(by.under)}}
+  return GameCard.html(g,{who,foot:`<a href="lounge.html?g=${encodeURIComponent(g.id)}" style="display:block;padding:8px 12px 10px;border-top:1px solid rgba(255,255,255,.06);color:#00BFFF;font-weight:700;font-size:14px">${v.mine?'Who is with you':'Talk about it'} in the Lounge ›</a>`});
 }
-// A pick that settled in the last two minutes makes its player's face pulse on the ladder: green for a hit, red for a miss.
 function justSettled(){const o={};try{(Rush.events?Rush.events():[]).filter(e=>e.type==='settled'&&Date.now()-e.at<12e4).forEach(e=>(e.players||[]).forEach(p=>{if(p.result==='won'||p.result==='lost')o[p.id]=p.result==='won'?'hit':'miss'}))}catch(e){}return o}
 function render(){const JUST=justSettled();
   const f=GU.field(),m=GU.meRow(),wk=Rush.week(),op=GU.opponent(),mv=GU.moves(f);
@@ -122,6 +119,9 @@ function render(){const JUST=justSettled();
 }
 render();
 if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
+// Price cells on Home's game cards add to the one Slip, exactly as on the Board.
+document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.gc .rb-c[data-k]');if(!c)return;e.preventDefault();if(c.disabled||!window.Rush||!Rush.slip)return;const P=GameCard.REG.get(c.dataset.k);if(!P||P.start<=Date.now())return;Rush.slip.toggle(P);c.classList.toggle('on',!!(Rush.slip.has&&Rush.slip.has(P.key)))});
+if(window.Rush&&Rush.slip&&Rush.slip.on)Rush.slip.on(()=>document.querySelectorAll('.gc .rb-c[data-k]').forEach(c=>c.classList.toggle('on',!!Rush.slip.has(c.dataset.k))));
 if(window.Rush&&Rush.on)try{Rush.on(render)}catch(e){}
 setInterval(render,30000);
 </script></body></html>
