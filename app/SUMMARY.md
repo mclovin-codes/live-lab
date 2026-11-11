@@ -123,17 +123,20 @@
   - a tapback or a reply on every row.
 - At 30 players every game has more faces and more taps come back.
 
-## Making a pick: the Slip (Blue, after the founder's 10:00 PM note)
+## Making a pick: the Slip (Blue, after the founder's 10:00 PM and 12:35 AM notes)
 
 **How it works now:**
-- A tap on a price, on the game page or on a pregame Board row (moneylines), fills the cell and adds the pick to one Slip, minimized as a bar above the tabs on every page. A second tap on the same cell removes it.
-- Each further tap adds to the same Slip, from any game, and the bar updates in place: count, combined price, and "25 stake pays 91".
-- The Slip never opens by itself. Tapping the bar opens it with two tabs:
-  - **Parlay:** the legs, remove per leg, and Add picks, which drops you back with the bar minimized.
-  - **Straights:** a stake box per pick, plus Stake all.
-- Under both tabs: quick-add chips (+10, +25, +50, +100, no Max) and a number pad. One button reads the stake and what it pays, or "Enter stake" (disabled) when there is none. The stake starts at your last stake.
-- At Place the price is checked: a better price is taken, a worse one asks once ("Price moved... Tap again"). A stake above your Stack reads "Your Stack is 225".
-- After placing: a receipt with the picks, stake, pays and time, plus Keep picks in Slip and Done.
+- A tap on a price, on the Board or the game page, fills the cell and adds the pick to one Slip, minimized as a bar above the tabs on every page. A second tap on the same cell removes it. The bar shows the count, the combined price and "25 stake pays 91".
+- The Slip never opens by itself. Tap the bar:
+  - **The title** carries the count and the combined price ("3-pick parlay +597"); Clear all asks once in one row.
+  - **Legs grouped by game:** a small game header with both team marks, "WSH at NYG" and the kickoff, then that game's legs, so same-game legs sit together.
+  - **A leg:** its mark at the left (the player's number on his team's jersey for a prop, the team mark for a side, an O or U disc for a total), the selection short and bold ("J. Daniels", "NYG -2.5", "Over 41.5"), the market under it from one list of short names shared with the Board and every Slip card (Anytime TD, First TD, 2+ TDs, Pass yds 225+, Points 25+, Spread, Total, Moneyline), the price, and one remove control.
+  - **Parlay and Straights tabs.** Straights give each pick its own stake box.
+  - **Pinned at the bottom, always in view:** the chips (+10, +25, +50, +100, no Max), the stake box and the Place button. The number pad opens only when the stake box is tapped, and closes on Done.
+- **Picks that cannot combine:** a spread and a moneyline in one game say the same thing twice, so they cannot share a parlay. One line says so and the Slip offers Straights. Opposite sides of one market replace each other.
+- **Sample picks** from the Board's NFL rows show as samples and cannot be placed, because they would never grade.
+- At Place the price is checked: a better price is taken, a worse one asks once. A stake above your Stack reads "Your Stack is 225".
+- **The receipt:** the same legs grouped by game, an open ring on each, then the stake, what it pays, the time, Keep picks in Slip and Done.
 - Featured parlays fill the same Slip.
 
 **Bugs found before the fix (walked at 375 px):**
