@@ -175,4 +175,4 @@
 - **The time a stand-in placed a Slip** is simulated before its kickoff. Your own Slips use the real time.
 - **Rank arrows on Home** compare with what this phone last saw.
 - **The price check at Place** covers picks on the game page you have open: a better price is taken, a worse one asks once. A pick from another game places at the price shown when you tapped it.
-- **A stand-in's pick on a game that started before this phone first loaded it** is a moneyline at -110, because the scoreboard no longer carries that game's pregame line.
+- **A stand-in's pick on a game that started before this phone first loaded it** uses that game's closing line from ESPN's game summary, because the scoreboard drops the pregame line at kickoff. Only when no closing line exists does it fall back to a moneyline at -110.
