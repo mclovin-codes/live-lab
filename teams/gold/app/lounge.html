@@ -53,7 +53,7 @@ function card(x,rival){
 }
 function render(){
   const f=G.field(),m=G.meRow(),op=G.opponent(),all=G.R.deck(),st=G.R.stats();
-  const sealed=all.filter(x=>!G.R.started(x.g)),broken=all.filter(x=>G.R.started(x.g)&&G.R.get(G.R.key(x.pl.id,x))).slice(0,8);
+  const sealed=all.filter(x=>!G.R.started(x.g)),broken=all.filter(x=>G.R.started(x.g)&&(G.R.get(G.R.key(x.pl.id,x))||Date.now()-x.g.date<20*36e5)).sort((a,b)=>b.g.date-a.g.date).slice(0,8);
   const leagues=[...new Set(sealed.map(x=>x.g.league))];
   const show=sealed.filter(x=>(lg==='all'||x.g.league===lg)&&(!who||String(x.pl.id)===who));
   const riv=op?show.filter(x=>x.pl.id===op.id):[],rest=show.filter(x=>!op||x.pl.id!==op.id);
@@ -68,8 +68,8 @@ function render(){
   h+=`<div class="ppl">${others.map(p=>{const n=sealed.filter(x=>x.pl.id===p.id).length,r=G.R.of(p.id);return `<button data-who="${G.esc(p.id)}" class="${who===String(p.id)?'on':''}">${G.av(p,44,1)}<span>${G.esc(p.name.split(' ')[0])}</span><small>${n} sealed${r.graded?' · '+r.right+'/'+r.graded:''}</small></button>`}).join('')}</div>`;
   if(leagues.length>1)h+=`<div class="chips"><button data-lg="all" class="${lg==='all'?'on':''}">All</button>${leagues.map(l=>`<button data-lg="${G.esc(l)}" class="${lg===l?'on':''}">${G.esc(String(l).toUpperCase())}</button>`).join('')}</div>`;
   if(riv.length)h+=`<div class="lbl">Read your matchup</div>`+riv.slice(0,4).map(x=>card(x,1)).join('');
+  if(broken.length)h+=`<div class="lbl">Seals broken today</div>`+broken.slice(0,4).map(x=>card(x,op&&x.pl.id===op.id)).join('');
   h+=`<div class="lbl">Sealed now <span style="color:var(--mute);text-transform:none;letter-spacing:0;font-size:13px">${rest.length}</span></div>`+(rest.slice(0,14).map(x=>card(x,0)).join('')||'<div class="empty">No sealed picks right now. New picks seal as players make them.</div>');
-  if(broken.length)h+=`<div class="lbl">Seals broken</div>`+broken.map(x=>card(x,op&&x.pl.id===op.id)).join('');
   h+=`<div class="lbl">Your sealed picks</div><section class="card">${mine.length?mine.slice(0,6).map(p=>{const rs=G.R.onMe(p);return `<div class="row"><div class="nm">${G.esc(p.label||p.sel||'Pick')}<small>${G.esc(p.game||'')}${p.g?' · kicks off in '+G.until(p.g.date):''}</small></div>${rs.length?`<span style="display:flex">${rs.slice(0,3).map(r=>G.av(r,26)).join('')}</span><span class="chip">${rs.length} read</span>`:`<span class="chip">${G.honest()?'NO READS YET':'UNREAD'}</span>`}</div>`}).join(''):'<div class="empty">Make a pick and the Field can read it until kickoff. <a style="color:var(--acc)" href="board.html">Board</a></div>'}</section>`;
   h+='</main>';
   document.getElementById('app').innerHTML=h;
