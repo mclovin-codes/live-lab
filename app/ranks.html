@@ -72,7 +72,7 @@ function wkRow(r,cut){return`<a href="player.html?u=${encodeURIComponent(r.id)}"
 const R=window.Rush&&typeof Rush.field==='function'?Rush:null;
 function fieldRows(){if(!R)return RW.field(games);const m=R.me();let mw=0,ml=0;try{const ps=R.picks({week:R.week().id});mw=ps.filter(p=>p.status==='won').length;ml=ps.filter(p=>p.status==='lost').length}catch(e){}const rows=R.field().map(r=>({...r,w:r.me?mw:(r.w||0),l:r.me?ml:(r.l||0),open:r.me?m.open:(r.open||0),today:0}));if(!rows.some(r=>r.me))rows.push({id:'me',name:m.handle||'You',me:true,units:0,w:0,l:0,open:0,today:0,out:true});rows.forEach(r=>r.rank=1+rows.filter(x=>x.units>r.units+1e-9).length);rows.sort((a,b)=>b.units-a.units||(a.me?-1:b.me?1:0));return rows}
 /* the week, moving: the newest contest events with the players on them (shared/events.js) */
-function pulse(){if(!R||!R.events)return'';let ev=[];try{ev=R.events()}catch(e){}ev=ev.filter(e=>e.type!=='live').slice(0,8);if(!ev.length)return'';const AVf=(n,sm)=>R.nav&&R.nav.avatar?R.nav.avatar(n,sm):'';
+function pulse(){if(!R||!R.events)return'';let ev=[];try{ev=R.events()}catch(e){}{let np=0;ev=ev.filter(e=>e.type!=='live'&&(e.type!=='play'||np++<3)).slice(0,8)}if(!ev.length)return'';const AVf=(n,sm)=>R.nav&&R.nav.avatar?R.nav.avatar(n,sm):'';
  const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/6e4));return m<1?'now':m<60?m+'m':m<1440?Math.floor(m/60)+'h':Math.floor(m/1440)+'d'};
  const nm=p=>p.me?'You':esc(p.name.split(' ')[0]);
  const line=e=>{const P=e.players||[],first=P[0]||{};let t='';
