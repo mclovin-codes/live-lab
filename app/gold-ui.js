@@ -32,7 +32,7 @@
   const hue = n => Math.floor(hash('h' + n) * 360);
   const initials = s => { const w = String(s || '?').replace(/[^A-Za-z0-9 _]/g, '').split(/[ _]+/).filter(Boolean); return ((w[0] || '?')[0] + (w[1] ? w[1][0] : (w[0] || '').slice(1, 2))).toUpperCase(); };
   function av(r, size, plain) { size = size || 40; if (window.RushFace) return RushFace.html(r, size, plain); const tag = plain ? 'span' : 'a'; return `<${tag} class="gu-av${r.me ? ' me' : ''}" ${plain ? '' : `href="${prof(r)}"`} style="width:${size}px;height:${size}px;font-size:${Math.round(size * .38)}px;background:${col(r.name)}" aria-label="${esc(r.name)}">${esc(initials(r.name))}</${tag}>`; }
-  const MARK = '<svg viewBox="0 0 100 92" aria-hidden="true" style="width:1em;height:.92em;vertical-align:-.08em;margin-right:.22em"><rect x="0" y="48" width="100" height="44" rx="22" fill="#075A8F"/><rect x="0" y="24" width="100" height="44" rx="22" fill="#0A6FB0"/><rect x="0.75" y="0.75" width="98.5" height="42.5" rx="21.25" fill="#00BFFF" stroke="#5FD8FF" stroke-width="1.5"/><rect x="12" y="6" width="34" height="14" rx="7" fill="#BFEFFF" opacity="0.75"/></svg>';
+  const MARK = '<svg viewBox="0 0 100 92" aria-hidden="true" style="display:inline-block;width:.62em;height:.57em;vertical-align:.08em;margin-right:.18em"><rect x="0" y="48" width="100" height="44" rx="22" fill="#075A8F"/><rect x="0" y="24" width="100" height="44" rx="22" fill="#0A6FB0"/><rect x="0.75" y="0.75" width="98.5" height="42.5" rx="21.25" fill="#00BFFF" stroke="#5FD8FF" stroke-width="1.5"/><rect x="12" y="6" width="34" height="14" rx="7" fill="#BFEFFF" opacity="0.75"/></svg>';
   const stk = n => MARK + fmt(n);
   const nameLink = r => `<a class="gu-nm" href="${prof(r)}">${esc(r.me ? 'You' : r.name)}</a>`;
   const games = () => { try { return (window.RW && RW.cached && RW.cached()) || []; } catch (e) { return []; } };
@@ -57,7 +57,7 @@
     return { sealed: 0, on, mine: myp, ms, withYou, against, players: [...new Map(on.map(o => [o.pl.id, o.pl])).values()] };
   }
   // Rank moves since this phone last looked (kept per view), so the Field visibly moves.
-  function moves(f) { const K = 'gu-ranks-' + (honest() ? '7' : 'all'); let old = {}; try { old = JSON.parse(localStorage.getItem(K) || '{}'); } catch (e) {} const out = {}; f.forEach(r => { if (old[r.id] != null) out[r.id] = old[r.id] - r.rank; }); try { if (!old._t || Date.now() - old._t > 10 * 6e4) { const s = { _t: Date.now() }; f.forEach(r => s[r.id] = r.rank); localStorage.setItem(K, JSON.stringify(s)); } } catch (e) {} return out; }
+  function moves(f) { const K = 'gu-ranks2-' + (honest() ? '7' : 'all'); let old = {}; try { old = JSON.parse(localStorage.getItem(K) || '{}'); } catch (e) {} const out = {}; f.forEach(r => { if (old[r.id] != null) out[r.id] = old[r.id] - r.rank; }); try { if (!old._t || Date.now() - old._t > 10 * 6e4) { const s = { _t: Date.now() }; f.forEach(r => s[r.id] = r.rank); localStorage.setItem(K, JSON.stringify(s)); } } catch (e) {} return out; }
   const CSS = `.gu-av{display:inline-grid;place-items:center;flex:none;border-radius:50%;font-weight:800;color:#0A0F15;letter-spacing:.3px;text-decoration:none;box-shadow:0 0 0 2px #0A0F15,0 0 0 3.5px rgba(255,255,255,.18)}.gu-av.me{box-shadow:0 0 0 2px #0A0F15,0 0 0 3.5px #3DB8FF}.gu-nm{color:inherit;text-decoration:none;font-weight:700}`;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
   // My circle: the players you invited, the one who invited you, and friends you added, both sides confirmed.
