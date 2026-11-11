@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body>
 <div id="app" class="h-wrap"></div>
-<script src="shared/state.js"></script><script src="week-games.js"></script><script src="honest.js"></script><script src="shared/nav.js"></script><script src="shared/events.js"></script><script src="gold-ui.js"></script>
+<script src="shared/state.js?v=r614"></script><script src="week-games.js?v=r614"></script><script src="honest.js?v=g615"></script><script src="shared/nav.js?v=r614"></script><script src="shared/events.js?v=r614"></script><script src="gold-ui.js?v=g615"></script>
 <script>
 const E=GU.esc,F=GU.fmt;
 function sideFaces(list,n){return list.length?`<div class="faces">${[...new Map(list.map(o=>[o.pl.id,o.pl])).values()].slice(0,n||5).map(p=>GU.av(p,30)).join('')}</div>`:'<span style="color:var(--mute);font-size:13px">Nobody</span>'}
@@ -88,7 +88,7 @@ function render(){
   let evs=[];try{if(Rush.events)evs=(Rush.events()||[]).filter(e=>(e.players||[]).length).slice(0,5)}catch(e){}
   const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/6e4));return m<1?'now':m<60?m+'m':Math.round(m/60)+'h'};
   const first=n=>String(n||'').split(' ')[0];
-  const say=e=>{const ps=e.players||[];if(e.type==='settled'&&ps.some(p=>p.result)){return ps.slice(0,3).map(p=>'<b>'+E(first(p.name))+'</b> '+(p.result==='won'?'<span class="up">hit</span>':p.result==='lost'?'<span class="dn">missed</span>':E(p.result||''))+(p.label?' '+E(p.label):'')).join(', ')+(e.game?' <span style="color:var(--mute)">· '+E(e.game)+'</span>':'')}return E(e.text||'')};
+  const say=e=>{const ps=e.players||[];if(e.type==='settled'&&ps.some(p=>p.result)){return ps.slice(0,3).map(p=>'<b>'+E(first(p.name))+'</b> '+(p.result==='won'?'<span class="up">hit</span>':p.result==='lost'?'<span class="dn">missed</span>':E(p.result||''))+(p.label?' '+E(p.label):'')).join(', ')+(e.game?' <span style="color:var(--mute)">· '+E(e.game)+'</span>':'')}if(e.type==='play'){const good=ps.filter(p=>p.team),bad=ps.filter(p=>!p.team);return E(e.text||'')+(good.length?' <span class="up">· good for '+good.slice(0,3).map(p=>E(first(p.name))).join(', ')+'</span>':'')+(bad.length?' <span class="dn">· bad for '+bad.slice(0,2).map(p=>E(first(p.name))).join(', ')+'</span>':'')}return E(e.text||'')};
   if(evs.length)h+=`<div class="h-lbl">The Field right now <a href="lounge.html">Lounge</a></div><section class="h-card">${evs.map(e=>{const ps=(e.players||[]).slice(0,3).map(p=>GU.player(p.id)||{id:p.id,name:p.name});return `<div class="ev"><span style="display:flex;flex:none">${ps.map((p,k)=>'<span style="margin-left:'+(k?-10:0)+'px">'+GU.av(p,32)+'</span>').join('')}</span><p>${say(e)}</p><time>${e.at?ago(e.at):''}</time></div>`}).join('')}</section>`;
   // 5. The Ranks.
   const top=f.slice(0,5);if(!top.some(r=>r.me))top.push(m);
