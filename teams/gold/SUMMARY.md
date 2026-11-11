@@ -33,7 +33,10 @@ Then open Home: the Sealbreak card shows how many picks are left to read, your r
 - Your read record sits on Sealbreak, Home and your profile. Another player's profile shows how well you read them, with a link to their sealed picks.
 
 ## What is ownable
-**Name:** Sealbreak. It is a coined compound and suggestive rather than descriptive, and it avoids every banned word and every descriptive word in the playbook. The name still needs the five-minute trademark check (USPTO classes 9, 41 and 42, both app stores, one web search), then attorney clearance, before it ships. Naming it is a founder decision. I dropped my first name, "The Read", because it is a common phrase with an existing entertainment brand.
+**Name:** Sealbreak. It is a coined compound and suggestive rather than descriptive, and it avoids every banned word and every descriptive word in the playbook. The name still needs the five-minute trademark check (USPTO classes 9, 41 and 42, both app stores, one web search), then attorney clearance, before it ships. The founder chooses the name. The candidates:
+- **Sealbreak (proposed):** a coined word for the moment the seal breaks. It is distinctive, and the screens already use it.
+- **Coldread:** suggestive. It borrows the idea of reading a person with no information, which is exactly what a call on a sealed pick is. It is a real phrase, so it may be more crowded.
+- **The Read (dropped):** it describes the action, it is a common phrase, and an existing entertainment brand uses it.
 
 **Steps, in order:**
 1. A player's pick is sealed: the Field sees who picked and which game, nothing else.
@@ -42,7 +45,13 @@ Then open Home: the Sealbreak card shows how many picks are left to read, your r
 4. At the final the pick itself grades, so the card resolves a second time.
 5. Calls build a record for each player: how well you read the Field and each player in it. Your weekly matchup opponent is the first read you are given.
 
-**What is new:** a group chat needs typing, a pick feed shows picks as they are made, and a reaction bar reacts to what is already public. Sealbreak is a one-tap call about a person's hidden decision, made while it is still sealed and graded by the reveal at kickoff, not by the game. The competitor scan found no app with an action on a still-sealed pick, or with the reveal staged as an event.
+**Which steps I believe are new:**
+- Steps 2 and 3: a one-tap call on another player's pick while it is still sealed, graded by the kickoff reveal itself, before the game is played. The competitor scan found neither.
+- Step 1 is standard pick-pool practice.
+- Step 4 is ordinary grading.
+- Step 5 is a record like any stat line. Its use of the weekly 1v1 opponent is specific to Rush.
+
+**What is new against other social features:** a group chat needs typing, a pick feed shows picks as they are made, and a reaction bar reacts to what is already public. Sealbreak is a one-tap call about a person's hidden decision, made while it is still sealed and graded by the reveal at kickoff, not by the game. The competitor scan found no app with an action on a still-sealed pick, or with the reveal staged as an event.
 
 **The playbook checklist:**
 1. Arbitrary or suggestive name: yes, suggestive. The five-minute check is only partly done: one web search for "Sealbreak" with app, trademark, sports and fantasy, on 2026-11-10, found no product or mark using the word. The USPTO and app store searches have not been run.
