@@ -15,7 +15,7 @@
     if (!p) p = '#3A4552';
     if (!a || contrast(p, a) < 1.6) a = lum(p) > .35 ? '#0B1118' : '#F4F7FA';
     const ink = contrast(p, '#ffffff') >= contrast(p, '#0B1118') ? '#ffffff' : '#0B1118';
-    const txt = contrast(p, a) >= 2.2 ? a : ink, dim = lum(p) < .045;
+    const txt = contrast(p, a) >= 3 ? a : ink, dim = lum(p) < .045;
     return { p, a, ink, txt, dim, dark: shade(p, .62), light: dim ? shade(p, 1.9) : shade(p, 1.25), edge: dim ? '#C9D2DC' : shade(p, .62) };
   }
   let uid = 0;
