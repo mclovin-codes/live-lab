@@ -41,7 +41,7 @@ body.has-rnav{padding-bottom:calc(60px + env(safe-area-inset-bottom,0px))}
 #rcx .row b{display:block;font-weight:600}#rcx .row small{display:block;color:rgba(255,255,255,.55);font-size:12px}
 #rcx .row .st{text-align:right;font-weight:600;white-space:nowrap}#rcx .row.on .st::after{content:" ✓";color:#00BFFF}
 #rpill-band{display:none!important}#rcx a.more{display:block;margin-top:10px;padding:12px;border-radius:12px;background:#1A2530;color:#00BFFF;text-align:center;text-decoration:none;font-weight:600}`;
-  function current() { const forced = document.body && document.body.dataset.tab; if (forced) return forced; const f = (location.pathname.split('/').pop() || 'index.html').toLowerCase(); const t = TABS.find(x => x[2] === f); return t ? t[0] : (f === 'game.html' || f === 'slips.html') ? (f === 'slips.html' ? 'me' : 'board') : f === 'ranks.html' ? 'home' : 'home'; }
+  function current() { const forced = document.body && document.body.dataset.tab; if (forced) return forced; const f = (location.pathname.split('/').pop() || 'index.html').toLowerCase(); const t = TABS.find(x => x[2] === f); return t ? t[0] : f === 'game.html' ? 'board' : f === 'ranks.html' ? 'home' : 'home'; }
   function badges() { if (!window.Rush) return {}; let open = 0, rank = null; try { const cur = Rush.wallet && Rush.wallet.current ? Rush.wallet.current() : null; if (cur) { open = cur.open || 0; rank = cur.entered ? cur.rank : null; } else { open = Rush.picks({ status: 'open', week: Rush.week().id }).length; const m = Rush.me(); rank = m.entered ? m.rank : null; } } catch (e) {} let live = ''; try { const l = JSON.parse(localStorage.getItem('rw.live') || 'null'); if (l && Date.now() - l.at < 3e5 && l.n > 0) live = String(Math.min(99, +l.n || 0)); } catch (e) {} return { slips: open ? String(open) : '', ranks: rank ? '#' + rank : '', board: live }; }
   function draw() { let nav = document.getElementById('rnav'); if (!nav) { nav = document.createElement('nav'); nav.id = 'rnav'; nav.setAttribute('aria-label', 'Rush'); document.body.appendChild(nav); document.body.classList.add('has-rnav'); } const cur = current(), b = badges(); nav.innerHTML = TABS.map(([k, label, href, path]) => `<a href="${href}" class="${k === cur ? 'on' : ''}"${k === cur ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg><span>${label}</span>${b[k] ? `<em class="${k === 'ranks' ? 'rk' : ''}">${b[k]}</em>` : ''}</a>`).join(''); }
   const esc = x => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -56,18 +56,9 @@ body.has-rnav{padding-bottom:calc(60px + env(safe-area-inset-bottom,0px))}
     let b = host.querySelector('.rpill'); if (!b) { b = document.createElement('button'); b.type = 'button'; b.className = 'rpill'; b.addEventListener('click', openSwitch); host.appendChild(b); }
     const h = pillHTML(e); if (b._h !== h) { b.innerHTML = h; b._h = h; b.setAttribute('aria-label', 'Active contest ' + e.name + ', ' + stk(e.stack) + ' Stack. Switch contest'); }
   }
-  function closeSwitch() { ['rcx', 'rcx-scrim'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); }
-  function openSwitch() {
-    closeSwitch(); let L = []; try { L = Rush.wallet.list(); } catch (x) {} const a = Rush.wallet.active();
-    const sc = document.createElement('div'); sc.id = 'rcx-scrim'; sc.addEventListener('click', closeSwitch);
-    const sh = document.createElement('div'); sh.id = 'rcx'; sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-label', 'Switch contest');
-    sh.innerHTML = `<div class="grab"></div><h3>Your contests</h3><p>Each contest has its own Stack. The Board, game pages and your Slip work inside the one you pick.</p>` +
-      L.map(e => `<button type="button" class="row${e.id === a ? ' on' : ''}" data-cx="${esc(e.id)}"><span class="rdot" style="background:${okColor(e.color)}"></span><span><b>${esc(e.name)}</b><small>${e.rank ? '#' + e.rank + (e.of ? ' of ' + e.of : '') + ' · ' : ''}${esc(clockOf(e))}</small></span><span class="st">${e.entered ? stk(e.stack) + ' Stack' : 'Not entered'}</span></button>`).join('') +
-      '<a class="more" href="contests.html">Find or start a contest</a>';
-    sh.addEventListener('click', ev => { const r = ev.target.closest('[data-cx]'); if (!r) return; Rush.wallet.setActive(r.dataset.cx); closeSwitch(); drawPill(); draw(); });
-    document.body.appendChild(sc); document.body.appendChild(sh);
-  }
-  function init() { const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); draw(); drawPill(); if (window.Rush && Rush.on) Rush.on(() => { draw(); drawPill(); }); setInterval(() => { draw(); drawPill(); }, 30000); }
+  /* One contest, the week: no contest switcher. */
+  function openSwitch() {}
+  function init() { const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); draw(); if (window.Rush && Rush.on) Rush.on(() => { draw(); }); setInterval(() => { draw(); }, 30000); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
-  window.Rush = window.Rush || {}; window.Rush.nav = { refresh: () => { draw(); drawPill(); }, openSwitch };
+  window.Rush = window.Rush || {}; window.Rush.nav = { refresh: () => { draw(); }, openSwitch };
 })();
