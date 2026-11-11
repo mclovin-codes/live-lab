@@ -83,6 +83,8 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
       else if (e.type === 'settled') ps.forEach(p => { const r = who(p); if (r && (p.result === 'won' || p.result === 'lost')) out.push({ t: 'settled', at: e.at, r, g, won: p.result === 'won', change: p.change != null && p.change !== '' ? +p.change : null, label: p.need || (p.leg && p.leg.label) || p.label || '', slip: p.slip || null }); }); }); } catch (e) {} }
     if (!out.length) F.list.forEach(r => picksOf(r).forEach(p => { const g = p.g; if (!g) return; if (!isStarted(g) && p.at) out.push({ t: 'sealed', at: p.at, r, g });
       if ((p.status === 'won' || p.status === 'lost')) out.push({ t: 'settled', at: p.settled || (+g.date + 3 * 36e5), r, g, won: p.status === 'won', change: p.status === 'won' ? +p.win || 0 : -(+p.stake || 0), label: p.label || '' }); }));
+    try { const me = F.list.find(x => x.me) || F.me; if (me && window.Rush && typeof Rush.picks === 'function') (Rush.picks({}) || []).forEach(p => { const legs = p.legs && p.legs.length ? p.legs : [p]; legs.forEach((l, i) => { if (!l.live && !(p.live && legs.length === 1)) return; const g = games.find(x => String(x.id) === String(l.gameId || p.gameId)); if (!g) return;
+      out.push({ t: 'livepick', id: (p.id || p.at) + ':' + i, at: p.at || Date.now(), r: me, g, snap: String(l.snap || p.snap || '').split('|')[0], label: l.mname || l.label || p.label || '' }); }); }); } catch (e) {}
     return out.filter(m => Date.now() - m.at < 30 * 36e5);
   }
   /* fold the room: runs of picks become one row per player or per game */
@@ -91,6 +93,7 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
     ms.sort((a, b) => a.at - b.at).forEach(m => {
       if (m.t === 'sealed') { const k = m.r.id; let row = sealBy[k]; if (!row || m.at - row.at > 3 * 36e5) { row = sealBy[k] = { t: 'sealed', key: 'sealed:' + k + ':' + Math.floor(m.at / 36e5), at: m.at, r: m.r, gs: [] }; rows.push(row); } if (!row.gs.some(g => g.id === m.g.id)) row.gs.push(m.g); row.at = Math.max(row.at, m.at); }
       else if (m.t === 'settled') { const k = m.g.league + m.g.id; let row = setBy[k]; if (!row) { row = setBy[k] = { t: 'settled', key: 'settled:' + k, at: m.at, g: m.g, items: [] }; rows.push(row); } row.items.push(m); row.at = Math.max(row.at, m.at); }
+      else if (m.t === 'livepick') rows.push({ t: 'livepick', key: 'live:' + m.id, at: m.at, r: m.r, g: m.g, snap: m.snap, label: m.label });
       else if (m.t === 'reveal') rows.push({ t: 'reveal', key: 'reveal:' + m.g.league + m.g.id, at: m.at, g: m.g, rows: m.rows });
     });
     return rows;
@@ -176,6 +179,7 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
   function row(r, F, mySide, seen) {
     const fresh = r.at > seen && Date.now() - r.at < 15 * 60e3, b = badge(r.key, F), tb = TRAY === r.key ? tray(r.key) : '';
     if (r.t === 'talk') { const m = r.m; return `<div class="lg-msg${m.mine ? ' me' : ''}" data-row="${esc(r.key)}" data-who="${esc(m.who)}" data-txt="${esc(m.text)}">${m.mine ? '' : av(m.who, 28)}<div class="lg-bub">${m.quote ? `<q>${esc(m.quote)}</q>` : ''}${m.game ? `<i class="lg-on-g">on ${esc(m.game)}</i>` : ''}${esc(m.text)}${b}</div><time>${ago(m.at)}</time>${tb}</div>`; }
+    if (r.t === 'livepick') return `<div class="lg-sys lg-livep" data-row="${esc(r.key)}" data-who="You" data-txt="placed a live pick on ${esc(gname(r.g))}">${prof(r.r, av(r.r, 30, 'me'))}<span><b>You placed a live pick on ${esc(gname(r.g))}</b><small>${esc(r.label)}${r.label ? ' &middot; ' : ''}Live pick${r.snap ? ' at ' + esc(r.snap) : ''}, placed during the game</small></span><time>${ago(r.at)}</time>${b}${tb}</div>`;
     if (r.t === 'sealed') { const n = r.gs.length; return `<div class="lg-sys" data-row="${esc(r.key)}" data-who="${esc(r.r.me ? 'You' : r.r.name)}" data-txt="sealed ${n === 1 ? 'a pick' : n + ' picks'}">${prof(r.r, av(r.r, 30, ringOf(r.r, F)))}<span><b>${esc(r.r.me ? 'You' : r.r.name.split(' ')[0])} sealed ${n === 1 ? 'a pick' : n + ' picks'}</b><small>${esc(r.gs.slice(0, 3).map(gname).join(', '))}${n > 3 ? ' +' + (n - 3) : ''}</small></span><time>${ago(r.at)}</time>${b}${tb}</div>`; }
     if (r.t === 'reveal') { const g = r.g, ms = mySide(g), ring = x => x.r.me ? 'me' : ms ? (opposite(ms, x.side, g) ? 'vs' : ms === x.side ? 'with' : '') : '';
       const open = OPEN.has(r.key), held = open ? onGame(g, F) : [];
