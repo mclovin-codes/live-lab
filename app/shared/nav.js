@@ -132,7 +132,7 @@ body.has-rnav{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
   }
   function refresh() { draw(); drawTop(); }
   function init() { honestField(); if (!document.querySelector('script[src^="shared/slip.js"]')) { const ss = document.createElement('script'); ss.src = 'shared/slip.js?v=f1103'; document.body.appendChild(ss); } if (!document.querySelector('script[src^="shared/events.js"]')) { const es = document.createElement('script'); es.src = 'shared/events.js?v=f1103'; document.body.appendChild(es); } if (!document.querySelector('script[src^="honest.js"]')) { const hs = document.createElement('script'); hs.src = 'honest.js'; document.body.appendChild(hs); }
-    const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); signIn(); ['rpill-band'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); refresh(); if (window.Rush && Rush.on) Rush.on(refresh); setInterval(refresh, 30000); }
+    const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); signIn(); ['rpill-band'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); refresh(); if (window.Rush && Rush.on) Rush.on(refresh); setInterval(refresh, 30000); [800, 2000, 4000, 8000].forEach(t => setTimeout(refresh, t)); window.addEventListener('storage', e => { if (e.key === 'rw.games') refresh(); }); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   window.Rush = window.Rush || {}; window.Rush.nav = { refresh, openStack, openSwitch: openStack, avatar, hue, ini };
 })();
