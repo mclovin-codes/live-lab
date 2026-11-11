@@ -13,8 +13,11 @@
   const Q = new URLSearchParams(location.search);
   /* the honest view: Blue's Rush.honest(), Gold's honest.js (key 'rush-field', footer toggle on every page) */
   const honest = () => { try { if (window.Rush && typeof Rush.honest === 'function') return !!Rush.honest(); if (window.RushHonest) return !!RushHonest.on(); return localStorage.getItem('rush-field') === '7'; } catch (e) { return false; } };
-  const AVC = ['#0EA5E9', '#22C55E', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#64748B', '#14B8A6', '#F97316'];
-  const av = (n, s, ring) => { const ini = String(n || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(); return `<span class="lg-av${ring ? ' ' + ring : ''}" style="width:${s}px;height:${s}px;font-size:${Math.round(s * .38)}px;background:${AVC[Math.floor(h01(n) * AVC.length)]}">${esc(ini)}</span>`; };
+  /* one face everywhere: the shell's colours and initials (shared/nav.js hue and ini) */
+  const HUES = ['#3CC8FF', '#3DDC84', '#FFB020', '#FF7AB6', '#A78BFA', '#5EEAD4', '#F97316', '#FDE047'];
+  const hue = n => { let h = 0; for (const c of String(n || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return HUES[h % HUES.length]; };
+  const ini = n => { const w = String(n || '?').replace(/[^A-Za-z0-9 _]/g, '').split(/[ _]+/).filter(Boolean); return ((w[0] || '?')[0] + (w[1] ? w[1][0] : (w[0] || '').slice(1, 2))).toUpperCase(); };
+  const av = (n, s, ring) => `<span class="lg-av${ring ? ' ' + ring : ''}" style="width:${s}px;height:${s}px;min-width:${s}px;font-size:${Math.round(s * .38)}px;background:${hue(n)}">${esc(ini(n))}</span>`;
   const when = ms => { const d = new Date(ms), t = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); return d.toDateString() === new Date().toDateString() ? t : d.toLocaleDateString([], { weekday: 'short' }) + ' ' + t; };
   const clock = ms => (window.Rush && Rush.clock) ? Rush.clock(ms) : Math.ceil(ms / 60000) + 'm';
   const stk = r => r ? (r.stack != null ? +r.stack : 1000 + Math.round((r.units || 0) * 10)) : 1000;
@@ -22,6 +25,17 @@
   const prof = (r, inner) => `<a class="lg-p" href="player.html?u=${encodeURIComponent(r.me ? 'me' : r.id)}">${inner}</a>`;
   let games = (window.RW && RW.cached && RW.cached()) || [], focus = Q.get('g') || null, BROKE = null, talkOpen = null;
 
+  /* ---------- My circle: the players you invited, who invited you, and friends you added, both sides confirmed ---------- */
+  const SCOPE = 'rush-lounge-scope';
+  const circleOn = () => { try { return localStorage.getItem(SCOPE) === 'circle'; } catch (e) { return false; } };
+  function circleIds() {
+    let c = [];
+    try { if (window.Rush && typeof Rush.circle === 'function') c = Rush.circle() || []; else c = JSON.parse(localStorage.getItem('rush-circle')) || []; } catch (e) {}
+    const ids = new Set(), how = {};
+    (Array.isArray(c) ? c : c.players || c.members || []).forEach(x => { if (x == null) return; if (typeof x === 'object' && x.confirmed === false) return; const id = String(typeof x === 'object' ? (x.id != null ? x.id : x.playerId) : x); ids.add(id); if (typeof x === 'object' && x.how) how[id] = x.how; });
+    return { ids, how };
+  }
+  const INVITE = 'index.html#invite', ADD = id => `player.html?u=${encodeURIComponent(id)}#circle`;
   /* ---------- the Field this page shows ---------- */
   function field() {
     let rows = [];
@@ -119,7 +133,7 @@
 
   /* ---------- render ---------- */
   function render() {
-    const F = field(), now = Date.now(), sent = ls(SENT, {}), talk = ls('rush-lounge-talk-v1', {});
+    const FF = field(), C = circleIds(), CIRCLE = circleOn(), F = CIRCLE ? { list: FF.list.filter(r => r.me || C.ids.has(String(r.id))), me: FF.me, riv: FF.riv && C.ids.has(String(FF.riv.id)) ? FF.riv : null } : FF, now = Date.now(), sent = ls(SENT, {}), talk = ls('rush-lounge-talk-v1', {});
     const mine = F.me ? picksOf(F.me) : [];
     const mySide = g => { const p = mine.find(x => String(x.gameId) === String(g.id)); return p ? sideOf(p) : null; };
     /* the games the Field holds tonight and tomorrow */
@@ -127,10 +141,13 @@
     const gs = Object.values(held).sort((a, b) => (a.state === 'in' ? -1 : 0) - (b.state === 'in' ? -1 : 0) || a.date - b.date);
     let g0 = focus ? gs.find(g => g.league + ':' + g.id === focus || String(g.id) === focus) || null : null;
     if (!g0) g0 = gs.filter(g => g.state === 'in').sort((a, b) => onGame(b, F).length - onGame(a, F).length)[0] || gs.find(g => !isStarted(g));
-    let h = `<div class="lg-top"><h1>Lounge</h1><span>${honest() ? '7 players' : F.list.length + ' in the Field'}</span></div>`;
+    let h = `<div class="lg-top"><h1>Lounge</h1><span>${CIRCLE ? (F.list.length - 1) + ' in your circle' : honest() ? '7 players' : F.list.length + ' in the Field'}</span></div>`;
+    h += `<div class="lg-scope"><button class="${CIRCLE ? '' : 'on'}" data-scope="field">The Field</button><button class="${CIRCLE ? 'on' : ''}" data-scope="circle">My circle${C.ids.size ? ' &middot; ' + C.ids.size : ''}</button></div>`;
+    if (CIRCLE && F.list.length < 4) { const sug = FF.list.filter(r => !r.me && !C.ids.has(String(r.id))).sort((a, b) => (FF.riv && b.id === FF.riv.id) - (FF.riv && a.id === FF.riv.id)).slice(0, 4);
+      h += `<div class="lg-circle"><b>${F.list.length === 1 ? 'Your circle starts with you' : 'Your circle is ' + (F.list.length - 1) + ' so far'}</b><small>The friends you invite and the friends you add, once both of you confirm. Their picks, seals and settles show here.</small><a class="lg-cta" href="${INVITE}">Invite a friend</a>${sug.length ? `<div class="lg-sug">${sug.map(r => `<a href="${ADD(r.id)}">${av(r.name, 40, FF.riv && r.id === FF.riv.id ? 'riv' : '')}<small>${esc(r.name.split(' ')[0])}</small><em>Add</em></a>`).join('')}</div>` : ''}</div>`; }
     /* the field in faces, ranked by Stack (1 to 7 in the honest view) */
     h += `<div class="lg-faces">${F.list.map(r => prof(r, `<span class="lg-face${r.me ? ' me' : F.riv && r.id === F.riv.id ? ' riv' : ''}">${av(r.name, 44)}<b>#${r.rk}</b><small>${esc(r.me ? 'You' : r.name.split(' ')[0])}</small><em>${fmt(stk(r))}</em></span>`)).join('')}</div>`;
-    if (F.riv && F.me) { const d = stk(F.me) - stk(F.riv); h += `<a class="lg-mu" href="ranks.html">${av(F.me.name, 26, 'me')}<b>${fmt(stk(F.me))}</b><span>${d > 0 ? 'You lead by ' + fmt(d) : d < 0 ? 'Down ' + fmt(-d) : 'All square'}</span><b>${fmt(stk(F.riv))}</b>${av(F.riv.name, 26, 'riv')}</a>`; }
+    if (FF.riv && FF.me) { const F = FF; const d = stk(F.me) - stk(F.riv); h += `<a class="lg-mu" href="ranks.html">${av(F.me.name, 26, 'me')}<b>${fmt(stk(F.me))}</b><span>${d > 0 ? 'You lead by ' + fmt(d) : d < 0 ? 'Down ' + fmt(-d) : 'All square'}</span><b>${fmt(stk(F.riv))}</b>${av(F.riv.name, 26, 'riv')}</a>`; }
     /* the seal-broken moment */
     if (BROKE) { const ps = gs.filter(g => +g.date === BROKE.k); const rows = ps.flatMap(g => onGame(g, F).map(x => Object.assign(x, { g })));
       if (rows.length) h += `<div class="lg-sb"><small>SEAL BROKEN</small><b>${esc(ps.map(gname).join(', '))}</b>${rows.map(x => { const ms = mySide(x.g), tag = x.r.me ? 'you' : ms ? (opposite(ms, x.side, x.g) ? 'against you' : ms === x.side ? 'with you' : '') : ''; return `<div class="lg-flip">${prof(x.r, av(x.r.name, 36, x.r.me ? 'me' : F.riv && x.r.id === F.riv.id ? 'riv' : ''))}<span><b>${esc(x.r.me ? 'You' : x.r.name)} took ${esc(x.side || x.p.label)}</b><small>${esc(gname(x.g))}, ${fmt(x.p.stake)} Stack${tag ? ' &middot; ' + tag : ''}</small></span></div>`; }).join('')}<button class="lg-x" data-x="sb">Done</button></div>`; }
@@ -169,7 +186,7 @@
       else if (e.type === 'play') return `<div class="lg-ev lg-play"><span class="lg-bolt">&#9679;</span><div><b>${esc(e.text)}</b><small>${esc(gname(e.g))}</small></div></div>`;
       const acts = r && !r.me ? actsFor(e, e.g ? mySide(e.g) : null) : [];
       return `<div class="lg-ev${r && F.riv && r.id === F.riv.id ? ' riv' : ''}">${r ? prof(r, av(r.name, 40, r.me ? 'me' : F.riv && r.id === F.riv.id ? 'riv' : '')) : ''}<div><b>${esc(line)}</b><small>${esc(sub)}${e.at && e.type !== 'sealed' ? ' &middot; ' + when(e.at) : ''}</small>${s ? answered(k, s) : acts.length ? `<div class="lg-acts">${acts.map(([a, l]) => `<button data-act="${esc(a)}" data-k="${esc(k)}" data-who="${esc(r.name)}" data-l="${esc(l)}">${esc(l)}</button>`).join('')}</div>` : ''}</div></div>`;
-    }).join('') : `<div class="lg-empty">The Field's week shows here: picks sealing, seals breaking, picks settling, Ranks moving.</div>`;
+    }).join('') : `<div class="lg-empty">${CIRCLE ? "Your circle's week shows here: their picks sealing, seals breaking, picks settling, Ranks moving." : "The Field's week shows here: picks sealing, seals breaking, picks settling, Ranks moving."}</div>`;
     /* the honest-view footer is Gold's honest.js, the same on every page */
     $('lg-main').innerHTML = h;
   }
@@ -183,6 +200,7 @@
       if (!honest()) setTimeout(() => { const S2 = ls(SENT, {}); if (S2[a.dataset.k]) { S2[a.dataset.k].ans = { who: a.dataset.who.split(' ')[0], text: ANSWER[a.dataset.act] || 'Thanks' }; lsSet(SENT, S2); render(); } }, 2500 + h01(a.dataset.k) * 2000);
       return; }
     const rp = t.closest('[data-reply]'); if (rp) { const I = ls('rush-lounge-inbox-v1', []), m = I.find(x => x.id === rp.dataset.reply); if (m) { m.ans = rp.textContent; lsSet('rush-lounge-inbox-v1', I); render(); } return; }
+    const sc = t.closest('[data-scope]'); if (sc) { try { localStorage.setItem(SCOPE, sc.dataset.scope); } catch (z) {} focus = null; render(); return; }
     const g = t.closest('[data-g]'); if (g) { focus = g.dataset.g; render(); scrollTo({ top: 0, behavior: 'smooth' }); return; }
     const tk = t.closest('[data-talk]'); if (tk) { talkOpen = tk.dataset.talk; render(); const i = document.querySelector('.lg-say input'); if (i) i.focus(); return; }
     const x = t.closest('[data-x]'); if (x) { if (x.dataset.x === 'sb') BROKE = null; render(); return; }
