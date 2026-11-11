@@ -35,13 +35,13 @@
   - picks lock at kickoff;
   - "The Field on this game" shows each player as sealed until kickoff. At kickoff it becomes "Seal broken: who took what": the side, price and stake for each player, tagged With you or Against you. This is the full table the Lounge's seal-break rows open;
   - a Lounge link opens the Lounge focused on that game.
-- **Home** (Gold):
-  - the contest card;
-  - On tonight;
-  - For you: tapbacks and replies on your rows in the Lounge;
-  - your matchup tug bar, with the countdown to Thursday's pairing;
-  - The Field right now, including who a big play is good for;
-  - the Field ladder, with arrows for rank moves.
+- **Home** (Gold), in order:
+  1. **The contest card:** your rank as one big number, your Stack and its move since Tuesday, every face in rank order with rank arrows, and doors to the Board and the contest.
+  2. **Your matchup:** a tug bar with the same lead figure as everywhere else, and the countdown to Thursday's pairing.
+  3. **For you:** replies aimed at you in the Lounge, then your own tapbacks and replies with what came back ("Waiting on Fade" until a real person answers).
+  4. **On tonight:** the three games that matter most, with faces, sealed counts and countdowns, then With you and Against you after kickoff.
+  5. **The Field right now:** the latest events, big plays included.
+  6. **An invite door.**
 
 ## The one social space: the Lounge (Red, rebuilt after the council's 4-0 verdict)
 
@@ -122,6 +122,7 @@
 - **Every profile:** a big face, the Stack, the rank, the season record and the move this week. One player has one face everywhere.
 - **Another player's profile adds:**
   - you vs them, as a Stack bar;
+  - Between you: your tapbacks and replies to them ("Waiting on Fade" until one comes back), and their replies to you;
   - their week: sealed picks show only the game and the countdown; picks that have kicked off show the side, tagged With you or Against you; settled picks show HIT or MISS;
   - Talk in the Lounge, Add to my circle, Block and Report.
 - **Your profile adds:** your Slips (Open and Settled), your opponent, and your Season 1 weeks as green and red tiles.
