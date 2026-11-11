@@ -36,7 +36,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body data-tab="me"><script>(function(){var u=new URLSearchParams(location.search).get("u");if(u&&u!=="me")document.body.dataset.tab="contest"})()</script>
 <div id="app" class="p-wrap"></div>
-<script src="shared/state.js?v=f1103"></script><script src="week-games.js?v=f1103"></script><script src="honest.js?v=g619"></script><script src="shared/nav.js?v=f1103"></script><script src="shared/events.js?v=f1103"></script><script src="gold-ui.js?v=g618"></script>
+<script src="shared/state.js?v=f1103"></script><script src="week-games.js?v=f1103"></script><script src="honest.js?v=g619"></script><script src="shared/nav.js?v=f1103"></script><script src="shared/events.js?v=f1103"></script><script src="gold-ui.js?v=g618"></script><script src="slip-card.js?v=s1"></script>
 <script>
 const E=GU.esc,F=GU.fmt,Q=new URLSearchParams(location.search),UID=Q.get('u')&&Q.get('u')!=='me'?Q.get('u'):null;
 let tab=location.hash==='#settled'?'done':'open';
@@ -72,9 +72,7 @@ function render(){
     const mineBy={};GU.mine().forEach(p=>{if(p.g)mineBy[p.gameId]=GU.mySide(p)});
     const rel=x=>{const ms=mineBy[x.gameId];if(!ms)return'';const s=GU.sideOf(x);return s===ms?'<span class="tag with">WITH YOU</span>':({away:'home',home:'away',over:'under',under:'over'})[ms]===s?'<span class="tag vs">AGAINST YOU</span>':''};
     h+=`<div class="p-lbl">Their week</div>`;
-    h+=open.map(x=>`<a class="slip" href="game.html?id=${encodeURIComponent(x.g.id)}&league=${encodeURIComponent(x.g.league||'')}"><div class="l"><b>${E(x.label)}</b><small>${E(x.g.away.abbr)} at ${E(x.g.home.abbr)} · ${x.g.state==='in'?E(x.g.detail||'live'):'kicked off'}</small></div><div class="r">${rel(x)||`<span>${F(x.stake)}</span><small>staked</small>`}</div></a>`).join('');
-    h+=sealed.slice(0,5).map(x=>`<div class="slip seal"><div class="l"><b>${E(x.g.away.abbr)} at ${E(x.g.home.abbr)}</b><small>Sealed until kickoff, in ${GU.until(x.g.date)}</small></div><div class="r"><span class="tag" style="background:rgba(242,193,78,.14);color:var(--gold)">SEALED</span></div></div>`).join('');
-    h+=done.slice(0,5).map(x=>`<div class="slip"><div class="l"><b>${E(x.label)}</b><small>${E(x.g.away.abbr)} at ${E(x.g.home.abbr)} · final</small></div><div class="r">${x.status==='won'?'<span class="up">HIT</span>':x.status==='lost'?'<span class="dn">MISS</span>':E(x.status)}</div></div>`).join('');
+    h+=ps.slice().sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||a.g.date-b.g.date).slice(0,8).map(x=>{const r=GU.started(x.g)?rel(x):'';return (r?`<div style="margin:12px 2px -4px">${r}</div>`:'')+SlipCard.html(x,{sealed:true})}).join('');
     if(!ps.length)h+=`<div class="p-card empty">No picks yet this week.</div>`;
     const bl=blocked().includes(who.id);
     h+=`<div style="display:flex;gap:10px;margin-top:16px"><a class="p-btn" href="lounge.html">Talk in the Lounge</a>${isOpp?'':`<a class="p-btn ghost" href="ranks.html">The contest</a>`}</div>
@@ -84,7 +82,7 @@ function render(){
     // Your Slips live here and in the Stack sheet: open first, then settled.
     const all=GU.mine(),open=all.filter(p=>p.status==='open'),done=all.filter(p=>p.status!=='open');
     h+=`<div class="p-lbl" id="slips">Your Slips <a href="slips.html">All Slips</a></div><div class="seg"><button data-t="open" class="${tab==='open'?'on':''}">Open · ${open.length}</button><button data-t="done" class="${tab==='done'?'on':''}">Settled · ${done.length}</button></div>`;
-    h+=(tab==='open'?open:done).map(myLine).join('')||`<div class="empty">${tab==='open'?'No open Slips. Make a pick on the Board.':'Nothing settled yet this week.'}</div>`;
+    h+=(tab==='open'?open:done).map(x=>SlipCard.html(x)).join('')||`<div class="empty">${tab==='open'?'No open Slips. Make a pick on the Board.':'Nothing settled yet this week.'}</div>`;
     // My circle: who is in, who is waiting either way, friends of friends to add, and the invite door when it is small.
     {const ids=GU.circle.ids(),mem=ids.map(GU.player).filter(Boolean),pend=GU.circle.pend(),asks=Object.keys(pend).map(id=>({p:GU.player(id),d:pend[id].dir})).filter(x=>x.p),fof=GU.circle.fof().slice(0,4),sug=fof.length?[]:GU.circle.suggest(4).filter(x=>!ids.includes(String(x.id))&&!pend[x.id]);
      h+=`<div class="p-lbl">My circle <a href="lounge.html">Lounge</a></div><section class="p-card">`;
