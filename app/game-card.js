@@ -33,6 +33,19 @@
     if (g.done || g.state === 'post') return '<span class="rgc-fin">FINAL</span>';
     return `<span class="rgc-time">${esc(new Date(g.date).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }))}</span>`;
   }
+  // The quiet info chip (Blue's feed, plain text): where to watch, then Dome for an indoor game, or for an outdoor NFL game the temperature, sky and RW.wxGrade impact.
+  function info(g) {
+    const bits = [], bc = Array.isArray(g.broadcasts) ? g.broadcasts.filter(Boolean).slice(0, 2) : [];
+    if (bc.length) bits.push('Watch ' + bc.join(', '));
+    const v = g.venue || null;
+    if (v && v.indoor) bits.push('Dome');
+    else if (g.weather && String(g.league).toLowerCase() === 'nfl') {
+      const w = g.weather; let gr = null; try { gr = window.RW && RW.wxGrade ? RW.wxGrade(w, false) : null; } catch (e) {}
+      bits.push([w.temp != null && isFinite(+w.temp) ? Math.round(+w.temp) + '\u00B0' : '', w.text || '', gr && gr.grade ? gr.grade + ' impact' : ''].filter(Boolean).join(' '));
+    }
+    const out = bits.filter(Boolean);
+    return out.length ? '<div class="rgc-info">' + out.map(esc).join(' &middot; ') + '</div>' : '';
+  }
   function html(g, opts) {
     opts = opts || {}; const C = opts.cell || cell, st = g.state !== 'pre' || g.done, L = g.line || {}, hs = homeSpread(g), w = opts.who || null;
     const faces = list => list && list.length ? `<span class="rgc-who">${list.slice(0, 4).join('')}${list.length > 4 ? `<em>+${list.length - 4}</em>` : ''}</span>` : '';
@@ -44,7 +57,7 @@
     const href = opts.href || `game.html?id=${encodeURIComponent(g.id)}&league=${encodeURIComponent(g.league || '')}`;
     const tot = w && ((w.over && w.over.length) || (w.under && w.under.length)) ? `<div class="rgc-tot">${w.over && w.over.length ? `<span>OVER</span>${faces(w.over)}` : ''}${w.under && w.under.length ? `<span>UNDER</span>${faces(w.under)}` : ''}</div>` : '';
     const seal = w && w.sealed ? `<div class="rgc-seal"><span>${w.sealed} sealed</span>${faces(w.sealedFaces)}</div>` : '';
-    return `<div class="rgc${g.state === 'in' ? ' rgc-islive' : ''}"><a class="rgc-h" href="${href}"><span class="rgc-lg">${esc(String(g.league || '').toUpperCase())}</span>${when(g)}${st ? '' : '<span class="rgc-cols"><i>SPREAD</i><i>TOTAL</i><i>ML</i></span>'}</a>${row('away')}${row('home')}${tot}${seal}${opts.foot || ''}</div>`;
+    return `<div class="rgc${g.state === 'in' ? ' rgc-islive' : ''}"><a class="rgc-h" href="${href}"><span class="rgc-lg">${esc(String(g.league || '').toUpperCase())}</span>${when(g)}${st ? '' : '<span class="rgc-cols"><i>SPREAD</i><i>TOTAL</i><i>ML</i></span>'}</a>${row('away')}${row('home')}${tot}${seal}${info(g)}${opts.foot || ''}</div>`;
   }
   const CSS = `.rgc{background:#141C26;border:1px solid rgba(255,255,255,.09);border-radius:20px;margin-top:10px;overflow:hidden;font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#F4F7FA}
 .rgc.rgc-islive{border-color:rgba(255,107,107,.4)}
@@ -62,6 +75,7 @@
 .rgc-dot{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#1B2531;font:800 13px sans-serif}
 .rgc-who{display:flex;align-items:center;margin-top:4px}.rgc-who>*{margin-right:-6px}.rgc-who em{font-style:normal;font:700 13px/1 -apple-system,sans-serif;color:#A3AFBD;margin-left:12px}
 .rgc-tot,.rgc-seal{display:flex;align-items:center;gap:8px;padding:8px 16px 12px;border-top:1px solid rgba(255,255,255,.06);font:800 13px/1 -apple-system,sans-serif;letter-spacing:.6px;color:#A3AFBD}.rgc-tot .rgc-who,.rgc-seal .rgc-who{margin-top:0;margin-right:8px}
+.rgc-info{padding:6px 16px 10px;border-top:1px solid rgba(255,255,255,.06);color:#A3AFBD;font-size:13px;font-weight:700}
 .rgc-seal span:first-child{background:rgba(242,193,78,.14);color:#F2C14E;padding:4px 10px;border-radius:999px}
 .rgc>*:last-child{padding-bottom:12px}
 @keyframes gcb{50%{opacity:.3}}@media (prefers-reduced-motion:reduce){.rgc-live::before{animation:none}}`;
