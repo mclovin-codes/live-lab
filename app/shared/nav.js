@@ -29,8 +29,12 @@
   (function pinRival() { const R = window.Rush; if (!R || !R.rival || R.rival._pinned) return; const orig = R.rival; const K = 'rush-rival-v1';
     R.rival = function () { let wk = ''; try { wk = R.week().id; } catch (e) {} let pin = null; try { pin = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) {}
       let f = []; try { f = R.field(); } catch (e) {}
-      if (pin && pin.wk === wk) { const row = f.find(r => r.sim && (r.id === pin.id || r.name === pin.name)); return row || { id: pin.id, name: pin.name, sim: true, units: 0 }; }
-      const r = orig.apply(R, arguments); if (r && r.sim !== false) { try { localStorage.setItem(K, JSON.stringify({ wk, id: r.id, name: r.name })); } catch (e) {} } return r; };
+      const others = f.filter(r => !r.me), match = o => o && others.find(r => String(r.id) === String(o.id) || r.name === o.name);
+      if (pin && pin.wk === wk) { const row = match(pin); if (row) return row; }
+      /* the opponent must be a player the pages show: the store's pick if it is in the Field, else the first by id */
+      let row = match(orig.apply(R, arguments));
+      if (!row) row = others.slice().sort((x, y) => String(x.id).localeCompare(String(y.id), undefined, { numeric: true }))[0] || null;
+      if (row) { try { localStorage.setItem(K, JSON.stringify({ wk, id: row.id, name: row.name })); } catch (e) {} } return row; };
     R.rival._pinned = true; })();
   const TABS = [
     ['home', 'Home', 'index.html', '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],
