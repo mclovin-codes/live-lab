@@ -61,15 +61,14 @@ function justSettled(){const o={};try{(Rush.events?Rush.events():[]).filter(e=>e
 // One screen: the week, how many are in, one big Enter. The Field shows as faces with its figures blurred, to show what entering unlocks.
 function renderEnter(){
   const f=GU.field(),wk=Rush.week(),n=f.filter(r=>!r.me).length;
-  const ends=new Date(wk.settles||Date.now()).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'});
-  let h=`<section class="h-card hero ent"><div style="display:flex;justify-content:space-between;align-items:center"><span class="h-chip" style="background:rgba(61,184,255,.16);color:var(--acc)">WEEK ${wk.n} CONTEST</span><span class="h-chip">Ends ${E(ends)}</span></div>
+  let h=`<section class="h-card hero ent"><div style="display:flex;justify-content:space-between;align-items:center"><span class="h-chip" style="background:rgba(61,184,255,.16);color:var(--acc)">WEEK ${wk.n} CONTEST</span><span class="h-chip">Ends Monday night</span></div>
    <div style="display:flex;align-items:baseline;gap:8px;margin-top:14px"><span class="h-big" style="font-size:60px">${n}</span><span style="color:var(--mute);font-weight:700">in the Field this week</span></div>
-   <div style="color:var(--mute);margin-top:4px">Free to enter. Every entrant starts with ${GU.stk(1000)} Stack, top finishers take the prize.</div>
+   <div style="color:var(--mute);margin-top:4px">Free to enter. Every entrant starts with <span style="white-space:nowrap">${GU.stk(1000)} Stack</span>, top finishers take the prize.</div>
    <button class="h-btn" id="enterbtn" style="width:100%;margin-top:16px;min-height:58px;font-size:20px;border:0;cursor:pointer">Enter free</button>
    <div class="strip2" style="margin-top:18px"><div class="sx-row">${f.filter(r=>!r.me).map(r=>`<span class="sx blur">${GU.av(r,36,1)}<b>${F(r.stack)}</b><small>${E(r.name.split(' ')[0])}</small></span>`).join('')}</div></div>
    <div class="sx-gap">Enter to see the Stacks and where you'd stand</div></section>`;
   const gs=GU.games().filter(g=>!g.done&&g.date-Date.now()<36*36e5).sort((a,b)=>(b.state==='in')-(a.state==='in')||a.date-b.date).slice(0,2);
-  if(gs.length)h+=`<div class="h-lbl">On tonight <a href="board.html">Board</a></div>`+gs.map(g=>{const k=GU.gameView(g).players.length;return GameCard.html(g,{foot:`<div style="padding:8px 12px 10px;border-top:1px solid rgba(255,255,255,.06);color:#A3AFBD;font:700 13px/1 'Barlow Condensed',sans-serif;letter-spacing:.8px">${k} IN THIS GAME</div>`})}).join('');
+  if(gs.length)h+=`<div class="h-lbl">On tonight <a href="board.html">Board</a></div>`+gs.map(g=>{const k=GU.gameView(g).players.length;return GameCard.html(g,{foot:`<div style="padding:8px 12px 10px;border-top:1px solid rgba(255,255,255,.06);color:#A3AFBD;font:700 13px/1 'Barlow Condensed',sans-serif;letter-spacing:.8px">${k?k+' IN THIS GAME':'NO ONE IN THIS GAME YET'}</div>`})}).join('');
   h+=`<section class="h-card" id="invite" style="margin-top:22px"><div style="font-weight:800;font-size:18px">Bring a friend into the week</div><div style="color:var(--mute);margin-top:4px">Free, and they start at 1,000 too.</div><button class="h-btn ghost" id="inv" style="margin-top:12px;width:100%;cursor:pointer">Send an invite</button></section>`;
   document.getElementById('app').innerHTML=h;
   const b=document.getElementById('enterbtn');if(b)b.onclick=()=>{const hero=document.querySelector('.hero.ent');if(hero)hero.classList.add('entering');if(window.RushTopbar&&RushTopbar.enterNow){RushTopbar.enterNow(window._rtLast&&window._rtLast[1])}else GU.enter();setTimeout(render,900)};
