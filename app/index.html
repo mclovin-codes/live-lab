@@ -29,7 +29,7 @@ body{background:var(--bg);color:var(--tx)}
 .mu .sd{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}.mu .sd b{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
 .tug{display:flex;height:12px;border-radius:6px;overflow:hidden;margin-top:14px;background:var(--card2)}.tug i{transition:flex .8s}.tug .a{background:var(--acc)}.tug .b{background:var(--vio)}
 .gm{display:block;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px 16px;margin-top:10px}
-.gm .tm{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font:800 26px/1.15 "Barlow Condensed",sans-serif}
+.gm .g-tm{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font:800 26px/1.15 "Barlow Condensed",sans-serif}
 .gm .sides{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .gm .sides>div{background:var(--card2);border-radius:12px;padding:8px 10px;min-height:58px}
 .gm .sides small{display:block;font-size:11px;font-weight:800;letter-spacing:1px;color:var(--mute);margin-bottom:6px}
@@ -50,7 +50,7 @@ function sideFaces(list,n){return list.length?`<div class="faces">${[...new Map(
 function gameCard(g){
   const v=GU.gameView(g),live=g.state==='in',done=g.done,st=GU.started(g);
   let h=`<div class="gm"><div style="display:flex;justify-content:space-between;align-items:center"><span class="h-chip ${live?'live':''}">${live?E(g.detail||'LIVE'):done?'FINAL':E(String(g.league||'').toUpperCase())+' · '+GU.when(g.date)}</span>${v.mine?`<span class="h-chip" style="background:rgba(61,184,255,.16);color:var(--acc)">YOUR PICK</span>`:''}</div>
-   <a href="game.html?id=${encodeURIComponent(g.id)}&league=${encodeURIComponent(g.league||'')}" style="display:block;margin-top:10px"><div class="tm"><span>${E(g.away.abbr)}</span><span>${st?E(g.away.score||0):''}</span><span>${E(g.home.abbr)}</span><span>${st?E(g.home.score||0):''}</span></div></a>`;
+   <a href="game.html?id=${encodeURIComponent(g.id)}&league=${encodeURIComponent(g.league||'')}" style="display:block;margin-top:10px"><div class="g-tm"><span>${E(g.away.abbr)}</span><span>${st?E(g.away.score||0):''}</span><span>${E(g.home.abbr)}</span><span>${st?E(g.home.score||0):''}</span></div></a>`;
   if(!st){h+=`<div style="display:flex;align-items:center;gap:10px;margin-top:12px">${v.players.length?`<div class="faces">${v.players.slice(0,6).map(p=>GU.av(p,30)).join('')}</div><span style="color:var(--mute);font-size:14px">${v.sealed} sealed pick${v.sealed===1?'':'s'}, seal breaks in ${GU.until(g.date)}</span>`:`<span style="color:var(--mute);font-size:14px">No picks from the Field yet. Seal breaks at kickoff in ${GU.until(g.date)}.</span>`}</div>`;}
   else if(v.ms){h+=`<div class="sides"><div><small>WITH YOU</small>${sideFaces(v.withYou)}</div><div><small>AGAINST YOU</small>${sideFaces(v.against)}</div></div>`;}
   else if(v.players.length){h+=`<div style="display:flex;align-items:center;gap:10px;margin-top:12px"><div class="faces">${v.players.slice(0,6).map(p=>GU.av(p,30)).join('')}</div><span style="color:var(--mute);font-size:14px">on this game</span></div>`;}
@@ -66,6 +66,12 @@ function render(){
    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:4px"><div><div style="color:var(--mute);font-size:12px;font-weight:800;letter-spacing:1.2px">YOUR STACK</div><div class="h-big" style="font-size:40px">${F(m.stack)}</div></div><div style="text-align:right"><div class="h-num ${d>=0?'up':'dn'}">${d>=0?'+':''}${F(d)}</div><small style="color:var(--mute)">since Tuesday</small></div></div>
    ${(()=>{const me=f.findIndex(r=>r.me),a=Math.max(0,Math.min(me-3,f.length-7)),win=f.slice(a,a+7);return `<div class="lad">${win.map(r=>`<a href="${GU.prof(r)}" class="${r.me?'me':''}"><span class="rkn">${r.rank}</span>${GU.av(r,r.me?40:34,1)}<b>${F(r.stack)}</b></a>`).join('')}</div><div style="color:var(--mute);font-size:13px;text-align:center;margin-top:6px">${m.rank===1?'You lead the Field':`${F(f[0].stack-m.stack)} behind 1st (${E(f[0].name)})`}${f.length>7?` · showing #${win[0].rank} to #${win[win.length-1].rank}`:''}</div>`})()}
    <div style="display:flex;gap:10px;margin-top:16px"><a class="h-btn" href="board.html">Make picks</a><a class="h-btn ghost" href="ranks.html">The contest</a></div></section>`;
+  // 3. Your matchup.
+  if(op){const a=Math.max(1,m.stack),b=Math.max(1,op.stack),gap=m.stack-op.stack,pairT=wk.opens+2*864e5+11.5*36e5,paired=Date.now()>=pairT;
+   h+=`<div class="h-lbl">Your matchup <a href="ranks.html">Open</a></div><a class="h-card" style="display:block" href="ranks.html"><div class="mu"><div class="sd">${GU.av(m,56,1)}<b>You</b><span class="h-num">${F(m.stack)}</span></div><div style="font:800 18px/1 'Barlow Condensed',sans-serif;color:var(--mute)">VS</div><div class="sd">${GU.av(op,56,1)}<b>${E(op.name)}</b><span class="h-num">${F(op.stack)}</span></div></div>
+   <div class="tug"><i class="a" style="flex:${a}"></i><i class="b" style="flex:${b}"></i></div>
+   <div style="text-align:center;margin-top:10px;font-weight:800;font-size:17px" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You lead by '+F(gap):'You trail by '+F(-gap)}</div>
+   ${paired?'':`<div style="text-align:center;color:var(--mute);font-size:13px;margin-top:4px">Pairing locks Thursday 7:00 PM, in ${GU.until(pairT)}</div>`}</a>`;}
   // For you: what other players aimed at you in the Lounge, and what came back on yours (Red's lounge keys). The honest view shows only real ones.
   {let inbox=[],sent=[];try{inbox=JSON.parse(localStorage.getItem('rush-lounge-inbox-v1')||'[]')}catch(e){}try{sent=Object.values(JSON.parse(localStorage.getItem('rush-lounge-sent-v1')||'{}'))}catch(e){}
    if(GU.honest())inbox=inbox.filter(x=>x.real);
@@ -73,17 +79,11 @@ function render(){
    const face=(id,name)=>GU.av(GU.player(id)||{id:id,name:name||'?'},34);
    const rows=inbox.map(x=>`<div class="ev">${face(x.fromId,x.who)}<p><b>${E(String(x.who||'').split(' ')[0])}</b> ${E(x.text||'')}${x.about?' <span style="color:var(--mute)">· '+E(x.about)+'</span>':''}</p>${x.ans?'<span class="h-chip">ANSWERED</span>':'<a class="h-chip" style="background:rgba(61,184,255,.16);color:var(--acc)" href="lounge.html">ANSWER</a>'}</div>`)
      .concat(sent.map(x=>`<div class="ev">${face(x.toId,x.to)}<p>You to <b>${E(String(x.to||'').split(' ')[0])}</b>: ${E(x.label||'')}${x.ans?'<br><span class="up">'+E(String(x.ans.who||'').split(' ')[0])+': '+E(x.ans.text||'')+'</span>':'<br><span style="color:var(--mute)">Sent, waiting for an answer</span>'}</p></div>`));
-   h+=`<div class="h-lbl">For you <a href="lounge.html">Lounge</a></div><section class="h-card">${rows.length?rows.join(''):`<div style="color:var(--mute)">Nothing aimed at you yet. Open tonight's game in the Lounge and tap someone on the other side.</div><a class="h-btn ghost" href="lounge.html" style="margin-top:12px">Open the Lounge</a>`}</section>`;}
+   h+=`<div class="h-lbl">For you <a href="lounge.html">Lounge</a></div><section class="h-card">${rows.length?rows.join(''):`<a href="lounge.html" style="display:flex;align-items:center;gap:10px"><span style="flex:1;color:var(--mute)">Nothing aimed at you yet. Tap someone on tonight's game.</span><span style="color:var(--acc);font-weight:800">Lounge ›</span></a>`}</section>`;}
   // 2. Tonight: the games that matter to you and the Field.
   const gs=GU.games().filter(g=>!g.done||Date.now()-g.date<4*36e5),mineIds=new Set(GU.mine().map(p=>String(p.gameId)));
   const scored=gs.map(g=>({g,v:(g.state==='in'?100:0)+(mineIds.has(String(g.id))?50:0)+(GU.gameView(g).players.length*5)-(g.date-Date.now())/36e5})).filter(x=>x.g.date-Date.now()<36*36e5).sort((a,b)=>b.v-a.v).slice(0,3);
   h+=`<div class="h-lbl">On tonight <a href="board.html">Board</a></div>`+(scored.length?scored.map(x=>gameCard(x.g)).join(''):'<div class="h-card" style="color:var(--mute)">No games in the next day. The Board has the week.</div>');
-  // 3. Your matchup.
-  if(op){const a=Math.max(1,m.stack),b=Math.max(1,op.stack),gap=m.stack-op.stack,pairT=wk.opens+2*864e5+11.5*36e5,paired=Date.now()>=pairT;
-   h+=`<div class="h-lbl">Your matchup <a href="ranks.html">Open</a></div><a class="h-card" style="display:block" href="ranks.html"><div class="mu"><div class="sd">${GU.av(m,56,1)}<b>You</b><span class="h-num">${F(m.stack)}</span></div><div style="font:800 18px/1 'Barlow Condensed',sans-serif;color:var(--mute)">VS</div><div class="sd">${GU.av(op,56,1)}<b>${E(op.name)}</b><span class="h-num">${F(op.stack)}</span></div></div>
-   <div class="tug"><i class="a" style="flex:${a}"></i><i class="b" style="flex:${b}"></i></div>
-   <div style="text-align:center;margin-top:10px;font-weight:800;font-size:17px" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You lead by '+F(gap):'You trail by '+F(-gap)}</div>
-   ${paired?'':`<div style="text-align:center;color:var(--mute);font-size:13px;margin-top:4px">Pairing locks Thursday 7:00 PM, in ${GU.until(pairT)}</div>`}</a>`;}
   // 4. The Field moving: the latest from the week's one event source, when the store has it.
   let evs=[];try{if(Rush.events)evs=(Rush.events()||[]).filter(e=>(e.players||[]).length).slice(0,5)}catch(e){}
   const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/6e4));return m<1?'now':m<60?m+'m':Math.round(m/60)+'h'};
