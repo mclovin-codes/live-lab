@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body>
 <div id="app" class="h-wrap"></div>
-<script src="shared/state.js?v=f1107"></script><script src="week-games.js?v=f1107"></script><script src="honest.js?v=g620"></script><script src="shared/nav.js?v=f1107"></script><script src="shared/events.js?v=f1107"></script><script src="faces.js?v=f1"></script><script src="team-mark.js?v=m1"></script><script src="game-card.js?v=c1"></script><script src="gold-ui.js?v=g623"></script>
+<script src="shared/state.js?v=f1107"></script><script src="week-games.js?v=f1107"></script><script src="honest.js?v=g620"></script><script src="shared/nav.js?v=f1107"></script><script src="shared/events.js?v=f1107"></script><script src="faces.js?v=f1"></script><script src="team-mark.js?v=m1"></script><script src="game-card.js?v=c2"></script><script src="gold-ui.js?v=g623"></script>
 <script>
 const E=GU.esc,F=GU.fmt;
 let VIEW=(()=>{try{return localStorage.getItem('gu-home-view')||'field'}catch(e){return'field'}})();
@@ -120,8 +120,8 @@ function render(){const JUST=justSettled();
 render();
 if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
 // Price cells on Home's game cards add to the one Slip, exactly as on the Board.
-document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.gc .rb-c[data-k]');if(!c)return;e.preventDefault();if(c.disabled||!window.Rush||!Rush.slip)return;const P=GameCard.REG.get(c.dataset.k);if(!P||P.start<=Date.now())return;Rush.slip.toggle(P);c.classList.toggle('on',!!(Rush.slip.has&&Rush.slip.has(P.key)))});
-if(window.Rush&&Rush.slip&&Rush.slip.on)Rush.slip.on(()=>document.querySelectorAll('.gc .rb-c[data-k]').forEach(c=>c.classList.toggle('on',!!Rush.slip.has(c.dataset.k))));
+document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.rgc .rb-c[data-k]');if(!c)return;e.preventDefault();if(c.disabled||!window.Rush||!Rush.slip)return;const P=GameCard.REG.get(c.dataset.k);if(!P||P.start<=Date.now())return;Rush.slip.toggle(P);c.classList.toggle('on',!!(Rush.slip.has&&Rush.slip.has(P.key)))});
+if(window.Rush&&Rush.slip&&Rush.slip.on)Rush.slip.on(()=>document.querySelectorAll('.rgc .rb-c[data-k]').forEach(c=>c.classList.toggle('on',!!Rush.slip.has(c.dataset.k))));
 if(window.Rush&&Rush.on)try{Rush.on(render)}catch(e){}
 setInterval(render,30000);
 </script></body></html>
