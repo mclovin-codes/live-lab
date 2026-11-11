@@ -6,6 +6,7 @@
  *   football jersey with pads and sleeve stripes, basketball tank, hockey sweater, baseball button-front with piping.
  * A missing colour, or two colours too close to tell apart, falls back to a readable pair. */
 (function () {
+  const ESC = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const hex = c => { c = String(c || '').replace('#', '').trim(); return /^[0-9a-f]{6}$/i.test(c) ? '#' + c.toLowerCase() : null; };
   const lum = c => { const n = parseInt(c.slice(1), 16), r = (n >> 16) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255; const f = v => v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
   const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
@@ -19,7 +20,7 @@
     return { p, a, ink, txt, dim, dark: shade(p, .62), light: dim ? shade(p, 1.9) : shade(p, 1.25), edge: dim ? '#C9D2DC' : shade(p, .62) };
   }
   let uid = 0;
-  const code = (t, x, y, fs, ink, a) => `<text x="${x}" y="${y}" text-anchor="middle" font-family="'Barlow Condensed','Bebas Neue',Arial Narrow,sans-serif" font-weight="800" font-size="${fs}" fill="${ink}" stroke="${a}" stroke-width=".6" paint-order="stroke" letter-spacing=".3">${String(t || '').slice(0, 4).replace(/[<&>]/g, '')}</text>`;
+  const code = (t, x, y, fs, ink, a) => `<text x="${x}" y="${y}" text-anchor="middle" font-family="'Barlow Condensed','Bebas Neue',Arial Narrow,sans-serif" font-weight="800" font-size="${fs}" fill="${ink}" stroke="${a}" stroke-width=".6" paint-order="stroke" letter-spacing=".3">${ESC(String(t || '').replace(/[^A-Za-z0-9#. -]/g, '').slice(0, 4))}</text>`;
   function grad(id, c) { return `<radialGradient id="${id}" cx=".32" cy=".2" r="1" fx=".3" fy=".16"><stop offset="0" stop-color="${c.light}"/><stop offset=".45" stop-color="${c.p}"/><stop offset="1" stop-color="${c.dark}"/></radialGradient>`; }
   const gloss = d => `<path d="${d}" stroke="#fff" stroke-opacity=".38" stroke-width="2.4" stroke-linecap="round" fill="none"/>`;
   const SHAPES = {
@@ -50,7 +51,7 @@
   };
   // Player marks (one per sport, the number on the chest, both team colours): football jersey with pads and sleeve stripes,
   // basketball tank, hockey sweater, baseball button-front with piping.
-  const num = (t, y, fs, c) => `<text x="32" y="${y}" text-anchor="middle" font-family="'Barlow Condensed','Bebas Neue',Arial Narrow,sans-serif" font-weight="800" font-size="${fs}" fill="${c.txt}" stroke="${c.dark}" stroke-width="1.2" paint-order="stroke">${String(t == null ? '' : t).slice(0, 3).replace(/[<&>]/g, '')}</text>`;
+  const num = (t, y, fs, c) => `<text x="32" y="${y}" text-anchor="middle" font-family="'Barlow Condensed','Bebas Neue',Arial Narrow,sans-serif" font-weight="800" font-size="${fs}" fill="${c.txt}" stroke="${c.dark}" stroke-width="1.2" paint-order="stroke">${ESC(String(t == null ? '' : t).replace(/[^A-Za-z0-9#]/g, '').slice(0, 3))}</text>`;
   const PLAYER = {
     nfl(c, n, g) { return `<defs>${grad(g, c)}</defs><path d="M10 14 L22 8 C25 12.5 39 12.5 42 8 L54 14 L60 29 L50 32 L48 25 L48 58 L16 58 L16 25 L14 32 L4 29 Z" fill="url(#${g})" stroke="${c.edge}" stroke-width="1.2"/><path d="M6.6 23.5 L15.4 21 M48.6 21 L57.4 23.5 M5.6 26.4 L14.8 24 M49.2 24 L58.4 26.4" stroke="${c.a}" stroke-width="1.8"/><path d="M24.5 9.6 L32 17 L39.5 9.6" stroke="${c.a}" stroke-width="2.6" fill="none" stroke-linejoin="round"/>${gloss('M12 17 C15 14.5 18 13 21 12')}${num(n, 46, 22, c)}`; },
     nba(c, n, g) { return `<defs>${grad(g, c)}</defs><path d="M20 6 L27 6 C28 11 36 11 37 6 L44 6 L46 16 C49 18 51 21 51 25 L51 58 L13 58 L13 25 C13 21 15 18 18 16 Z" fill="url(#${g})" stroke="${c.edge}" stroke-width="1.2"/><path d="M27 6 C28 11 36 11 37 6 M18 16 C15 18 13 21 13 25 M46 16 C49 18 51 21 51 25" stroke="${c.a}" stroke-width="2.6" fill="none"/><path d="M13 53 L51 53" stroke="${c.a}" stroke-width="2.4"/>${gloss('M19 22 C17 26 17 34 17.4 44')}${num(n, 44, 22, c)}`; },
@@ -61,12 +62,12 @@
   const KIND = { nfl: 'helmet', 'college-football': 'helmet', cfb: 'helmet', ncaaf: 'helmet', nba: 'jersey', wnba: 'jersey', 'mens-college-basketball': 'jersey', ncaab: 'jersey', nhl: 'sweater', mlb: 'cap' };
   function svg(league, team, size) {
     size = size || 34; const c = pair(team || {}), kind = KIND[String(league || '').toLowerCase()] || 'jersey', g = 'tm' + (++uid);
-    return `<svg xmlns="http://www.w3.org/2000/svg" class="tmk" viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="${String((team && (team.name || team.abbr)) || 'Team').replace(/[<&>"]/g, '')}">${SHAPES[kind](c, team && team.abbr, g)}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="tmk" viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="${ESC(String((team && (team.name || team.abbr)) || 'Team').slice(0, 40))}">${SHAPES[kind](c, team && team.abbr, g)}</svg>`;
   }
   function player(league, team, number, size) {
     size = size || 34; const c = pair(team || {}), g = 'tp' + (++uid), k = PKIND[String(league || '').toLowerCase()] || 'nba';
     const n = number != null && number !== '' ? String(number) : (team && team.abbr);
-    return `<svg xmlns="http://www.w3.org/2000/svg" class="tmk" viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="Player${number != null && number !== '' ? ' number ' + String(number).replace(/[<&>"]/g, '') : ''}">${PLAYER[k](c, n, g)}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="tmk" viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="Player${number != null && number !== '' ? ' number ' + ESC(String(number).replace(/[^0-9]/g, '').slice(0, 3)) : ''}">${PLAYER[k](c, n, g)}</svg>`;
   }
   window.TeamMark = { svg, player, playerMark: player, pair };
 })();

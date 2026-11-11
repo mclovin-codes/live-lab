@@ -50,7 +50,9 @@
       if (!tm && p) tm = p.team;
       const st = STAT[l.stat] || cap(String(l.stat || '').replace(/([a-z])([A-Z])/g, '$1 $2'));
       const mk = mkName(l) || (s === 'over' || s === 'under' ? cap(s) + ' ' + (line != null ? line : '') + ' ' + st : st || 'Player prop');
-      const mark = TM ? TM.player(l.league || (g && g.league), tm || {}, num != null && num !== '' ? num : (tm ? null : '#'), 40) : '';
+      const safeNum = /^d{1,3}$/.test(String(num == null ? '' : num)) ? String(num) : null;
+      if (tm) tm = { abbr: String(tm.abbr || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 4), name: tm.name, color: tm.color, alt: tm.alt };
+      const mark = TM ? TM.player(l.league || (g && g.league), tm || {}, safeNum != null ? safeNum : (tm ? null : '#'), 40) : '';
       return { name: l.player, market: (l.mname || mk).trim(), mark };
     }
     if (k === 'total') {
@@ -73,7 +75,7 @@
     });
     const price = raw.price != null ? raw.price : raw.odds != null ? raw.odds : (legs.length > 1 ? toAm(legs.reduce((a, l) => a * dec(+l.price || -110), 1)) : legs[0].price);
     const stake = +raw.stake || 0, toPay = raw.toPay != null ? +raw.toPay : raw.pay != null && raw.status !== 'open' ? +raw.pay : raw.kind && raw.win != null ? +raw.win : stake + (raw.win != null ? +raw.win : (price ? stake * (dec(+price) - 1) : 0));
-    return { legs, stake, price, toPay, status: legState(raw.status), paid: raw.pay, kind: raw.kind, same: raw.same, at: raw.at, id: raw.id };
+    return { legs, stake, price, toPay, status: legState(raw.status), paid: raw.pay, kind: raw.kind, same: raw.same, at: raw.at, id: raw.id, livePick: !!(raw.live || legs.some(l => l.live)) };
   }
   const LOCK = '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
   const ring = st => `<i class="sc-r sr-${st}">${st === 'hit' ? '✓' : st === 'miss' ? '✗' : st === 'push' ? '=' : st === 'sealed' ? LOCK : ''}</i>`;
@@ -97,7 +99,8 @@
     const paysWord = s.status === 'hit' || s.status === 'miss' ? 'Paid' : 'Pays';
     const money = vis ? `<div class="sc-m sc-vb" aria-hidden="true">Stake <b>000</b> · Pays <b>0,000</b></div>`
       : anySealed ? '<div class="sc-m">Stake <b>sealed</b> · Pays <b>sealed</b></div>'
-      : `<div class="sc-m">Stake <b>${fmt(s.stake)}</b> · ${paysWord} <b class="${s.status === 'hit' ? 'sm-hit' : s.status === 'miss' ? 'sm-miss' : ''}">${s.status === 'miss' ? '0' : fmt(s.status === 'hit' && s.paid != null ? s.paid : s.toPay)}</b></div>`;
+      : `<div class="sc-m">${lp}Stake <b>${fmt(s.stake)}</b> · ${paysWord} <b class="${s.status === 'hit' ? 'sm-hit' : s.status === 'miss' ? 'sm-miss' : ''}">${s.status === 'miss' ? '0' : fmt(s.status === 'hit' && s.paid != null ? s.paid : s.toPay)}</b></div>`;
+    const lp = s.livePick && !anySealed ? '<span class="sc-lp">Live pick</span>' : '';
     const placed = s.at && !opts.sealed ? `<div class="sc-ft">Placed ${esc(when(s.at))}</div>` : '';
     const priceTxt = anySealed ? '' : `<span class="sc-pr">${esc(am(s.price))}</span>`;
     const cls = `sc rsc ${vis || anySealed ? 'sc-x-sealed' : 'sc-x-' + s.status}${!vis && !anySealed && live ? ' sc-x-live' : ''}${parlay ? ' sc-x-par' : ''}${opts.open ? ' sc-xp' : ''}`;
@@ -157,6 +160,7 @@
 .sc.sc-x-par .sc-body{display:none;border-top:1px solid rgba(255,255,255,.07);margin-top:4px}.sc.sc-x-par.sc-xp .sc-body{display:block}
 .sc-tog{display:block;margin:6px 14px 8px auto;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:none;color:#F4F7FA;font-weight:700;font-size:14px;cursor:pointer}
 .sc-tog .h{display:none}.sc.sc-xp .sc-tog .h{display:inline}.sc.sc-xp .sc-tog .v{display:none}.sc-tog .v::after{content:" \\25BE"}.sc-tog .h::after{content:" \\25B4"}
+.sc-lp{display:inline-block;margin-right:8px;padding:2px 8px;border-radius:999px;background:rgba(255,107,107,.16);color:#FF6B6B;font-size:13px;font-weight:800;vertical-align:2px}
 .sc-ft{padding:0 14px 10px;color:#7F8B99;font-size:13px}
 .sc-vb{filter:blur(6px);user-select:none;pointer-events:none}
 .sc-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none;overscroll-behavior-x:contain}.sc-chips::-webkit-scrollbar{display:none}
