@@ -21,6 +21,7 @@
 - With 7 players there are still plenty of cards. A read takes one tap and nothing to type.
 - Your own sealed picks are listed with "Nobody has read you yet" until someone does. In the honest view nobody else's reads are invented, so that line stays honest.
 - A card also shows whether you are on the same side or against them when you hold a pick on that game.
+- The page opens with the Field's faces: one ring per player that fills as you read their sealed picks. Tap a face to see only that player's cards. With 7 players that is six faces, each with something to do.
 - Each sealed card shows the Stack riding on it, so you can see how much the pick matters without seeing its side.
 - A timeline across the top shows tonight's flips: each kickoff time, how many cards seal at it and how many of them you have read. Tap a time to see only those cards (games are filters inside the one space, not rooms).
 - Your matchup has a read duel line: how many of your opponent's picks you have read right, and whether they have read you.
