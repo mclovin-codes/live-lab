@@ -84,7 +84,9 @@
   /* one sealed card per player: who sealed, on which games; the matchup opponent's events lead */
   function group(list, F) {
     const seal = {}, out = [], liveSeen = {};
-    list.forEach(e => { if (e.type === 'play' && e.src) { if (liveSeen[e.g.id]) return; liveSeen[e.g.id] = 1; } if (e.type === 'sealed' && e.r) { const k = e.r.id; if (!seal[k]) { seal[k] = { type: 'sealed', r: e.r, at: e.at, gs: [], g: e.g, p: e.p }; out.push(seal[k]); } const s0 = seal[k]; if (e.g && !s0.gs.some(g => g.id === e.g.id)) s0.gs.push(e.g); s0.at = Math.max(s0.at, e.at); } else out.push(e); });
+    const rev = {};
+    list.forEach(e => { if (e.type === 'play' && e.src) return; if (e.type === 'sealed' && e.g && isStarted(e.g)) return;
+      if (e.type === 'revealed' && e.g) { const k = e.g.league + e.g.id; if (!rev[k]) { rev[k] = { type: 'reveal', at: e.at, g: e.g, rows: [] }; out.push(rev[k]); } rev[k].rows.push(e); rev[k].at = Math.max(rev[k].at, e.at); return; } if (e.type === 'sealed' && e.r) { const k = e.r.id; if (!seal[k]) { seal[k] = { type: 'sealed', r: e.r, at: e.at, gs: [], g: e.g, p: e.p }; out.push(seal[k]); } const s0 = seal[k]; if (e.g && !s0.gs.some(g => g.id === e.g.id)) s0.gs.push(e.g); s0.at = Math.max(s0.at, e.at); } else out.push(e); });
     out.forEach(e => { if (e.gs) e.gs.sort((a, b) => a.date - b.date); });
     const riv = F.riv && F.riv.id, day = 864e5;
     return out.sort((a, b) => ((b.r && b.r.id === riv && Date.now() - b.at < day) - (a.r && a.r.id === riv && Date.now() - a.at < day)) || b.at - a.at).slice(0, 30);
@@ -147,7 +149,7 @@
     const next = gs.filter(g => !isStarted(g)).sort((a, b) => a.date - b.date)[0];
     if (next && next !== g0) h += `<button class="lg-next" data-g="${esc(next.league + ':' + next.id)}"><span><small>NEXT SEAL BREAKS</small><b>${esc(gname(next))}</b></span><b data-k="${+next.date}">${clock(+next.date - now)}</b></button>`;
     /* sent to you */
-    const inbox = ls('rush-lounge-inbox-v1', []).filter(m => !(honest() && m.gen));
+    const inbox = ls('rush-lounge-inbox-v1', []).filter(m => !honest() || m.real);
     h += `<div class="lg-sh"><h2>Sent to you</h2></div>${inbox.length ? inbox.slice(-4).reverse().map(m => `<div class="lg-ev">${av(m.who, 36)}<div><b>${esc(m.who)}: ${esc(m.text)}</b><small>${esc(m.about || '')}</small>${m.ans ? `<div class="lg-sent"><span>You: ${esc(m.ans)}</span></div>` : `<div class="lg-acts"><button data-reply="${esc(m.id)}">${esc(ANSWER[m.k] || 'Thanks')}</button></div>`}</div></div>`).join('') : `<div class="lg-empty">${honest() ? 'Nothing yet. When a player taps you, it lands here and you answer in one tap.' : 'Nothing yet.'}</div>`}`;
     /* the Field's week moving */
     const ev = group(events(F), F);
@@ -160,6 +162,8 @@
       else if (e.type === 'settled') { line = `${r.me ? 'Your' : r.name + "'s"} ${gname(e.g)} pick ${e.p.status === 'won' ? 'hit' : 'missed'}`; sub = `${e.p.label}, ${e.p.status === 'won' ? '+' + fmt(e.p.win || 0) : '-' + fmt(e.p.stake)} Stack`; }
       else if (e.type === 'rank') { line = `${r.name} moved ${e.to < e.from ? 'up' : 'down'} to #${e.to}`; sub = `from #${e.from} in Ranks`; }
       else if (e.type === 'matchup') { line = e.lead > 0 ? `${r.name} leads your matchup by ${fmt(e.lead)}` : `You lead ${r.name} by ${fmt(-e.lead)}`; sub = 'Higher Stack on Monday night takes it'; }
+      else if (e.type === 'reveal') { const ms = mySide(e.g); return `<div class="lg-rv"><div class="lg-rv-h"><small>SEAL BROKEN &middot; ${esc(when(+e.g.date))}</small><b>${esc(gname(e.g))}</b>${e.g.state === 'in' ? `<span>${esc(e.g.away.abbr)} ${esc(e.g.away.score)}, ${esc(e.g.home.abbr)} ${esc(e.g.home.score)}</span>` : e.g.state === 'post' ? '<span>Final</span>' : ''}</div>${e.rows.sort((a, b) => (b.r.me ? 1 : 0) - (a.r.me ? 1 : 0) || (F.riv && b.r.id === F.riv.id ? 1 : 0) - (F.riv && a.r.id === F.riv.id ? 1 : 0)).map(x => { const k2 = evKey(x), s2 = sent[k2], tag = x.r.me ? 'you' : ms ? (opposite(ms, x.side, e.g) ? 'against you' : ms === x.side ? 'with you' : '') : '', acts = x.r.me ? [] : actsFor(x, ms);
+          return `<div class="lg-rv-r${tag === 'against you' ? ' vs' : tag === 'with you' ? ' with' : ''}">${prof(x.r, av(x.r.name, 34, x.r.me ? 'me' : F.riv && x.r.id === F.riv.id ? 'riv' : ''))}<div><b>${esc(x.r.me ? 'You' : x.r.name)} took ${esc(x.side || x.p.label)}</b><small>${fmt(x.p.stake)} Stack${tag ? ' &middot; ' + tag : ''}</small>${s2 ? answered(k2, s2) : ''}</div>${!s2 && acts.length ? `<button class="lg-mini" data-act="${esc(acts[0][0])}" data-k="${esc(k2)}" data-who="${esc(x.r.name)}" data-l="${esc(acts[0][1])}">${esc(acts[0][1])}</button>` : ''}</div>`; }).join('')}</div>`; }
       else if (e.type === 'play') return `<div class="lg-ev lg-play"><span class="lg-bolt">&#9679;</span><div><b>${esc(e.text)}</b><small>${esc(gname(e.g))}</small></div></div>`;
       const acts = r && !r.me ? actsFor(e, e.g ? mySide(e.g) : null) : [];
       return `<div class="lg-ev${r && F.riv && r.id === F.riv.id ? ' riv' : ''}">${r ? prof(r, av(r.name, 40, r.me ? 'me' : F.riv && r.id === F.riv.id ? 'riv' : '')) : ''}<div><b>${esc(line)}</b><small>${esc(sub)}${e.at && e.type !== 'sealed' ? ' &middot; ' + when(e.at) : ''}</small>${s ? answered(k, s) : acts.length ? `<div class="lg-acts">${acts.map(([a, l]) => `<button data-act="${esc(a)}" data-k="${esc(k)}" data-who="${esc(r.name)}" data-l="${esc(l)}">${esc(l)}</button>`).join('')}</div>` : ''}</div></div>`;
