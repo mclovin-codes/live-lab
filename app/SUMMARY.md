@@ -38,8 +38,11 @@
   - Your matchup, opened: both Slip records (won-lost, open), your Slips, then your opponent's Slips, each leg sealed until its own kickoff.
   - Gone: "The week, moving" (the Lounge is the only home for the stream), the "Your week" tiles, and the floating pinned row that covered the list.
   - **Season:** Season 1 as weeks won and lost, one line of copy ("A week above 1,000 Stack is a win."), the same 7 players in the honest view, and the preset faces.
-  - **For a visitor who has not entered:** no rank and no matchup, only the Join card.
+  - **For a visitor who has not entered:** one Enter door on top ("Free. You get 1,000 Stack."), then the two panels with the week, the Field size and the faces; rank, gap, Stack and the matchup sit blurred in place, and the Field is listed by name with its Stacks blurred. The blurred figures are placeholders, never the real numbers. Enter lifts the blur and the real figures arrive.
 - **Viewing as not entered** (Blue in the store, Gold's footer toggle, after the founder's 11:35 PM note): ?entered=0 shows every page as a visitor who has not entered. ?entered=1, the footer toggle, or entering returns to the real state. Rush.entered() is the one answer every page reads.
+  - In the store, a visitor sees every other player's leg sealed, even after kickoff (Rush.sealView), and has no rank badge on the Contest tab.
+  - A visitor's price tap, anywhere, opens Enter first; after one tap on Enter the pick lands in the Slip.
+  - On the game page, the Field on this game stays sealed for a visitor.
 - **Board** (Red, rebuilt after the Rush iOS app on the founder's 11:20 PM note):
   - league pills NFL, NBA, NHL, landing on NFL, and one row of market tabs, Game Lines first (NBA Points, Rebounds, Assists; NHL Goals, Points, Assists; NFL has no player data yet, so Game Lines only);
   - day headers (TODAY, TOMORROW, THU · NOV 12) over SPREAD, TOTAL and ML columns;
@@ -170,7 +173,7 @@
   - the other side of the same pick replaces it;
   - picks from one game combine into a same-game parlay.
 
-## Gold: the top bar, Home, profiles and where Slips live
+## Gold: the top bar, Home, profiles, the game card and where Slips live
 
 ### The top bar (every page)
 - **As the Rush app has it** (AppHeader.tsx): on the left, your face (your chosen preset avatar) and the page title; on the right, ONE pill with the real Stack mark (the three chips from CreditCoin.tsx) and your Stack. Nothing else: no subtitle, no rank line, no opponent, no boxed label.
@@ -218,6 +221,20 @@ Home opens on the weekly contest, in this order:
 - **Me:** your circle, who is waiting on whom, "In your friends' circles" (friends of friends to add) or, when that is empty, players to add, and Invite a friend while the circle is small.
 - **An empty circle** shows three faces to add and the invite door, never a blank page.
 
+### One game card, and no logos (game-card.js, team-mark.js)
+- **One card for Home and the Lounge's pinned game,** in the team's own look (the Board draws its own rows with the same team marks and three-column cells). It takes only the mechanics from the Rush app's board cards:
+  - a header with the league and the clock or kickoff;
+  - two team rows, each with the team mark, its code, name and record, and the score;
+  - while the game is open, the price cells: Spread, Total and ML, tapping into the one Slip exactly as on the Board.
+- **Home adds only one quiet line:** small faces beside the side each player took (a count when more than four), totals as one small group at the bottom, and a single "N sealed" chip before kickoff. The old four boxes are gone.
+- **No official logos or player photos:** a drawn, shaded object per sport, tinted with the team's two colours from the feed, with the team's code on it:
+  - football: a helmet;
+  - basketball: a jersey;
+  - hockey: a sweater;
+  - baseball: a cap.
+  - A player gets a jersey with their number. A missing or too-close colour pair falls back to a readable one.
+- **Logo requests:** Blue's store hands every page the mark in place of the logo, so no logo image request leaves Home, profiles or Slips.
+
 ### Where Slips live
 - **The Stack sheet:** tap your Stack in the top bar for the Stack, the rank and your open Slips (Blue's shell).
 - **Me:** your Slips, Open and Settled, each with its game, its live score or kickoff countdown, the stake and the return.
@@ -240,6 +257,18 @@ Home opens on the weekly contest, in this order:
 - Sub-lines are 13px or larger. Motion (the Field strip, the tug bars, the live dot) turns off under reduced motion.
 - The same palette went to Blue and Red for their pages, plus one face system for everyone.
 - Slips show Stack only; the old unit labels are gone.
+
+### Viewing as not entered (founder 11:35)
+- **The footer toggle** on every page has a second line: "Viewing as: entered · not entered" (?entered=0 or 1, kept in localStorage 'rush-entered'; Blue's store reads the same key through Rush.entered()).
+- **The top bar:** the Stack pill reads ENTER in cyan. A tap enters.
+- **Home becomes the Enter door:**
+  - the week and when it ends, how many are in the Field, one line ("Free to enter. Every entrant starts with 1,000 Stack"), and one big Enter free;
+  - the Field as faces with their Stacks blurred ("Enter to see the Stacks and where you'd stand"), with no rank, no gap and no matchup;
+  - tonight's game cards with scores and "N IN THIS GAME" (or "No one in this game yet");
+  - the invite door.
+- **Me:** the Stack reads ENTER and the rank reads "-". The Slips block becomes "Enter to start" with Enter free. Profile, Edit, the circle and the invite door all still work.
+- **The Enter moment:** one tap (the hero button, the Me card or the pill). The blur clears, the pill counts up from 0 to 1,000 and flashes green, and Home turns into the contest card with your tile in the strip.
+- Blue's Contest and game page follow the same rules (see the contest section above).
 
 ## What came from each team
 

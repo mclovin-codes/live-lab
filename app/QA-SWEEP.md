@@ -94,3 +94,21 @@ The checks:
 | Board | Started games | Cells locked at 45% opacity | OK |
 | Lounge | 375x667 with a Slip in the bar, after the shared game card | Pinned, room 141 px, one screen | Fixed in daa4fa6 |
 | Board | Team marks and the NHL spread | Drawn marks, no logo requests, puck line ±1.5 | Fixed in f8f63fb, daa4fa6 |
+
+## The not-entered pass (the founder's 11:35 PM note)
+
+| Page | Action | Result | Fixed in / open |
+|---|---|---|---|
+| All pages | Open with ?entered=0 | Signing in on load cleared the flag, so the view never held | Fixed in 32e12eb (the flag holds; Rush.entered() is false) |
+| Header | Visitor | The pill reads ENTER; a tap enters and the Stack counts up to 1,000 | OK (Gold, topbar t2) |
+| Tabs | Visitor | The Contest tab showed "#4" | Fixed in 32e12eb (no badge) |
+| Contest | Visitor | The week, 6 in, faces; rank, gap, Stack and the matchup blurred placeholders; the Field by name | Added in 32e12eb |
+| Contest | Tap Enter | The blur lifts, then the real panels arrive (#4 of 7, +19) | OK |
+| Game page | Visitor taps a price | The Enter sheet opens; Enter, and the pick lands in the Slip bar | Fixed in 32e12eb |
+| Game page | Visitor, the Field on this game after kickoff | Stays sealed | Fixed in 32e12eb |
+| Board | Visitor price tap | An Enter sheet opens; Enter, then the pick is on the Slip and the cell turns blue | Fixed in 6c23a68 (Red) |
+| Board | Category chip taps, team look | 7 to 25 ms, no refetch | Fixed in 6c23a68 (Red) |
+| Lounge | Visitor | Contest lines blurred, talk readable and typeable, the card shows "N in this game", a bust has no name, one Enter door | Fixed in 118af44 (Red) |
+| Lounge | Visitor taps Enter | The blur lifts with a pulse and the door goes away | Fixed in 118af44 (Red) |
+| Home, Me, profiles | Visitor | Home is the Enter door; Me reads "Enter to start"; profiles blur Stack and rank; Slip cards show only their games | Fixed in eac7d4b (Gold) |
+| Every page | Team logos and player photos | None requested; drawn team marks only (swept live, 7 pages, both views) | Fixed in 228ec10, daa4fa6, eac7d4b |
