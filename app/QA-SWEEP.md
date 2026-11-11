@@ -189,3 +189,5 @@ The checks:
 | Board, Lounge | Slip card s12, team mark m6, nav f1115 | Cards and marks render, no errors | Fixed in 1f32258, e6200c0 (Red) |
 | Lounge | Open the game bar's card | The watch and venue chip shows at its foot ("Watch NBC, KSBI · Dome") | Fixed in 1d601fb, ea50ee3 (Red) |
 | Board | Rows | The Board's rows do not use the shared card, so the chip is not there; the game page carries it | Open (by plan) |
+| Lounge | Open an NBA game's card | Foot "Watch NBC, KSBI" (Dome only for NFL and MLB), pregame header on one line, no errors | Fixed in 25ffd05 (Red) |
+| Game page | OKC at POR, end of the 3rd quarter | The lock engine opened the lines ("End of the quarter", 73 s left on the feed's clock) and closed them again ("Stoppage ending") | OK |
