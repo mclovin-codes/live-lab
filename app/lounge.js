@@ -74,6 +74,14 @@
     BIG.forEach(b => out.push(b));
     return out.sort((a, b) => b.at - a.at).slice(0, 40);
   }
+  /* one sealed card per player: who sealed, on which games; the matchup opponent's events lead */
+  function group(list, F) {
+    const seal = {}, out = [];
+    list.forEach(e => { if (e.type === 'sealed' && e.r) { const k = e.r.id; if (!seal[k]) { seal[k] = { type: 'sealed', r: e.r, at: e.at, gs: [], g: e.g, p: e.p }; out.push(seal[k]); } const s0 = seal[k]; if (e.g && !s0.gs.some(g => g.id === e.g.id)) s0.gs.push(e.g); s0.at = Math.max(s0.at, e.at); } else out.push(e); });
+    out.forEach(e => { if (e.gs) e.gs.sort((a, b) => a.date - b.date); });
+    const riv = F.riv && F.riv.id, day = 864e5;
+    return out.sort((a, b) => ((b.r && b.r.id === riv && Date.now() - b.at < day) - (a.r && a.r.id === riv && Date.now() - a.at < day)) || b.at - a.at).slice(0, 30);
+  }
   /* big plays: score changes in the games the Field holds, seen by this page */
   const BIG = [], lastScore = {};
   function watchScores() {
@@ -91,7 +99,7 @@
   };
   const ANSWER = { watching: 'Watch this', luck: 'Thanks', bringit: "You're on", riding: "Let's ride", bold: 'We will see', nice: 'Your turn next', tough: 'Next one hits', coming: 'Catch me', yourmove: 'Watch me' };
   const SENT = 'rush-lounge-sent-v1';
-  const evKey = e => [e.type, e.r ? e.r.id : '', e.g ? e.g.id : '', e.p ? (e.p.t || e.p.market || '') : '', e.to || ''].join('|');
+  const evKey = e => e.type === 'sealed' ? ['sealed', e.r ? e.r.id : '', new Date().toDateString()].join('|') : [e.type, e.r ? e.r.id : '', e.g ? e.g.id : '', e.p ? (e.p.t || e.p.market || '') : '', e.to || ''].join('|');
   function actsFor(e, mySide) {
     if (e.type === 'revealed') return mySide ? (opposite(mySide, e.side, e.g) ? ACT.revealed_against : mySide === e.side ? ACT.revealed_with : ACT.revealed) : ACT.revealed;
     if (e.type === 'settled') return e.p.status === 'won' ? ACT.settled_won : ACT.settled_lost;
@@ -135,12 +143,12 @@
     const inbox = ls('rush-lounge-inbox-v1', []);
     h += `<div class="lg-sh"><h2>Sent to you</h2></div>${inbox.length ? inbox.slice(-4).reverse().map(m => `<div class="lg-ev">${av(m.who, 36)}<div><b>${esc(m.who)}: ${esc(m.text)}</b><small>${esc(m.about || '')}</small>${m.ans ? `<div class="lg-sent"><span>You: ${esc(m.ans)}</span></div>` : `<div class="lg-acts"><button data-reply="${esc(m.id)}">${esc(ANSWER[m.k] || 'Thanks')}</button></div>`}</div></div>`).join('') : `<div class="lg-empty">${honest() ? 'Nothing yet. When a player taps you, it lands here and you answer in one tap.' : 'Nothing yet.'}</div>`}`;
     /* the Field's week moving */
-    const ev = events(F);
+    const ev = group(events(F), F);
     h += `<div class="lg-sh"><h2>The Field this week</h2></div>`;
     h += ev.length ? ev.map(e => {
       const k = evKey(e), s = sent[k], r = e.r; let line = '', sub = '';
       if (e.src && e.text && e.type !== 'sealed' && e.type !== 'revealed' && e.type !== 'settled') { line = e.text; sub = ''; }
-      else if (e.type === 'sealed') { line = `${r.me ? 'You' : r.name} sealed a pick on ${gname(e.g)}`; sub = `Side, line and stake stay sealed until ${when(+e.g.date)}`; }
+      else if (e.type === 'sealed') { const n = (e.gs || [e.g]).length; line = `${r.me ? 'You' : r.name} sealed ${n === 1 ? 'a pick on ' + gname(e.g) : n + ' picks'}`; sub = n === 1 ? `Sides open at ${when(+e.g.date)}` : (e.gs || []).slice(0, 4).map(g => gname(g) + ' ' + when(+g.date)).join(', ') + (n > 4 ? ', +' + (n - 4) : ''); }
       else if (e.type === 'revealed') { const ms = mySide(e.g); line = `${r.me ? 'You' : r.name} took ${e.side || e.p.label} in ${gname(e.g)}`; sub = `${fmt(e.p.stake)} Stack${ms && !r.me ? (opposite(ms, e.side, e.g) ? ', against you' : ms === e.side ? ', with you' : '') : ''}`; }
       else if (e.type === 'settled') { line = `${r.me ? 'Your' : r.name + "'s"} ${gname(e.g)} pick ${e.p.status === 'won' ? 'hit' : 'missed'}`; sub = `${e.p.label}, ${e.p.status === 'won' ? '+' + fmt(e.p.win || 0) : '-' + fmt(e.p.stake)} Stack`; }
       else if (e.type === 'rank') { line = `${r.name} moved ${e.to < e.from ? 'up' : 'down'} to #${e.to}`; sub = `from #${e.from} in Ranks`; }
