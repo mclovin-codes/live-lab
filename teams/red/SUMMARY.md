@@ -18,7 +18,7 @@ It runs on fixed taps, not talk. With 7 players the honest view has about 90 sea
 
 ## What brings a player back
 - Something pending: every call waits for its kickoff, and Home shows the next reveal time.
-- The reveal moment: calls that resolved while you were away open the page once ("Dan took TOR. You read it"), then clear.
+- The reveal moment: with the page open, the countdowns tick. At kickoff the seal breaks in front of you: a "Seal broken" panel flips every pick on that game face up and scores your calls. Calls that resolved while you were away open the page once ("Dan took TOR. You read it"), then clear.
 - Two resolutions: the kickoff scores the call, then the final settles the pick.
 - The 1v1: your opponent's sealed picks sit on top, and the Read-off moves every game night.
 - A record that sticks: percent called right, scored and waiting, on your profile and on every player card you have called.
