@@ -123,7 +123,7 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
     deck() {
       const out = [];
       field().filter(r => !r.me).forEach(pl => { let ps = []; try { ps = (window.RW && RW.playerPicks && RW.playerPicks(pl.id)) || []; } catch (e) {}
-        ps.forEach(x => { if (x && x.g && x.g.away && x.g.home && !x.raw) out.push(Object.assign({}, x, { pl })); }); });
+        ps = ps.filter(x => x && x.g && x.g.away && x.g.home && !x.raw); if (honest()) ps = ps.filter(x => mix('k' + pl.id + x.gameId) < .4).slice(0, 6); /* about 6 picks a week each, as Week 8 ran (211 picks, 33 entrants) */ ps.forEach(x => out.push(Object.assign({}, x, { pl }))); });
       return out.sort((a, b) => a.g.date - b.g.date);
     },
     stats() { let right = 0, graded = 0, pending = 0; R.deck().forEach(x => { const r = R.get(R.key(x.pl.id, x)); if (!r) return; if (R.started(x.g)) { graded++; if (r.side === R.side(x)) right++; } else pending++; }); return { right, graded, pending }; },

@@ -31,6 +31,7 @@ function duel(m,foe,title){
    <div class="tug"><div class="a" style="flex:${a}"></div><div class="b" style="flex:${b}"></div></div>
    <div style="text-align:center;margin-top:12px;font:800 22px/1.2 'Barlow Condensed',sans-serif" class="${gap>=0?'up':'dn'}">${gap===0?'DEAD EVEN':gap>0?'YOU LEAD BY '+G.fmt(gap):'YOU TRAIL BY '+G.fmt(-gap)}</div>
    <div style="text-align:center;color:var(--mute);font-size:14px;margin-top:4px">${G.esc(title)} · higher Stack Monday night takes it</div>
+   <a class="btn" href="lounge.html" style="margin-top:14px;background:var(--vio);color:#fff">Read ${G.esc(foe.name)}'s sealed picks</a>
    <div class="lbl">${G.esc(foe.name)}'s Slip</div>${oppSlip(foe)}
    <div class="lbl">Your Slip <a href="me.html#slips">All</a></div>${G.openPicks().slice(0,5).map(G.slipHTML).join('')||'<div class="empty">No open picks yet. <a style="color:var(--acc)" href="board.html">Go to the Board</a></div>'}`;
 }
