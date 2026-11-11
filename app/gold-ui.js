@@ -56,5 +56,23 @@
   function moves(f) { const K = 'gu-ranks-' + (honest() ? '7' : 'all'); let old = {}; try { old = JSON.parse(localStorage.getItem(K) || '{}'); } catch (e) {} const out = {}; f.forEach(r => { if (old[r.id] != null) out[r.id] = old[r.id] - r.rank; }); try { if (!old._t || Date.now() - old._t > 10 * 6e4) { const s = { _t: Date.now() }; f.forEach(r => s[r.id] = r.rank); localStorage.setItem(K, JSON.stringify(s)); } } catch (e) {} return out; }
   const CSS = `.gu-av{display:inline-grid;place-items:center;flex:none;border-radius:50%;font-weight:800;color:#0A0F15;letter-spacing:.3px;text-decoration:none;box-shadow:0 0 0 2px #0A0F15,0 0 0 3.5px rgba(255,255,255,.18)}.gu-av.me{box-shadow:0 0 0 2px #0A0F15,0 0 0 3.5px #3DB8FF}.gu-nm{color:inherit;text-decoration:none;font-weight:700}`;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
-  window.GU = { esc, hash, mix, fmt, honest, field, meRow, player, opponent, prof, av, nameLink, games, started, until, when, picksOf, sideOf, mine, mySide, gameView, moves, hue, col, initials };
+  // My circle: the players you invited, the one who invited you, and friends you added, both sides confirmed.
+  // Uses the store's circle when it has one (Rush.circle*), else this phone: 'rush-circle' (confirmed ids) and 'rush-circle-pend' ({id: {dir, at}}).
+  // A stand-in answers an ask after 4 seconds in the stand-in view only; in the honest view an ask waits for a real person.
+  const LS = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || '') || d; } catch (e) { return d; } };
+  const SS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const circle = {
+    ids() { try { if (Rush.circle) return (Rush.circle() || []).filter(x => !x || x.confirmed !== false).map(x => String(x && x.id != null ? x.id : x)); } catch (e) {} this.settle(); return LS('rush-circle', []).map(String); },
+    pend() { try { if (Rush.circlePending) { const o = {}; (Rush.circlePending() || []).forEach(p => o[p.id] = { dir: p.dir, at: p.at || 0 }); return o; } } catch (e) {} return LS('rush-circle-pend', {}); },
+    settle() { if (honest()) return; const p = LS('rush-circle-pend', {}), c = LS('rush-circle', []); let ch = false; Object.keys(p).forEach(id => { if (p[id].dir === 'out' && Date.now() - p[id].at > 4000) { if (!c.includes(id)) c.push(id); delete p[id]; ch = true; } }); if (ch) { SS('rush-circle', c); SS('rush-circle-pend', p); } },
+    state(id) { id = String(id); if (this.ids().includes(id)) return 'in'; const p = this.pend()[id]; return p ? (p.dir === 'in' ? 'asked-you' : 'asked') : 'none'; },
+    ask(id) { id = String(id); try { if (Rush.circleAsk) return Rush.circleAsk(id); } catch (e) {} const p = LS('rush-circle-pend', {}); p[id] = { dir: 'out', at: Date.now() }; SS('rush-circle-pend', p); },
+    confirm(id) { id = String(id); try { if (Rush.circleConfirm) return Rush.circleConfirm(id); } catch (e) {} const p = LS('rush-circle-pend', {}), c = LS('rush-circle', []); delete p[id]; if (!c.includes(id)) c.push(id); SS('rush-circle', c); SS('rush-circle-pend', p); },
+    drop(id) { id = String(id); try { if (Rush.circleDrop) return Rush.circleDrop(id); } catch (e) {} const p = LS('rush-circle-pend', {}); delete p[id]; SS('rush-circle-pend', p); SS('rush-circle', LS('rush-circle', []).filter(x => String(x) !== id)); },
+    // Friends of friends: from the store when it has circles; the stand-in view draws stand-in circles; the honest view invents none.
+    of(id) { try { if (Rush.circleOf) return (Rush.circleOf(id) || []).map(String); } catch (e) {} if (honest()) return []; return field().filter(r => !r.me && String(r.id) !== String(id) && mix('c' + [id, r.id].sort().join(':')) < .2).map(r => String(r.id)); },
+    suggest(n) { try { if (Rush.circleSuggest) return (Rush.circleSuggest(n || 4) || []).map(x => player(x.id)).filter(Boolean); } catch (e) {} return field().filter(r => !r.me && this.state(r.id) === 'none').slice(0, n || 4); },
+    fof() { const mine = this.ids(), pend = this.pend(), out = {}; mine.forEach(c => this.of(c).forEach(x => { if (!mine.includes(x) && !pend[x]) (out[x] = out[x] || []).push(c); })); return Object.keys(out).map(id => ({ p: player(id), via: out[id].map(player).filter(Boolean) })).filter(x => x.p && !x.p.me); },
+  };
+  window.GU = { circle, esc, hash, mix, fmt, honest, field, meRow, player, opponent, prof, av, nameLink, games, started, until, when, picksOf, sideOf, mine, mySide, gameView, moves, hue, col, initials };
 })();

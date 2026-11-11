@@ -36,7 +36,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body data-tab="me"><script>(function(){var u=new URLSearchParams(location.search).get("u");if(u&&u!=="me")document.body.dataset.tab="contest"})()</script>
 <div id="app" class="p-wrap"></div>
-<script src="shared/state.js?v=r614"></script><script src="week-games.js?v=r614"></script><script src="honest.js?v=g615"></script><script src="shared/nav.js?v=r614"></script><script src="shared/events.js?v=r614"></script><script src="gold-ui.js?v=g615"></script>
+<script src="shared/state.js?v=r614"></script><script src="week-games.js?v=r614"></script><script src="honest.js?v=g615"></script><script src="shared/nav.js?v=r614"></script><script src="shared/events.js?v=r614"></script><script src="gold-ui.js?v=g616"></script>
 <script>
 const E=GU.esc,F=GU.fmt,Q=new URLSearchParams(location.search),UID=Q.get('u')&&Q.get('u')!=='me'?Q.get('u'):null;
 let tab=location.hash==='#settled'?'done':'open';
@@ -77,12 +77,22 @@ function render(){
     if(!ps.length)h+=`<div class="p-card empty">No picks yet this week.</div>`;
     const bl=blocked().includes(who.id);
     h+=`<div style="display:flex;gap:10px;margin-top:16px"><a class="p-btn" href="lounge.html">Talk in the Lounge</a>${isOpp?'':`<a class="p-btn ghost" href="ranks.html">The contest</a>`}</div>
-     <button class="p-btn ${circ().includes(who.id)?'ghost':''}" id="circ" style="width:100%;margin-top:10px;${location.hash==='#circle'?'box-shadow:0 0 0 3px var(--vio)':''}">${circ().includes(who.id)?'In your circle ✓':'Add to my circle'}</button><div style="display:flex;gap:18px;justify-content:center;margin-top:10px"><button class="lnk" id="blk">${bl?'Unblock':'Block'}</button><button class="lnk" id="rpt">Report</button></div>`;
+     ${(()=>{const s=GU.circle.state(who.id),nm=E(who.name.split(' ')[0]);return s==='in'?`<div class="p-btn ghost" style="margin-top:10px">In your circle ✓</div>`:s==='asked'?`<div class="p-btn ghost" style="margin-top:10px;color:var(--mute)!important">Asked. Waiting on ${nm} to confirm</div>`:s==='asked-you'?`<button class="p-btn" id="circ" data-c="confirm" style="width:100%;margin-top:10px;background:var(--vio);color:#fff!important">${nm} asked to join your circle. Confirm</button>`:`<button class="p-btn" id="circ" data-c="ask" style="width:100%;margin-top:10px;${location.hash==='#circle'?'box-shadow:0 0 0 3px var(--vio)':''}">Add ${nm} to my circle</button>`})()}
+     <div style="display:flex;gap:18px;justify-content:center;margin-top:10px"><button class="lnk" id="blk">${bl?'Unblock':'Block'}</button><button class="lnk" id="rpt">Report</button></div>`;
   }else{
     // Your Slips live here and in the Stack sheet: open first, then settled.
     const all=GU.mine(),open=all.filter(p=>p.status==='open'),done=all.filter(p=>p.status!=='open');
     h+=`<div class="p-lbl" id="slips">Your Slips <a href="slips.html">All Slips and parlays</a></div><div class="seg"><button data-t="open" class="${tab==='open'?'on':''}">Open · ${open.length}</button><button data-t="done" class="${tab==='done'?'on':''}">Settled · ${done.length}</button></div>`;
     h+=(tab==='open'?open:done).map(myLine).join('')||`<div class="empty">${tab==='open'?'No open Slips. Make a pick on the Board.':'Nothing settled yet this week.'}</div>`;
+    // My circle: who is in, who is waiting either way, friends of friends to add, and the invite door when it is small.
+    {const ids=GU.circle.ids(),mem=ids.map(GU.player).filter(Boolean),pend=GU.circle.pend(),asks=Object.keys(pend).map(id=>({p:GU.player(id),d:pend[id].dir})).filter(x=>x.p),fof=GU.circle.fof().slice(0,4),sug=fof.length?[]:GU.circle.suggest(4).filter(x=>!ids.includes(String(x.id))&&!pend[x.id]);
+     h+=`<div class="p-lbl">My circle <a href="lounge.html">Lounge</a></div><section class="p-card">`;
+     h+=mem.length?mem.map(r=>`<div class="slip" style="background:none;padding:8px 0;margin:0">${GU.av(r,40)}<div class="l"><b>${E(r.name)}</b><small>#${r.rank} · ${F(r.stack)} Stack</small></div></div>`).join(''):`<div style="color:var(--mute)">Your circle is empty. Add players you know, or invite a friend.</div>`;
+     h+=asks.map(x=>`<div class="slip" style="background:none;padding:8px 0;margin:0">${GU.av(x.p,40)}<div class="l"><b>${E(x.p.name)}</b><small>${x.d==='in'?'Asked to join your circle':'Waiting on them to confirm'}</small></div>${x.d==='in'?`<div class="r"><button class="p-btn" data-cf="${E(x.p.id)}" style="min-height:38px;font-size:14px;padding:0 12px">Confirm</button></div>`:''}</div>`).join('');
+     h+=`</section>`;
+     if(fof.length)h+=`<div class="p-lbl">In your friends' circles</div><section class="p-card">${fof.map(x=>`<div class="slip" style="background:none;padding:8px 0;margin:0">${GU.av(x.p,40)}<div class="l"><b>${E(x.p.name)}</b><small>with ${x.via.map(v=>E(v.name.split(' ')[0])).slice(0,2).join(' and ')}</small></div><div class="r"><button class="p-btn ghost" data-ca="${E(x.p.id)}" style="min-height:38px;font-size:14px;padding:0 12px">Add</button></div></div>`).join('')}</section>`;
+     else if(sug.length&&mem.length<3)h+=`<div class="p-lbl">Players to add</div><section class="p-card">${sug.map(r=>`<div class="slip" style="background:none;padding:8px 0;margin:0">${GU.av(r,40)}<div class="l"><b>${E(r.name)}</b><small>#${r.rank} · ${F(r.stack)} Stack</small></div><div class="r"><button class="p-btn ghost" data-ca="${E(r.id)}" style="min-height:38px;font-size:14px;padding:0 12px">Add</button></div></div>`).join('')}</section>`;
+     if(mem.length<3)h+=`<a class="p-btn" href="index.html#invite" style="margin-top:12px">Invite a friend</a>`;}
     const op=GU.opponent();
     if(op)h+=`<div class="p-lbl">Your matchup</div><a class="p-card" style="display:flex;align-items:center;gap:12px" href="${GU.prof(op)}">${GU.av(op,44,1)}<div style="flex:1;font-weight:700">${E(op.name)}<div style="color:var(--mute);font-weight:500;font-size:14px">${F(op.stack)} Stack · #${op.rank}</div></div><span style="color:var(--acc);font-weight:800">Profile ›</span></a>`;
     let weeks=[];try{weeks=Rush.season().weeks||[]}catch(e){}
@@ -91,7 +101,9 @@ function render(){
   document.getElementById('app').innerHTML=h;
   document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
   const bk=document.getElementById('blk');if(bk)bk.onclick=()=>{let b=blocked();b=b.includes(who.id)?b.filter(x=>x!==who.id):b.concat(who.id);try{localStorage.setItem(BK,JSON.stringify(b))}catch(e){}render()};
-  const cb=document.getElementById('circ');if(cb)cb.onclick=()=>{let c=circ();c=c.includes(who.id)?c.filter(x=>x!==who.id):c.concat(who.id);try{localStorage.setItem(CK,JSON.stringify(c))}catch(e){}render()};
+  const cb=document.getElementById('circ');if(cb)cb.onclick=()=>{if(cb.dataset.c==='confirm')GU.circle.confirm(who.id);else GU.circle.ask(who.id);render();setTimeout(render,10500)};
+  document.querySelectorAll('[data-cf]').forEach(b=>b.onclick=()=>{GU.circle.confirm(b.dataset.cf);render()});
+  document.querySelectorAll('[data-ca]').forEach(b=>b.onclick=()=>{GU.circle.ask(b.dataset.ca);render();setTimeout(render,10500)});
   const rp=document.getElementById('rpt');if(rp)rp.onclick=()=>{rp.textContent='Reported';rp.disabled=true};
 }
 render();
