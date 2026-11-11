@@ -10,10 +10,11 @@
     let el = document.getElementById('rhonest');
     if (!el) { el = document.createElement('footer'); el.id = 'rhonest'; document.body.appendChild(el); }
     el.style.cssText = 'max-width:560px;margin:12px auto 0;padding:16px 16px 22px;text-align:center;font:500 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#A3AFBD';
-    const here = location.pathname.split('/').pop() || 'index.html';
+    // Keep the page's own parameters (a profile's ?u=, a game's ?id=), change only field.
+    const to = v => { const q = new URLSearchParams(location.search); q.set('field', v); return (location.pathname.split('/').pop() || 'index.html') + '?' + q.toString() + location.hash; };
     el.innerHTML = on()
-      ? 'Honest view: the 7 players in this week, nothing generated. <a href="' + here + '?field=all" style="color:#3DB8FF;font-weight:700;text-decoration:none">Show the stand-in Field</a>'
-      : 'Stand-in Field of SIM players. <a href="' + here + '?field=7" style="color:#3DB8FF;font-weight:700;text-decoration:none">Honest view: 7 players</a>';
+      ? 'Honest view: the 7 players in this week, nothing generated. <a href="' + to('all') + '" style="color:#3DB8FF;font-weight:700;text-decoration:none">Show the stand-in Field</a>'
+      : 'Stand-in Field of SIM players. <a href="' + to('7') + '" style="color:#3DB8FF;font-weight:700;text-decoration:none">Honest view: 7 players</a>';
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', draw); else draw();
 })();
