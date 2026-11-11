@@ -12,12 +12,14 @@ Every pick in the Field is sealed until kickoff. Reads turns each sealed pick in
 3. Optionally tag the read with one tap: Lock, Gut call or Trap.
 4. Look at the Read-off panel: you vs your opponent on who reads the other better this week.
 5. Tap any face to open that player's profile. "Read their picks" there shows only that player's sealed picks.
+6. On any game page, "Read the Field's sealed picks on this game" opens Reads for that one game.
 
 ## How it works with 7 players and nobody typing
 It runs on taps, not talk. With 7 players the honest view has well over a hundred sealed picks to read this week. Each one is a two-button card with the game, the market, the Stack sealed on it and a countdown to kickoff. Nothing on the screen needs anyone to type, and nothing in ?field=7 is invented: no head counts, no generated reads, no chatter. The only social numbers are your own reads and your opponent's, and the page says "has not read you yet" when that is the truth.
 
 ## What brings a player back
-- Something pending: every read waits for its kickoff. Home shows "Next reveal at 9:00 PM", and the Reads tab counts the reads waiting.
+- Something pending: every read waits for its kickoff. Reads opens on "Next reveal": the next game, how many sealed picks it reveals and a countdown. Home shows the same reveal time.
+- The reveal moment: reads that resolved while you were away open the page once ("Dan took TOR. You read it"), then clear.
 - Something that resolves twice: the kickoff reveal scores your read, then the final settles the pick.
 - Something to answer: your opponent's sealed picks sit on top. The Read-off score moves every night, and the 1v1 has a second contest inside it.
 - Something that sticks: your Read record (percent read right, scored, waiting) sits on your profile.
