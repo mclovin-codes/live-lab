@@ -1,63 +1,79 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Lounge · Rush</title><meta name="theme-color" content="#0A0F15">
+<title>Reads · Rush</title><meta name="theme-color" content="#0A0F15">
 <style>
-.rm{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:10px}
-.rm .tms{flex:1;min-width:0}.rm .tms div{display:flex;justify-content:space-between;font:800 22px/1.15 "Barlow Condensed",sans-serif}
-.rm .side{text-align:right;min-width:92px}
-.stackav{display:flex;justify-content:flex-end}.stackav .av{margin-left:-8px}
-.sb{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;text-align:center;padding:18px 12px;border-radius:22px;background:var(--card);border:1px solid var(--line);margin-top:14px}
-.sb .t{font:800 34px/1 "Barlow Condensed",sans-serif}.sb .s{font:800 48px/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
-.lean{display:flex;height:30px;border-radius:10px;overflow:hidden;margin-top:10px;font-weight:800;font-size:13px}
-.lean div{display:flex;align-items:center;padding:0 10px;min-width:72px;white-space:nowrap}.lean .a{background:#2B6E99}.lean .b{background:#5B4FB0;justify-content:flex-end}
-.msg{display:flex;gap:10px;margin-top:14px}.msg .bub{flex:1;min-width:0}.msg .bub b{font-size:14px}.msg .bub small{color:var(--dim);font-size:12px;margin-left:6px}
-.msg .bub p{margin:3px 0 0;font-size:16px;line-height:1.35}
-.msg .tag{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:8px;background:var(--card2);font-size:12px;font-weight:700;color:var(--mute)}
-.say{position:sticky;bottom:calc(64px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;padding:10px 0;background:var(--bg)}
-.say input{flex:1;min-width:0;min-height:48px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--tx);padding:0 14px;font:16px -apple-system,sans-serif}
-.react{display:flex;gap:8px;margin-top:12px;overflow-x:auto}.react button{flex:none;min-height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font:700 14px -apple-system,sans-serif}
+.rd-hero{background:linear-gradient(160deg,#2A2150 0%,#141C26 65%);border:1px solid rgba(155,140,255,.35)}
+.rd-hero .rec{display:flex;align-items:baseline;gap:10px;margin-top:8px}
+.rd-hero .rec .big{font-size:56px}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.tri div{background:rgba(10,15,21,.5);border-radius:14px;padding:10px 6px;text-align:center}.tri small{display:block;color:var(--mute);font-size:11px;font-weight:800;letter-spacing:1px;margin-top:4px}
+.seal{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px;margin-top:10px;position:relative;overflow:hidden}
+.seal.rival{border-color:rgba(155,140,255,.55);box-shadow:inset 0 0 0 1px rgba(155,140,255,.15)}
+.seal .hd{display:flex;align-items:center;gap:10px}
+.seal .hd .nm{flex:1;min-width:0;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seal .hd .nm small{display:block;font-weight:600;color:var(--mute);font-size:13px}
+.seal .gm{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.seal .gm b{font:800 24px/1 "Barlow Condensed",sans-serif;letter-spacing:.3px}
+.seal .gm span{color:var(--mute);font-size:13px;font-weight:700;text-align:right}
+.face{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:12px;background:repeating-linear-gradient(135deg,#1B2531 0 10px,#18212C 10px 20px);color:var(--mute);font-weight:700;font-size:14px}
+.face svg{width:18px;height:18px;flex:none;stroke:var(--gold);fill:none;stroke-width:2.2}
+.face em{margin-left:auto;font-style:normal;color:var(--tx);font-weight:800}
+.call{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.call button{min-height:52px;border-radius:14px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font:800 20px/1 "Barlow Condensed",sans-serif;letter-spacing:.4px;cursor:pointer}
+.call button.on{background:var(--vio);border-color:var(--vio);color:#fff}
+.call button.off{opacity:.45}
+.res{display:flex;align-items:center;gap:10px;margin-top:10px;padding:12px;border-radius:12px;background:var(--card2);font-weight:800}
+.res .ic{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none;font-size:16px}
+.res.ok .ic{background:rgba(61,214,140,.2);color:var(--grn)}.res.no .ic{background:rgba(255,107,107,.18);color:var(--red)}.res.na .ic{background:rgba(255,255,255,.08);color:var(--mute)}
+.chips{display:flex;gap:8px;overflow-x:auto;margin-top:14px}.chips button{flex:none;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--mute);font:800 13px -apple-system,sans-serif}.chips button.on{background:var(--tx);color:var(--bg)}
+.how{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;margin-top:4px;font-size:15px}
+.how b{font:800 20px/1 "Barlow Condensed",sans-serif;color:var(--vio)}
 </style></head>
 <body data-tab="lounge">
 <div id="app"></div>
 <script src="shared/state.js"></script><script src="week-games.js"></script><script src="shared/nav.js"></script><script src="g4.js"></script>
 <script>
-const gid=new URLSearchParams(location.search).get('g');
-const TAKES=['Taking the under, both defenses look sharp','Who else is riding the home side tonight','That line moved half a point since noon','My whole Stack is leaning on this one','Fading the public here','Need this one to climb back into the top 5','Live and loud in here','If this hits I pass my matchup'];
-const LK='g4-lounge-v1';
-function mine(){try{return JSON.parse(localStorage.getItem(LK)||'{}')}catch(e){return{}}}
-function post(room,text){const a=mine();(a[room]=a[room]||[]).push({t:Date.now(),text:String(text).slice(0,240)});try{localStorage.setItem(LK,JSON.stringify(a))}catch(e){}}
-function people(f,room){return f.filter(r=>!r.me&&G.mix(room+':'+r.id)<.3)}
-function seed(f,room,g){const ppl=people(f,room),now=Date.now();return ppl.slice(0,6).map((p,i)=>({p,t:now-(i+1)*(7+Math.floor(G.hash(p.id+room)*30))*6e4,text:(g&&i%3===0?[`${g.away.abbr} covers this one easy`,`${g.home.abbr} at home is the play`,`Over in ${g.away.abbr} at ${g.home.abbr}, both offenses are rolling`][i%3===0?Math.floor(G.hash(room)*3):0]:TAKES[(Math.floor(G.hash(room)*TAKES.length)+i)%TAKES.length]),tag:g&&G.hash('s'+p.id+room)<.6?(G.hash('x'+p.id+room)<.5?g.away.abbr:g.home.abbr):null}));}
-function ago(t){const m=Math.max(1,Math.round((Date.now()-t)/6e4));return m<60?m+'m':Math.round(m/60)+'h'}
-function list(){
-  const f=G.field(),wk=Rush.week(),gs=G.games().filter(g=>!g.done||Date.now()-g.date<5*36e5).sort((a,b)=>(b.state==='in')-(a.state==='in')||a.date-b.date);
-  let h=G.top('Lounge')+'<main class="wrap">';
-  h+=`<a class="rm" href="lounge.html?g=week" style="background:linear-gradient(135deg,#3A2E10,#141C26);border-color:rgba(242,193,78,.35)"><div class="tms"><div style="font-size:24px">WEEK ${wk.n} ROOM</div><small style="color:var(--mute)">The whole Field, all week</small></div><div class="side"><div class="stackav">${people(f,'week').slice(0,4).map(p=>G.av(p,28,1)).join('')}</div><small style="color:var(--mute)">${people(f,'week').length} here</small></div></a>`;
-  const live=gs.filter(g=>g.state==='in'),next=gs.filter(g=>g.state!=='in');
-  if(live.length)h+=`<div class="lbl">Live now</div>`+live.map(room).join('');
-  h+=`<div class="lbl">Game rooms</div>`+(next.slice(0,14).map(room).join('')||'<div class="empty">Rooms open as the week\'s games load.</div>');
-  h+='</main>';return h;
-  function room(g){const ppl=people(f,g.id),lv=g.state==='in';return `<a class="rm" href="lounge.html?g=${encodeURIComponent(g.id)}"><div class="tms"><div><span>${G.esc(g.away.abbr)}</span><span>${lv||g.done?G.esc(g.away.score||0):''}</span></div><div><span>${G.esc(g.home.abbr)}</span><span>${lv||g.done?G.esc(g.home.score||0):''}</span></div></div><div class="side"><span class="chip ${lv?'live':''}">${lv?G.esc(g.detail||'LIVE'):g.done?'FINAL':new Date(g.date).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})}</span><div class="stackav" style="margin-top:8px">${ppl.slice(0,3).map(p=>G.av(p,26,1)).join('')}</div><small style="color:var(--mute)">${ppl.length} here</small></div></a>`}
+const LOCK='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+let lg='all';
+function when(t){return new Date(t).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})}
+function card(x,rival){
+  const p=x.pl,k=G.R.key(p.id,x),rd=G.R.get(k),g=x.g,open=!G.R.started(g),sides=G.R.sides(x),truth=G.R.side(x);
+  let h=`<div class="seal${rival?' rival':''}"><div class="hd">${G.av(p,40)}<div class="nm">${G.nameLink(p)}<small>${rival?'Your matchup · ':''}#${p.rank} · ${G.fmt(p.stack)} Stack</small></div>${open?`<span class="chip">SEALED</span>`:`<span class="chip ${g.state==='in'?'live':''}">${g.state==='in'?'LIVE':g.done?'FINAL':'KICKED OFF'}</span>`}</div>
+   <div class="gm"><b>${G.esc(g.away.abbr)} at ${G.esc(g.home.abbr)}</b><span>${G.esc(x.market||'Pick')}<br>${open?'kicks off in '+G.until(g.date):when(g.date)}</span></div>`;
+  if(open){
+    h+=`<div class="face">${LOCK}<span>Side sealed until kickoff</span><em>${G.fmt(x.stake)} staked</em></div>`;
+    h+=`<div class="call">${sides.map(s=>`<button data-k="${G.esc(k)}" data-s="${s.v}" class="${rd?(rd.side===s.v?'on':'off'):''}">${G.esc(s.t)}</button>`).join('')}</div>`;
+    h+=rd?`<div style="color:var(--mute);font-size:13px;margin-top:8px;text-align:center">Your read is locked. The seal breaks at kickoff.</div>`:'';
+  }else{
+    const ok=rd?rd.side===truth:null,lbl=sides.find(s=>s.v===truth);
+    h+=`<div class="res ${ok===null?'na':ok?'ok':'no'}"><span class="ic">${ok===null?'·':ok?'✓':'✗'}</span><span style="flex:1">${G.esc(x.label)}<div style="color:var(--mute);font-weight:600;font-size:13px">${ok===null?'You did not read this one':ok?'You read it right':'You read '+G.esc((sides.find(s=>s.v===rd.side)||{}).t)+', they took '+G.esc(lbl?lbl.t:'')}</div></span><span>${x.status==='won'?'<span class="up">HIT</span>':x.status==='lost'?'<span class="dn">MISS</span>':''}</span></div>`;
+  }
+  return h+'</div>';
 }
-function view(){
-  const f=G.field(),m=G.meRow(),g=gid==='week'?null:G.games().find(x=>String(x.id)===gid),room=gid;
-  const ppl=people(f,room),msgs=seed(f,room,g).concat((mine()[room]||[]).map(x=>({p:m,t:x.t,text:x.text}))).sort((a,b)=>a.t-b.t);
-  let h=G.top(g?`${g.away.abbr} at ${g.home.abbr}`:'Week room')+'<main class="wrap"><a href="lounge.html" style="display:inline-block;margin-top:12px;color:var(--acc);font-weight:700">‹ All rooms</a>';
-  if(g){const lv=g.state==='in',started=lv||g.done||Date.now()>=g.date;
-    h+=`<section class="sb"><div><div class="t">${G.esc(g.away.abbr)}</div>${started?`<div class="s">${G.esc(g.away.score||0)}</div>`:''}</div><div><span class="chip ${lv?'live':''}">${lv?G.esc(g.detail||'LIVE'):g.done?'FINAL':new Date(g.date).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})}</span></div><div><div class="t">${G.esc(g.home.abbr)}</div>${started?`<div class="s">${G.esc(g.home.score||0)}</div>`:''}</div></section>`;
-    const a=ppl.filter(p=>G.hash('x'+p.id+room)<.5).length||1,b=Math.max(1,ppl.length-a);
-    h+=`<div class="lbl">How the room leans</div><div class="lean"><div class="a" style="flex:${a}">${G.esc(g.away.abbr)} ${a}</div><div class="b" style="flex:${b}">${b} ${G.esc(g.home.abbr)}</div></div>`;
-    h+=`<div class="lbl">On this game</div><section class="card">${ppl.slice(0,4).map(p=>`<div class="row">${G.av(p,36)}<div class="nm">${G.nameLink(p)}<small>${G.fmt(p.stack)} Stack</small></div>${started?`<span class="chip">${G.esc(G.hash('x'+p.id+room)<.5?g.away.abbr:g.home.abbr)}</span>`:'<span class="chip">SEALED</span>'}</div>`).join('')||'<div class="empty">Nobody yet. Be first.</div>'}</section>`;
-  }else h+=`<section class="card"><div style="display:flex;align-items:center">${ppl.slice(0,8).map(p=>G.av(p,34)).join('<span style="width:6px"></span>')}</div><div style="color:var(--mute);margin-top:10px">${ppl.length} players in the Week room</div></section>`;
-  h+=`<div class="lbl">The talk</div><div class="react">${['Lock it','Fade','Sweating','Called it'].map(x=>`<button data-r="${x}">${x}</button>`).join('')}</div>`;
-  h+=msgs.map(x=>`<div class="msg">${G.av(x.p,38)}<div class="bub"><b>${G.nameLink(x.p)}</b><small>${ago(x.t)}</small><p>${G.esc(x.text)}</p>${x.p.me?"":`<button data-at="${G.esc(x.p.name)}" style="margin-top:6px;margin-right:6px;padding:3px 10px;border-radius:8px;border:1px solid var(--line);background:none;color:var(--acc);font:700 12px -apple-system,sans-serif">Reply</button>`}${x.tag?`<span class="tag">On ${G.esc(x.tag)}</span>`:''}</div></div>`).join('');
-  h+=`<form class="say" id="say"><input id="txt" maxlength="240" placeholder="Say something to the room" autocomplete="off"><button class="btn" style="width:auto">Send</button></form></main>`;
-  return h;
+function render(){
+  const f=G.field(),m=G.meRow(),op=G.opponent(),all=G.R.deck(),st=G.R.stats();
+  const sealed=all.filter(x=>!G.R.started(x.g)),broken=all.filter(x=>G.R.started(x.g)&&G.R.get(G.R.key(x.pl.id,x))).slice(0,8);
+  const leagues=[...new Set(sealed.map(x=>x.g.league))];
+  const show=sealed.filter(x=>lg==='all'||x.g.league===lg);
+  const riv=op?show.filter(x=>x.pl.id===op.id):[],rest=show.filter(x=>!op||x.pl.id!==op.id);
+  const next=sealed.slice().sort((a,b)=>a.g.date-b.g.date)[0];
+  const mine=G.R.mine();
+  let h=G.top('Reads')+'<main class="wrap">';
+  h+=`<section class="card rd-hero"><div style="display:flex;justify-content:space-between;align-items:center"><span class="chip" style="background:rgba(155,140,255,.2);color:#C9C0FF">THE READ</span><span class="chip">${sealed.length} sealed in the Field</span></div>
+   <div class="rec"><span class="big">${st.right}<span style="color:var(--mute)">/${st.graded}</span></span><span style="color:var(--mute);font-weight:700">reads right this week</span></div>
+   <div class="tri"><div><div class="num">${st.pending}</div><small>WAITING</small></div><div><div class="num">${next?G.until(next.g.date):'-'}</div><small>NEXT SEAL BREAKS</small></div><div><div class="num">${mine.length}</div><small>YOURS SEALED</small></div></div>
+   <div class="how" style="margin-top:14px"><b>1</b><span>Every pick in the Field is sealed until its game kicks off.</span><b>2</b><span>Tap the side you think they took.</span><b>3</b><span>At kickoff the seal breaks and your read is graded.</span></div></section>`;
+  if(leagues.length>1)h+=`<div class="chips"><button data-lg="all" class="${lg==='all'?'on':''}">All</button>${leagues.map(l=>`<button data-lg="${G.esc(l)}" class="${lg===l?'on':''}">${G.esc(String(l).toUpperCase())}</button>`).join('')}</div>`;
+  if(riv.length)h+=`<div class="lbl">Read your matchup</div>`+riv.slice(0,4).map(x=>card(x,1)).join('');
+  h+=`<div class="lbl">Sealed now <span style="color:var(--mute);text-transform:none;letter-spacing:0;font-size:13px">${rest.length}</span></div>`+(rest.slice(0,14).map(x=>card(x,0)).join('')||'<div class="empty">No sealed picks right now. New picks seal as players make them.</div>');
+  if(broken.length)h+=`<div class="lbl">Seals broken</div>`+broken.map(x=>card(x,op&&x.pl.id===op.id)).join('');
+  h+=`<div class="lbl">Your sealed picks</div><section class="card">${mine.length?mine.slice(0,6).map(p=>{const rs=G.R.onMe(p);return `<div class="row"><div class="nm">${G.esc(p.label||p.sel||'Pick')}<small>${G.esc(p.game||'')}${p.g?' · kicks off in '+G.until(p.g.date):''}</small></div>${rs.length?`<span style="display:flex">${rs.slice(0,3).map(r=>G.av(r,26)).join('')}</span><span class="chip">${rs.length} read</span>`:`<span class="chip">${G.honest()?'NO READS YET':'UNREAD'}</span>`}</div>`}).join(''):'<div class="empty">Make a pick and the Field can read it until kickoff. <a style="color:var(--acc)" href="board.html">Board</a></div>'}</section>`;
+  h+='</main>';
+  document.getElementById('app').innerHTML=h;
+  document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{G.R.set(b.dataset.k,b.dataset.s);render()});
+  document.querySelectorAll('[data-lg]').forEach(b=>b.onclick=()=>{lg=b.dataset.lg;render()});
 }
-function render(){if(document.activeElement&&document.activeElement.id==='txt')return;document.getElementById('app').innerHTML=gid?view():list();
-  const s=document.getElementById('say');if(s)s.onsubmit=e=>{e.preventDefault();const v=document.getElementById('txt').value.trim();if(v){post(gid,v);document.getElementById('txt').blur();render();scrollTo(0,document.body.scrollHeight)}};
-  document.querySelectorAll('[data-at]').forEach(b=>b.onclick=()=>{const t=document.getElementById('txt');t.value='@'+b.dataset.at+' ';t.focus()});document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{post(gid,b.dataset.r);render();scrollTo(0,document.body.scrollHeight)});}
 G.render=render;render();
 if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
-setInterval(render,30000);
+setInterval(()=>{if(!document.querySelector(':focus'))render()},30000);
 </script></body></html>

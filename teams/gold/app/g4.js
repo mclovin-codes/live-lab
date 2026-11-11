@@ -49,11 +49,15 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
   // Signed-in account assumed: enter this week's contest on first open, no name step.
   try { if (Rush.week().phase === 'open' && !Rush.me().entered) Rush.enter(ME.handle); } catch (e) {}
 
+  // Honest view: ?field=7 loads exactly 7 players (you plus 6), with nothing generated. ?field=all goes back to the stand-in Field.
+  const FK = 'g5-field';
+  try { const q = new URLSearchParams(location.search).get('field'); if (q === '7') localStorage.setItem(FK, '7'); else if (q === 'all') localStorage.removeItem(FK); } catch (e) {}
+  const honest = () => { try { return localStorage.getItem(FK) === '7'; } catch (e) { return false; } };
   const stackOf = r => Math.round(1000 + (+r.units || 0) * 10);
-  function field() { let f = []; try { f = Rush.field(); } catch (e) {} return f.map(r => Object.assign({}, r, { name: r.me ? ME.handle : String(r.name).replace(/Units?/g, "Stack").replace(/Points/g, "Spread"), stack: stackOf(r) })).sort((a, b) => b.stack - a.stack || (b.me ? 1 : 0) - (a.me ? 1 : 0)).map((r, i, all) => Object.assign(r, { rank: 1 + all.filter(x => x.stack > r.stack).length })); }
+  function field() { let f = []; try { f = Rush.field(); } catch (e) {} if (honest()) { const sims = f.filter(r => !r.me).sort((a, b) => String(a.id).localeCompare(String(b.id), 'en', { numeric: true })).slice(0, 6); f = f.filter(r => r.me).concat(sims); } return f.map(r => Object.assign({}, r, { name: r.me ? ME.handle : String(r.name).replace(/Units?/g, "Stack").replace(/Points/g, "Spread"), stack: stackOf(r) })).sort((a, b) => b.stack - a.stack || (b.me ? 1 : 0) - (a.me ? 1 : 0)).map((r, i, all) => Object.assign(r, { rank: 1 + all.filter(x => x.stack > r.stack).length })); }
   function meRow() { return field().find(r => r.me) || { id: 'me', me: true, name: ME.handle, stack: 1000, rank: null }; }
   function player(id) { return field().find(r => String(r.id) === String(id)) || null; }
-  function opponent() { let r = null; try { r = Rush.rival(); } catch (e) {} return r ? player(r.id) : null; }
+  function opponent() { let r = null; try { r = Rush.rival(); } catch (e) {} const p = r ? player(r.id) : null; if (p) return p; const o = field().filter(x => !x.me); return o.length ? o[Math.floor(hash('rv' + Rush.week().id) * o.length)] : null; }
   function myStack() { try { return Math.round(Rush.me().stack); } catch (e) { return 1000; } }
   function initials(n) { const p = String(n).trim().split(/\s+/); return ((p[0] || '?')[0] + (p[1] ? p[1][0] : (p[0][1] || ''))).toUpperCase(); }
   function hue(n) { return Math.floor(hash('h' + n) * 360); }
@@ -100,12 +104,39 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
 
   // Challenges: a named 1v1 beside the Thursday pairing, with its own record. SIM players accept after 3 seconds.
   const CK = 'g4-ch-v1';
-  function chs() { try { const a = JSON.parse(localStorage.getItem(CK) || '[]'); let ch = false; a.forEach(c => { if (c.state === 'sent' && Date.now() - c.at > 3000) { c.state = 'on'; ch = true; } }); if (ch) localStorage.setItem(CK, JSON.stringify(a)); return a.filter(c => c.week === Rush.week().id); } catch (e) { return []; } }
+  function chs() { try { const a = JSON.parse(localStorage.getItem(CK) || '[]'); let ch = false; a.forEach(c => { if (c.state === 'sent' && !honest() && Date.now() - c.at > 3000) { c.state = 'on'; ch = true; } }); if (ch) localStorage.setItem(CK, JSON.stringify(a)); return a.filter(c => c.week === Rush.week().id); } catch (e) { return []; } }
   function challenge(id) { try { const a = JSON.parse(localStorage.getItem(CK) || '[]'); if (a.some(c => c.opp === id && c.week === Rush.week().id)) return; a.push({ opp: id, at: Date.now(), state: 'sent', week: Rush.week().id }); localStorage.setItem(CK, JSON.stringify(a)); setTimeout(() => render && render(), 3200); } catch (e) {} }
   // Season record from the engine's season table; challenge record W-L from past weeks (none yet this season).
   function record(id) { try { const tb = Rush.season().table, pl = id === 'me' ? null : field().find(r => String(r.id) === String(id)); const t = tb.find(r => String(r.id) === String(id)) || (pl && tb.find(r => r.name === pl.name || String(r.name).replace(/Units?/g, 'Stack').replace(/Points/g, 'Spread') === pl.name)); return t ? { w: t.w, l: t.l, rank: t.rank } : { w: 0, l: 0 }; } catch (e) { return { w: 0, l: 0 }; } }
   function games() { try { return (window.RW && RW.cached && RW.cached()) || []; } catch (e) { return []; } }
 
+  // The Read: call the side of another player's sealed pick; graded the moment the game kicks off.
+  const RK = 'g5-reads-v1';
+  const R = {
+    all() { try { return JSON.parse(localStorage.getItem(RK) || '{}'); } catch (e) { return {}; } },
+    key: (pid, x) => pid + '|' + x.gameId + '|' + x.t,
+    get(k) { return R.all()[k] || null; },
+    set(k, side) { const a = R.all(); if (a[k]) return; a[k] = { side, at: Date.now() }; try { localStorage.setItem(RK, JSON.stringify(a)); } catch (e) {} },
+    started: g => !!g && (g.state !== 'pre' || Date.now() >= g.date),
+    sides: x => x.t === 'total' ? [{ v: 'over', t: 'Over' }, { v: 'under', t: 'Under' }] : [{ v: 'away', t: x.g.away.abbr }, { v: 'home', t: x.g.home.abbr }],
+    side: x => x.t === 'total' ? (/^over/i.test(x.label || '') ? 'over' : 'under') : (String(x.label || '').indexOf(x.g.away.abbr) === 0 ? 'away' : 'home'),
+    deck() {
+      const out = [];
+      field().filter(r => !r.me).forEach(pl => { let ps = []; try { ps = (window.RW && RW.playerPicks && RW.playerPicks(pl.id)) || []; } catch (e) {}
+        ps.forEach(x => { if (x && x.g && x.g.away && x.g.home && !x.raw) out.push(Object.assign({}, x, { pl })); }); });
+      return out.sort((a, b) => a.g.date - b.g.date);
+    },
+    stats() { let right = 0, graded = 0, pending = 0; R.deck().forEach(x => { const r = R.get(R.key(x.pl.id, x)); if (!r) return; if (R.started(x.g)) { graded++; if (r.side === R.side(x)) right++; } else pending++; }); return { right, graded, pending }; },
+    of(pid) { let right = 0, graded = 0; R.deck().filter(x => String(x.pl.id) === String(pid)).forEach(x => { const r = R.get(R.key(x.pl.id, x)); if (r && R.started(x.g)) { graded++; if (r.side === R.side(x)) right++; } }); return { right, graded }; },
+    mine() { let ps = []; try { ps = Rush.picks({ status: 'open', week: Rush.week().id }); } catch (e) {} const gs = games();
+      return ps.map(p => { const g = gs.find(x => String(x.id) === String(p.gameId)); return Object.assign({}, p, { g, game: g ? g.away.abbr + ' at ' + g.home.abbr : '' }); }).filter(p => p.g && !R.started(p.g)); },
+    // Who has read your sealed pick. The honest view invents nobody: real reads need the server.
+    onMe(p) { if (honest()) return []; return field().filter(r => !r.me && mix(p.id + ':' + r.id) < .22); },
+  };
+
+  function foot() { let el = document.getElementById('g5foot'); if (!el) { el = document.createElement('div'); el.id = 'g5foot'; el.style.cssText = 'max-width:560px;margin:8px auto 0;padding:14px 16px 20px;text-align:center;font-size:13px;color:var(--mute)'; document.body.appendChild(el); }
+    el.innerHTML = honest() ? 'Honest view: the 7 players in this week, nothing generated. <a style="color:var(--acc);font-weight:700" href="?field=all">Show the stand-in Field of 31</a>' : 'Stand-in Field of 31 SIM players. <a style="color:var(--acc);font-weight:700" href="?field=7">Honest view: 7 players</a>'; }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', foot); else foot();
   let render = null;
-  window.G = { mix, chs, challenge, record, games, ME, esc, hash, fmt, field, meRow, player, opponent, myStack, av, nameLink, top, sheet, close, stackSheet, openPicks, allPicks, slipHTML, pairingAt, until, hue, initials, set render(f) { render = f; }, get render() { return render; } };
+  window.G = { R, honest, mix, chs, challenge, record, games, ME, esc, hash, fmt, field, meRow, player, opponent, myStack, av, nameLink, top, sheet, close, stackSheet, openPicks, allPicks, slipHTML, pairingAt, until, hue, initials, set render(f) { render = f; }, get render() { return render; } };
 })();
