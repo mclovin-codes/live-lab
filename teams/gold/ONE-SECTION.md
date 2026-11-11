@@ -22,6 +22,7 @@ Home opens on the weekly contest, in this order:
 - **Every profile:** a big face, the Stack, the rank of the Field, the season record and the move this week. The face colours and initials are the same as the top bar's, so one player has one face everywhere.
 - **Another player's profile adds:**
   - You vs them: a Stack bar and "You are 319 behind";
+  - Between you: your one-tap lines to them with their answers ("Waiting on Fade" until one comes back), and theirs to you with a door to answer in the Lounge;
   - their week: picks that have kicked off show the side, with a WITH YOU or AGAINST YOU tag when you are on the same game; sealed picks show only the game and the countdown; settled picks show HIT or MISS;
   - Talk in the Lounge, Add to my circle (the Lounge's My circle reads it), Block and Report.
 - **Your profile adds:** your Slips (Open and Settled), your matchup opponent, and your Season 1 weeks as green and red tiles.
