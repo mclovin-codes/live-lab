@@ -137,9 +137,28 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
     onMe(p) { if (honest()) return []; return field().filter(r => !r.me && mix(p.id + ':' + r.id) < .22); },
   };
 
+  // The seal breaks: every read whose game has kicked off and that you have not watched yet plays once, on any page.
+  const SK = 'g5-seen-v1';
+  const REV_CSS = '.rv-s{position:fixed;inset:0;z-index:95;background:rgba(5,8,12,.82);display:grid;place-items:center;padding:20px}.rv{width:100%;max-width:340px;perspective:900px}.rv-c{position:relative;height:300px;transform-style:preserve-3d;animation:rvflip .9s cubic-bezier(.2,.8,.2,1) .5s forwards}.rv-f,.rv-b{position:absolute;inset:0;border-radius:24px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center}.rv-f{background:repeating-linear-gradient(135deg,#1B2531 0 12px,#18212C 12px 24px);border:2px solid var(--gold)}.rv-b{background:var(--card);border:2px solid var(--vio);transform:rotateY(180deg)}.rv-b.ok{border-color:var(--grn)}.rv-b.no{border-color:var(--red)}@keyframes rvflip{to{transform:rotateY(180deg)}}.rv .verdict{font:800 40px/1 "Barlow Condensed",sans-serif;letter-spacing:.5px}.rv-c .lk{font:800 16px/1 -apple-system,sans-serif;color:var(--gold);letter-spacing:2px}@media (prefers-reduced-motion:reduce){.rv-c{animation-duration:.01s}}';
+  function revealDue() { let seen = {}; try { seen = JSON.parse(localStorage.getItem(SK) || '{}'); } catch (e) {} return R.deck().filter(x => R.started(x.g) && R.get(R.key(x.pl.id, x)) && !seen[R.key(x.pl.id, x)]); }
+  function playReveal(list) {
+    if (!list.length || document.getElementById('rvs')) return;
+    if (!document.getElementById('rvcss')) { const s = document.createElement('style'); s.id = 'rvcss'; s.textContent = REV_CSS; document.head.appendChild(s); }
+    const x = list[0], k = R.key(x.pl.id, x), rd = R.get(k), truth = R.side(x), ok = rd.side === truth, sides = R.sides(x), mine = (sides.find(s => s.v === rd.side) || {}).t, took = (sides.find(s => s.v === truth) || {}).t;
+    const el = document.createElement('div'); el.className = 'sheet-s rv-s'; el.id = 'rvs';
+    el.innerHTML = '<div class="rv"><div class="rv-c"><div class="rv-f">' + av(x.pl, 64, 1) + '<div class="lk">SEALED</div><div style="font:800 26px/1 \'Barlow Condensed\',sans-serif">' + esc(x.g.away.abbr) + ' at ' + esc(x.g.home.abbr) + '</div><div style="color:var(--mute)">' + esc(x.pl.name) + ' kicked off</div></div>'
+      + '<div class="rv-b ' + (ok ? 'ok' : 'no') + '">' + av(x.pl, 52, 1) + '<div style="color:var(--mute);font-weight:700">' + esc(x.pl.name) + ' took</div><div style="font:800 30px/1.05 \'Barlow Condensed\',sans-serif">' + esc(x.label) + '</div><div style="color:var(--mute);font-size:14px">' + fmt(x.stake) + ' staked</div><div class="verdict ' + (ok ? 'up' : 'dn') + '">' + (ok ? 'YOU READ IT' : 'MISREAD') + '</div><div style="color:var(--mute);font-size:14px">You called ' + esc(mine) + (rd.line ? ' · ' + esc(rd.line) : '') + '</div></div></div>'
+      + '<button class="btn" id="rvok" style="margin-top:18px">' + (list.length > 1 ? 'Next seal (' + (list.length - 1) + ' more)' : 'Done') + '</button></div>';
+    document.body.appendChild(el);
+    try { const s = JSON.parse(localStorage.getItem(SK) || '{}'); s[k] = Date.now(); localStorage.setItem(SK, JSON.stringify(s)); } catch (e) {}
+    el.querySelector('#rvok').onclick = () => { el.remove(); render && render(); playReveal(list.slice(1)); };
+  }
+  function checkReveals() { try { playReveal(revealDue()); } catch (e) {} }
+  setTimeout(checkReveals, 1500); setInterval(checkReveals, 30000);
+
   function foot() { let el = document.getElementById('g5foot'); if (!el) { el = document.createElement('div'); el.id = 'g5foot'; el.style.cssText = 'max-width:560px;margin:8px auto 0;padding:14px 16px 20px;text-align:center;font-size:13px;color:var(--mute)'; document.body.appendChild(el); }
     el.innerHTML = honest() ? 'Honest view: the 7 players in this week, nothing generated. <a style="color:var(--acc);font-weight:700" href="?field=all">Show the stand-in Field of 31</a>' : 'Stand-in Field of 31 SIM players. <a style="color:var(--acc);font-weight:700" href="?field=7">Honest view: 7 players</a>'; }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', foot); else foot();
   let render = null;
-  window.G = { R, honest, mix, chs, challenge, record, games, ME, esc, hash, fmt, field, meRow, player, opponent, myStack, av, nameLink, top, sheet, close, stackSheet, openPicks, allPicks, slipHTML, pairingAt, until, hue, initials, set render(f) { render = f; }, get render() { return render; } };
+  window.G = { playReveal, revealDue, R, honest, mix, chs, challenge, record, games, ME, esc, hash, fmt, field, meRow, player, opponent, myStack, av, nameLink, top, sheet, close, stackSheet, openPicks, allPicks, slipHTML, pairingAt, until, hue, initials, set render(f) { render = f; }, get render() { return render; } };
 })();
