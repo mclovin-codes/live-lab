@@ -36,11 +36,11 @@
   const KIND = { nfl: 'helmet', 'college-football': 'helmet', cfb: 'helmet', ncaaf: 'helmet', nba: 'jersey', wnba: 'jersey', 'mens-college-basketball': 'jersey', ncaab: 'jersey', nhl: 'sweater', mlb: 'cap' };
   function svg(league, team, size) {
     size = size || 34; const c = pair(team || {}), kind = KIND[String(league || '').toLowerCase()] || 'jersey', g = 'tm' + (++uid);
-    return `<svg class="tmk" viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="${String((team && (team.name || team.abbr)) || 'Team').replace(/[<&>"]/g, '')}">${SHAPES[kind](c, team && team.abbr, g)}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="tmk" viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="${String((team && (team.name || team.abbr)) || 'Team').replace(/[<&>"]/g, '')}">${SHAPES[kind](c, team && team.abbr, g)}</svg>`;
   }
   function player(league, team, number, size) {
     size = size || 34; const c = pair(team || {}), g = 'tp' + (++uid);
-    return `<svg class="tmk" viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="Player">${SHAPES.jersey(c, number != null && number !== '' ? String(number) : (team && team.abbr), g)}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="tmk" viewBox="0 0 64 64" width="${size}" height="${size}" role="img" aria-label="Player">${SHAPES.jersey(c, number != null && number !== '' ? String(number) : (team && team.abbr), g)}</svg>`;
   }
   window.TeamMark = { svg, player, pair };
 })();

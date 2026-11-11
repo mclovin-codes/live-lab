@@ -15,10 +15,10 @@
   const key = (g, sp) => g.league + '|' + g.id + '|' + JSON.stringify(sp);
   function reg(g, sp, label, odds) { const k = key(g, sp); REG.set(k, { key: k, mkt: JSON.stringify(Object.assign({}, sp, { side: 0, over: 0, o: 0 })), league: g.league, gameId: String(g.id), game: g.away.abbr + ' at ' + g.home.abbr, start: g.date, spec: sp, label, odds, market: sp.k }); return k; }
   function cell(g, sp, top, odds, label, cls) {
-    if (odds == null || odds === '') return `<span class="rb-c off${cls ? ' ' + cls : ''}">${top ? esc(top) : ''}<b>&ndash;</b></span>`;
+    if (odds == null || odds === '') return `<span class="rb-c rgc-off${cls ? ' ' + cls : ''}">${top ? esc(top) : ''}<b>&ndash;</b></span>`;
     const ok = open(g), k = reg(g, sp, label, odds);
     let sel = false; try { sel = !!(window.Rush && Rush.slip && Rush.slip.has && Rush.slip.has(k)); } catch (e) {}
-    return `<button type="button" class="rb-c${cls ? ' ' + cls : ''}${ok ? '' : ' off'}${sel ? ' on' : ''}" data-k="${esc(k)}"${ok ? '' : ' disabled'} aria-label="${esc(label + ' ' + fo(odds))}">${top ? esc(top) : ''}<b>${esc(fo(odds))}</b></button>`;
+    return `<button type="button" class="rb-c${cls ? ' ' + cls : ''}${ok ? '' : ' rgc-off'}${sel ? ' rgc-sel' : ''}" data-k="${esc(k)}"${ok ? '' : ' disabled'} aria-label="${esc(label + ' ' + fo(odds))}">${top ? esc(top) : ''}<b>${esc(fo(odds))}</b></button>`;
   }
   // The home spread from the feed: details reads "FAV -x"; the favourite gives the line its sign.
   function homeSpread(g) {
@@ -39,15 +39,15 @@
     const row = side => {
       const t = g[side], sp = side === 'home' ? hs : (hs == null ? null : -hs), win = st && g.away.score != null && g.home.score != null && (side === 'home' ? g.home.score > g.away.score : g.away.score > g.home.score);
       const cells = st ? '' : `<span class="rgc-cells">${C(g, { k: 'spread', side, line: sp }, sp == null ? '' : ln(sp), sp == null ? null : -110, t.abbr + ' ' + ln(sp))}${C(g, { k: 'total', side: side === 'away' ? 'o' : 'u', line: L.ou }, L.ou == null ? '' : (side === 'away' ? 'O ' : 'U ') + L.ou, L.ou == null ? null : -110, (side === 'away' ? 'Over ' : 'Under ') + L.ou)}${C(g, { k: 'ml', side }, '', side === 'home' ? L.hml : L.aml, t.abbr + ' moneyline', 'ml')}</span>`;
-      return `<div class="rgc-row${win ? ' win' : ''}">${mark(g, t)}<div class="rgc-t"><b>${esc(t.abbr)}</b><small>${esc(t.name || '')}${t.record ? ' · ' + esc(t.record) : ''}</small>${w ? faces(w[side]) : ''}</div>${st ? `<span class="rgc-sc">${esc(t.score == null ? '' : t.score)}</span>` : cells}</div>`;
+      return `<div class="rgc-row${win ? ' rgc-w' : ''}">${mark(g, t)}<div class="rgc-t"><b>${esc(t.abbr)}</b><small>${esc(t.name || '')}${t.record ? ' · ' + esc(t.record) : ''}</small>${w ? faces(w[side]) : ''}</div>${st ? `<span class="rgc-sc">${esc(t.score == null ? '' : t.score)}</span>` : cells}</div>`;
     };
     const href = opts.href || `game.html?id=${encodeURIComponent(g.id)}&league=${encodeURIComponent(g.league || '')}`;
     const tot = w && ((w.over && w.over.length) || (w.under && w.under.length)) ? `<div class="rgc-tot">${w.over && w.over.length ? `<span>OVER</span>${faces(w.over)}` : ''}${w.under && w.under.length ? `<span>UNDER</span>${faces(w.under)}` : ''}</div>` : '';
     const seal = w && w.sealed ? `<div class="rgc-seal"><span>${w.sealed} sealed</span>${faces(w.sealedFaces)}</div>` : '';
-    return `<div class="rgc${g.state === 'in' ? ' live' : ''}"><a class="rgc-h" href="${href}"><span class="rgc-lg">${esc(String(g.league || '').toUpperCase())}</span>${when(g)}${st ? '' : '<span class="rgc-cols"><i>SPREAD</i><i>TOTAL</i><i>ML</i></span>'}</a>${row('away')}${row('home')}${tot}${seal}${opts.foot || ''}</div>`;
+    return `<div class="rgc${g.state === 'in' ? ' rgc-islive' : ''}"><a class="rgc-h" href="${href}"><span class="rgc-lg">${esc(String(g.league || '').toUpperCase())}</span>${when(g)}${st ? '' : '<span class="rgc-cols"><i>SPREAD</i><i>TOTAL</i><i>ML</i></span>'}</a>${row('away')}${row('home')}${tot}${seal}${opts.foot || ''}</div>`;
   }
   const CSS = `.rgc{background:#121A23;border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-top:10px;overflow:hidden;font:400 15px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#F4F7FA}
-.rgc.live{border-color:rgba(239,68,68,.45)}
+.rgc.rgc-islive{border-color:rgba(239,68,68,.45)}
 .rgc-h{display:flex;align-items:center;gap:8px;padding:9px 12px 4px;color:inherit!important;text-decoration:none}
 .rgc-lg{font:700 12px/1 'Barlow Condensed',sans-serif;letter-spacing:1px;color:#A3AFBD;background:#1A2530;padding:3px 7px;border-radius:6px}
 .rgc-time{font:700 13px/1 'Barlow Condensed',sans-serif;color:#A3AFBD;letter-spacing:.4px}
@@ -57,10 +57,10 @@
 .rgc-row{display:flex;align-items:center;gap:10px;padding:6px 12px}
 .rgc-row .tmk{flex:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
 .rgc-t{flex:1;min-width:0}.rgc-t b{display:block;font:400 22px/1 'Bebas Neue','Barlow Condensed',sans-serif;letter-spacing:.6px}.rgc-t small{display:block;font-size:12px;color:#A3AFBD;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rgc-sc{font:400 32px/1 'Bebas Neue','Barlow Condensed',sans-serif;font-variant-numeric:tabular-nums;color:#A3AFBD;min-width:40px;text-align:right}.rgc-row.win .rgc-sc{color:#F4F7FA}
+.rgc-sc{font:400 32px/1 'Bebas Neue','Barlow Condensed',sans-serif;font-variant-numeric:tabular-nums;color:#A3AFBD;min-width:40px;text-align:right}.rgc-row.rgc-w .rgc-sc{color:#F4F7FA}
 .rgc-cells{display:grid;grid-template-columns:repeat(3,64px);gap:4px;flex:none}
 .rgc .rb-c{width:64px;height:46px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:#1A2530;color:#A3AFBD;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 12px/1 -apple-system,sans-serif;padding:0;cursor:pointer}
-.rgc .rb-c b{font:700 15px/1 -apple-system,sans-serif;color:#00BFFF}.rgc .rb-c.on{background:#F4F7FA;color:#0B1118}.rgc .rb-c.on b{color:#0B1118}.rgc .rb-c.off{opacity:.45;cursor:default}
+.rgc .rb-c b{font:700 15px/1 -apple-system,sans-serif;color:#00BFFF}.rgc .rb-c.rgc-sel{background:#F4F7FA;color:#0B1118}.rgc .rb-c.rgc-sel b{color:#0B1118}.rgc .rb-c.rgc-off{opacity:.45;cursor:default}
 .rgc-dot{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#1A2530;font:800 12px sans-serif}
 .rgc-who{display:flex;align-items:center;margin-top:4px}.rgc-who>*{margin-right:-6px}.rgc-who em{font-style:normal;font:700 12px/1 -apple-system,sans-serif;color:#A3AFBD;margin-left:12px}
 .rgc-tot,.rgc-seal{display:flex;align-items:center;gap:8px;padding:6px 12px 10px;border-top:1px solid rgba(255,255,255,.06);font:700 12px/1 'Barlow Condensed',sans-serif;letter-spacing:.8px;color:#A3AFBD}.rgc-tot .rgc-who,.rgc-seal .rgc-who{margin-top:0;margin-right:8px}
