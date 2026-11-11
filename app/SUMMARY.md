@@ -10,7 +10,7 @@
 ## What to tap first
 
 1. **Home:** your rank as one big number, your Stack, and a strip of every player's face placed by Stack. Below them are tonight's games, with the faces of who is on each.
-2. **Lounge:** the game that is on, with who is with you and who is against you. Tap any face's card to send them a one-tap line ("Riding with you", "Bring it").
+2. **Lounge:** one screen. Your matchup, every face, the game that is on (with you, against you), then the room. Hold or double-tap any row for a tapback or a reply.
 3. **Your Stack** (top right on every page): your Stack, rank, matchup, open Slips and the free Reload.
 4. **Any face or name** opens that player's profile.
 
@@ -33,40 +33,37 @@
 - **Board** (Blue): every game shows the faces of the players with a pick on it, sealed until kickoff. Live games show the score and Follow, because picks lock at kickoff this round.
 - **Game page** (Blue):
   - picks lock at kickoff;
-  - "The Field on this game" shows each player's pick as sealed until kickoff, then what they took, tagged With you or Against you;
+  - "The Field on this game" shows each player as sealed until kickoff. At kickoff it becomes "Seal broken: who took what": the side, price and stake for each player, tagged With you or Against you. This is the full table the Lounge's seal-break rows open;
   - a Lounge link opens the Lounge focused on that game.
 - **Home** (Gold):
   - the contest card;
   - On tonight;
-  - For you: taps aimed at you, and answers to the ones you sent;
+  - For you: tapbacks and replies on your rows in the Lounge;
   - your matchup tug bar, with the countdown to Thursday's pairing;
   - The Field right now, including who a big play is good for;
   - the Field ladder, with arrows for rank moves.
 
-## The one social space: the Lounge (Red)
+## The one social space: the Lounge (Red, rebuilt after the council's 4-0 verdict)
 
-- **One page for the whole Field.** There are no rooms; tonight's games are chips that refocus it. From the top:
-  - the Field as faces, ranked by Stack, with you and your opponent ringed;
-  - **the game that is on**: the score and the clock. Before kickoff, the faces of who picked it and a countdown. After kickoff, "With you" and "Against you" by face. Big plays are real scoring plays from the event source, with the faces of the players riding them;
-  - **Seal broken**: when a kickoff passes with the page open, a panel flips every pick on that game face up. Nothing is scored;
-  - **Next seal breaks** and its countdown;
-  - **Sent to you**: taps other players sent you, each answered in one tap;
-  - **The Field this week**: one card per moment from the event source, each with a one-tap action on the person in it.
-- **One tap to a named player, who answers in one tap:**
-
-| Moment | You tap | They answer |
-|---|---|---|
-| A sealed pick | Watching this one / Good luck | Watch this / Thanks |
-| A revealed side against you | Bring it | You're on |
-| A revealed side with you | Riding with you | Let's ride |
-| A hit | Nice hit | Your turn next |
-| A miss | Tough beat | Next one hits |
-| A rank move | Coming for you | Catch me |
-| Your matchup | Your move | Watch me |
-
-- What you sent stays on the card, with their answer under it.
-- Talk sits on top: "Say something about this game" attaches a line to the game.
-- **The Field or My circle:** the founder's 9:50 PM addition, as a switch on the same space (see My circle below).
+- **One screen for the whole Field,** about 1.7 phone screens in the honest view. It opens at the newest row. There are no rooms and no fixed lines. From the top:
+  1. **The Field / My circle** switch.
+  2. **Your matchup:** "You 1,000, them 817, lead 183". It is one figure from one source (`Rush.matchup()`), the same number Contest and Home show.
+  3. **The faces:** every player with rank and Stack, you and your opponent ringed. A rank change re-sorts the row, each face sliding to its new place. Every face opens a profile.
+  4. **The game that is on:** one card, swipe for the others.
+     - The live score and period.
+     - Before kickoff, who picked it and a countdown. After kickoff, "With you" and "Against you" by face.
+     - A "Next seal" chip with its countdown.
+     - The card opens the game page.
+  5. **The room:** one thread, newest at the bottom, with a "New since you left" divider:
+     - Slips sealing (games only);
+     - each seal break as one row (game, score, faces with you and against you), which opens the full who-took-what table on the game page;
+     - picks settling, with the Stack move counting up, and several on one game folded into one row;
+     - older moments behind "Earlier today".
+  6. **The seal breaking, live:** at kickoff, with the page open, a "Seal broken" panel flips every pick on that game face up. It fired on the real 10:00 PM kickoffs. Nothing is scored.
+- **One tap, and talk on top:**
+  - Hold or double-tap any row for the tapback tray (heart, thumbs up, thumbs down, laugh, exclamation, question) or Reply. One tapback per player per row, and your face shows as a badge on it.
+  - Reply quotes the row into the one composer, docked above the tabs and the Slip bar.
+- **The Field or My circle:** the same screen, filtered (see My circle below).
 
 ## My circle (the founder's 9:50 PM note): a filter, not a second space
 
@@ -84,13 +81,13 @@
 
 - The honest view gives exactly 7 players everywhere, ranks 1 to 7 (ties share a rank), and about 6 picks per player, as Week 8 ran.
 - Your matchup opponent is always one of the 7.
-- Nothing is generated: no talk, no reactions, no head counts. "Sent to you" says nothing has arrived yet.
+- Nothing is generated: no stand-in talk, no stand-in tapbacks, no head counts.
 - The pages are still full:
   - the live game with who is on each side;
   - the next seal and its clock;
   - the sealed picks of the other six;
   - the week's events with faces;
-  - something to tap on every one of them.
+  - a tapback or a reply on every row.
 - At 30 players every game has more faces and more taps come back.
 
 ## Making a pick: the Slip (Blue, after the founder's 10:00 PM note)
@@ -148,13 +145,11 @@
   - the Phase 3 and multi-contest cleanup;
   - the one Slip and its bar;
   - the circle in the store, and its switch on the Contest tab.
-- **Red:** the Lounge:
-  - the live game with you and against you;
-  - Seal broken;
-  - Next seal breaks;
-  - the one-tap moments and their answers;
-  - Sent to you;
-  - the talk layer;
+- **Red:** the Lounge, rebuilt as one screen:
+  - the matchup and faces;
+  - the live game card with you and against you;
+  - Seal broken, live;
+  - the room with tapbacks and replies;
   - the circle filter.
 - **Gold:**
   - Home's contest card, On tonight, the matchup tug bar and The Field right now;
@@ -165,7 +160,7 @@
 
 ## Expert lines kept
 
-- Taps move nothing of value and change no Stack, finish, season record or prize.
+- Tapbacks and replies move nothing of value and change no Stack, finish, season record or prize.
 - There is no copy button and no reward for tapping.
 - Before kickoff, a pick shows only who and which game, everywhere.
 - Picks lock at kickoff, with no in-game picking.
@@ -173,8 +168,8 @@
 
 ## Unfinished or faked
 
-- **The other players are stand-ins.** Their picks are real games and lines, but not real people. Their answers to your taps appear only in the full stand-in view.
-- **On this phone only:** taps, talk, Block, Report, the circle and the invite link work locally. Nobody else sees them until a server exists.
+- **The other players are stand-ins.** Their picks are real games and lines, but not real people. They never tap back or reply, so in the honest view only your own tapbacks and talk appear.
+- **On this phone only:** tapbacks, talk, Block, Report, the circle and the invite link work locally. Nobody else sees them until a server exists.
 - **Big plays** come from ESPN's scoring plays for NFL and NHL. The time shown is when this phone first saw the play. NBA has no big plays, because scoring is constant.
 - **The time a stand-in placed a Slip** is simulated before its kickoff. Your own Slips use the real time.
 - **Rank arrows on Home** compare with what this phone last saw.
