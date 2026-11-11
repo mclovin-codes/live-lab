@@ -83,11 +83,7 @@ const hFmt=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour
 /* the active contest (Rush.wallet): the Board shows only the games it covers, with its own clocks */
 const LGN={nfl:'NFL',nba:'NBA',nhl:'NHL'};
 function ctx(){const W=window.Rush&&Rush.wallet;let cur=null;try{cur=W&&W.current?W.current():null}catch(e){}if(!cur||cur.id==='rush')return{id:'rush',cur,sports:['nfl','nba','nhl'],keep:()=>true};return{id:cur.id,cur,sports:(cur.sports||[]).filter(k=>LGN[k]),keep:g=>{try{return W.covers(cur.id,{league:g.league,start:g.date}).ok}catch(e){return true}}}}
-function ctxBar(C){const el=$('rb-ctx'),cur=C.cur;if(!cur){el.hidden=true;return}const col=/^#[0-9a-fA-F]{3,8}$/.test(cur.color||'')?cur.color:'#66768A',now=Date.now(),day=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric'}).format(new Date(ms));
- const dt=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(new Date(ms))+' ET';
- const clock=cur.phase==='settled'?'Settled':cur.phase==='upcoming'?'Opens '+dt(cur.opens):cur.entryClose&&cur.entryClose>now?'Entry closes '+dt(cur.entryClose):'Settles '+dt(cur.settles);
- const sub=C.id==='rush'?`${Math.round(cur.stack||0).toLocaleString()} Stack · ${clock}`:`${Math.round(cur.stack||0).toLocaleString()} Stack · ${C.sports.map(k=>LGN[k]).join(', ')} · ${day(cur.opens)} to ${day(cur.settles-5*36e5)} · ${clock}`;
- el.href=C.id==='rush'?'ranks.html':'contest.html?c='+encodeURIComponent(C.id);el.innerHTML=`<i style="background:${col}"></i><span><b>Picking in ${esc(cur.name)}</b><small>${esc(sub)}</small></span><em>${C.id==='rush'?'Ranks':'Rules'} &rsaquo;</em>`;el.hidden=false}
+function ctxBar(){return''}
 function seg(sports){sports=sports||['nfl','nba','nhl'];if(lg!=='all'&&!sports.includes(lg))lg='all';$('rb-seg').hidden=sports.length<2;$('rb-seg').innerHTML=[['all','All'],['nfl','NFL'],['nba','NBA'],['nhl','NHL']].filter(([k])=>k==='all'||sports.includes(k)).map(([k,l])=>`<button role="tab" aria-selected="${lg===k}" class="${lg===k?'on':''}" data-lg="${k}">${l}</button>`).join('')}
 function lineTxt(g){const L=g.state==='in'&&g.liveLine||g.line;if(!L.details&&L.ou==null)return'';return`${esc(L.details||'')}${L.ou!=null?` <i>&middot;</i> O/U ${L.ou}`:''}${g.state==='in'&&L.seen?` <i>&middot;</i> last seen${L.seen>1?' '+esc(hFmt(L.seen).replace(/\s*ET$/,'')):''}`:''}`}
 function row(g){const live=g.state==='in',fin=g.state==='post',H=g.home,A=g.away;const lose=t=>fin&&H.score!=null&&((t==='h'&&H.score<A.score)||(t==='a'&&A.score<H.score));
@@ -103,7 +99,7 @@ function render(){const C=ctx();ctxBar(C);seg(C.sports);const w=RW.week(),fmt=ms
  const G=[['live','Live',list.filter(g=>g.state==='in')],['today','Today',list.filter(g=>g.state==='pre'&&RW.etDay(g.date)===today)],['later','Later this week',list.filter(g=>g.state==='pre'&&RW.etDay(g.date)>today)],['final','Final',list.filter(g=>g.state==='post').reverse()]];
  let h=err?`<div class="rb-err">${esc(err)}</div>`:'';
  if(!games.length&&!err){$('rb-main').innerHTML='<div class="rb-skel"></div><div class="rb-skel"></div>';return}
- if(games.length&&!base.length)h+=`<div class="rb-empty">No games in ${esc(C.cur?C.cur.name:'this contest')} this week. Switch contests with the pill at the top.</div>`;
+ if(games.length&&!base.length)h+=`<div class="rb-empty">No games in ${esc(C.cur?C.cur.name:'this contest')} this week. </div>`;
  if(lg==='all'||lg==='nfl')h+=schedule(base);
  for(const[k,n,arr]of G){if(k!=='live'&&!arr.length&&k!=='today')continue;h+=`<section class="rb-grp"><h2>${k==='live'&&arr.length?'<span class="dot"></span>':''}${n}<span>${arr.length} game${arr.length===1?'':'s'}</span></h2>${arr.length?`<div class="rb-list">${arr.map(row).join('')}</div>`:`<div class="rb-empty">${k==='live'?'Nothing live right now. Pregame lines are open below.':'No more games today.'}</div>`}</section>`}
  const m=$('rb-main');if(m._h!==h){m.innerHTML=h;m._h=h}}

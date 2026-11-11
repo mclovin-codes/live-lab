@@ -110,10 +110,10 @@
  *
  * JOINER NOTE (founder ruling 3:00 AM: no payment handles of any kind; only an optional free-text note)
  *   Rush.joiner.FIELDS   -> [{k:'note', label:'Note'}]. rules.fields is ['note'] or [].
- *   Rush.joiner.NOTE     -> "Your note is shared with the commissioner." (show it on the join form)
+ *   Rush.joiner.NOTE     -> "Your note is shared with the Field." (show it on the join form)
  *   Rush.joiner.clean(f, allowed) -> {note} only: tags, links and "$" dropped, 140 chars. Any other key is discarded.
  *   Rush.joiner.get() / set(f)    -> this phone's saved note, to prefill the join form.
- *   Rush.joiner.card(contestId, f, allowed) -> code a joiner sends the commissioner (no backend);
+ *   Rush.joiner.card(cid, f, allowed) -> code a joiner sends the commissioner (no backend);
  *   Rush.joiner.readCard(code, allowed)     -> {contest, name, fields:{note?}, at} cleaned, or null.
  *
  */
@@ -395,10 +395,10 @@
     });
     Object.values(out).forEach(x => delete x.raw); return out;
   }
-  /* joiner note: optional free text for the commissioner. Text only, never a link; no "$". */
+  /* joiner note: optional free text. Text only, never a link; no "$". */
   const cleanField = (k, v) => String(v == null ? '' : v).replace(/[\u0000-\u001f<>"`$]/g, '').replace(/[a-z]+:\/\/|www\./gi, '').trim().slice(0, 140);
   function cleanFields(f, allowed) { const keys = JFIELDS.map(x => x.k).filter(k => !allowed || allowed.includes(k)), o = {}; keys.forEach(k => { const v = cleanField(k, f && f[k]); if (v) o[k] = v; }); return o; }
-  function joinerCard(contestId, fields, allowed) { return b64.enc(JSON.stringify({ v: 1, c: String(contestId || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40), n: String(S.handle || 'Player').slice(0, 18), f: cleanFields(fields, allowed), t: Date.now() })); }
+  function joinerCard(cid, fields, allowed) { return b64.enc(JSON.stringify({ v: 1, c: String(cid || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40), n: String(S.handle || 'Player').slice(0, 18), f: cleanFields(fields, allowed), t: Date.now() })); }
   function readJoinerCard(code, allowed) { try { const j = JSON.parse(b64.dec(String(code).slice(0, 4000))); if (!j || j.v !== 1) return null; return { contest: String(j.c || '').replace(/[^a-z0-9-]/gi, '').slice(0, 40), name: String(j.n || 'Player').replace(/[<>"`]/g, '').slice(0, 18), fields: cleanFields(j.f || {}, allowed), at: +j.t || Date.now() }; } catch (e) { return null; } }
 
   /* signed-in players are entered in the weekly contest without a name step */
@@ -410,7 +410,7 @@
     on: fn => { subs.push(fn); return () => subs.splice(subs.indexOf(fn), 1); },
     fmt, grade: { sync, final: finalGrade, finalOf, injuryExits }, SPORT, _raw: () => S,
     rules: { norm: normRules, check: checkRules, result: contestResult, INJURY: INJ.slice() },
-    joiner: { FIELDS: JFIELDS.map(f => Object.assign({}, f)), NOTE: 'Your note is shared with the commissioner.',
+    joiner: { FIELDS: JFIELDS.map(f => Object.assign({}, f)), NOTE: 'Your note is shared with the Field.',
       get: () => cleanFields(S.joiner || {}), set: f => { S.joiner = cleanFields(f); save(); return Object.assign({}, S.joiner); },
       clean: cleanFields, card: joinerCard, readCard: readJoinerCard },
     wallet: { list: walletList, get: entryOf, active, setActive, current: () => entryOf(active()), color, covers, allows: allowsIn, place: placeIn, placeMany, reload: reloadIn, picks: walletPicks, etDay },

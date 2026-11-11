@@ -64,18 +64,7 @@ body.has-rnav{padding-bottom:calc(60px + env(safe-area-inset-bottom,0px))}
     const h = pillHTML(e); if (b._h !== h) { b.innerHTML = h; b._h = h; }
   }
   if (window.Rush) Rush.avatar = avatar;
-  function closeSwitch() { ['rcx', 'rcx-scrim'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); }
-  function openSwitch() {
-    closeSwitch(); let L = []; try { L = Rush.wallet.list(); } catch (x) {} const a = Rush.wallet.active();
-    const sc = document.createElement('div'); sc.id = 'rcx-scrim'; sc.addEventListener('click', closeSwitch);
-    const sh = document.createElement('div'); sh.id = 'rcx'; sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-label', 'Switch contest');
-    sh.innerHTML = `<div class="grab"></div><h3>Your contests</h3><p>Each contest has its own Stack. The Board, game pages and your Slip work inside the one you pick.</p>` +
-      L.map(e => `<button type="button" class="row${e.id === a ? ' on' : ''}" data-cx="${esc(e.id)}"><span class="rdot" style="background:${okColor(e.color)}"></span><span><b>${esc(e.name)}</b><small>${e.rank ? '#' + e.rank + (e.of ? ' of ' + e.of : '') + ' · ' : ''}${esc(clockOf(e))}</small></span><span class="st">${e.entered ? stk(e.stack) + ' Stack' : 'Not entered'}</span></button>`).join('') +
-      '<a class="more" href="contests.html">Find or start a contest</a>';
-    sh.addEventListener('click', ev => { const r = ev.target.closest('[data-cx]'); if (!r) return; Rush.wallet.setActive(r.dataset.cx); closeSwitch(); drawPill(); draw(); });
-    document.body.appendChild(sc); document.body.appendChild(sh);
-  }
   function init() { const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); draw(); drawPill(); if (window.Rush && Rush.on) Rush.on(() => { draw(); drawPill(); }); setInterval(() => { draw(); drawPill(); }, 30000); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
-  window.Rush = window.Rush || {}; window.Rush.nav = { refresh: () => { draw(); drawPill(); }, openSwitch };
+  window.Rush = window.Rush || {}; window.Rush.nav = { refresh: () => { draw(); drawPill(); } };
 })();
