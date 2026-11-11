@@ -1,60 +1,64 @@
-# Team Gold, Phase 4: Rush as a place you play against people
+# Team Gold, Phase 4 round two: The Read
 
-URL: https://mclovin-codes.github.io/live-lab/teams/gold/app/
+- App: https://mclovin-codes.github.io/live-lab/teams/gold/app/
+- Honest view (7 players, nothing generated): https://mclovin-codes.github.io/live-lab/teams/gold/app/lounge.html?field=7
+- The footer of every page switches between the two views, and the choice holds as you move through the app.
 
-**The idea in one sentence:** every screen puts a person in front of you, either your matchup opponent, the Field or the room for a game, and your Stack is the one number that follows you everywhere.
+**The mechanic: The Read.** Every pick in the Field is sealed until its game kicks off. You call, in one tap, the side you think another player took, and the moment the game kicks off the seal breaks and your read is graded.
 
-**What to tap first:** open Home, tap Challenge on any player, then open the Matchup tab. Three seconds later they accept, and you see the two of you face to face with your Stacks and the gap. Then tap Lounge and open the Week 10 room.
+## What to tap first
+Open the Reads tab. Then:
+1. Tap a player in the strip at the top.
+2. On one of their sealed cards, tap a side (the two teams, or Over and Under).
+3. Optionally add one line, then tap Seal it. The line opens with the seal.
 
-## Navigation and why
-- Five tabs: Home, Board, Matchup, Lounge, Me.
-- Matchup takes the old Slips tab, because the 1v1 is one of the two reasons to open the app. The Lounge is the other, and it keeps its tab.
-- Every page has the same top bar: your avatar on the left opens your profile, the page name sits in the middle, and your Stack on the right opens the Stack sheet.
+Then open Home: the Read card shows how many picks are left to read, your record and when the next seal breaks.
 
-## Home
-Home shows four blocks in eye order:
-1. **The contest card:** your rank as a huge number, your Stack, how far you've moved since Tuesday, and a strip showing where you sit in the Field. It has two buttons: Make picks and Ranks.
-2. **Your matchup:** before Thursday 7:00 PM, a countdown to the auto pairing and three players close to your Stack to challenge now. After the pairing, the two avatars face to face with a tug bar and "You lead by 120".
-3. **Lounge rooms:** a swipe row of game rooms with the score or the start time and who is in each room.
-4. **The Field:** the top five plus you. Every avatar and name opens that player's profile.
+## How it works with 7 players and nobody typing
+- The Reads tab is the one space for the whole Field. There are no rooms; leagues are filter chips and players are a strip.
+- With 7 players the deck holds about 30 sealed picks: the other six players, each with about 6 picks, as Week 8 ran (211 picks, 33 entrants).
+- **What a sealed card shows:** the player, the game, the market, the stake size and the kickoff countdown.
+- **What it hides:** the side. That is the only thing you call.
+- Your matchup opponent's cards come first, under "Read your matchup", and the Matchup page has a button to read them.
+- Nobody needs to type: a read is one tap, and the line is optional.
+- **What the honest view never shows:**
+  - an invented crowd, generated talk, reactions or head counts;
+  - reads by other players on your picks. It says "No reads yet", because real reads need the server.
 
-## The contest and matchups
-- **Ranks:** a podium for the top three, then the whole Field ordered by Stack. Tied Stacks share a rank.
-- **Matchup tab:** your Week 10 matchup and your Challenges, each with its own view.
-- The opponent's Slip is shown as locked rows. Each pick opens when its game kicks off, with a countdown to that kickoff.
-- The higher Stack on Monday night takes the matchup.
+## What brings a player back
+- Something is always pending: reads waiting on kickoffs, and a "next seal breaks in 47m" clock on the Reads page and on Home.
+- The Field makes new picks every day, so new sealed cards appear.
+- Your read record ("3/4 read right") sits on the Reads page, Home and your profile. Another player's profile shows your record reading them, with a link to read their sealed picks.
 
-## The social space
-The Lounge stops being one chat feed and becomes rooms you walk into:
-- **The Week room** for the whole Field, all week.
-- **One room per game,** live games first.
-- **Inside a game room:**
-  - a big scoreboard;
-  - "How the room leans": the bar of who is on each side;
-  - "On this game": who is in, with their side hidden until kickoff;
-  - one-tap reactions (Lock it, Fade, Sweating, Called it), and Reply on any line, which addresses that player;
-  - the talk, with every name and avatar opening a profile.
+## What is ownable
+**Name:** The Read.
 
-What makes it a place to hang out: you go where the game is, you see who is there, and you see what they are on once it kicks off.
+**Steps, in order:**
+1. A player's pick is sealed: the Field sees who picked, which game, the market and the stake, never the side.
+2. Any other player calls the side in one tap, and may attach one line. The read is sealed too.
+3. At kickoff the seal breaks for everyone at once: the side is shown and every read on it is graded on the spot, before the game is played.
+4. When the game ends the pick itself grades, so a card resolves twice: the read at kickoff, the pick at the final.
+5. Reads build two records per player: how well you read the Field, and how hard you are to read. Your matchup opponent is the first read you are given.
 
-## Profile
-- **Your profile (Me tab, or your avatar):** a big avatar, your Stack, this week's rank, your season record, your Season 1 weeks as green or red tiles, your Slips (Open and Settled), and this week's rival.
-- **Another player's profile (tap any name or avatar, anywhere):** their Stack, rank and record, a You vs them bar with the Stack gap, a Challenge button, and their picks, which appear only as each game kicks off.
-- **Tap your Stack (top right on every page):** a sheet with your Stack, your rank, your Stack free to stake, your open Slips, the free Reload when you have busted, and links to your profile and the Board.
+**What is new:**
+- A group chat needs typing. A pick feed shows picks after the fact. A reaction bar reacts to things already public.
+- The Read is a prediction about a person, not a game: it is made against information this app keeps hidden, and it is graded by the reveal itself, at kickoff, not by the game result.
 
-## Where Slips went
-Slips live in two places: the Stack sheet (open Slips, one tap from anywhere) and the profile (Open and Settled). The old Slips page still exists for Board links.
+## The two mechanics I dropped
+- **Ride or Fade after the reveal:** tap to back or oppose a pick once it is shown. Other apps already do it, it resolves only at the final, and with 7 players there is little to react to.
+- **The Clash:** auto-pair two players who sealed opposite sides of the same game and let the Field call the winner. It only fires when two players choose the same game, which at 7 players is rare.
 
-## What I cut
-- Create a contest, commissioner mode, Squads and the contest switcher.
-- Units, everywhere a player looks. SIM names that carried Units or Points are renamed on screen.
-- The name step: you are signed in as nross and entered automatically.
-- Prize figures, since "$" is off the word list.
+## What the cleanup removed
+- **Deleted:** the contest and contests pages, the contest kit, the Squad page and kit, the Phase 3 Squad Streak simulation pages, the old Slips page, the round-one backup pages, the old Gold store and the inbox note.
+- **Tab bar:** the contest pill, the "Your contests" sheet and "Find or start a contest" are gone.
+- **Board:** the "Picking in" line and its contest link are gone.
+- **Game page:** the contest kit and the contest picker on the pick sheet are gone; it only appears with two or more contests, which can no longer happen.
+- **Old profile page (player.html):** now opens Me.
+- **Renamed:** the Lounge tab is now Reads.
 
 ## What is unfinished or faked
-- **The Field and the room talk are SIM players.** Room talk is seeded from short lines, so it repeats, and your own posts stay on your phone.
-- **Challenges are on this phone only,** and a SIM player accepts after 3 seconds.
-- **The challenge record isn't counted yet.** The season record comes from the engine's season table, so SIM players on this week's live Field show 0-0.
-- **The Week 10 pairing is the engine's rival pick,** shown as your opponent after Thursday 7:00 PM. Before that, Matchup shows the countdown and challenges.
-- **The Board and the game page are the existing pages** under the new tab bar, not redrawn.
-- **Who leans which way in a room is simulated.**
+- **Reads stay on this phone.** No other player sees your reads or lines until a server exists, and in the stand-in view the reads on your picks are generated.
+- **The other players' picks come from the engine's stand-in players.** They are real games with real lines, but not real people.
+- **The busy view (31 players)** shows the stand-in Field, so the deck is large.
+- **"How hard you are to read"** is in the rules above, but not yet shown as a number on profiles.
+- **Challenges** stay on this phone. In the honest view, a sent challenge stays "Sent" because nobody accepts it.
