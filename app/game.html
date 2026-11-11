@@ -184,7 +184,7 @@
 <script src="week-games.js?v=f1109"></script>
 <script src="team-mark.js?v=m5"></script>
 <script src="faces.js?v=f1"></script>
-<script src="shared/nav.js?v=f1111"></script>
+<script src="shared/nav.js?v=f1112"></script>
 <script src="shared/events.js?v=f1107"></script>
 <script>
 /* Rush game page: pregame full book and live mode for NFL, NBA and NHL (owner: Team Blue).
@@ -477,7 +477,7 @@ function act(d){const M=model();switch(d.a){
   case'pill':pillTab=d.v;window.scrollTo(0,0);render();break;case'sub':subTab=d.v;render();break;case'boxside':boxSide=d.v;render();break;case'stats':statsTab=d.v;render();break;
   case'slip':{const sp=REG[d.k];if(!sp)break;if(!canPick()&&!(Rush.slip&&Rush.entered)){openSheet('enter');break}const q=quote(sp);if(!q.ok){toast(q.why||'This line is locked.');break}
     /* one tap adds the pick to the Slip (minimized bar above the tabs); a second tap removes it. No sheet opens. */
-    if(Rush.slip){Rush.slip.toggle({key:LG+'|'+ID+'|'+JSON.stringify(sp),mkt:JSON.stringify(Object.assign({},sp,{side:0,over:0,o:0})),league:LG,gameId:String(ID),game:gameName(),start:game().start,spec:sp,label:q.label,odds:q.odds,market:sp.k});markSel();break}
+    if(Rush.slip){Rush.slip.toggle({key:LG+'|'+ID+'|'+JSON.stringify(sp),mkt:JSON.stringify(Object.assign({},sp,{side:0,over:0,o:0})),league:LG,gameId:String(ID),game:gameName(),start:game().start,spec:sp,label:q.label,odds:q.odds,market:sp.k,player:sp.name||undefined,jersey:(sp.aid&&RJ[sp.aid]&&RJ[sp.aid].n)||undefined,team:(sp.aid&&RJ[sp.aid]&&RJ[sp.aid].t&&RJ[sp.aid].t.abbreviation)||undefined});markSel();break}
     slip={sp,stake:Rush.settings().lastStake||25};pinInit();openSheet('slip');break}
   case'add':slip.stake=Math.min(pinCap(),(slip.stake||0)+ +d.v);setStk();break;case'max':slip.stake=pinCap();setStk();break;case'clr':slip.stake=0;setStk();break;
   case'pref':Rush.set('pref',['ask','higher','any'].includes(d.v)?d.v:'ask');document.querySelectorAll('.seg3 button').forEach(b=>b.classList.toggle('on',b.dataset.v===d.v));paintSlip(M);break;
