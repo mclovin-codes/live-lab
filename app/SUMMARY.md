@@ -20,6 +20,7 @@
   - a Slip sealed (who and which game, nothing else);
   - a seal broken at kickoff (every pick on that game, face up);
   - a game live, with the players on each side;
+  - a big play: a scoring play in a live NFL or NHL game the Field holds, with the players it helps;
   - a game settled (who hit, who missed, the Stack change);
   - the Ranks moving;
   - your matchup lead changing hands.
@@ -27,7 +28,7 @@
 - **Contest tab** (Blue):
   - your matchup first ("Your matchup", or "Pairs Thursday 7:00 PM");
   - your week;
-  - "The week, moving": the newest events with faces; a face opens the profile, the line opens the game;
+  - "The week, moving": the newest events with faces, big plays included ("WPG scored in NJ at WPG: good for Degen"); a face opens the profile, the line opens the game;
   - the Field ordered by Stack.
 - **Board** (Blue): every game shows the faces of the players with a pick on it, sealed until kickoff. Live games show the score and Follow, because picks lock at kickoff this round.
 - **Game page** (Blue):
@@ -127,7 +128,7 @@
 
 - **The other players are stand-ins.** Their picks are real games and lines, but not real people. Their answers to your taps appear only in the full stand-in view.
 - **On this phone only:** taps, talk, Block, Report, the circle and the invite link work locally. Nobody else sees them until a server exists.
-- **Big plays** are score changes seen while a page is open.
+- **Big plays** come from ESPN's scoring plays for NFL and NHL. The time shown is when this phone first saw the play. NBA has no big plays, because scoring is constant.
 - **The time a stand-in placed a Slip** is simulated before its kickoff. Your own Slips use the real time.
 - **Rank arrows on Home** compare with what this phone last saw.
 - **A stand-in's pick on a game that started before this phone first loaded it** is a moneyline at -110, because the scoreboard no longer carries that game's pregame line.
