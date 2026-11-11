@@ -78,9 +78,11 @@ function render(){
    <div style="text-align:center;margin-top:10px;font-weight:800;font-size:17px" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You lead by '+F(gap):'You trail by '+F(-gap)}</div>
    ${paired?'':`<div style="text-align:center;color:var(--mute);font-size:13px;margin-top:4px">Pairing locks Thursday 7:00 PM, in ${GU.until(pairT)}</div>`}</a>`;}
   // 4. The Field moving: the latest from the week's one event source, when the store has it.
-  let evs=[];try{if(Rush.events)evs=(Rush.events()||[]).slice(0,5)}catch(e){}
+  let evs=[];try{if(Rush.events)evs=(Rush.events()||[]).filter(e=>(e.players||[]).length).slice(0,5)}catch(e){}
   const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/6e4));return m<1?'now':m<60?m+'m':Math.round(m/60)+'h'};
-  if(evs.length)h+=`<div class="h-lbl">The Field right now <a href="lounge.html">Lounge</a></div><section class="h-card">${evs.map(e=>{const p=(e.players||[])[0];const pr=p?(GU.player(p.id)||{id:p.id,name:p.name}):null;return `<div class="ev">${pr?GU.av(pr,34):''}<p>${E(e.text||'')}</p><time>${e.at?ago(e.at):''}</time></div>`}).join('')}</section>`;
+  const first=n=>String(n||'').split(' ')[0];
+  const say=e=>{const ps=e.players||[];if(e.type==='settled'&&ps.some(p=>p.result)){return ps.slice(0,3).map(p=>'<b>'+E(first(p.name))+'</b> '+(p.result==='won'?'<span class="up">hit</span>':p.result==='lost'?'<span class="dn">missed</span>':E(p.result||''))+(p.label?' '+E(p.label):'')).join(', ')+(e.game?' <span style="color:var(--mute)">· '+E(e.game)+'</span>':'')}return E(e.text||'')};
+  if(evs.length)h+=`<div class="h-lbl">The Field right now <a href="lounge.html">Lounge</a></div><section class="h-card">${evs.map(e=>{const ps=(e.players||[]).slice(0,3).map(p=>GU.player(p.id)||{id:p.id,name:p.name});return `<div class="ev"><span style="display:flex;flex:none">${ps.map((p,k)=>'<span style="margin-left:'+(k?-10:0)+'px">'+GU.av(p,32)+'</span>').join('')}</span><p>${say(e)}</p><time>${e.at?ago(e.at):''}</time></div>`}).join('')}</section>`;
   // 5. The Ranks.
   const top=f.slice(0,5);if(!top.some(r=>r.me))top.push(m);
   h+=`<div class="h-lbl">The Field <a href="ranks.html">Ranks</a></div><section class="h-card">${top.map(r=>{const k=mv[r.id]||0;return `<div class="row"><span class="rk">${r.rank}</span>${GU.av(r,40)}<div class="nm">${GU.nameLink(r)}</div><span class="mv ${k>0?'up':k<0?'dn':''}">${k>0?'▲'+k:k<0?'▼'+(-k):''}</span><span class="h-num">${F(r.stack)}</span></div>`}).join('')}</section>`;

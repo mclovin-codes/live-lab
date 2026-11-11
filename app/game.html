@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0B1118">
+<meta name="theme-color" content="#0A0F15">
 <title>Rush Game</title>
 <link rel="stylesheet" href="shared/rush.css">
 <style>
@@ -65,7 +65,7 @@
 .pills{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:10px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
 .pills::-webkit-scrollbar{display:none}
 .pills button{flex:none;min-height:40px;padding:0 16px;border-radius:20px;border:1px solid rgba(255,255,255,.14);font:600 15px var(--body);color:var(--ink)}
-.pills button.on{background:#fff;color:#0B1118;border-color:#fff}
+.pills button.on{background:#fff;color:#0A0F15;border-color:#fff}
 .subs{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;border-bottom:.5px solid rgba(255,255,255,.1);padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
 .subs::-webkit-scrollbar{display:none}
 .subs button{flex:none;min-height:44px;font:600 15px var(--body);color:var(--dim);border-bottom:2px solid transparent}
@@ -74,7 +74,7 @@
 #gview{padding:12px max(16px,env(safe-area-inset-right,0px)) 120px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;max-width:640px;margin:0 auto}
 .feat{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
 .feat::-webkit-scrollbar{display:none}
-.fc{flex:0 0 82%;max-width:320px;scroll-snap-align:start;border-radius:16px;padding:14px;background:linear-gradient(135deg,#1A2530,#12304a);display:grid;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.fc{flex:0 0 82%;max-width:320px;scroll-snap-align:start;border-radius:16px;padding:14px;background:linear-gradient(135deg,#1B2531,#12304a);display:grid;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .fc .h{display:flex;justify-content:space-between;align-items:center;font-weight:700}
 .fc .h span{font:700 12px var(--body);color:#FFD60A;border:1px solid #FFD60A;border-radius:6px;padding:2px 6px}
 .fc .lg{display:flex;align-items:center;gap:8px;font-size:14px}
@@ -150,7 +150,7 @@
 .pin{display:grid;margin-top:6px}.pin-h{font-size:12px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding-bottom:4px}
 .pin-r{display:grid;grid-template-columns:minmax(0,1fr) auto 76px;align-items:center;gap:8px;padding:8px 0;border-top:.5px solid rgba(255,255,255,.08)}
 .pin-r label{display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer}.pin-r label b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
-.pin-r input[type=checkbox]{width:20px;height:20px;flex:none;accent-color:#00BFFF}.pin-r .rdot{width:10px;height:10px;border-radius:50%;flex:none}
+.pin-r input[type=checkbox]{width:20px;height:20px;flex:none;accent-color:#3DB8FF}.pin-r .rdot{width:10px;height:10px;border-radius:50%;flex:none}
 .pin-r small{color:var(--dim);font-size:12px;white-space:nowrap}.pin-r.off{opacity:.45}.pin-r.off label{cursor:default}
 .pin-st{width:76px;min-height:36px;padding:6px 8px;border-radius:8px;border:.5px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:inherit;font:600 16px/20px inherit;text-align:right}
 .pin-w{grid-column:1/-1;font-size:12px;color:var(--sweat)}.cxt{display:inline-flex;align-items:center;gap:4px}.cxt i{width:8px;height:8px;border-radius:50%;display:inline-block}
@@ -339,7 +339,7 @@ function wpSeries(M){const E=(S.sum&&S.sum.winprobability)||[];if(E.length>1){co
   if(S.closeHw==null||M.g.state==='pre')return null;const L=[{x:0,y:S.closeHw}].concat((S.mwp||[]).map(m=>({x:m.x,y:m.hw})));const now=clamp(1-M.g.secs/SPORT.total,0,1);if(M.g.live&&now>L[L.length-1].x)L.push({x:now,y:L[L.length-1].y,hold:true});return{pts:L,mk:true,step:true}}
 /* team colours readable on the dark card: a near-black primary falls back to the alternate colour */
 function tcol(side){const c=comp(),t=c&&c.competitors.find(x=>x.homeAway===side),ok=v=>/^[0-9a-f]{6}$/i.test(v||''),lum=v=>{const n=parseInt(v,16);return(.299*(n>>16&255)+.587*(n>>8&255)+.114*(n&255))/255};const p=t&&t.team.color,al=t&&t.team.alternateColor;
-  if(ok(p)&&lum(p)>=.22)return'#'+p;if(ok(al)&&lum(al)>=.22)return'#'+al;return side==='home'?'#00BFFF':'#D95151'}
+  if(ok(p)&&lum(p)>=.22)return'#'+p;if(ok(al)&&lum(al)>=.22)return'#'+al;return side==='home'?'#3DB8FF':'#D95151'}
 function wpCard(M){const g=M.g,h=M.h,a=M.a,pre=g.state==='pre';
   const bug=`<div class="gcb"><span class="t"><img src="${a.logo}" alt="">${a.abbr}<b>${pre?'':a.score}</b></span><span class="c">${pre?esc(new Date(g.start).toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'})):esc(g.detail)}</span><span class="t r"><b>${pre?'':h.score}</b>${h.abbr}<img src="${h.logo}" alt=""></span></div>`;
   const se=wpSeries(M);if(!se||!se.pts.length)return`<div class="gc">${bug}<div class="gce">Win probability starts with the game.</div></div>`;
@@ -403,7 +403,7 @@ function vPlays(M){const P=(S.sum&&S.sum.plays)||[],wp={};((S.sum&&S.sum.winprob
 function mkName(sp){return{ml:'Moneyline',spread:'Spread',total:'Total',tt:'Team total',qt:'Period total',qs:'Period spread',prop:'Player prop',td:'Touchdown scorer'}[sp.k]||''}
 /* the pick sheet's "Place in" row: every contest you are in with its own Stack, the active one preselected.
    Each row follows the main stake until you type its own. Rows a contest's schedule or rules exclude are greyed with the reason. */
-const okc=c=>/^#[0-9a-f]{6}$/i.test(String(c))?c:'#00BFFF';
+const okc=c=>/^#[0-9a-f]{6}$/i.test(String(c))?c:'#3DB8FF';
 function canPick(){try{return Rush.me().entered||Rush.wallet.list().length>1}catch(e){return Rush.me().entered}}
 function pinInit(){let L=[];try{L=Rush.wallet.list()}catch(e){}const a=Rush.wallet?Rush.wallet.active():'rush';slip.L=L;slip.sel={};L.forEach(e=>slip.sel[e.id]={on:e.id===a,stake:null});if(!L.some(e=>e.id===a)&&L[0])slip.sel[L[0].id].on=true}
 const pinStake=id=>{const x=slip.sel&&slip.sel[id];return x&&x.stake!=null?x.stake:(slip.stake||0)};
