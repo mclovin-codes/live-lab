@@ -68,7 +68,8 @@
       settles.forEach(s => {
         s.players.forEach(p => { if (p.id in total) total[p.id] += p.change || 0; });
         const after = rankOf(), moved = Object.keys(after).filter(id => after[id] !== before[id] && (id === 'me' || after[id] <= 3 || before[id] <= 3 || Math.abs(after[id] - before[id]) >= 3));
-        if (moved.length) ev.push({ id: 'k|' + s.gameId, type: 'rank', at: s.at + 1, league: s.league, gameId: s.gameId, game: s.game, players: moved.map(id => ({ id, name: name(id), from: before[id], to: after[id], me: id === 'me' })), text: 'The Ranks moved after ' + s.game, honest: H });
+        const top = moved.sort((x, y) => (x === 'me' ? -1 : y === 'me' ? 1 : Math.min(after[x], before[x]) - Math.min(after[y], before[y]))).slice(0, 3);
+        if (top.length) ev.push({ id: 'k|' + s.gameId, type: 'rank', at: s.at + 1, league: s.league, gameId: s.gameId, game: s.game, players: top.map(id => ({ id, name: name(id), from: before[id], to: after[id], me: id === 'me' })), text: 'The Ranks moved after ' + s.game, honest: H });
         const nl = leadOf(); if (rv && nl && nl !== lead) ev.push({ id: 'd|' + s.gameId, type: 'lead', at: s.at + 2, league: s.league, gameId: s.gameId, game: s.game, players: [nl, nl === 'me' ? rv : 'me'].map(id => ({ id, name: name(id), stack: 1000 + total[id], me: id === 'me' })), text: name(nl) + ' leads the matchup', honest: H });
         if (nl) lead = nl; before = after;
       });
