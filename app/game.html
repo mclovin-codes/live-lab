@@ -180,10 +180,10 @@
 <div id="gscrim"></div>
 <div id="gsheet" role="dialog" aria-modal="true"></div>
 <div id="gtoast"></div>
-<script src="shared/state.js?v=f1102"></script>
-<script src="week-games.js?v=f1102"></script>
-<script src="shared/nav.js?v=f1102"></script>
-<script src="shared/events.js?v=f1102"></script>
+<script src="shared/state.js?v=f1103"></script>
+<script src="week-games.js?v=f1103"></script>
+<script src="shared/nav.js?v=f1103"></script>
+<script src="shared/events.js?v=f1103"></script>
 <script>
 /* Rush game page: pregame full book and live mode for NFL, NBA and NHL (owner: Team Blue).
    Data: ESPN site summary (score, box, plays, book lines, win probability), core probabilities, core plays.
@@ -387,8 +387,8 @@ function vFieldGame(){if(!window.RW||!RW.FIELD||!RW.playerPicks||!RW.cached)retu
   const gg=gs.find(x=>x.league===LG&&String(x.id)===String(ID));const sideL=l=>{l=String(l||'');return/^over/i.test(l)?'over':/^under/i.test(l)?'under':gg&&l.startsWith(gg.home.abbr)?'home':gg&&l.startsWith(gg.away.abbr)?'away':null};const tot=x=>x==='over'||x==='under';const myS=mine.length?sideL(mine[0].label):null;
   const vs=label=>{const o=sideL(label);if(!myS||!o||tot(o)!==tot(myS))return'';return o===myS?'<span class="tag" style="background:rgba(61,220,132,.16);color:#3DDC84">WITH YOU</span>':'<span class="tag" style="background:rgba(255,176,32,.16);color:#FFB020">AGAINST YOU</span>'};
   const sealedNow=(()=>{const g=gs.find(x=>x.league===LG&&String(x.id)===String(ID));return !!(g&&g.state==='pre'&&Date.now()<g.date)})();
-  const line=(r,label,odds,p)=>`<div class="pst"><span class="who" style="display:flex;align-items:center;gap:8px;min-width:0">${window.Rush&&Rush.nav&&Rush.nav.avatar?Rush.nav.avatar(r.me?((Rush.me()||{}).handle||'You'):r.name,1):''}${pLink(r)}<span class="dim" style="margin-left:2px;white-space:nowrap">${sealedNow&&!r.me?'':'took '+esc(label)+' '+esc(F.odds(odds))}</span>${!sealedNow&&!r.me?vs(label):''}</span>${sealedNow&&!r.me?'<span class="n dim">Sealed</span>':st(p)}</div>`;
-  const h=rows.length||mine.length?`<section class="sec"><header><h2>The Field on this game</h2><small><a class="plk" href="lounge.html?g=${encodeURIComponent(LG+":"+ID)}">Lounge</a></small></header><div class="box">${mine.slice(0,4).map(p=>line({me:true,name:(me&&me.handle)||'You',cx:p.contest||'rush'},p.label,p.odds,p)).join('')}${rows.slice(0,8).map(x=>line({id:x.b.id,name:x.b.name,sim:true},x.p.label,x.p.odds,x.p)).join('')}</div></section>`:'';
+  const line=(r,label,odds,p)=>`<div class="pst"><span class="who" style="display:flex;align-items:center;gap:8px;min-width:0">${window.Rush&&Rush.nav&&Rush.nav.avatar?Rush.nav.avatar(r.me?((Rush.me()||{}).handle||'You'):r.name,1):''}${pLink(r)}<span class="dim" style="margin-left:2px;white-space:nowrap">${sealedNow&&!r.me?'':'took '+esc(label)+' '+esc(F.odds(odds))+(p&&p.stake?' · '+F.stack(p.stake)+' Stack':'')}</span>${!sealedNow&&!r.me?vs(label):''}</span>${sealedNow&&!r.me?'<span class="n dim">Sealed</span>':st(p)}</div>`;
+  const h=rows.length||mine.length?`<section class="sec"><header><h2>${sealedNow?'The Field on this game':'Seal broken: who took what'}</h2><small><a class="plk" href="lounge.html?g=${encodeURIComponent(LG+":"+ID)}">Lounge</a></small></header><div class="box">${mine.slice(0,4).map(p=>line({me:true,name:(me&&me.handle)||'You',cx:p.contest||'rush'},p.label,p.odds,p)).join('')}${rows.slice(0,8).map(x=>line({id:x.b.id,name:x.b.name,sim:true},x.p.label,x.p.odds,x.p)).join('')}</div></section>`:'';
   fgC={k,h};return h}
 function vOdds(M){if(!S.sum)return vEntry()+vGate(M);let h=vEntry()+vGate(M);if(subTab==='popular')h+=mainRows(M)+(M.g.state==='pre'?predictor(M):'')+featured(M)+vField()+vFieldGame()+`<section class="mk"><div class="mkh"><h2>Alt spread</h2></div>${stepper('sp',M)}</section>`;
   if(subTab==='lines')h+=mainRows(M);if(subTab==='alts')h+=`<section class="mk"><div class="mkh"><h2>Alt spread</h2></div>${stepper('sp',M)}</section><section class="mk"><div class="mkh"><h2>Alt total</h2></div>${stepper('tot',M)}</section>`;

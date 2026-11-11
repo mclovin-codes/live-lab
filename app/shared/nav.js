@@ -12,6 +12,13 @@
      per stand-in. ?field=7 turns it on, ?field=all off; Gold's honest.js keeps it in localStorage 'rush-field'. */
   const HONEST = (() => { const q = new URLSearchParams(location.search).get('field'); try { if (q === '7') localStorage.setItem('rush-field', '7'); else if (q === 'all') localStorage.setItem('rush-field', 'all'); return localStorage.getItem('rush-field') === '7'; } catch (e) { return q === '7'; } })();
   window.Rush = window.Rush || {}; window.Rush.honest = () => HONEST;
+  /* round two is retired: purge every Reads key from this phone */
+  try { ['rush-reads-v1', 'rush-reads-cards-v1', 'rush-reads-lines-v1'].forEach(k => localStorage.removeItem(k)); } catch (e) {}
+  /* ONE lead figure for the matchup, from one source: both Stacks from the Field rows every page shows (open stakes count),
+     Rush.matchup() -> { me: {id, name, stack}, opp: {id, name, stack} | null, lead } (lead = your Stack minus theirs) */
+  window.Rush.matchup = function () { let f = [], riv = null; try { f = window.Rush.field(); riv = window.Rush.rival(); } catch (e) {} const st = r => 1000 + Math.round((+((r || {}).units) || 0) * 10);
+    const me = f.find(r => r.me), opp = riv ? (f.find(r => !r.me && (String(r.id) === String(riv.id) || r.name === riv.name)) || riv) : null;
+    const m = { id: 'me', name: me ? me.name : 'You', stack: st(me) }, o = opp ? { id: String(opp.id), name: opp.name, stack: st(opp) } : null; return { me: m, opp: o, lead: o ? m.stack - o.stack : 0 }; };
   /* My circle (founder 9:50 PM): a filter, not a second space. The players you added (Gold's 'rush-circle', confirmed on
      the prototype's other side), only those in the Field this page shows. Rush.circle() -> [{id, name, how, confirmed}].
      Rush.circleSuggest(n) -> players in your friends' circles to add (stand-in picks, deterministic, never yourself). */
@@ -112,7 +119,7 @@ body.has-rnav{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
   function openStack() {
     closeStack(); const d = mine(), s = (d.m.entered ? (Rush.units ? 1000 + Math.round(Rush.units() * 10) : d.m.stack) : 1000), dl = s - 1000, pct = Math.max(2, Math.min(100, s / 20));
     const atStake = d.open.reduce((a, p) => a + (+p.stake || 0), 0);
-    let rv = ''; if (d.rival) { const rs = d.rival.stack != null ? d.rival.stack : 1000 + Math.round((d.rival.units || 0) * 10); const lead = s - rs; rv = `<h4>Your matchup</h4><a class="mu" href="ranks.html">${avatar(d.m.handle, 1)}<b>${stk(s)}</b><span style="flex:1;text-align:center;font-weight:800;color:${lead >= 0 ? '#3DDC84' : '#FF6B6B'}">${lead === 0 ? 'Level' : (lead > 0 ? 'Up ' : 'Down ') + stk(Math.abs(lead))}</span><b>${stk(rs)}</b>${avatar(d.rival.name, 1)}</a>`; }
+    let rv = ''; const MU = window.Rush.matchup ? window.Rush.matchup() : null; if (d.rival && MU && MU.opp) { const rs = MU.opp.stack, lead = MU.lead; rv = `<h4>Your matchup</h4><a class="mu" href="ranks.html">${avatar(d.m.handle, 1)}<b>${stk(s)}</b><span style="flex:1;text-align:center;font-weight:800;color:${lead >= 0 ? '#3DDC84' : '#FF6B6B'}">${lead === 0 ? 'Level' : (lead > 0 ? 'Up ' : 'Down ') + stk(Math.abs(lead))}</span><b>${stk(rs)}</b>${avatar(d.rival.name, 1)}</a>`; }
     const sc = document.createElement('div'); sc.id = 'rsx-scrim'; sc.addEventListener('click', closeStack);
     const sh = document.createElement('div'); sh.id = 'rsx'; sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-label', 'Your Stack');
     sh.innerHTML = `<div class="grab"></div><div class="lbl">Your Stack this week</div><div class="big"><b>${stk(s)}</b><span class="${dl > 0 ? 'up' : dl < 0 ? 'dn' : ''}" style="font:800 18px/24px ${F}">${dl > 0 ? '+' : ''}${dl ? stk(dl) : 'Even'} from 1,000</span></div>
@@ -124,7 +131,7 @@ body.has-rnav{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
     document.body.appendChild(sc); document.body.appendChild(sh);
   }
   function refresh() { draw(); drawTop(); }
-  function init() { honestField(); if (!document.querySelector('script[src^="shared/slip.js"]')) { const ss = document.createElement('script'); ss.src = 'shared/slip.js?v=f1102'; document.body.appendChild(ss); } if (!document.querySelector('script[src^="shared/events.js"]')) { const es = document.createElement('script'); es.src = 'shared/events.js?v=f1102'; document.body.appendChild(es); } if (!document.querySelector('script[src^="honest.js"]')) { const hs = document.createElement('script'); hs.src = 'honest.js'; document.body.appendChild(hs); }
+  function init() { honestField(); if (!document.querySelector('script[src^="shared/slip.js"]')) { const ss = document.createElement('script'); ss.src = 'shared/slip.js?v=f1103'; document.body.appendChild(ss); } if (!document.querySelector('script[src^="shared/events.js"]')) { const es = document.createElement('script'); es.src = 'shared/events.js?v=f1103'; document.body.appendChild(es); } if (!document.querySelector('script[src^="honest.js"]')) { const hs = document.createElement('script'); hs.src = 'honest.js'; document.body.appendChild(hs); }
     const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); signIn(); ['rpill-band'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); refresh(); if (window.Rush && Rush.on) Rush.on(refresh); setInterval(refresh, 30000); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   window.Rush = window.Rush || {}; window.Rush.nav = { refresh, openStack, openSwitch: openStack, avatar, hue, ini };
