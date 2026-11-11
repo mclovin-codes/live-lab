@@ -24,9 +24,12 @@
   const player = id => field().find(r => String(r.id) === String(id)) || null;
   function opponent() { let r = null; try { r = Rush.rival(); } catch (e) {} return r ? player(r.id) : null; }
   const prof = r => 'player.html' + (r.me ? '' : '?u=' + encodeURIComponent(r.id));
+  // One face everywhere: the same colours and initials as the top bar (Rush.nav.avatar in shared/nav.js).
+  const HUES = ['#3CC8FF', '#3DDC84', '#FFB020', '#FF7AB6', '#A78BFA', '#5EEAD4', '#F97316', '#FDE047'];
+  const col = s => { let h = 0; for (const c of String(s || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return HUES[h % HUES.length]; };
   const hue = n => Math.floor(hash('h' + n) * 360);
-  const initials = n => { const p = String(n).trim().split(/\s+/); return ((p[0] || '?')[0] + (p[1] ? p[1][0] : (p[0][1] || ''))).toUpperCase(); };
-  function av(r, size, plain) { size = size || 40; const tag = plain ? 'span' : 'a'; return `<${tag} class="gu-av${r.me ? ' me' : ''}" ${plain ? '' : `href="${prof(r)}"`} style="width:${size}px;height:${size}px;font-size:${Math.round(size * .38)}px;background:hsl(${hue(r.name)} 70% 66%)" aria-label="${esc(r.name)}">${esc(initials(r.name))}</${tag}>`; }
+  const initials = s => { const w = String(s || '?').replace(/[^A-Za-z0-9 _]/g, '').split(/[ _]+/).filter(Boolean); return ((w[0] || '?')[0] + (w[1] ? w[1][0] : (w[0] || '').slice(1, 2))).toUpperCase(); };
+  function av(r, size, plain) { size = size || 40; const tag = plain ? 'span' : 'a'; return `<${tag} class="gu-av${r.me ? ' me' : ''}" ${plain ? '' : `href="${prof(r)}"`} style="width:${size}px;height:${size}px;font-size:${Math.round(size * .38)}px;background:${col(r.name)}" aria-label="${esc(r.name)}">${esc(initials(r.name))}</${tag}>`; }
   const nameLink = r => `<a class="gu-nm" href="${prof(r)}">${esc(r.me ? 'You' : r.name)}</a>`;
   const games = () => { try { return (window.RW && RW.cached && RW.cached()) || []; } catch (e) { return []; } };
   const started = g => !!g && (g.state !== 'pre' || Date.now() >= g.date);
@@ -53,5 +56,5 @@
   function moves(f) { const K = 'gu-ranks-' + (honest() ? '7' : 'all'); let old = {}; try { old = JSON.parse(localStorage.getItem(K) || '{}'); } catch (e) {} const out = {}; f.forEach(r => { if (old[r.id] != null) out[r.id] = old[r.id] - r.rank; }); try { if (!old._t || Date.now() - old._t > 10 * 6e4) { const s = { _t: Date.now() }; f.forEach(r => s[r.id] = r.rank); localStorage.setItem(K, JSON.stringify(s)); } } catch (e) {} return out; }
   const CSS = `.gu-av{display:inline-grid;place-items:center;flex:none;border-radius:50%;font-weight:800;color:#0A0F15;letter-spacing:.3px;text-decoration:none;box-shadow:0 0 0 2px #0A0F15,0 0 0 3.5px rgba(255,255,255,.18)}.gu-av.me{box-shadow:0 0 0 2px #0A0F15,0 0 0 3.5px #3DB8FF}.gu-nm{color:inherit;text-decoration:none;font-weight:700}`;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
-  window.GU = { esc, hash, mix, fmt, honest, field, meRow, player, opponent, prof, av, nameLink, games, started, until, when, picksOf, sideOf, mine, mySide, gameView, moves, hue, initials };
+  window.GU = { esc, hash, mix, fmt, honest, field, meRow, player, opponent, prof, av, nameLink, games, started, until, when, picksOf, sideOf, mine, mySide, gameView, moves, hue, col, initials };
 })();
