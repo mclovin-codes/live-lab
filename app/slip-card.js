@@ -23,13 +23,13 @@
     });
     const price = raw.price != null ? raw.price : raw.odds != null ? raw.odds : (legs.length > 1 ? (() => { const d = legs.reduce((a, l) => a * dec(+l.price || -110), 1); return d >= 2 ? (d - 1) * 100 : -100 / (d - 1); })() : legs[0].price);
     const stake = +raw.stake || 0, toPay = raw.toPay != null ? +raw.toPay : raw.pay != null && raw.status !== 'open' ? +raw.pay : raw.kind && raw.win != null ? +raw.win : stake + (raw.win != null ? +raw.win : (price ? stake * (dec(+price) - 1) : 0));
-    return { legs, stake, price, toPay, status: legState(raw.status), paid: raw.pay };
+    return { legs, stake, price, toPay, status: legState(raw.status), paid: raw.pay, kind: raw.kind, same: raw.same };
   }
   const ICON = { hit: '<i class="sc-i hit">✓</i>', miss: '<i class="sc-i miss">✗</i>', push: '<i class="sc-i push">=</i>', open: '<i class="sc-i open"></i>', live: '<i class="sc-i live"></i>', sealed: '<i class="sc-i sealed"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></i>' };
   function html(p, opts) {
     opts = opts || {}; const s = norm(p), n = s.legs.length, parlay = n > 1;
     const anySealed = s.legs.some(l => l.sealed) || (!!opts.sealed && s.legs.some(l => !started(l.g)));
-    const kind = parlay ? (n > 1 && new Set(s.legs.map(l => l.game)).size === 1 ? 'Same-game parlay · ' + n + ' legs' : 'Parlay · ' + n + ' legs') : (s.legs[0].player ? 'Player prop' : s.legs[0].market || 'Straight');
+    const kind = parlay ? ((s.same || new Set(s.legs.map(l => l.game)).size === 1) ? 'Same-game parlay · ' + n + ' legs' : 'Parlay · ' + n + ' legs') : (s.kind === 'prop' || s.legs[0].player ? 'Player prop' : s.legs[0].market || 'Straight');
     const head = s.status === 'hit' ? '<span class="sc-st hit">HIT</span>' : s.status === 'miss' ? '<span class="sc-st miss">MISSED</span>' : s.status === 'push' ? '<span class="sc-st">PUSH</span>' : anySealed ? '<span class="sc-st sealed">SEALED</span>' : s.legs.some(l => l.g && l.g.state === 'in') ? '<span class="sc-st live">LIVE</span>' : '<span class="sc-st">OPEN</span>';
     const legs = s.legs.map(l => {
       if (l.sealed || (opts.sealed && !started(l.g))) return `<div class="sc-leg">${ICON.sealed}<div class="sc-l"><b>${esc(l.game || 'Sealed leg')}</b><small>Sealed until kickoff${l.g ? ', in ' + until(l.g.date) : ''}</small></div></div>`;
