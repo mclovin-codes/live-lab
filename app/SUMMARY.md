@@ -35,7 +35,13 @@
   - picks lock at kickoff;
   - "The Field on this game" shows each player's pick as sealed until kickoff, then what they took, tagged With you or Against you;
   - a Lounge link opens the Lounge focused on that game.
-- **Home** (Gold): the contest card, On tonight, your matchup tug bar with the countdown to Thursday's pairing, The Field right now, and the top five plus you.
+- **Home** (Gold):
+  - the contest card;
+  - On tonight;
+  - For you: taps aimed at you, and answers to the ones you sent;
+  - your matchup tug bar, with the countdown to Thursday's pairing;
+  - The Field right now, including who a big play is good for;
+  - the Field ladder, with arrows for rank moves.
 
 ## The one social space: the Lounge (Red)
 
