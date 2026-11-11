@@ -56,7 +56,7 @@
   - alternate spreads and totals on a track, as in the app: seven lines around the main one, one tap picks a line, and its two prices sit under it;
   - team marks at the team's own scale (64 px in the header, 44 px in rows), and on every prop row the player's number on his team's jersey (40 px);
   - no logos and no player photos: teams are Gold's drawn team marks in their two colours (for football, a speed-style helmet in side profile; all four marks share one light);
-  - picks lock at kickoff;
+  - a game in progress takes live picks under the lock-before rule (see Live picking below);
   - "The Field on this game" shows each player as sealed until kickoff. At kickoff it becomes "Seal broken: who took what": the side, price and stake for each player, tagged With you or Against you. This is the full table the Lounge's seal-break rows open;
   - a Lounge link opens the Lounge focused on that game.
 - **Home** (Gold): the contest card with the rank strip, your matchup, For you, On tonight, The Field right now, and the invite door (details in Gold's section below).
@@ -138,6 +138,24 @@
 - At Place the price is checked: a better price is taken, a worse one asks once. A stake above your Stack reads "Your Stack is 225".
 - **The receipt:** the same legs grouped by game, an open ring on each, then the stake, what it pays, the time, Keep picks in Slip and Done.
 - Featured parlays fill the same Slip.
+- **Clear all and settings** (the founder's 12:40 AM note): Clear all sits in the sheet's header whenever the Slip holds a pick. One tap asks "Clear all your picks?" with Cancel and Clear all; clearing empties the Slip, closes the sheet and removes the bar. Each leg keeps its own remove control. The gear opens Slip settings inside the sheet, with Back:
+  - Accept a better price automatically (on); a worse price always asks first;
+  - the four quick stake amounts: tap one to change it, Reset returns 10, 25, 50, 100, Save;
+  - Keep the Slip minimized when I add a pick (on; off opens the sheet on the first pick);
+  - Show what it pays on the minimized Slip (on).
+  Settings stay on this phone and apply at once.
+
+## Live picking, in this web app only (the founder's 12:45 AM note)
+
+- **A game in progress takes picks on its game page:** spread, total and moneyline at the live price, and live player lines where the feed carries them. The Board's Live section stays view-only tonight; open the game from it.
+- **Lock before, never void after** (the founder's rule from Nov 2, the MNF build's engine):
+  - cells open only in a stoppage window (a timeout, free throws, the end of a period), or while the hockey book is posting; in play they read "Ball in play. Lines open at the next stoppage";
+  - a goal or a penalty stamped after the book's last price locks everything;
+  - at Place the pick is re-quoted against the latest tick: a worse price asks once, and a closed window or a score change since the tap refuses ("the score changed since you tapped");
+  - a live pick can only be placed from its own game page, where it can be checked;
+  - once accepted, a pick is never voided for timing, and nothing waits on a pending acceptance.
+- **A live pick has nothing to seal:** it shows to the Field at once, and the Slip marks the leg live at the score of the tap. It settles like any other leg.
+- **Plainly:** prices come from the free feed, which runs 15 to 49 seconds behind the game, so this tests the mechanic and its fairness, not speed. Timed markets (next score, this drive) are not in tonight.
 
 **Bugs found before the fix (walked at 375 px):**
 1. Every price tap opened a full Slip sheet over the game.
@@ -319,7 +337,7 @@ Every team swept its own pages on the live link, in both views, at 375x812 and 3
 - Tapbacks and replies move nothing of value and change no Stack, finish, season record or prize.
 - There is no copy button and no reward for tapping.
 - Before kickoff, a pick shows only who and which game, everywhere.
-- Picks lock at kickoff, with no in-game picking.
+- Live picks follow lock before, never void after: accepted only against the price and the game state at Place, never voided later.
 - If the space or its moment gets a name, the candidates are "The Rail" (Red) and "Sealbreak" (Gold). The founder chooses, and each needs a trademark check.
 
 ## Unfinished or faked

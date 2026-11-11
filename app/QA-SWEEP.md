@@ -158,3 +158,16 @@ The checks:
 | Slip | An NFL sample pick from the Board | Would place a line that never grades | Fixed in 3b66adc (marked as a sample; Place is disabled with one line saying why) |
 | Board | Picks into the Slip, live | "Anytime goal / J. Guentzel #59", "Points 25+ / J. Brunson #11" | Fixed in 8c73daf (Red) |
 | Lounge | After the Slip change, 375x812 | The room is 72% of the screen, opens at the newest row, page width 375 | OK (Red) |
+
+## The founder's 12:40 and 12:45 AM notes: Slip settings and live picking
+
+| Page | Action | Result | Fixed in / open |
+|---|---|---|---|
+| Slip | Clear all with two picks, then Cancel | "Clear all your picks?" with Cancel and Clear all; Cancel keeps both | Added in 02d61d4 |
+| Slip | Clear all, confirm | The Slip empties, the sheet closes and the bar goes | Added in 02d61d4 |
+| Slip | Settings: change the first quick stake to 5, Save | The chips read +5, +25, +50, +100; Reset and Save return 10 | Added in 02d61d4 |
+| Slip | Settings: Show what it pays, off and on | The bar drops and restores the "stake pays" line | Added in 02d61d4 |
+| Slip | Settings: Keep the Slip minimized, off | The first pick opens the sheet | Added in 02d61d4 |
+| Game page | A live NBA game (OKC at POR, 3rd quarter) | Kickoff no longer locks it; in play the cells read "Ball in play. Lines open at the next stoppage"; a stoppage opens them; the lagging feed shows many stoppages already ending | Added in 02d61d4 |
+| Slip | A live pick after the score changes | Refused at Place ("the score changed since you tapped") | Added in 02d61d4 |
+| Slip | A live pick placed from another page | Refused, with a line to open its game | Added in 02d61d4 |
