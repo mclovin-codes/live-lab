@@ -1,88 +1,71 @@
-# Team Blue, Phase 4
+# Team Blue, Phase 4 round two: Reads
 
-Open it on your phone: https://mclovin-codes.github.io/live-lab/teams/blue/app/
+- The app: https://mclovin-codes.github.io/live-lab/teams/blue/app/
+- The honest view, exactly 7 players and nothing generated: https://mclovin-codes.github.io/live-lab/teams/blue/app/lounge.html?field=7
 
-## The idea
+## The mechanic: Reads
 
-Every screen starts with who you are up against. You open the app to check your matchup and to talk about tonight's games, and the Board is where you act on both.
+**The idea in one sentence:** every pick in the Field is sealed until kickoff, and before kickoff you call which side another player took; at kickoff the pick flips for everyone and your read scores right or wrong.
 
-## Tap these first
+## Tap first
 
-1. **Home**: the top card is your matchup, you against this week's opponent, with both Stacks and a lead bar.
-2. **Your Stack**, the box at the top right of every screen: one tap shows your Stack, your rank, your matchup, your open Slips and the free Reload.
-3. **Lounge**: swipe the room cards, open a game room and tap Tail or Fade on a post.
-4. **Any name or avatar**: it opens that player's profile. From there, tap **Challenge to a matchup**.
+1. Open the **Reads** tab (it replaces the Lounge tab).
+2. Your matchup opponent's sealed picks are at the top. Tap a side ("Over" or "Under", or one of the two teams) to read their pick.
+3. Watch "Waiting to flip" go up and the "Next flip" clock count down.
+4. After kickoff, the card flips: their real pick shows, and your read says "Read right" or "Misread".
+5. The footer has the toggle between the honest view (7 players) and the full Field.
 
-## Navigation
+## How it works with 7 players and nobody typing
 
-- Five tabs: Home, Board, Contest, Lounge, Me.
-- Contest replaces Slips in the tab bar, as the review asked. The weekly contest and matchups sit on that tab.
-- Me is your profile.
-- The red badge on Lounge counts the games live right now, so a live room is one tap away. The badge on Contest is your rank.
-- Every screen carries the same top bar: your avatar and name on the left, your Stack on the right.
-- The avatar opens your profile and the Stack opens your Stack sheet. Your rank and opponent sit under your name, so no screen has to repeat them.
+- Reads needs no talk at all. Each of the 6 other players in a 7-player Field has sealed picks on tonight's games, and every one is a card you can read with one tap.
+- With 7 players there are still plenty of cards. A read takes one tap and nothing to type.
+- Your own sealed picks are listed with "Nobody has read you yet" until someone does. In the honest view nobody else's reads are invented, so that line stays honest.
+- A card also shows whether you are on the same side or against them when you hold a pick on that game.
+- At 30 players there are more cards to read and more people reading you, so it gets better as the Field grows.
 
-## Home
+## What brings a player back
 
-1. Your matchup.
-2. The next game to pick.
-3. The week's prize card.
-4. Your Stack and rank.
-5. The top of the Field.
+- **The same evening:** every read is pending until its kickoff. The "Next flip" clock tells you when the next one scores, and the game's final then grades the pick itself.
+- **The next day:** new sealed picks appear as the Field picks tomorrow's games.
+- **Your record:** your read record shows on Home, on your profile and on every other player's profile ("you on Line"). Your matchup opponent is always first to read.
 
-Every number is Stack. Units are gone from every screen. The two buttons on the matchup card open your matchup room and the game rooms.
+## What is ownable
 
-## The contest and matchups
+The name: **Reads**.
 
-- The Contest tab opens on your matchup card, then your week, then the Field ordered by Stack. Players level on Stack share a rank.
-- Stack counts what you have riding, so placing a pick does not look like a loss. It is the same number in the top bar, the Stack sheet, Home, Ranks and the matchup.
-- One opponent is pinned for the week, so Home, Contest, Lounge and both profiles always show the same matchup.
-- From any player's profile you can challenge them to a matchup. In the prototype that marks "Challenge sent" and nothing more.
+The steps, in order:
+1. Every pick a player makes in the weekly contest stays sealed from every other player until that game kicks off.
+2. Before kickoff, any player may read another player's sealed pick with one tap, calling the side they took. The read is locked at kickoff.
+3. At kickoff the pick flips for the whole Field at once, and every read on it is scored right or wrong at that moment, before the game is played.
+4. At the final the pick itself is graded. The picker keeps the result in Stack; the reader keeps a read record against that player.
+5. Your 1v1 opponent's sealed picks are always the first ones offered to read.
 
-## The Lounge: rooms, not a feed
+What is new compared with a group chat, a pick feed or a reaction bar:
+- A chat needs typing.
+- A pick feed shows picks after the fact.
+- A reaction bar reacts to something already visible.
+- Reads is a guess about something hidden. It scores at a synchronized reveal (kickoff), separately from whether the pick hits, and every player's sealed picks are the board you play it on.
 
-- The Lounge is a row of rooms, and you pick the one you want to be in:
-  - **Your matchup room**: you against your opponent. Their Slip shows as sealed cards until each game kicks off.
-  - **One room per game today**: a live dot and the score, plus how the Field is split between the two teams.
-  - **The week room**: everyone in the Field.
-- Inside a room every post carries the poster's side ("ON TOR"), yours too when you hold a pick on that game. You can Tail or Fade any post, and quick lines let you post in one tap.
-- Avatars across the top show who is in the room now. Every avatar and name opens that player's profile.
-- Live rooms open first while a game is on. On a game page, "Game room" opens that game's room.
+## The two mechanics we dropped
 
-## Profile
+- **Blind Back:** back another player's sealed pick without seeing it, and share their result in a "backed" record. Dropped because it is a tail button with a blindfold. It does nothing until others pick, and it scores only at the final, so there is no kickoff moment.
+- **Showdown:** at kickoff, everyone on opposite sides of a game is paired into an instant 1v1. Dropped because with 7 players most games have one person or nobody on each side, so most nights it pairs nobody.
 
-- **Yours** (the Me tab, or tap your avatar):
-  - your Stack, record, hit rate and open picks, plus your sport mix;
-  - your Season 1 record: winning weeks, other weeks and the weeks left to qualify;
-  - buttons for your Stack sheet, your Slips and your matchup room.
-- **Another player's** (tap any name or avatar):
-  - the same card;
-  - "You and them" this week with a lead bar;
-  - their picks, sealed until each game starts;
-  - Challenge to a matchup, and a door to the Lounge: your matchup room if they are your opponent, the week room otherwise.
-- **Tapping your Stack, anywhere**, opens:
-  - your Stack against the 1,000 start;
-  - your rank, the Stack you have riding and your number of open picks;
-  - your matchup;
-  - your open Slips;
-  - the free Reload when you are out.
+## What the cleanup removed
 
-## Where Slips went
-
-There is no Slips tab any more. Your open Slips are in the Stack sheet (one tap from any screen) and on your profile. "All your Slips" opens the full list.
-
-## What we cut
-
-- The contest switcher, create-a-contest and the contests list are gone from the navigation.
-- The crew card and the Crew tab are gone.
-- The enter-your-name step is gone: you are signed in as "nickr", already entered in the week.
-- Units are gone. Every number on screen is Stack.
+- The contest pages (`contest.html`, `contests.html`), the crew page and its script, and the crew sim page: all deleted.
+  - Note: the deletions were in the shared git index and went to `main` inside another team's cleanup commit (35fa1e1). The result is the same.
+- The Board's "Picking in" contest line.
+- The profile's "Your contests" and "Contests you share" sections.
+- The Ranks contest switcher and its link to contests.
+- Home's contest cards, join-with-a-code handler and crew boost.
+- The game page's "Place in" contest row.
+- The store's list of created contests (it now returns none, so there is one contest: the week).
+- The old Lounge rooms: one space now, Reads.
 
 ## Unfinished or faked
 
-- The Field and every Lounge post are SIM stand-ins. Your posts and reactions stay on your phone.
-- The Field split in each game room is simulated.
-- "Challenge to a matchup" only marks the challenge as sent; nobody receives it.
-- The opponent is chosen by the prototype, not by the Thursday 7:00 PM auto-pairing.
-- The Board and game pages are the Phase 3 versions with the new top bar and tabs. They were not redesigned this round.
-- The contest and crew page files are still in the folder, but nothing links to them.
+- The players and their picks are prototype stand-ins for real entrants. Their picks are real cards on real games, made by the prototype.
+- In the full Field view, "N others read this" and "N read you" are simulated. The honest view (`?field=7`) shows none of them.
+- Your reads are stored on your phone only. In the real app the picker would see who read them after kickoff.
+- There is no typing layer yet. The plan is one line under a flipped card.
