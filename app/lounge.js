@@ -176,9 +176,12 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
   }
   const tray = key => `<div class="lg-tray">${TAPS.map((t, i) => `<button data-tap="${i}" data-k="${esc(key)}">${t}</button>`).join('')}<button class="lg-rp" data-replyto="${esc(key)}">Reply</button></div>`;
   /* the composer sits above whatever fixed bars the shell shows */
-  function dock() { const c = $('lg-say'); if (!c) return; let b = 0; ['rnav', 'rslip'].forEach(id => { const e = document.getElementById(id); if (e) { const q = e.getBoundingClientRect(); if (q.height > 0 && getComputedStyle(e).display !== 'none') b = Math.max(b, window.innerHeight - q.top); } }); c.style.bottom = b + 'px';
+  /* the phone keyboard: the composer rides on top of it (visualViewport), the room keeps its size */
+  function dock() { const c = $('lg-say'); if (!c) return; const vv = window.visualViewport, kb = vv ? window.innerHeight - vv.height - vv.offsetTop : 0;
+    if (vv && kb > 120 && document.activeElement && document.activeElement.closest && document.activeElement.closest('#lg-say')) { c.style.bottom = Math.max(0, kb) + 'px'; return; }
+    let b = 0; ['rnav', 'rslip'].forEach(id => { const e = document.getElementById(id); if (e) { const q = e.getBoundingClientRect(); if (q.height > 0 && getComputedStyle(e).display !== 'none') b = Math.max(b, window.innerHeight - q.top); } }); c.style.bottom = b + 'px';
     const R = $('lg-room'), M = $('lg-main'); if (!R) return; const top = R.getBoundingClientRect().top + window.scrollY, avail = window.innerHeight - b - c.offsetHeight - top - 8;
-    if (avail >= 180) { R.classList.add('pinned'); R.style.height = avail + 'px'; M.style.paddingBottom = '0px'; } else { R.classList.remove('pinned'); R.style.height = ''; M.style.paddingBottom = (c.offsetHeight + 24) + 'px'; } }
+    if (avail >= 120) { R.classList.add('pinned'); R.style.height = avail + 'px'; M.style.paddingBottom = '0px'; } else { R.classList.remove('pinned'); R.style.height = ''; M.style.paddingBottom = (c.offsetHeight + 24) + 'px'; } }
   /* a rank change is the faces row re-sorting: each face slides from where it was */
   let lastX = {};
   function slideFaces() { const wrap = $('lg-faces'); if (!wrap) return; const now = {}; wrap.querySelectorAll('[data-fid]').forEach(el => { const x = el.offsetLeft; now[el.dataset.fid] = x; const p = lastX[el.dataset.fid]; if (p != null && Math.abs(p - x) > 4) { el.style.transition = 'none'; el.style.transform = `translateX(${p - x}px)`; requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = 'transform .5s ease'; el.style.transform = ''; })); } }); lastX = now; }
@@ -220,7 +223,7 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
   document.addEventListener('submit', e => { if (!e.target.closest('#lg-say')) return; e.preventDefault(); const i = e.target.querySelector('input'), v = (i.value || '').trim(); if (!v) return; const L = ls(TALK, []); L.push({ id: String(Date.now()), mine: 1, who: 'You', text: v.slice(0, 160), quote: REPLY ? REPLY.who + ': ' + REPLY.text : '', to: REPLY && !REPLY.game ? REPLY.who : '', game: REPLY ? (REPLY.game ? REPLY.who : '') : (PINNED || ''), at: Date.now() }); lsSet(TALK, L.slice(-60)); i.value = ''; REPLY = null; render(); STICK = true; requestAnimationFrame(() => { const R1 = $('lg-room'); if (R1) R1.scrollTop = R1.scrollHeight; }); });
   /* the swipe dots follow the game card in view */
   document.addEventListener('scroll', e => { const s = e.target; if (s && s.id === 'lg-room') STICK = s.scrollHeight - s.scrollTop - s.clientHeight < 40; if (s && s.id === 'lg-games') { const i = Math.round(s.scrollLeft / s.clientWidth); document.querySelectorAll('.lg-dots i').forEach((d, j) => d.classList.toggle('on', i === j)); } }, true);
-  window.addEventListener('resize', dock);
+  window.addEventListener('resize', dock); if (window.visualViewport) { visualViewport.addEventListener('resize', dock); visualViewport.addEventListener('scroll', dock); } document.addEventListener('focusout', () => setTimeout(dock, 60));
   /* remember where you left off: the next visit opens at the unread divider */
   const leave = () => lsSet(SEEN, Date.now()); window.addEventListener('pagehide', leave); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') leave(); });
 

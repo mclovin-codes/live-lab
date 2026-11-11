@@ -94,6 +94,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 .lg-blk>.lg-shut.wide{margin:0 6px 8px;width:auto;padding:9px 12px;font-size:13px;color:var(--lg-ink,#E6EDF3);background:rgba(56,189,248,.14)}
 .lg-av.lg-rf{background:none;padding:0;overflow:visible}.lg-rf .rf{width:100%!important;height:100%!important}.lg-rf .rf.me{box-shadow:none}
 .lg-reading .lg-games,.lg-reading .lg-dots{display:none!important}
+/* sweep: long lines wrap inside their bubble; the room never scrolls sideways; sideways rows never pull the page */
+.lg-bub,.lg-sys span,.lg-reply{overflow-wrap:anywhere;word-break:break-word}.lg-room{overflow-x:hidden}.lg-faces,#lg-games{overscroll-behavior-x:contain}
 @media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-sc strong.tick,.lg-face em.bump,.lg-face b.flash{animation:none}.lg-face{transition:none!important}}
 </style>
 </head>
@@ -107,6 +109,6 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 <script src="shared/events.js?v=f1105"></script>
 <script src="faces.js?v=f1" data-rushface="1"></script>
 <script src="slip-card.js?v=s6"></script>
-<script src="lounge.js?v=l1132"></script>
+<script src="lounge.js?v=l1133"></script>
 </body>
 </html>
