@@ -12,6 +12,13 @@
      per stand-in. ?field=7 turns it on, ?field=all off; Gold's honest.js keeps it in localStorage 'rush-field'. */
   const HONEST = (() => { const q = new URLSearchParams(location.search).get('field'); try { if (q === '7') localStorage.setItem('rush-field', '7'); else if (q === 'all') localStorage.setItem('rush-field', 'all'); return localStorage.getItem('rush-field') === '7'; } catch (e) { return q === '7'; } })();
   window.Rush = window.Rush || {}; window.Rush.honest = () => HONEST;
+  /* My circle (founder 9:50 PM): a filter, not a second space. The players you added (Gold's 'rush-circle', confirmed on
+     the prototype's other side), only those in the Field this page shows. Rush.circle() -> [{id, name, how, confirmed}].
+     Rush.circleSuggest(n) -> players in your friends' circles to add (stand-in picks, deterministic, never yourself). */
+  window.Rush.circle = function () { let ids = []; try { ids = JSON.parse(localStorage.getItem('rush-circle') || '[]') || []; } catch (e) {} let f = []; try { f = window.Rush.field(); } catch (e) {}
+    return ids.map(id => { const r = f.find(x => String(x.id) === String(id)); return r ? { id: String(r.id), name: r.name, how: 'added', confirmed: true } : null; }).filter(Boolean); };
+  window.Rush.circleSuggest = function (n) { let f = []; try { f = window.Rush.field().filter(r => !r.me); } catch (e) {} const mine = new Set(window.Rush.circle().map(c => c.id)); const h = x => { let k = 2166136261; for (let i = 0; i < x.length; i++) { k ^= x.charCodeAt(i); k = Math.imul(k, 16777619); } return (k >>> 0) / 4294967296; };
+    return f.filter(r => !mine.has(String(r.id))).sort((p, q) => h('fof' + p.id) - h('fof' + q.id)).slice(0, n || 3).map(r => ({ id: String(r.id), name: r.name })); };
   const RIVK = 'rush-rival-v1';
   function seven(rows) { if (!HONEST || !rows || rows.length <= 7) return rows; let pin = null; try { pin = JSON.parse(localStorage.getItem(RIVK) || 'null'); } catch (e) {}
     const me = rows.find(r => r.me), others = rows.filter(r => !r.me), riv = pin && others.find(r => String(r.id) === String(pin.id) || r.name === pin.name);
