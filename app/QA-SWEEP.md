@@ -87,3 +87,5 @@ The checks:
 | Board | Reload, and Back from a game page, with a Slip | The league, the Slip and the white cell are all kept | OK |
 | Board | Last card at the bottom, 375x667 | Clears the Slip bar and the tabs | OK |
 | Board | Started games | Cells locked at 45% opacity | OK |
+| Lounge | 375x667 with a Slip in the bar, after the shared game card | Pinned, room 141 px, one screen | Fixed in daa4fa6 |
+| Board | Team marks and the NHL spread | Drawn marks, no logo requests, puck line ±1.5 | Fixed in f8f63fb, daa4fa6 |

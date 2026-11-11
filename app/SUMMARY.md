@@ -58,7 +58,7 @@
 1. **The Field / My circle** switch.
 2. **Your matchup:** You 1,000, them 1,091, "down 91". It is one figure from one source (Blue's `Rush.matchup()`), the same number Contest shows.
 3. **The faces:** the app's preset avatars (Gold's `RushFace`, your own from Edit profile) for every player with rank and Stack (1 to 7 in the honest view), the rank read straight from the store's unique `r.rank` (ties broken there), you ringed blue and your opponent pink. Every face opens a profile.
-4. **The game that is on:** one card, swipe for the others.
+4. **The game that is on:** Gold's one game card (`GameCard`, the same card as Home and the Board, drawn compact here), with drawn team marks and no logo images. Swipe for the others. Before kickoff its Spread, Total and ML cells add to the one Slip.
    - Live score and period with a pulsing dot.
    - Before kickoff: who holds a Slip on it, and a countdown.
    - Each side keeps to one row of faces, with "+N" for the rest.
@@ -82,6 +82,8 @@
 - When a pick settles, that player's Stack on the faces row bumps and counts to its new figure.
 - When ranks change, the faces slide into their new order and the moved rank badges flash.
 - The live score ticks when it changes.
+
+**Phone details:** the composer rides on top of the keyboard (`visualViewport`) with a 16 px input; long lines wrap inside their bubble; sideways rows never pull the page; the room re-docks when the Slip bar appears and stays pinned down to a 375 x 667 screen.
 
 **One tap, and talk on top:**
 - Hold or double-tap any row for the tapback tray: heart, thumbs up, thumbs down, laugh, exclamation, question, or Reply. One per player per row; your face shows as a badge on the row.
