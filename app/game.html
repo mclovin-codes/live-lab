@@ -184,7 +184,7 @@
 <script src="week-games.js?v=f1109"></script>
 <script src="team-mark.js?v=m5"></script>
 <script src="faces.js?v=f1"></script>
-<script src="shared/nav.js?v=f1113"></script>
+<script src="shared/nav.js?v=f1114"></script>
 <script src="shared/events.js?v=f1107"></script>
 <script>
 /* Rush game page: pregame full book and live mode for NFL, NBA and NHL (owner: Team Blue).
@@ -213,6 +213,7 @@ function ou(m,sd,L,key){if(key){sd=Math.max(.8,sd);const k=Math.min(1,sd/8);let 
 /* ---------- game state ---------- */
 const comp=()=>S.sum&&S.sum.header&&S.sum.header.competitions[0];
 function XNS(x){return String(x||'').replace(/^<svg(?![^>]*xmlns)/,'<svg xmlns="http://www.w3.org/2000/svg"')}
+function liveSnap(){try{const g=game();return team('away').score+'-'+team('home').score+'|'+(g.period||0)}catch(e){return''}}
 function TMK(tt){try{if(window.TeamMark&&TeamMark.svg)return'data:image/svg+xml;utf8,'+encodeURIComponent(XNS(TeamMark.svg(LG,{abbr:tt.abbreviation||'',color:tt.color,alt:tt.alternateColor},64)))}catch(e){}return''}
 const RJ={};
 function PMK(aid){try{const j=aid!=null&&RJ[aid],tt=j&&j.t;if(window.TeamMark&&TeamMark.player)return'data:image/svg+xml;utf8,'+encodeURIComponent(XNS(TeamMark.player(LG,tt?{abbr:tt.abbreviation||'',color:tt.color,alt:tt.alternateColor}:{abbr:'',color:'2A3644',alt:'A3AFBD'},j?String(j.n||''):'',64)))}catch(e){}return''}
@@ -241,7 +242,7 @@ function stopInfo(){const L=S.plays,last=L[L.length-1];if(!last)return null;cons
   if(/official|tv timeout/i.test(t))return{k:'Commercial break',w:LG==='nfl'?150:75,at:w};
   if(/timeout/i.test(t))return{k:'Timeout',w:LG==='nfl'?42:35,at:w};
   return null}
-function gate(M){const g=M.g;if(g.done)return{open:false,why:'Final'};if(g.live)return{open:false,why:'Picks locked at kickoff. Follow it live.'};if(!g.live)return g.state==='pre'?{open:true,pre:true,why:''}:{open:false,why:'Not started'};
+function gate(M){const g=M.g;if(g.done)return{open:false,why:'Final'};if(!g.live)return g.state==='pre'?{open:true,pre:true,why:''}:{open:false,why:'Not started'};
   if(!S.ok.sum||Date.now()-S.ok.sum>20000)return{open:false,why:'Feed paused'};if(!M.b||M.b.off)return{open:false,why:LG==='nhl'?'Book suspended. Lines reopen when the book posts':'Book suspended'};
   /* hockey: the book's own state is the lock. It keeps pricing the moneyline and total while the puck is live and marks them OFF
      when it suspends. While it posts, game lines open at its exact price; model-priced markets wait for an intermission or timeout.
@@ -477,7 +478,7 @@ function act(d){const M=model();switch(d.a){
   case'pill':pillTab=d.v;window.scrollTo(0,0);render();break;case'sub':subTab=d.v;render();break;case'boxside':boxSide=d.v;render();break;case'stats':statsTab=d.v;render();break;
   case'slip':{const sp=REG[d.k];if(!sp)break;if(!canPick()&&!(Rush.slip&&Rush.entered)){openSheet('enter');break}const q=quote(sp);if(!q.ok){toast(q.why||'This line is locked.');break}
     /* one tap adds the pick to the Slip (minimized bar above the tabs); a second tap removes it. No sheet opens. */
-    if(Rush.slip){Rush.slip.toggle({key:LG+'|'+ID+'|'+JSON.stringify(sp),mkt:JSON.stringify(Object.assign({},sp,{side:0,over:0,o:0})),league:LG,gameId:String(ID),game:gameName(),start:game().start,spec:sp,label:q.label,odds:q.odds,market:sp.k,player:sp.name||undefined,jersey:(sp.aid&&RJ[sp.aid]&&RJ[sp.aid].n)||undefined,team:(sp.aid&&RJ[sp.aid]&&RJ[sp.aid].t&&RJ[sp.aid].t.abbreviation)||undefined});markSel();break}
+    if(Rush.slip){Rush.slip.toggle({key:LG+'|'+ID+'|'+JSON.stringify(sp),mkt:JSON.stringify(Object.assign({},sp,{side:0,over:0,o:0})),league:LG,gameId:String(ID),game:gameName(),start:game().start,spec:sp,label:q.label,odds:q.odds,market:sp.k,live:!!game().live,snap:game().live?liveSnap():undefined,player:sp.name||undefined,jersey:(sp.aid&&RJ[sp.aid]&&RJ[sp.aid].n)||undefined,team:(sp.aid&&RJ[sp.aid]&&RJ[sp.aid].t&&RJ[sp.aid].t.abbreviation)||undefined});markSel();break}
     slip={sp,stake:Rush.settings().lastStake||25};pinInit();openSheet('slip');break}
   case'add':slip.stake=Math.min(pinCap(),(slip.stake||0)+ +d.v);setStk();break;case'max':slip.stake=pinCap();setStk();break;case'clr':slip.stake=0;setStk();break;
   case'pref':Rush.set('pref',['ask','higher','any'].includes(d.v)?d.v:'ask');document.querySelectorAll('.seg3 button').forEach(b=>b.classList.toggle('on',b.dataset.v===d.v));paintSlip(M);break;
