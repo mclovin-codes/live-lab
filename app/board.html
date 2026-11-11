@@ -47,6 +47,7 @@ body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.3 var(--rb-font);fon
 .rb-jy{width:36px;height:36px;flex:none;display:grid;place-items:center}.rb-id svg,.rb-ph svg{flex:none}
 .rb-pn b{display:block;font:600 14px var(--rb-font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rb-pn small{display:block;font:600 10.5px var(--rb-font);color:var(--rb-mut)}.rb-pn small em{font-style:normal;color:var(--rb-gold)}
 .rb-pr .rb-c{width:62px}.rb-pn>span{min-width:0;flex:1}
+.rb-gc>div{display:block!important;padding:0;margin-top:8px}.rb-gc{content-visibility:auto;contain-intrinsic-size:auto 170px;padding:0 12px}.rb-gcf{margin:0;padding:2px 12px 8px}.rb-gcf>span:first-child{display:none}
 .rb-skel{height:130px;margin:10px 16px;border-radius:14px;background:linear-gradient(90deg,var(--rb-card),var(--rb-cell),var(--rb-card));background-size:200% 100%;animation:rbs 1.2s infinite}
 @keyframes rbs{to{background-position:-200% 0}}
 .rb-empty{margin:16px;padding:16px;border-radius:14px;background:var(--rb-card);color:var(--rb-mut);font-size:14px}
@@ -64,9 +65,10 @@ body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.3 var(--rb-font);fon
 </div>
 <nav id="rb-tabs" hidden></nav>
 <script src="shared/state.js?v=f1104"></script>
-<script src="week-games.js?v=f1104"></script>
-<script src="faces.js?v=f1"></script>
 <script src="team-mark.js?v=m1"></script>
+<script src="week-games.js?v=f1108"></script>
+<script src="faces.js?v=f1"></script>
+<script src="game-card.js?v=c1"></script>
 <script src="shared/nav.js?v=f1105"></script>
 <script src="shared/events.js?v=f1105"></script>
 <script>
@@ -105,7 +107,7 @@ const href=g=>`game.html?league=${g.league}&id=${encodeURIComponent(g.id)}`;
 /* team marks (Gold's TeamMark): drawn in the team's colours, no logo image requests */
 const logo=(t,sz,L)=>window.TeamMark?TeamMark.svg(L||lg,t,sz||26):`<b>${esc(t.abbr)}</b>`;
 const nick=t=>{const n=String(t.name||'');return n.split(' ').pop()};
-function gameCard(g){const S=spreadOf(g),L=g.line||{},live=g.state==='in',T=(t,side)=>{const sp=S?S[side]:null;return`<div class="rb-tr"><a class="rb-id" href="${href(g)}">${logo(t,26,g.league)}<b>${esc(t.abbr)}</b>${live?'':`<span>${esc(nick(t))}</span>`}${live&&t.score!=null?`<em>${esc(t.score)}</em>`:''}</a>${cell(g,{k:'spread',side,line:sp},sp==null?'':ln(sp),sp==null?null:-110,t.abbr+' '+ln(sp))}${cell(g,{k:'total',side:side==='away'?'o':'u',line:L.ou},L.ou==null?'':(side==='away'?'O ':'U ')+L.ou,L.ou==null?null:-110,(side==='away'?'Over ':'Under ')+L.ou)}${cell(g,{k:'ml',side},'',side==='home'?L.hml:L.aml,t.abbr+' moneyline','ml')}</div>`};
+function gameCard(g){if(window.GameCard&&typeof GameCard.html==='function')return`<div class="rb-gc">${GameCard.html(g,{cell,foot:`<div class="rb-ft rb-gcf">${g.state==='in'?'':when(g)}<a href="${href(g)}">Props + More &rsaquo;</a></div>`})}</div>`;const S=spreadOf(g),L=g.line||{},live=g.state==='in',T=(t,side)=>{const sp=S?S[side]:null;return`<div class="rb-tr"><a class="rb-id" href="${href(g)}">${logo(t,26,g.league)}<b>${esc(t.abbr)}</b>${live?'':`<span>${esc(nick(t))}</span>`}${live&&t.score!=null?`<em>${esc(t.score)}</em>`:''}</a>${cell(g,{k:'spread',side,line:sp},sp==null?'':ln(sp),sp==null?null:-110,t.abbr+' '+ln(sp))}${cell(g,{k:'total',side:side==='away'?'o':'u',line:L.ou},L.ou==null?'':(side==='away'?'O ':'U ')+L.ou,L.ou==null?null:-110,(side==='away'?'Over ':'Under ')+L.ou)}${cell(g,{k:'ml',side},'',side==='home'?L.hml:L.aml,t.abbr+' moneyline','ml')}</div>`};
  return`<div class="rb-gm">${T(g.away,'away')}<div class="rb-at">AT</div>${T(g.home,'home')}<div class="rb-ft">${when(g)}<a href="${href(g)}">Props + More &rsaquo;</a></div></div>`}
 /* players for a team: its latest ESPN leaders (season figures before a game, the last game's otherwise) */
 let TEAMP={v:-1,m:{}};
@@ -120,7 +122,7 @@ function propCard(g,f){const rows=propRows(g,f);if(!rows.length)return'';const w
 /* ---------- a view: built once per league, market and data version; a tap swaps it in from memory ---------- */
 function list(){const now=Date.now();return games.filter(g=>C.keep(g)&&g.league===lg&&(g.state==='in'||(g.state==='pre'&&g.date>now-36e5))).sort((a,b)=>(b.state==='in')-(a.state==='in')||a.date-b.date)}
 function build(){const L=list();if(!L.length)return`<div class="rb-empty">No ${esc(LGN[lg])} games this week.</div>`;let h='',day='';const lines=fam==='lines';
- for(const g of L){const d=g.state==='in'?'LIVE':dayName(g.date);const body=lines?gameCard(g):propCard(g,fam);if(!body)continue;if(d!==day){day=d;h+=`<div class="rb-day"><span>${esc(d)}</span>${lines?'<i>SPREAD</i><i>TOTAL</i><i>ML</i>':''}</div>`}h+=body}
+ for(const g of L){const d=g.state==='in'?'LIVE':dayName(g.date);const body=lines?gameCard(g):propCard(g,fam);if(!body)continue;if(d!==day){day=d;h+=`<div class="rb-day"><span>${esc(d)}</span>${lines&&!window.GameCard?'<i>SPREAD</i><i>TOTAL</i><i>ML</i>':''}</div>`}h+=body}
  return h||`<div class="rb-empty">No ${esc(fam)} lines yet.</div>`}
 function bar(){const sp=C.sports.length?C.sports:['nfl','nba','nhl'];if(!sp.includes(lg))lg=sp.includes('nfl')?'nfl':sp[0];const F=FAMS[lg]||FAMS.nfl;if(!F.some(f=>f[0]===fam))fam='lines';
  const P=$('rb-pills'),ph=sp.map(k=>`<button role="tab" aria-selected="${k===lg}" class="${k===lg?'on':''}" data-lg="${k}">${LGN[k]}</button>`).join('');if(P._h!==ph){P.innerHTML=ph;P._h=ph}
