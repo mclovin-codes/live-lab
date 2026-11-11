@@ -43,19 +43,19 @@
   - In the store, a visitor sees every other player's leg sealed, even after kickoff (Rush.sealView), and has no rank badge on the Contest tab.
   - A visitor's price tap, anywhere, opens Enter first; after one tap on Enter the pick lands in the Slip.
   - On the game page, the Field on this game stays sealed for a visitor.
-- **Board** (Red, rebuilt after the Rush iOS app on the founder's 11:20 PM note):
-  - league pills NFL, NBA, NHL, landing on NFL, and one row of market tabs, Game Lines first (NBA Points, Rebounds, Assists; NHL Goals, Points, Assists; NFL has no player data yet, so Game Lines only);
-  - day headers (TODAY, TOMORROW, THU · NOV 12) over SPREAD, TOTAL and ML columns;
-  - game cards: the team mark, abbreviation and nickname, 64x46 price cells (line over price, white when picked), the time, and "Props + More". Live games show the score with the cells locked;
-  - a family tab lists up to 5 player rows per game with three rung tiles (20+, 25+, 30+);
-  - pinned: only the shared header and the pills and tabs bar. Nothing else floats;
+- **Board** (Red; the team's own look with the app's mechanics, after the founder's 11:40 PM correction):
+  - the team's look from the 11:30 PM checkpoint: All, NFL, NBA, NHL; Live, Today, Later and Final sections; the NFL week strip; the team's cards and type;
+  - the app's mechanics on top: one row of category chips that previews a market across ALL games before you open one (NBA Points, Rebounds, Assists; NHL Goal Scorer, Points, Assists; NFL Touchdowns, Passing, Receiving, Rushing);
+  - game lines in Spread, Total and Moneyline columns for both teams; stat markets as a sideways ladder per player; the goal scorer market as an Anytime, First, 2+ grid;
+  - 44 px team marks on rows, 40 px player marks with the jersey number on every prop row, bigger cells;
+  - nothing floats but the header and the chip row;
   - **the lag, measured on the live link at 375 with performance.now from a tap through layout:** before, 41 to 152 ms per pill tap and a page 15,158 px long; after, 0 to 52 ms, most 4 to 13 ms (the high ones right after a background refresh), 1 to 5 ms warm. Each league and tab view is built once per data version and swapped from memory, the rest prebuilt at idle; data loads only on the timer; nothing refetches on a tap; a skeleton shows on first load.
   - Spread and total prices on the Board are a stand-in -110, because the scoreboard feed gives none; prop rungs are priced from the pregame leader figures.
 - **Game page** (Blue):
   - market tabs (Popular, Game Lines, Alt Lines, Team Totals, Halves or Periods, Player Props) redraw from memory in 2 to 6 ms with no fetch; each market section folds by its header, and the choice is kept;
   - alternate spreads and totals on a track, as in the app: seven lines around the main one, one tap picks a line, and its two prices sit under it;
   - team marks at the team's own scale (64 px in the header, 44 px in rows), and on every prop row the player's number on his team's jersey (40 px);
-  - no logos and no player photos: teams are Gold's drawn team marks in their two colours (for football, a speed-style helmet in side profile; all four marks share one light), players a plain jersey;
+  - no logos and no player photos: teams are Gold's drawn team marks in their two colours (for football, a speed-style helmet in side profile; all four marks share one light);
   - picks lock at kickoff;
   - "The Field on this game" shows each player as sealed until kickoff. At kickoff it becomes "Seal broken: who took what": the side, price and stake for each player, tagged With you or Against you. This is the full table the Lounge's seal-break rows open;
   - a Lounge link opens the Lounge focused on that game.
