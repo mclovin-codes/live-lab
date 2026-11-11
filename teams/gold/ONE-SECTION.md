@@ -27,6 +27,14 @@ Home opens on the weekly contest, in this order:
   - Talk in the Lounge, Add to my circle (the Lounge's My circle reads it), Block and Report.
 - **Your profile adds:** your Slips (Open and Settled), your matchup opponent, and your Season 1 weeks as green and red tiles.
 
+## My circle (Gold's parts)
+- **A filter, not a second space.** Home's contest card has a switch: The Field or My circle. My circle keeps the same ladder, ranks and Stacks, showing only you and your circle (ranks stay the whole Field's).
+- **Who is in it:** the players you invited, the one who invited you, and friends you added, once both sides confirm.
+- **Adding:** on another player's profile, "Add Dan to my circle" sends an ask. The button then reads "Asked. Waiting on Dan to confirm". When someone asks you, it reads "Dan asked to join your circle. Confirm" (one tap). Stand-ins confirm only in the stand-in view, never in the honest view.
+- **Inviting:** the invite door at the bottom of Home shares the app link with your name in it. A friend arriving by that link sees "Dan invited you" with Confirm. The link only prefills; the circle commits when both sides confirm. There is no reward for inviting or adding, and no push.
+- **Me:** your circle, who is waiting on whom, "In your friends' circles" (friends of friends to add) or, when that is empty, players to add, and Invite a friend while the circle is small.
+- **An empty circle** shows three faces to add and the invite door, never a blank page.
+
 ## Where Slips live
 - **The Stack sheet:** tap your Stack in the top bar for the Stack, the rank and your open Slips (Blue's shell).
 - **Me:** your Slips, Open and Settled, each with its game, its live score or kickoff countdown, the stake and the return.
