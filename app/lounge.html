@@ -120,6 +120,19 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 .lg-gopen{margin-top:6px}
 .lg-blk>.lg-sys:first-child{top:var(--lg-stick,100px)!important}
 @keyframes lgp{50%{opacity:.3}}
+/* founder 12:05: the top is one compact block; the room is the page */
+#lg-main{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:8px;align-items:center}#lg-main>*{grid-column:1/-1}
+#lg-main>.lg-top{grid-column:1;margin:0}#lg-main>.lg-mu{grid-column:2;margin:0;padding:5px 10px;font-size:13px}.lg-mu b{font-size:14px}
+.lg-top .lg-scope{flex:none!important}.lg-top .lg-scope button{flex:none!important;padding:6px 9px;font-size:13px}
+.lg-faces{flex-wrap:nowrap!important;padding:8px 0 4px!important}.lg-face small{display:none!important}.lg-face em{font-size:13px!important}.lg-face{width:48px!important}
+.lg-brow{display:flex;align-items:center;gap:6px}.lg-bars{flex:1;min-width:0;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;gap:6px}.lg-bars::-webkit-scrollbar{display:none}
+.lg-gbar svg{flex:none;width:28px!important;height:28px!important}.lg-gbar span{min-width:0;overflow:hidden;white-space:nowrap}.lg-gbar{gap:5px!important;padding:4px 10px!important}
+.lg-bars .lg-gbar{flex:0 0 100%;scroll-snap-align:start;min-height:44px}
+.lg-nx2{flex:none;min-height:44px;padding:0 10px;border:1px solid rgba(245,165,36,.4);border-radius:14px;background:rgba(245,165,36,.1);color:var(--lg-warn);font:700 13px var(--lg-f);cursor:pointer}.lg-nx2 b{display:block;font-size:13px}
+.lg-gopen .lg-nx,.lg-gopen .lg-gside{display:none!important}
+.lg-gprops{display:flex;align-items:center;gap:4px;padding:6px 12px 8px;font:700 13px var(--lg-f);color:var(--lg-mut)}.lg-gprops span{margin-right:6px}.lg-gprops em{font-style:normal;margin-left:4px}
+.lg-sys>span{min-width:0;flex:1}.lg-sys>span>b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg-row .lg-av+.lg-av,.lg-rvl .lg-row .lg-av+.lg-av{margin-left:3px!important}
 @media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-lift .lg-mu,.lg-lift .lg-faces,.lg-lift .lg-gsides,.lg-lift .lg-room .lg-sys,.lg-sc strong.tick,.lg-face em.bump,.lg-face b.flash{animation:none}.lg-face{transition:none!important}}
 </style>
 </head>
@@ -127,14 +140,14 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 <div id="lg-main"></div>
 <div id="lg-say"><div id="lg-reply" hidden></div><form><input maxlength="160" placeholder="Say something to the Field" autocomplete="off" aria-label="Message"><button>Send</button></form></div>
 <script src="shared/state.js?v=f1104"></script>
-<script src="team-mark.js?v=m3"></script>
+<script src="team-mark.js?v=m5"></script>
 <script src="week-games.js?v=f1109"></script>
 <script src="honest.js"></script>
 <script src="shared/nav.js?v=f1111"></script>
 <script src="shared/events.js?v=f1107"></script>
 <script src="faces.js?v=f1" data-rushface="1"></script>
-<script src="game-card.js?v=c5"></script>
+<script src="game-card.js?v=c6"></script>
 <script src="slip-card.js?v=s7"></script>
-<script src="lounge.js?v=l1140"></script>
+<script src="lounge.js?v=l1141"></script>
 </body>
 </html>
