@@ -119,7 +119,8 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
     line(k, text) { const a = R.all(); if (!a[k]) return; a[k].line = String(text || '').slice(0, 120); try { localStorage.setItem(RK, JSON.stringify(a)); } catch (e) {} },
     set(k, side) { const a = R.all(); if (a[k]) return; a[k] = { side, at: Date.now() }; try { localStorage.setItem(RK, JSON.stringify(a)); } catch (e) {} },
     started: g => !!g && (g.state !== 'pre' || Date.now() >= g.date),
-    sides: x => x.t === 'total' ? [{ v: 'over', t: 'Over' }, { v: 'under', t: 'Under' }] : [{ v: 'away', t: x.g.away.abbr }, { v: 'home', t: x.g.home.abbr }],
+    // Every sealed card offers the same four calls, so the buttons never reveal the market type.
+    sides: x => [{ v: 'away', t: x.g.away.abbr }, { v: 'home', t: x.g.home.abbr }, { v: 'over', t: 'Over' }, { v: 'under', t: 'Under' }],
     side: x => x.t === 'total' ? (/^over/i.test(x.label || '') ? 'over' : 'under') : (String(x.label || '').indexOf(x.g.away.abbr) === 0 ? 'away' : 'home'),
     deck() {
       const out = [];
