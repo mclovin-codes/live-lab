@@ -103,7 +103,12 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 .lg-game svg.tmk{width:24px!important;height:24px!important}.lg-game .rgc-t b{font-size:17px;display:inline}.lg-game .rgc-t small{display:inline;margin-left:6px;font-size:11px}
 .lg-game .rgc-sc{font-size:22px;min-width:30px}.lg-game .rgc-cols{grid-template-columns:repeat(3,54px)}.lg-game .rgc-cells{grid-template-columns:repeat(3,54px)}
 .lg-game .rb-c{width:54px!important;height:32px!important;gap:0!important;font-size:10px!important}.lg-game .rb-c b{font-size:12.5px!important}
-@media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-sc strong.tick,.lg-face em.bump,.lg-face b.flash{animation:none}.lg-face{transition:none!important}}
+/* a visitor: every contest line drawn in place but blurred; talk readable; one Enter door. Enter lifts it on the spot */
+.lg-enter{display:block;width:100%;min-height:44px;margin:0 0 6px;border:0;border-radius:14px;background:#3DB8FF;color:#06121C;font:800 15px var(--lg-f);cursor:pointer}
+.lg-main-blur,.lg-gated .lg-mu,.lg-gated .lg-faces,.lg-gated .lg-gsides,.lg-gated .lg-room .lg-sys,.lg-gated .lg-room .lg-blk,.lg-gated .lg-nx{filter:blur(6px);pointer-events:none;user-select:none}
+.lg-mu,.lg-faces,.lg-gsides,.lg-room .lg-sys,.lg-nx{transition:filter .9s ease}
+.lg-lift .lg-mu,.lg-lift .lg-faces,.lg-lift .lg-gsides,.lg-lift .lg-room .lg-sys{animation:lglift 1.2s ease}@keyframes lglift{0%{filter:blur(6px);transform:scale(.98)}60%{filter:none;transform:scale(1.02)}100%{filter:none;transform:none}}
+@media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-lift .lg-mu,.lg-lift .lg-faces,.lg-lift .lg-gsides,.lg-lift .lg-room .lg-sys,.lg-sc strong.tick,.lg-face em.bump,.lg-face b.flash{animation:none}.lg-face{transition:none!important}}
 </style>
 </head>
 <body data-tab="lounge">
@@ -113,11 +118,11 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 <script src="team-mark.js?v=m2"></script>
 <script src="week-games.js?v=f1108"></script>
 <script src="honest.js"></script>
-<script src="shared/nav.js?v=f1105"></script>
+<script src="shared/nav.js?v=f1110"></script>
 <script src="shared/events.js?v=f1105"></script>
 <script src="faces.js?v=f1" data-rushface="1"></script>
 <script src="game-card.js?v=c4"></script>
 <script src="slip-card.js?v=s6"></script>
-<script src="lounge.js?v=l1135"></script>
+<script src="lounge.js?v=l1136"></script>
 </body>
 </html>
