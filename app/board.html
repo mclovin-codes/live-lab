@@ -132,7 +132,7 @@ function erf(x){const s=x<0?-1:1;x=Math.abs(x);const t=1/(1+.3275911*x);return s
 const pNorm=(t,mu,sd)=>1-.5*(1+erf((t-.5-mu)/(sd*Math.SQRT2)));
 function pPois(k,l){let s=0,f=1;for(let i=0;i<k;i++){if(i)f*=i;s+=Math.exp(-l)*Math.pow(l,i)/f}return 1-s}
 /* ---------- markets: categories per league ---------- */
-const FAMS={all:[['lines','Game Lines']],nfl:[['lines','Game Lines']],nba:[['lines','Game Lines'],['points','Points'],['rebounds','Rebounds'],['assists','Assists']],nhl:[['lines','Game Lines'],['goals','Goal Scorer'],['points','Points'],['assists','Assists']]};
+const FAMS={all:[['lines','Game Lines']],nfl:[['lines','Game Lines'],['touchdowns','Touchdowns'],['passing','Passing'],['receiving','Receiving'],['rushing','Rushing']],nba:[['lines','Game Lines'],['points','Points'],['rebounds','Rebounds'],['assists','Assists']],nhl:[['lines','Game Lines'],['goals','Goal Scorer'],['points','Points'],['assists','Assists']]};
 const SHORT={points:'PTS',rebounds:'REB',assists:'AST',goals:'G'};
 const ln=v=>v>0?'+'+v:v===0?'PK':String(v);
 const open=g=>g.state==='pre'&&g.date>Date.now();
@@ -172,7 +172,7 @@ function build(){const base=games.filter(C.keep),list=base.filter(g=>lg==='all'|
  const now=Date.now(),L=list.filter(g=>g.state==='in'||(g.state==='pre'&&g.date>now-36e5)).sort((a,b)=>(b.state==='in')-(a.state==='in')||a.date-b.date);let day='',body='';
  const flush=()=>{if(body)h+=`<section class="rb-grp"><h2>${esc(day)}</h2><div class="rb-list">${body}</div></section>`;body=''};
  for(const g of L){const c=propCard(g,fam);if(!c)continue;const d=g.state==='in'?'Live':RW.etDay(g.date)===today?'Today':new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'long'}).format(new Date(g.date));if(d!==day){flush();day=d}body+=c}flush();
- return h||`<div class="rb-empty">No ${esc((FAMS[lg].find(x=>x[0]===fam)||['',''])[1])} lines yet.</div>`}
+ return h||`<div class="rb-empty">Lines post closer to kickoff</div>`}
 function bar(){const sp=C.sports.length?C.sports:['nfl','nba','nhl'];if(lg!=='all'&&!sp.includes(lg))lg=sp.includes('nfl')?'nfl':sp[0];const F=FAMS[lg]||FAMS.nfl;if(!F.some(f=>f[0]===fam))fam='lines';
  const S=$('rb-seg'),sh=[['all','All'],...sp.map(k=>[k,LGN[k]])].map(([k,l])=>`<button role="tab" aria-selected="${lg===k}" class="${lg===k?'on':''}" data-lg="${k}">${l}</button>`).join('');if(S._h!==sh){S.innerHTML=sh;S._h=sh}
  const T=$('rb-chips'),th=F.length>1?F.map(([k,l])=>`<button role="tab" aria-selected="${k===fam}" class="${k===fam?'on':''}" data-fam="${k}">${l}</button>`).join(''):'';if(T._h!==th){T.innerHTML=th;T._h=th;T.hidden=!th}}

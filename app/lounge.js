@@ -187,8 +187,8 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
     let b = 0; ['rnav', 'rslip'].forEach(id => { const e = document.getElementById(id); if (e) { const q = e.getBoundingClientRect(); if (q.height > 0 && getComputedStyle(e).display !== 'none') b = Math.max(b, window.innerHeight - q.top); } }); c.style.bottom = b + 'px';
     const R = $('lg-room'), M = $('lg-main'); if (!R) return; const top = R.getBoundingClientRect().top + window.scrollY, avail = window.innerHeight - b - c.offsetHeight - top - 8;
     /* a short phone with a Slip in the bar: fold the card's sides line, the Next seal chip and the face names before giving up the pinned room */
-    if (avail < 150 && !M.classList.contains('lg-tight')) { M.classList.add('lg-tight'); return dock(); }
-    if (avail > 340 && M.classList.contains('lg-tight')) { M.classList.remove('lg-tight'); return dock(); }
+    if (avail < Math.max(150, window.innerHeight * .4) && !M.classList.contains('lg-tight')) { M.classList.add('lg-tight'); return dock(); }
+    if (avail > Math.max(340, window.innerHeight * .4 + 110) && M.classList.contains('lg-tight')) { M.classList.remove('lg-tight'); return dock(); }
     if (avail >= 90) { R.classList.add('pinned'); R.style.height = avail + 'px'; M.style.paddingBottom = '0px'; } else { R.classList.remove('pinned'); R.style.height = ''; M.style.paddingBottom = (c.offsetHeight + 24) + 'px'; } }
   /* a rank change is the faces row re-sorting: each face slides from where it was */
   let lastX = {};
