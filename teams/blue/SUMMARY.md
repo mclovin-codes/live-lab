@@ -21,6 +21,10 @@
 - With 7 players there are still plenty of cards. A read takes one tap and nothing to type.
 - Your own sealed picks are listed with "Nobody has read you yet" until someone does. In the honest view nobody else's reads are invented, so that line stays honest.
 - A card also shows whether you are on the same side or against them when you hold a pick on that game.
+- Each sealed card shows the Stack riding on it, so you can see how much the pick matters without seeing its side.
+- A timeline across the top shows tonight's flips: each kickoff time, how many cards seal at it and how many of them you have read.
+- Your matchup has a read duel line: how many of your opponent's picks you have read right, and whether they have read you.
+- The game page keeps other players' picks sealed before kickoff too, with a "Read it" door to Reads.
 - At 30 players there are more cards to read and more people reading you, so it gets better as the Field grows.
 
 ## What brings a player back
@@ -62,10 +66,13 @@ What is new compared with a group chat, a pick feed or a reaction bar:
 - The game page's "Place in" contest row.
 - The store's list of created contests (it now returns none, so there is one contest: the week).
 - The old Lounge rooms: one space now, Reads.
+- The unused contest kit script and the contest tag on the game page's Field rows.
+- Still in the folder, but unused and unreachable: a joiner-note helper inside the shared store.
 
 ## Unfinished or faked
 
 - The players and their picks are prototype stand-ins for real entrants. Their picks are real cards on real games, made by the prototype.
 - In the full Field view, "N others read this" and "N read you" are simulated. The honest view (`?field=7`) shows none of them.
 - Your reads are stored on your phone only. In the real app the picker would see who read them after kickoff.
+- A card flips only if this phone saw it sealed: the stand-in picks need a pregame line, so the page keeps each sealed card it showed and grades it from the final score. Open Reads before tonight's 9:00, 10:00 and 11:00 PM kickoffs to watch cards flip.
 - There is no typing layer yet. The plan is one line under a flipped card.
