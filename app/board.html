@@ -143,9 +143,11 @@ function homeSpread(g){if(window.GameCard&&GameCard.homeSpread){const v=GameCard
 function key(g,sp){return g.league+'|'+g.id+'|'+JSON.stringify(sp)}
 /* a prop pick carries the player's real name, jersey and team so the Slip can draw the player mark; samples carry no name */
 const PLX=new Map();
+/* the one list of short market names (Blue's Slip reads p.mname) */
+function shortName(sp){const n=Math.round((+sp.line||0)+.5),st=String(sp.stat||'');if(st==='td')return n>1?'2+ TDs':'Anytime TD';if(st==='first td')return'First TD';if(st==='goals')return n>1?'2+ goals':'Anytime goal';if(st==='first goal')return'First goal';const W={passing:'Pass yds',receiving:'Rec yds',rushing:'Rush yds',points:'Points',rebounds:'Rebounds',assists:'Assists'};return(W[st]||st)+' '+n+'+'}
 const mkName=o=>{try{return window.Rush&&typeof Rush.mktName==='function'?(Rush.mktName(o)||''):''}catch(e){return''}};
 function reg(g,sp,label,odds){const k=key(g,sp),o={key:k,mkt:JSON.stringify(Object.assign({},sp,{side:0,over:0,o:0})),league:g.league,gameId:String(g.id),game:g.away.abbr+' at '+g.home.abbr,start:g.date,spec:sp,label,odds,market:sp.k};
- if(sp.k==='prop'){const P=PLX.get(String(sp.aid))||{};if(P.player){o.player=P.player;o.playerId=String(sp.aid)}o.jersey=P.jersey||'';if(P.team)o.team={abbr:P.team.abbr,color:P.team.color,alt:P.team.alt,name:P.team.name};if(P.sample)o.sample=true;o.stat=sp.stat;o.line=sp.line;o.side=sp.side==='o'?'over':sp.side}
+ if(sp.k==='prop'){const P=PLX.get(String(sp.aid))||{};if(P.player){o.player=P.player;o.playerId=String(sp.aid)}o.jersey=P.jersey||'';if(P.team){o.team=P.team.abbr;o.teamColor=P.team.color;o.teamAlt=P.team.alt}o.mname=shortName(sp);if(P.sample)o.sample=true;o.stat=sp.stat;o.line=sp.line;o.side=sp.side==='o'?'over':sp.side}
  const mn=mkName(o);if(mn)o.mktName=mn;REG.set(k,o);return k}
 function cell(g,sp,top,odds,label,cls){if(odds==null||odds==='')return`<span class="rb-c off${cls?' '+cls:''}">${top?esc(top):''}<b>&ndash;</b></span>`;const ok=open(g),k=reg(g,sp,label,odds);return`<button type="button" class="rb-c${cls?' '+cls:''}${ok?'':' off'}" data-k="${esc(k)}"${sp.k==='ml'?` data-ml="${esc(sp.side)}" data-g="${esc(g.league+'|'+g.id)}"`:''}${ok?'':' disabled'} aria-label="${esc(label+' '+fo(odds))}">${top?esc(top):''}<b>${esc(fo(odds))}</b></button>`}
 const href=g=>`game.html?league=${g.league}&id=${encodeURIComponent(g.id)}`;
