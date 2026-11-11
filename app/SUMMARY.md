@@ -49,37 +49,41 @@
 
 ## The one social space: the Lounge (Red, rebuilt after the council's 4-0 verdict)
 
-**One screen for the whole Field.** The Lounge fits one phone screen. At the top, always in view: your matchup, the faces of the Field and the game that is on. Below them only the room scrolls, and it opens at its newest row. There are no rooms per game and no fixed lines.
+**One screen for the whole Field.** The Lounge fits one phone screen. At the top, always in view: your matchup, the faces of the Field, and the game that is on. Below them, only the room scrolls, and it opens at its newest row. There are no rooms and no fixed lines.
 
 **At the top (pinned):**
 1. **The Field / My circle** switch.
-2. **Your matchup:** "You 1,000, them 1,091, down 91". It is one figure from one source (`Rush.matchup()`), the same number Contest and Home show.
-3. **The faces:** every player with rank and Stack (1 to 7 in the honest view), you and your opponent ringed. Every face opens a profile.
+2. **Your matchup:** You 1,000, them 1,091, "down 91". It is one figure from one source (Blue's `Rush.matchup()`), the same number Contest shows.
+3. **The faces:** the app's preset avatars (Gold's `RushFace`, your own from Edit profile) for every player with rank and Stack (1 to 7 in the honest view), the rank read straight from the store's unique `r.rank` (ties broken there), you ringed blue and your opponent pink. Every face opens a profile.
 4. **The game that is on:** one card, swipe for the others.
-   - The live score and period.
+   - Live score and period with a pulsing dot.
    - Before kickoff: who holds a Slip on it, and a countdown.
-   - After kickoff: "With you on NY", "Against you on MIL", "On the Over", or "On this game" for props, which have no opponent.
+   - Each side keeps to one row of faces, with "+N" for the rest.
+   - After kickoff: "With you on NY", "Against you on MIL", "On the Over", or "On this game" for props, which have no opponent. With and against compares only legs of the same market.
    - A "Next seal" chip counts down to the next kickoff.
 
-**The room (scrolls):** one thread, newest at the bottom, with a "New since you left" divider.
+**The room (scrolls):** the only home for the week's stream of moments, one thread, newest at the bottom, with a "New since you left" divider.
 - **Slips sealing:** one row per player, naming only the games.
-- **Seal broken:** one row per game (score, faces with you and against you), opening to each player's Slip and to the full who-took-what table on the game page.
-- **Slips settling:**
-  - the Stack move counts up, only on the game that decided the Slip;
-  - other legs show what the Slip still needs;
-  - several on one game fold into one row.
+- **Seal broken:** one row per game (score, faces ringed green with you and red against you). It opens to each player's Slip.
+- **Slips settling:** a Stack move shows as a big green or red figure that counts up on arrival, only on the game that decided the Slip; other legs show Blue's line ("Needs WSH +4.5 and 1 more"). Several on one game fold into one row ("4 Slips settled on FLA at CBJ") with the two biggest moves, and a tap anywhere on the row opens the rest.
+- **Opening a row** (a settlement, a seal broken): one block open at a time. Its header sticks to the top of the room, its Slips scroll inside it, and it ends in "Hide 17 Slips", so it closes from where the thumb is. While it is open the game card steps aside so the block gets the room's height; closing returns the room to where the block started.
 - **Earlier today** holds everything older.
 
-**The seal breaking, live:** at kickoff, with the page open, a sheet floats up: "Seal broken: OKC at POR", one line per player (the leg on this game and its price, with you or against you), each opening the whole Slip. It fired on the real 10:00 and 11:00 PM kickoffs. At 11:00 it opened the third leg of a live 3-leg parlay.
+**Every pick is a Slip,** drawn with Gold's one Slip card:
+- A straight shows market, line and price; a prop shows the player and the stat line; a parlay is one card with its legs.
+- Another player's Slip always passes through Blue's `sealView` before Gold's card draws it: a leg is sealed until its own game kicks off, showing the game only (no market, side, line, player or stake); then it shows the pick, then hit or missed.
+
+**The seal breaking, live:** at kickoff, with the page open, a sheet floats up: "Seal broken: OKC at POR", one line per player (the leg on this game and its price, parlay or straight, with you or against you), each opening to the full Slip. This fired on the real 10:00 and 11:00 PM kickoffs; at 11:00 it opened the third leg of a live 3-leg parlay.
 
 **It moves:**
-- when a pick settles, that player's Stack counts to its new figure;
-- when ranks change, the faces slide into their new order and the moved rank badges flash;
-- the live score ticks.
+- When a pick settles, that player's Stack on the faces row bumps and counts to its new figure.
+- When ranks change, the faces slide into their new order and the moved rank badges flash.
+- The live score ticks when it changes.
 
 **One tap, and talk on top:**
-- Hold or double-tap any row for the tapback tray (heart, thumbs up, thumbs down, laugh, exclamation, question) or Reply. There is one tapback per player per row, and your face shows as a badge on it.
-- Reply quotes the row into the one composer, docked above the tabs and the Slip bar. A line you send is tagged with the game on the pinned card.
+- Hold or double-tap any row for the tapback tray: heart, thumbs up, thumbs down, laugh, exclamation, question, or Reply. One per player per row; your face shows as a badge on the row.
+- Reply quotes the row into the one composer, docked above the tabs and the Slip bar. A line you send is tagged with the game on the pinned card ("on DET at STL").
+- Home's "For you" shows your tapbacks and replies.
 
 ## My circle (the founder's 9:50 PM note): a filter, not a second space
 
@@ -208,9 +212,9 @@
 
 - **The other players are stand-ins.** Their picks are real games and lines, but not real people. They never tap back or reply, so in the honest view only your own tapbacks and talk appear.
 - **On this phone only:** tapbacks, talk, Block, Report, the circle and the invite link work locally. Nobody else sees them until a server exists.
-- **Big plays** come from ESPN's scoring plays for NFL and NHL. The time shown is when this phone first saw the play. NBA has no big plays, because scoring is constant.
+- **Big plays** come from the live feed's scoring plays for NFL and NHL. The time shown is when this phone first saw the play. NBA has no big plays, because scoring is constant.
 - **The time a stand-in placed a Slip** is simulated before its kickoff. Your own Slips use the real time.
 - **Rank arrows on Home** compare with what this phone last saw.
 - **The price check at Place** covers picks on the game page you have open: a better price is taken, a worse one asks once. A pick from another game places at the price shown when you tapped it.
 - **Props:** the NFL weekly scoreboard carries no player leaders, so stand-ins hold no NFL props yet; your own NFL props from the game page work. A prop leg on a game this phone first saw after kickoff is not offered, because the pregame leaders are gone by then.
-- **A stand-in's pick on a game that started before this phone first loaded it** uses that game's closing line from ESPN's game summary, because the scoreboard drops the pregame line at kickoff. Only when no closing line exists does it fall back to a moneyline at -110.
+- **A stand-in's pick on a game that started before this phone first loaded it** uses that game's closing line from the game's summary feed, because the scoreboard drops the pregame line at kickoff. Only when no closing line exists does it fall back to a moneyline at -110.
