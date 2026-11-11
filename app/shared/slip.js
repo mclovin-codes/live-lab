@@ -25,7 +25,8 @@
   const remove = key => save(load().filter(x => x.key !== key));
   const clear = () => save([]);
   let tab = null, stake = 0, stakes = {}, receipt = null, keyTarget = 'all';
-  const CSS = `#rslip{position:fixed;left:0;right:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:38;padding:6px max(12px,env(safe-area-inset-right,0px)) 6px max(12px,env(safe-area-inset-left,0px));pointer-events:none}
+  const CSS = `body.has-slip{padding-bottom:calc(140px + env(safe-area-inset-bottom,0px))!important}
+#rslip{position:fixed;left:0;right:0;bottom:calc(60px + env(safe-area-inset-bottom,0px));z-index:38;padding:6px max(12px,env(safe-area-inset-right,0px)) 6px max(12px,env(safe-area-inset-left,0px));pointer-events:none}
 #rslip button{pointer-events:auto;width:100%;display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 14px;border:0;border-radius:16px;background:#3DB8FF;color:#06121C;font:800 15px/18px -apple-system,BlinkMacSystemFont,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;text-align:left}
 #rslip .rs-n{display:grid;place-items:center;min-width:28px;height:28px;border-radius:14px;background:#06121C;color:#3DB8FF;font-size:14px}#rslip .rs-t{flex:1;min-width:0}#rslip .rs-t small{display:block;font-weight:700;font-size:12px;opacity:.8}#rslip .rs-o{font-size:17px}
 #rss{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.6)}#rsh{position:fixed;left:0;right:0;bottom:0;z-index:91;max-height:90%;overflow-y:auto;background:#141C26;border-radius:20px 20px 0 0;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));color:#F4F7FA;font:400 15px/20px -apple-system,BlinkMacSystemFont,sans-serif}
@@ -39,7 +40,7 @@
 #rsh .go{width:100%;min-height:54px;border:0;border-radius:16px;background:#3DB8FF;color:#06121C;font:800 17px/20px -apple-system,BlinkMacSystemFont,sans-serif}#rsh .go:disabled{background:#2A3644;color:#A3AFBD}
 #rsh .more{display:block;width:100%;margin-top:8px;min-height:44px;border-radius:14px;border:1px solid #2A3A4A;background:none;color:#F4F7FA;font:800 15px sans-serif}
 #rsh .stakeall{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid rgba(255,255,255,.08);font-weight:800}`;
-  function bar() { const l = live(load()); let b = document.getElementById('rslip'); if (!l.length || document.getElementById('rsh')) { if (b) b.remove(); return; }
+  function bar() { const l = live(load()); let b = document.getElementById('rslip'); document.body.classList.toggle('has-slip', !!l.length); if (!l.length || document.getElementById('rsh')) { if (b) b.remove(); return; }
     if (!b) { b = document.createElement('div'); b.id = 'rslip'; document.body.appendChild(b); b.addEventListener('click', () => open()); }
     const c = combines(l), o = c ? parlayOdds(l) : l.length === 1 ? l[0].odds : null, s = (R.settings && R.settings().lastStake) || 25;
     b.innerHTML = `<button type="button" aria-label="Open your Slip"><span class="rs-n">${l.length}</span><span class="rs-t">${l.length === 1 ? esc(l[0].label) : c ? l.length + '-pick parlay' : l.length + ' straights'}<small>${o != null ? stk(s) + ' stake pays ' + stk(pays(s, o)) : 'Tap to set each stake'}</small></span>${o != null ? `<span class="rs-o">${fo(o)}</span>` : ''}</button>`; }
