@@ -11,8 +11,11 @@
 
 1. **Home:** your rank as one big number, your Stack, and a strip of every player's face placed by Stack. Below them are tonight's games, with the faces of who is on each.
 2. **Lounge:** one screen. Your matchup, every face, the game that is on (with you, against you), then the room. Hold or double-tap any row for a tapback or a reply.
-3. **Your Stack** (top right on every page): your Stack, rank, matchup, open Slips and the free Reload.
-4. **Any face or name** opens that player's profile.
+3. **Contest:** two equal panels, The contest and Your matchup. Tap one to open it.
+4. **Board:** league pills, one row of market tabs, three price columns. A tap adds the pick to the one Slip bar; tap the bar to place.
+5. **Your Stack** (top right on every page): your Stack, rank, matchup, open Slips and the free Reload.
+6. **Any face or name** opens that player's profile.
+7. **A visitor's view:** add ?entered=0, or use the footer toggle, to see the app as someone who has not entered.
 
 ## The weekly contest on every screen
 
