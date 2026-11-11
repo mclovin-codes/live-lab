@@ -251,11 +251,8 @@
   const dayLabel = d => { const s = String(d); return MON[+s.slice(4, 6) - 1] + ' ' + +s.slice(6, 8); };
   const ok = { ok: true }, no = why => ({ ok: false, why });
   const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  function defs() {
-    let a = null; try { if (window.RC && typeof window.RC.list === 'function') a = window.RC.list(); } catch (e) {}
-    if (!a) { try { a = Object.values((JSON.parse(localStorage.getItem(RCKEY) || '{}') || {}).c || {}); } catch (e) { a = []; } }
-    return (a || []).filter(c => c && c.id && (c.owner || c.joined) && c.status !== 'archived' && !(c.removed || []).includes('me'));
-  }
+  /* One contest: the week. Created contests are gone from the app (Phase 4 round two). */
+  function defs() { return []; }
   const def = id => defs().find(c => c.id === id) || null;
   const cname = c => String((c && c.name) || 'Contest').slice(0, 40);
   function color(id) {

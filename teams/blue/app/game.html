@@ -166,6 +166,7 @@
 .seg3 button{min-height:36px;border-radius:8px;font:600 13px var(--body);color:var(--dim)}.seg3 button.on{background:var(--panel);color:var(--ink)}
 .plk{color:var(--blue);text-decoration:none;font-weight:600}
 .entry{background:linear-gradient(135deg,#00C0FF33,#0080FF22);border-radius:16px;padding:14px;display:grid;gap:8px}
+.pin{display:none!important}
 </style>
 </head>
 <body data-tab="board">
@@ -179,10 +180,8 @@
 <div id="gsheet" role="dialog" aria-modal="true"></div>
 <div id="gtoast"></div>
 <script src="shared/state.js"></script>
-<script src="shared/crew.js"></script>
 <script src="shared/nav.js"></script>
 <script src="week-games.js"></script>
-<script src="contest-kit.js"></script>
 <script>
 /* Rush game page: pregame full book and live mode for NFL, NBA and NHL (owner: Team Blue).
    Data: ESPN site summary (score, box, plays, book lines, win probability), core probabilities, core plays.

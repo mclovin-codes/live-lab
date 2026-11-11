@@ -47,7 +47,7 @@ a{color:inherit}
 .g-bar{height:8px;background:var(--card2);border-radius:4px;overflow:hidden}.g-bar i{display:block;height:100%;background:var(--grad)}
 .g-ladder{display:flex;flex-direction:column;gap:4px;position:relative;padding-left:22px}
 .g-ladder::before{content:"";position:absolute;left:7px;top:12px;bottom:12px;width:2px;background:var(--line)}
-.g-crew{display:grid;gap:6px;text-decoration:none;color:inherit}.g-crew b{font-size:15px}.g-crt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.g-crt b{font:800 26px/1 -apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;letter-spacing:-.01em}.g-crt span{color:var(--mute);font-size:13px}
+.g-crt{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.g-crt b{font:800 26px/1 -apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;letter-spacing:-.01em}.g-crt span{color:var(--mute);font-size:13px}
 .g-rung{position:relative;padding:8px 10px;border-radius:12px}
 .g-rung::before{content:"";position:absolute;left:-20px;top:14px;width:12px;height:12px;border-radius:50%;background:#3A4A5A}
 .g-rung.on{background:rgba(0,191,255,.1)}.g-rung.on::before{background:var(--acc);box-shadow:0 0 0 4px rgba(0,191,255,.25)}
@@ -184,8 +184,6 @@ a{color:inherit}
 <nav id="g-nav"></nav>
 <script src="shared/state.js"></script>
 <script src="week-games.js"></script>
-<script src="contest-kit.js"></script>
-<script src="shared/crew.js"></script>
 <script src="shared/nav.js"></script>
 <script src="gold-store.js"></script>
 <script>
@@ -204,14 +202,11 @@ const refs=()=>{try{return JSON.parse(localStorage.getItem(RKEY))||{list:[],nudg
 const saveRefs=r=>{try{localStorage.setItem(RKEY,JSON.stringify(r))}catch(e){}};
 (function(){const by=new URLSearchParams(location.search).get('ref');if(by){const r=refs();if(!r.invitedBy){r.invitedBy=by.slice(0,24);saveRefs(r)}}})();
 function rungOf(n){let i=0;for(let k=0;k<LADDER.length;k++)if(n>=LADDER[k].at)i=k;return i}
-function multiplier(){const r=refs(),me=GS.me(),picked=GS.picks().length>0;const inN=r.list.filter(x=>x.in).length,theirs=r.list.reduce((t,x)=>t+(x.theirs||0),0);const crew=Rush.crew?Rush.crew.boost():0;const m=Math.min(3,1+.1*Math.min(inN,20)+.05*theirs+crew);return{m:+m.toFixed(2),inN,theirs,crew,picked:me.entered&&picked}}
-/* Crews (Blue, Phase 3): the crew card on Home, the countdown that keeps everyone's boost alive */
+function multiplier(){const r=refs(),me=GS.me(),picked=GS.picks().length>0;const inN=r.list.filter(x=>x.in).length,theirs=r.list.reduce((t,x)=>t+(x.theirs||0),0);const m=Math.min(3,1+.1*Math.min(inN,20)+.05*theirs);return{m:+m.toFixed(2),inN,theirs,crew:0,picked:me.entered&&picked}}
+
 function muCard(){let riv=null,me=null;try{riv=Rush.rival();me=Rush.field().find(r=>r.me)}catch(e){}if(!riv)return'';const st=r=>r?(r.stack!=null?r.stack:1000+Math.round((r.units||0)*10)):1000;const a=st(me),b=st(riv),d=a-b,av=(n)=>Rush.nav&&Rush.nav.avatar?Rush.nav.avatar(n):'';const pa=Math.max(8,Math.min(92,50+d/40));const live=GAMES.filter(g=>g.state==='in').length;
   return`<div class="mu4"><div class="mu4-h"><span>YOUR MATCHUP</span><span>Higher Stack Monday night wins</span></div><div class="mu4-r"><a href="player.html?u=me">${av(me?me.name:'You')}<b>${a.toLocaleString('en-US')}</b><small>You</small></a><em class="${d>0?'up':d<0?'dn':''}">${d===0?'LEVEL':(d>0?'UP ':'DOWN ')+Math.abs(d).toLocaleString('en-US')}</em><a href="player.html?u=${encodeURIComponent(riv.id)}">${av(riv.name)}<b>${b.toLocaleString('en-US')}</b><small>${esc(riv.name)}</small></a></div><div class="mu4-bar"><i style="width:${pa}%"></i></div><div class="mu4-b"><a href="lounge.html?r=mu">Matchup room</a><a href="lounge.html">${live?live+' live rooms':'Game rooms'}</a></div></div>`}
-function crewCard(){const C=Rush.crew;if(!C)return'';const c=C.get(),x=n=>'+'+n.toFixed(1)+'x';
-  if(!c)return`<a class="g-card g-crew" href="crew.html"><div class="g-eyebrow">Crews</div><b>Start a crew. Every crewmate adds +0.1x to everyone's multiplier.</b><span class="g-note">Up to +1.0x. New people keep it alive, so the whole crew recruits.</span></a>`;
-  const col={alive:'#10B981',warn:'#F59E0B',hot:'#FF5A5F',cold:'#9AA8B6',small:'#9AA8B6'}[c.stage],msg=c.stage==='small'?`${C.RULES.minAlive-c.size} more to switch it on`:c.stage==='cold'?`Cold. ${x(c.full)} is off for all ${c.size}`:`${x(c.boost)} for all ${c.size} · someone new keeps it`;
-  return`<a class="g-card g-crew" href="crew.html" style="border-left:3px solid ${col}"><div class="g-eyebrow">${esc(c.name)}</div><span class="g-crt"><b data-crew-left style="color:${col}">${c.stage==='small'?'--':C.clock(c.left)}</b><span>${esc(msg)}</span></span></a>`}
+function crewCard(){return''}
 function flash(t){const el=$('g-flash');el.textContent=t;el.hidden=false;clearTimeout(flash.t);flash.t=setTimeout(()=>el.hidden=true,2200)}
 function link(){const me=GS.me();return location.origin+location.pathname.replace(/[^/]*$/,'')+'?ref='+encodeURIComponent(me.name||'friend')}
 async function shareText(text){const url=link();try{if(navigator.share){await navigator.share({title:'Rush Week '+W.n,text,url});return'Shared'}}catch(e){if(e&&e.name==='AbortError')return null}try{await navigator.clipboard.writeText(text+' '+url);return'Link copied'}catch(e){return'Copy this link: '+url}}
@@ -224,20 +219,7 @@ function capChip(g){const live=g.state==='in',pre=g.state==='pre',parts=String(g
 function loungeLine(){const f=GS.field(),top=f[0],live=GAMES.filter(g=>g.state==='in');const who=f.filter(r=>r.sim).slice(0,3);const msg=live.length?`${live.length} game${live.length>1?'s':''} live. ${top?top.name+' leads the Field at '+GS.fmt(1000+top.units*10)+' Stack.':''}`:top?`${top.name} leads Week ${W.n} at ${GS.fmt(1000+top.units*10)} Stack. Come get them.`:`Week ${W.n} is open.`;const here=Math.max(3,Math.round(f.length*.35));return`<a class="g-lounge" href="lounge.html"><span class="avs">${who.map(r=>`<span style="background:${AVC[Math.floor(hash(r.name)*AVC.length)]}">${esc(r.name.split(' ').map(w=>w[0]).join('').slice(0,2))}</span>`).join('')}</span><span class="tx"><small>LOUNGE<i>${here} here today</i></small><b>${esc(msg)}</b></span><span style="color:var(--mute)">&#8250;</span></a>`}
 function multCard(){const x=multiplier(),r=refs(),first=LADDER[rungOf(GS.field().length)].pay[0];return`<div class="g-card"><button data-sheet="mult" style="text-align:left;display:flex;flex-direction:column;gap:8px"><div class="g-eyebrow">Your multiplier</div><div class="g-mult"><div class="x">${x.m.toFixed(1)}<small>X</small></div><div class="why"><b>${x.inN?x.inN+' referral'+(x.inN>1?'s':'')+' active':'No referrals active'}</b><span>${x.picked?`1st place pays ${usd(Math.round(first*x.m))} at ${x.m.toFixed(1)}x`:'Enter and make a pick to collect it'}</span></div></div></button><div class="g-two"><button class="g-cta" data-act="nudge">Nudge</button><button class="g-cta o" data-act="invite">Invite a friend</button></div>${r.invitedBy?`<div class="g-note">You came in on ${esc(r.invitedBy)}’s invite.</div>`:''}</div>`}
 /* Commissioner mode doors: run your own contest, the ones you are in, join with a code. */
-function contestsCard(){const P=GS.CPAGE,mine=GS.contests.mine(),open=GS.contests.open().filter(x=>!mine.some(m=>m.id===x.id)).slice(0,3);
-  return`<div class="g-card"><div class="g-h">Contests<small>Your own Field, your rules</small></div>
-  <a class="g-cta" href="${P.create}">Run your own contest</a>
-  <div class="g-two"><a class="g-cta s" href="${P.list}">My contests${mine.length?' ('+mine.length+')':''}</a><button class="g-cta s" data-act="joinopen">Join with a code</button></div>
-  <form id="g-joinf" class="g-two" hidden><input class="g-in" id="g-code" maxlength="80" placeholder="Code or invite link" autocomplete="off"><button class="g-cta" type="submit">Join</button></form>
-  ${mine.slice(0,3).map(x=>`<a class="g-ref" href="${P.one(x.id)}" style="text-decoration:none"><b>${esc(GS.contests.name(x))}</b><small>${x.public||x.visibility==='public'?'PUBLIC':'PRIVATE'}${GS.contests.count(x)!=null?' · '+GS.contests.count(x)+' IN':''}</small></a>`).join('')}
-  ${open.length?`<div class="g-eyebrow">Open to join</div>${open.map(x=>`<a class="g-ref" href="${P.one(x.id)}" style="text-decoration:none"><b>${esc(GS.contests.name(x))}</b><small>${GS.contests.count(x)!=null?GS.contests.count(x)+' IN':'PUBLIC'}</small></a>`).join('')}`:''}
-  <div class="g-note">Pick the sports, days, Stack, markets and scoring. Public contests list here. Private ones join by code or link.</div></div>`}
-document.addEventListener('submit',e=>{if(e.target.id!=='g-joinf')return;e.preventDefault();const v=(($('g-code')||{}).value||'').trim();if(!v)return;
-  const inv=v.match(/[?&]i=([^&#\s]+)/);if(inv){location.href=GS.CPAGE.invite(decodeURIComponent(inv[1]));return}
-  const cid=v.match(/[?&]c=([^&#\s]+)/);if(cid){location.href=GS.CPAGE.one(decodeURIComponent(cid[1]));return}
-  const r=GS.contests.join(v.toUpperCase());if(r&&r.id){location.href=GS.CPAGE.one(r.id);return}
-  location.href='contests.html?join='+encodeURIComponent(v)});
-/* The moment: the live game if one is on (NFL first), else the next one to start. */
+function contestsCard(){return''}
 function heroGame(L){L=L||GAMES;const live=L.filter(g=>g.state==='in');if(live.length)return live.find(g=>g.lg==='nfl')||live[0];return L.find(g=>g.state==='pre')||null}
 /* The next or live game as one quiet row. */
 function heroCard(g){if(!g)return'';const live=g.state==='in';const when=new Date(g.date),day=when.toLocaleDateString([], {weekday:'short'}),tm=when.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
@@ -275,18 +257,10 @@ function prizeCard(){const n=GS.field().length,i=rungOf(n),r=LADDER[i],nx=LADDER
 /* My contests: every contest the player is in as one tappable card. The active one opens its Ranks; any other switches to it. */
 const CHEV='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 /* Run your own: the door into contest creation, third on Home. Join with a code sits beside it. */
-function doorCard(ws){const own=ws.some(w=>w.owner);
-  return`<a class="g-door" href="${GS.CPAGE.create}" aria-label="Run your own contest"><span class="ic" aria-hidden="true"><i style="--c:#F59E0B"></i><i style="--c:#A78BFA"></i><i style="--c:#34D399"></i></span><span class="tx"><b>Run your own contest</b><small>Your Field, your rules.</small></span><span class="go">${own?'New':'Start'}${CHEV}</span></a>`}
-/* My contests: one tight row per contest. The active one opens its Ranks; any other switches to it. Public contests show only once they have entries. */
-function myContests(ws,act){const P=GS.CPAGE,all=GS.contests.open().filter(x=>!ws.some(w=>w.id===x.id)),pub=all.filter(x=>GS.contests.count(x)>0).slice(0,3);
-  const row=w=>{const on=w.id===act,nums=w.entered?`<b>${GS.fmt(w.stack)}</b>${w.rank?' · #'+w.rank:''}`:'Not entered';const inner=`<span class="g-dot" style="background:${okc(w.color)}"></span><span class="m"><span class="t"><b>${esc(w.name)}</b>${on?'<span class="on-tag">ACTIVE</span>':''}</span></span><span class="nums">${nums}</span>${CHEV}`;
-    return on?`<a class="g-cc r1 on" href="${w.id==='rush'?'ranks.html':P.one(w.id)}" aria-label="${esc(w.name)}, active. Open Ranks">${inner}</a>`:`<button class="g-cc r1" data-wallet="${esc(w.id)}" aria-label="Switch to ${esc(w.name)}">${inner}</button>`};
-  const pc=x=>{const c=GS.contests.count(x),lg=((x.schedule&&x.schedule.leagues)||[]).slice(0,3);return`<a class="g-cc pub" href="${P.one(x.id)}"><span class="m"><b>${esc(GS.contests.name(x))}</b><span class="sp">${lg.map(l=>`<span class="g-sp">${esc(String(l).toUpperCase())}</span>`).join('')}<small>${c} in the Field${x.host?' · by '+esc(x.host):''}</small></span></span>${CHEV}</a>`};
-  return`<div class="g-card"><div class="g-h">My contests<small>${ws.length>1?'Tap one to switch':'Stack · rank'}</small></div>${ws.map(row).join('')}
-  ${pub.length?`<div class="g-eyebrow" style="margin-top:4px">Public contests filling up</div>${pub.map(pc).join('')}`:''}<div class="g-foot"><button class="g-cta" data-act="joinopen">Join with a code</button><a class="g-cta" href="${P.list}">Public contests${all.length?' <small>'+all.length+' open</small>':''}</a></div>
-  <form id="g-joinf" class="g-two" hidden><input class="g-in" id="g-code" maxlength="80" placeholder="Code or invite link" autocomplete="off"><button class="g-cta b" type="submit">Join</button></form></div>`}
-function contestCard(c){return`<a class="g-card g-cl" href="${GS.CPAGE.one(c.id)}"><span class="g-h">${esc(c.name)} Ranks<small>${c.of?c.of+' in · ':''}Open &#8250;</small></span><span class="g-plain">${c.rank?`You are <b>#${c.rank}</b> of ${c.of}.`:'Ranks fill in as picks settle.'}${c.owner?' You run this contest.':''}</span></a>`}
-function render(){const ae=document.activeElement;if(ae&&(ae.id==='g-code'||ae.id==='g-name'||ae.id==='g-refname'))return;const me=GS.me(),now=Date.now(),ws=wallets(),act=WAL()?WAL().active():'rush',c=ws.find(w=>w.id===act)||null,rush=act==='rush'||!c,entered=rush?GS.entered():c.entered;
+function doorCard(){return''}
+function myContests(){return''}
+function contestCard(){return''}
+function render(){const ae=document.activeElement;if(ae&&(ae.id==='g-code'||ae.id==='g-name'||ae.id==='g-refname'))return;const me=GS.me(),now=Date.now(),ws=wallets(),act='rush',c=ws.find(w=>w.id===act)||null,rush=act==='rush'||!c,entered=rush?GS.entered():c.entered;
   const L=GAMES.filter(covered(act)),hero=heroGame(L),live=L.filter(g=>g.state==='in'&&g!==hero),next=L.filter(g=>g.state==='pre'&&g!==hero).slice(0,8);
   let h=`<div class="g-top"><h1>Rush</h1>${rush?`<span class="g-chip">Week ${W.n}</span>`:''}<span data-rush-pill></span></div>`;
   h+=muCard()+heroCard(hero);if(rush)h+=prizeCard();
@@ -311,14 +285,13 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-shee
   if(d.wallet){const w=WAL();if(w&&w.setActive(d.wallet)){window.scrollTo(0,0);render()}return}
   if(d.act==='wreload'){const w=WAL();if(w)w.reload(w.active());render();return}
   if(d.sheet)sheet(d.sheet);else if(d.close)closeSheet();
-  else if(d.act==='joinopen'){const f=$('g-joinf');f.hidden=!f.hidden;if(!f.hidden)$('g-code').focus()}
+  else if(d.act==='joinopen'){}
   else if(d.act==='invite'){const m=await shareText(`I'm in Rush Week ${W.n}. Free entry, 1,000 Stack, Ranks go by Stack. Join through my link so we both climb.`);if(m)flash(m)}
   else if(d.act==='nudge'){const r=refs(),out=r.list.filter(p=>!p.in&&r.nudged[p.name]!==W.n);const m=await shareText(`Week ${W.n} is open and entry closes at Monday night kickoff. Get in with a pick.`);if(m){out.forEach(p=>r.nudged[p.name]=W.n);saveRefs(r);flash(out.length?`Nudged ${out.length}. ${m}`:m)}if(!$('g-sheet').hidden)sheet('mult')}
   else if(d.nudge1!=null){const r=refs(),p=r.list[+d.nudge1];if(p){const m=await shareText(`${p.name}, Week ${W.n} is open. Get in with a pick before Monday night.`);if(m){r.nudged[p.name]=W.n;saveRefs(r);flash(m)}}sheet('mult')}
   else if(d.act==='addref'){const v=(($('g-refname')||{}).value||'').trim();if(v){const r=refs();if(!r.list.some(p=>p.name===v))r.list.push({name:v.slice(0,20),in:false,theirs:0});saveRefs(r)}sheet('mult');render()}});
 GS.nav('home');render();loadGames();setInterval(loadGames,30000);setInterval(render,30000);
-/* the crew countdown ticks every second */
-setInterval(()=>{const el=document.querySelector('[data-crew-left]'),c=Rush.crew&&Rush.crew.get();if(el&&c&&c.stage!=='small')el.textContent=Rush.crew.clock(c.left)},1000);
+
 </script>
 </body>
 </html>

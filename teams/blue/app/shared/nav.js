@@ -27,7 +27,7 @@
     ['lounge', 'Lounge', 'lounge.html', '<path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V6a1 1 0 0 1 1-1z"/><path d="M8 10h8M8 13h5"/>'],
     ['me', 'Me', 'player.html', '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>'],
   ];
-  const PAGE = { 'index.html': 'home', 'board.html': 'board', 'game.html': 'board', 'ranks.html': 'contest', 'contest.html': 'contest', 'contests.html': 'contest', 'lounge.html': 'lounge', 'player.html': 'me', 'slips.html': 'me', 'crew.html': 'home' };
+  const PAGE = { 'index.html': 'home', 'board.html': 'board', 'game.html': 'board', 'ranks.html': 'contest', 'lounge.html': 'lounge', 'player.html': 'me', 'slips.html': 'me', };
   const F = '-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif';
   const CSS = `#rnav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(10,15,21,.94);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid rgba(255,255,255,.12);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 #rnav a{position:relative;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:600 11px/13px ${F};color:rgba(255,255,255,.55);text-decoration:none;-webkit-tap-highlight-color:transparent}
