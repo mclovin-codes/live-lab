@@ -77,14 +77,17 @@ function render(){
    <div class="tug"><i class="a" style="flex:${a}"></i><i class="b" style="flex:${b}"></i></div>
    <div style="text-align:center;margin-top:10px;font-weight:800;font-size:17px" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You lead by '+F(gap):'You trail by '+F(-gap)}</div>
    ${paired?'':`<div style="text-align:center;color:var(--mute);font-size:13px;margin-top:4px">Pairing locks Thursday 7:00 PM, in ${GU.until(pairT)}</div>`}</a>`;}
-  // For you: what other players aimed at you in the Lounge, and what came back on yours (Red's lounge keys). The honest view shows only real ones.
-  {let inbox=[],sent=[];try{inbox=JSON.parse(localStorage.getItem('rush-lounge-inbox-v1')||'[]')}catch(e){}try{sent=Object.values(JSON.parse(localStorage.getItem('rush-lounge-sent-v1')||'{}'))}catch(e){}
-   if(GU.honest())inbox=inbox.filter(x=>x.real);
-   inbox=inbox.sort((a,b)=>b.at-a.at).slice(0,3);sent=sent.sort((a,b)=>b.at-a.at).slice(0,2);
-   const face=(id,name)=>GU.av(GU.player(id)||{id:id,name:name||'?'},34);
-   const rows=inbox.map(x=>`<div class="ev">${face(x.fromId,x.who)}<p><b>${E(String(x.who||'').split(' ')[0])}</b> ${E(x.text||'')}${x.about?' <span style="color:var(--mute)">· '+E(x.about)+'</span>':''}</p>${x.ans?'<span class="h-chip">ANSWERED</span>':'<a class="h-chip" style="background:rgba(61,184,255,.16);color:var(--acc)" href="lounge.html">ANSWER</a>'}</div>`)
-     .concat(sent.map(x=>`<div class="ev">${face(x.toId,x.to)}<p>You to <b>${E(String(x.to||'').split(' ')[0])}</b>: ${E(x.label||'')}${x.ans&&(!GU.honest()||x.ans.real)?'<br><span class="up">'+E(String(x.ans.who||'').split(' ')[0])+': '+E(x.ans.text||'')+'</span>':'<br><span style="color:var(--mute)">Waiting on '+E(String(x.to||'them').split(' ')[0])+'</span>'}</p></div>`));
-   h+=`<div class="h-lbl">For you <a href="lounge.html">Lounge</a></div><section class="h-card">${rows.length?rows.join(''):`<a href="lounge.html" style="display:flex;align-items:center;gap:10px"><span style="flex:1;color:var(--mute)">Nothing aimed at you yet. Tap someone on tonight's game.</span><span style="color:var(--acc);font-weight:800">Lounge ›</span></a>`}</section>`;}
+  // For you: replies aimed at you, then your own tapbacks and replies with what came back (Red's Lounge keys). The honest view shows only real ones.
+  {const meName=GU.meRow().name,hon=GU.honest();let taps=[],talk=[];try{taps=Object.values(JSON.parse(localStorage.getItem('rush-lounge-tap-v1')||'{}'))}catch(e){}try{talk=JSON.parse(localStorage.getItem('rush-lounge-talk-v2')||'[]')}catch(e){}
+   const pl=n=>GU.field().find(r=>r.name===n)||{id:n,name:n||'?'};
+   const toMe=talk.filter(x=>!x.mine&&x.quote&&String(x.quote).indexOf(meName+':')===0&&(!hon||x.real)).sort((a,b)=>b.at-a.at).slice(0,2);
+   const myReplies=talk.filter(x=>x.mine&&x.quote).sort((a,b)=>b.at-a.at).slice(0,2);
+   const myTaps=taps.sort((a,b)=>b.at-a.at).slice(0,2);
+   const back=to=>{const r=talk.find(x=>!x.mine&&x.who===to&&x.quote&&String(x.quote).indexOf(meName+':')===0&&(!hon||x.real));return r?'<span class="up">'+E(String(to).split(' ')[0])+': '+E(r.text)+'</span>':'<span style="color:var(--mute)">Waiting on '+E(String(to||'them').split(' ')[0])+'</span>'};
+   const rows=toMe.map(x=>`<a class="ev" href="lounge.html">${GU.av(pl(x.who),34,1)}<p><b>${E(String(x.who).split(' ')[0])}</b> replied to you: ${E(x.text)}</p><span class="h-chip" style="background:rgba(61,184,255,.16);color:var(--acc)">REPLY</span></a>`)
+     .concat(myReplies.map(x=>{const to=String(x.quote).split(':')[0];return `<div class="ev">${GU.av(pl(to),34)}<p>You replied to <b>${E(to.split(' ')[0])}</b>: ${E(x.text)}<br>${back(to)}</p></div>`}))
+     .concat(myTaps.map(x=>`<div class="ev">${GU.av(pl(x.to),34)}<p>You sent <b>${E(String(x.to).split(' ')[0])}</b> ${E(x.emoji)}<br>${back(x.to)}</p></div>`)).slice(0,4);
+   h+=`<div class="h-lbl">For you <a href="lounge.html">Lounge</a></div><section class="h-card">${rows.length?rows.join(''):`<a href="lounge.html" style="display:flex;align-items:center;gap:10px"><span style="flex:1;color:var(--mute)">Nothing aimed at you yet. React to a pick or reply in the Lounge.</span><span style="color:var(--acc);font-weight:800">Lounge ›</span></a>`}</section>`;}
   // 2. Tonight: the games that matter to you and the Field.
   const gs=GU.games().filter(g=>!g.done||Date.now()-g.date<4*36e5),mineIds=new Set(GU.mine().map(p=>String(p.gameId)));
   const scored=gs.map(g=>({g,v:(g.state==='in'?100:0)+(mineIds.has(String(g.id))?50:0)+(GU.gameView(g).players.length*5)-(g.date-Date.now())/36e5})).filter(x=>x.g.date-Date.now()<36*36e5).sort((a,b)=>b.v-a.v).slice(0,3);
