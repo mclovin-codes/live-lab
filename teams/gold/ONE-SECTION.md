@@ -44,7 +44,8 @@ Home opens on the weekly contest, in this order:
   - A straight or a prop is one line with market, line and price.
   - A parlay (two to five legs, across games or inside one game) is ONE card listing every leg with its state: sealed, open, live with the score, hit or missed.
   - Underneath: Stake, the combined price, and what it pays (or paid).
-  - On another player's Slip, each leg shows only its game until its own kickoff, and the stake, price and payout stay sealed until every leg has started.
+  - On another player's Slip, each leg shows only its game until its own kickoff, and the stake, price and payout stay sealed until every leg has started (Blue's Rush.sealView).
+  - A Slip with every leg still sealed folds into one compact row: its games, "Each leg opens at its kickoff, first in 3d 13h", and "stake sealed". A profile of six Slips fits on a phone screen.
   - Home counts a Slip once per game, so a five-leg parlay is one Slip with one stake.
 
 ## The visual pass
