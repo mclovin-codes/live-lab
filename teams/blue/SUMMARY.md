@@ -75,4 +75,4 @@ What is new compared with a group chat, a pick feed or a reaction bar:
 - In the full Field view, "N others read this" and "N read you" are simulated. The honest view (`?field=7`) shows none of them.
 - Your reads are stored on your phone only. In the real app the picker would see who read them after kickoff.
 - A card flips only if this phone saw it sealed: the stand-in picks need a pregame line, so the page keeps each sealed card it showed and grades it from the final score. Open Reads before tonight's 9:00, 10:00 and 11:00 PM kickoffs to watch cards flip.
-- There is no typing layer yet. The plan is one line under a flipped card.
+- The typing layer is small: after a card flips, you can add one line under it, either a one-tap line ("Called it", "You got me") or a typed one. The line stays on your phone in the prototype.
