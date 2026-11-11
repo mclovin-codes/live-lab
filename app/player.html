@@ -36,7 +36,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body data-tab="me"><script>(function(){var u=new URLSearchParams(location.search).get("u");if(u&&u!=="me")document.body.dataset.tab="contest"})()</script>
 <div id="app" class="p-wrap"></div>
-<script src="shared/state.js?v=f1102"></script><script src="week-games.js?v=f1102"></script><script src="honest.js?v=g617"></script><script src="shared/nav.js?v=f1102"></script><script src="shared/events.js?v=f1102"></script><script src="gold-ui.js?v=g618"></script>
+<script src="shared/state.js?v=f1103"></script><script src="week-games.js?v=f1103"></script><script src="honest.js?v=g617"></script><script src="shared/nav.js?v=f1103"></script><script src="shared/events.js?v=f1103"></script><script src="gold-ui.js?v=g618"></script>
 <script>
 const E=GU.esc,F=GU.fmt,Q=new URLSearchParams(location.search),UID=Q.get('u')&&Q.get('u')!=='me'?Q.get('u'):null;
 let tab=location.hash==='#settled'?'done':'open';
@@ -58,8 +58,8 @@ function render(){
    <div class="p-stats"><div><div class="p-num">${F(who.stack)}</div><small>STACK</small></div><div><div class="p-num">#${who.rank||'-'}<span style="color:var(--mute);font-size:16px"> of ${f.length}</span></div><small>RANK</small></div><div><div class="p-num">${rec.w}-${rec.l}</div><small>SEASON</small></div></div>
    <div style="margin-top:12px;font-weight:800" class="${d>=0?'up':'dn'}">${d>=0?'+':''}${F(d)} this week</div></section>`;
   if(!isMe){
-    const gap=m.stack-who.stack,A=Math.max(1,m.stack),B=Math.max(1,who.stack),op=GU.opponent(),isOpp=op&&op.id===who.id;
-    h+=`<div class="p-lbl">${isOpp?'Your matchup':'You vs '+E(who.name)}</div><section class="p-card"><div style="display:flex;align-items:center;gap:10px">${GU.av(m,40,1)}<div style="flex:1"><div class="tug"><i class="a" style="flex:${A}"></i><i class="b" style="flex:${B}"></i></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span class="p-num" style="font-size:18px">${F(m.stack)}</span><span class="p-num" style="font-size:18px">${F(who.stack)}</span></div></div>${GU.av(who,40,1)}</div><div style="text-align:center;margin-top:8px;font-weight:800" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You are '+F(gap)+' ahead':'You are '+F(-gap)+' behind'}</div></section>`;
+    const MU=(()=>{try{return Rush.matchup?Rush.matchup():null}catch(e){return null}})(),one=MU&&MU.opp&&String(MU.opp.id)===String(who.id),myS=one?MU.me.stack:m.stack,thS=one?MU.opp.stack:who.stack;const gap=one?MU.lead:myS-thS,A=Math.max(1,myS),B=Math.max(1,thS),op=GU.opponent(),isOpp=op&&op.id===who.id;
+    h+=`<div class="p-lbl">${isOpp?'Your matchup':'You vs '+E(who.name)}</div><section class="p-card"><div style="display:flex;align-items:center;gap:10px">${GU.av(m,40,1)}<div style="flex:1"><div class="tug"><i class="a" style="flex:${A}"></i><i class="b" style="flex:${B}"></i></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span class="p-num" style="font-size:18px">${F(myS)}</span><span class="p-num" style="font-size:18px">${F(thS)}</span></div></div>${GU.av(who,40,1)}</div><div style="text-align:center;margin-top:8px;font-weight:800" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You are '+F(gap)+' ahead':'You are '+F(-gap)+' behind'}</div></section>`;
     // Between you: the one-tap actions each of you aimed at the other in the Lounge (Red's keys). The honest view shows only real ones.
     {let inbox=[],sent=[];try{inbox=JSON.parse(localStorage.getItem('rush-lounge-inbox-v1')||'[]')}catch(e){}try{sent=Object.values(JSON.parse(localStorage.getItem('rush-lounge-sent-v1')||'{}'))}catch(e){}
      const hon=GU.honest(),mineTo=sent.filter(x=>String(x.toId)===String(who.id)),theirs=inbox.filter(x=>String(x.fromId)===String(who.id)&&(!hon||x.real));
