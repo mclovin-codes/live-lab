@@ -76,7 +76,7 @@
     return { legs, stake, price, toPay, status: legState(raw.status), paid: raw.pay, kind: raw.kind, same: raw.same, at: raw.at, id: raw.id };
   }
   const LOCK = '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
-  const ring = st => `<i class="sc-r ${st}">${st === 'hit' ? '✓' : st === 'miss' ? '✗' : st === 'push' ? '=' : st === 'sealed' ? LOCK : ''}</i>`;
+  const ring = st => `<i class="sc-r sr-${st}">${st === 'hit' ? '✓' : st === 'miss' ? '✗' : st === 'push' ? '=' : st === 'sealed' ? LOCK : ''}</i>`;
   const isLive = s => s.status === 'open' && s.legs.some(l => l.g && l.g.state === 'in' && l.st === 'open');
   // The game strip under a leg (or a same-game group).
   function strip(g) {
@@ -92,15 +92,15 @@
     const sealedLeg = l => l.sealed || vis || (opts.sealed && !started(l.g));
     const anySealed = s.legs.some(sealedLeg), allSealed = s.legs.every(sealedLeg);
     const live = isLive(s);
-    const pill = vis ? '<span class="sc-st sealed">ENTER TO SEE</span>' : s.status === 'hit' ? '<span class="sc-st hit">Won</span>' : s.status === 'miss' ? '<span class="sc-st miss">Lost</span>' : s.status === 'push' ? '<span class="sc-st">Push</span>' : allSealed ? '<span class="sc-st sealed">Sealed</span>' : live ? '<span class="sc-st live">Live</span>' : '<span class="sc-st open">Open</span>';
+    const pill = vis ? '<span class="sc-st sp-sealed">ENTER TO SEE</span>' : s.status === 'hit' ? '<span class="sc-st sp-hit">Won</span>' : s.status === 'miss' ? '<span class="sc-st sp-miss">Lost</span>' : s.status === 'push' ? '<span class="sc-st">Push</span>' : allSealed ? '<span class="sc-st sp-sealed">Sealed</span>' : live ? '<span class="sc-st sp-live">Live</span>' : '<span class="sc-st sp-open">Open</span>';
     const V = s.legs.map(l => sealedLeg(l) ? null : view(l));
     const paysWord = s.status === 'hit' || s.status === 'miss' ? 'Paid' : 'Pays';
     const money = vis ? `<div class="sc-m sc-vb" aria-hidden="true">Stake <b>000</b> · Pays <b>0,000</b></div>`
       : anySealed ? '<div class="sc-m">Stake <b>sealed</b> · Pays <b>sealed</b></div>'
-      : `<div class="sc-m">Stake <b>${fmt(s.stake)}</b> · ${paysWord} <b class="${s.status === 'hit' ? 'hit' : s.status === 'miss' ? 'miss' : ''}">${s.status === 'miss' ? '0' : fmt(s.status === 'hit' && s.paid != null ? s.paid : s.toPay)}</b></div>`;
+      : `<div class="sc-m">Stake <b>${fmt(s.stake)}</b> · ${paysWord} <b class="${s.status === 'hit' ? 'sm-hit' : s.status === 'miss' ? 'sm-miss' : ''}">${s.status === 'miss' ? '0' : fmt(s.status === 'hit' && s.paid != null ? s.paid : s.toPay)}</b></div>`;
     const placed = s.at && !opts.sealed ? `<div class="sc-ft">Placed ${esc(when(s.at))}</div>` : '';
     const priceTxt = anySealed ? '' : `<span class="sc-pr">${esc(am(s.price))}</span>`;
-    const cls = `sc ${s.status}${live ? ' live' : ''}${parlay ? ' par' : ''}${opts.open ? ' open' : ''}`;
+    const cls = `sc rsc ${vis || anySealed ? 'sc-x-sealed' : 'sc-x-' + s.status}${!vis && !anySealed && live ? ' sc-x-live' : ''}${parlay ? ' sc-x-par' : ''}${opts.open ? ' sc-x-open' : ''}`;
     // A straight: the selection is the title, with its mark; the game strip under it.
     if (!parlay) {
       const l = s.legs[0], v = V[0];
@@ -113,7 +113,7 @@
     const legRow = i => { const l = s.legs[i], v = V[i];
       if (!v) return `<div class="sc-leg">${ring('sealed')}<span class="sc-mk"><span class="sc-ou">?</span></span><div class="sc-t"><b>${esc(l.game || 'Sealed leg')}</b><small>${vis ? 'Opens when you enter' : 'Sealed until kickoff' + (l.g && !started(l.g) ? ', in ' + until(l.g.date) : '')}</small></div></div>`;
       const lv = l.g && l.g.state === 'in' && l.st === 'open';
-      return `<div class="sc-leg ${l.st}">${ring(lv ? 'live' : l.st)}<span class="sc-mk">${v.mark}</span><div class="sc-t"><b>${esc(v.name)}</b><small>${esc(v.market)}</small></div><span class="sc-p">${esc(am(l.price))}</span></div>`; };
+      return `<div class="sc-leg sc-x-${l.st}">${ring(lv ? 'live' : l.st)}<span class="sc-mk">${v.mark}</span><div class="sc-t"><b>${esc(v.name)}</b><small>${esc(v.market)}</small></div><span class="sc-p">${esc(am(l.price))}</span></div>`; };
     const body = groups.map(gr => {
       if (gr.idx.length < 2) return legRow(gr.idx[0]) + strip(gr.g);
       const sealedG = gr.idx.some(i => !V[i]), gp = sealedG ? '' : ` · ${esc(am(toAm(gr.idx.reduce((a, i) => a * dec(+s.legs[i].price || -110), 1))))}`;
@@ -131,37 +131,37 @@
     return `<div class="sc-chips" role="tablist">${[['all', 'All'], ['open', 'Open'], ['live', 'Live'], ['settled', 'Settled']].map(([k, t]) => `<button type="button" role="tab" data-scf="${k}" class="${k === active ? 'on' : ''}" aria-selected="${k === active}">${t}${counts[k] != null ? ' · ' + counts[k] : ''}</button>`).join('')}</div>`;
   }
   // View legs / Hide legs: one listener for every card on the page.
-  if (typeof document !== 'undefined') document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.sc-tog'); if (!b) return; const c = b.closest('.sc'); if (!c) return; const o = c.classList.toggle('open'); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
-  const CSS = `.sc{background:#141C26;border:1px solid rgba(255,255,255,.09);border-radius:20px;margin-top:10px;overflow:hidden;font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#F4F7FA;padding:4px 0 2px}
-.sc.hit{border-color:rgba(61,214,140,.45)}.sc.miss{border-color:rgba(255,107,107,.3)}.sc.live{border-color:rgba(255,107,107,.45)}
+  if (typeof document !== 'undefined') document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.sc-tog'); if (!b) return; const c = b.closest('.sc'); if (!c) return; const o = c.classList.toggle('sc-x-open'); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+  const CSS = `div.sc.rsc{display:block;position:static;gap:0;text-decoration:none;background:#141C26;border:1px solid rgba(255,255,255,.09);border-radius:20px;margin-top:10px;overflow:hidden;font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#F4F7FA;padding:4px 0 2px}
+.sc.sc-x-hit{border-color:rgba(61,214,140,.45)}.sc.sc-x-miss{border-color:rgba(255,107,107,.3)}.sc.sc-x-live{border-color:rgba(255,107,107,.45)}
 .sc-hd{display:flex;align-items:center;gap:10px;padding:12px 14px 4px}
 .sc-t{flex:1;min-width:0}.sc-t b{display:block;font-size:17px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sc-t small{display:block;color:#A3AFBD;font-size:13px;margin-top:1px}
 .sc-ti{font:800 22px/1.1 "Barlow Condensed",-apple-system,sans-serif!important;letter-spacing:.2px}.sc-ti .sc-pr{color:#3DB8FF;margin-left:6px}
 .sc-sum{white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .sc-rt{display:flex;flex-direction:column;align-items:flex-end;gap:5px}.sc-pr{font:800 20px/1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#3DB8FF}
 .sc-st{flex:none;font-size:13px;font-weight:800;letter-spacing:.4px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,.08);color:#A3AFBD}
-.sc-st.open{background:rgba(61,184,255,.14);color:#3DB8FF}.sc-st.hit{background:rgba(61,214,140,.18);color:#3DD68C}.sc-st.miss{background:rgba(255,107,107,.16);color:#FF6B6B}.sc-st.live{background:rgba(255,107,107,.16);color:#FF6B6B}.sc-st.sealed{background:rgba(242,193,78,.14);color:#F2C14E}
-.sc-m{padding:6px 14px 8px;color:#A3AFBD;font-size:15px}.sc-m b{font:800 20px/1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#F4F7FA;margin-left:3px}.sc-m b.hit{color:#3DD68C}.sc-m b.miss{color:#FF6B6B}
+.sc-st.sp-open{background:rgba(61,184,255,.14);color:#3DB8FF}.sc-st.sp-hit{background:rgba(61,214,140,.18);color:#3DD68C}.sc-st.sp-miss{background:rgba(255,107,107,.16);color:#FF6B6B}.sc-st.sp-live{background:rgba(255,107,107,.16);color:#FF6B6B}.sc-st.sp-sealed{background:rgba(242,193,78,.14);color:#F2C14E}
+.sc-m{padding:6px 14px 8px;color:#A3AFBD;font-size:15px}.sc-m b{font:800 20px/1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#F4F7FA;margin-left:3px}.sc-m b.sm-hit{color:#3DD68C}.sc-m b.sm-miss{color:#FF6B6B}
 .sc-mk{flex:none;width:40px;height:40px;display:grid;place-items:center}.sc-mk .tmk{filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
 .sc-ou{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#1B2531;border:1px solid rgba(255,255,255,.12);font:800 17px/1 "Barlow Condensed",sans-serif;color:#C9D2DC}
 .sc-r{width:26px;height:26px;flex:none;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:14px;box-shadow:inset 0 0 0 2px #5E6A77}
-.sc-r.live{box-shadow:inset 0 0 0 2px #FF6B6B;animation:scb 1.4s infinite}.sc-r.hit{background:#3DD68C;color:#0A0F15;box-shadow:none}.sc-r.miss{background:#FF6B6B;color:#0A0F15;box-shadow:none}.sc-r.push{background:#A3AFBD;color:#0A0F15;box-shadow:none}
-.sc-r.sealed{background:rgba(242,193,78,.14);box-shadow:none}.sc-r.sealed svg{width:13px;height:13px;stroke:#F2C14E;fill:none;stroke-width:2.4}
+.sc-r.sr-live{box-shadow:inset 0 0 0 2px #FF6B6B;animation:scb 1.4s infinite}.sc-r.sr-hit{background:#3DD68C;color:#0A0F15;box-shadow:none}.sc-r.sr-miss{background:#FF6B6B;color:#0A0F15;box-shadow:none}.sc-r.sr-push{background:#A3AFBD;color:#0A0F15;box-shadow:none}
+.sc-r.sr-sealed{background:rgba(242,193,78,.14);box-shadow:none}.sc-r.sr-sealed svg{width:13px;height:13px;stroke:#F2C14E;fill:none;stroke-width:2.4}
 .sc-leg{display:flex;align-items:center;gap:10px;padding:10px 14px 6px}
 .sc-p{font:800 19px/1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#F4F7FA}
-.sc-leg.miss .sc-t b{color:#A3AFBD;text-decoration:line-through;text-decoration-color:rgba(255,107,107,.7)}
+.sc-leg.sc-x-miss .sc-t b{color:#A3AFBD;text-decoration:line-through;text-decoration-color:rgba(255,107,107,.7)}
 .sc-g{display:flex;align-items:center;gap:7px;margin:4px 14px 8px 50px;padding:7px 10px;border-radius:12px;background:#1B2531;font-size:14px}
 .sc-g b{font:800 17px/1 "Barlow Condensed",sans-serif;letter-spacing:.3px}.sc-g em{font:800 19px/1 "Barlow Condensed",sans-serif;font-style:normal;font-variant-numeric:tabular-nums}
 .sc-gt,.sc-gl,.sc-gf{flex:1;text-align:center;color:#A3AFBD;font-weight:700;font-size:13px;white-space:nowrap}.sc-gl{color:#FF6B6B}
 .sc-sg{margin:10px 14px 0;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);font:800 16px/1 "Barlow Condensed",sans-serif;letter-spacing:.4px;color:#C9D2DC}
-.sc.par .sc-body{display:none;border-top:1px solid rgba(255,255,255,.07);margin-top:4px}.sc.par.open .sc-body{display:block}
+.sc.sc-x-par .sc-body{display:none;border-top:1px solid rgba(255,255,255,.07);margin-top:4px}.sc.sc-x-par.sc-x-open .sc-body{display:block}
 .sc-tog{display:block;margin:6px 14px 8px auto;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:none;color:#F4F7FA;font-weight:700;font-size:14px;cursor:pointer}
-.sc-tog .h{display:none}.sc.open .sc-tog .h{display:inline}.sc.open .sc-tog .v{display:none}.sc-tog .v::after{content:" \\25BE"}.sc-tog .h::after{content:" \\25B4"}
+.sc-tog .h{display:none}.sc.sc-x-open .sc-tog .h{display:inline}.sc.sc-x-open .sc-tog .v{display:none}.sc-tog .v::after{content:" \\25BE"}.sc-tog .h::after{content:" \\25B4"}
 .sc-ft{padding:0 14px 10px;color:#7F8B99;font-size:13px}
 .sc-vb{filter:blur(6px);user-select:none;pointer-events:none}
 .sc-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none;overscroll-behavior-x:contain}.sc-chips::-webkit-scrollbar{display:none}
 .sc-chips button{flex:none;min-height:38px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:none;color:#C9D2DC;font-weight:700;font-size:15px;cursor:pointer}.sc-chips button.on{background:#F4F7FA;color:#0A0F15;border-color:#F4F7FA}
-@keyframes scb{50%{opacity:.35}}@media (prefers-reduced-motion:reduce){.sc-r.live{animation:none}}`;
+@keyframes scb{50%{opacity:.35}}@media (prefers-reduced-motion:reduce){.sc-r.sr-live{animation:none}}`;
   if (typeof document !== 'undefined') { const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); }
   window.SlipCard = { html, norm, filter, chips, view };
 })();
