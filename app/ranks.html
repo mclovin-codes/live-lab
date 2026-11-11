@@ -12,7 +12,7 @@
 html,body{margin:0}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
 body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.38 var(--rb-font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
 .rk-wrap{max-width:620px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 14px) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
-.rk-top h1{margin:0;font:800 32px/1.1 var(--rb-font);letter-spacing:-.02em}.rk-top small{display:block;color:var(--rb-mut);font-size:13px;margin:2px 0 12px}
+.rk-top h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);margin:0;font:800 32px/1.1 var(--rb-font);letter-spacing:-.02em}.rk-top small{display:block;color:var(--rb-mut);font-size:13px;margin:0 0 10px}
 .rk-seg{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;padding:2px;border-radius:10px;background:var(--rb-card2);margin-bottom:14px;box-shadow:0 6px 16px rgba(11,17,24,.8)}
 .rk-seg button{font:600 13px var(--rb-font);color:var(--rb-mut);background:none;border:0;padding:8px 0;border-radius:8px;cursor:pointer}.rk-seg button.on{background:#2A3644;color:var(--rb-fg);box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .rk-card{background:var(--rb-card);border-radius:14px;padding:14px;margin-bottom:16px}
@@ -30,8 +30,27 @@ a.rk-row{text-decoration:none;color:inherit}a.rk-row:active{background:var(--rb-
 .rk-tag{font:600 10px var(--rb-font);letter-spacing:.04em;padding:1px 6px;border-radius:99px;background:rgba(255,255,255,.08);color:var(--rb-mut);margin-left:6px;vertical-align:1px}.rk-tag.you{background:var(--rb-acc);color:#002233}
 .rk-cutl{font:600 11.5px var(--rb-font);color:var(--rb-acc);padding:6px 14px;background:rgba(0,191,255,.08)}
 .rk-hist{display:inline-flex;gap:3px;margin-left:6px;vertical-align:1px}.rk-hist i{width:7px;height:7px;border-radius:2px;background:var(--rb-dim)}.rk-hist i.w{background:var(--rb-win)}.rk-hist i.l{background:var(--rb-loss)}
-.rk-pin{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));z-index:5;padding:0 max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
-.rk-pin .rk-row{max-width:620px;margin:0 auto;border-radius:14px;background:#163246;box-shadow:0 8px 24px rgba(0,0,0,.5);border:0}
+/* Two equal panels, The contest and Your matchup. Tap one to open it; the other shrinks to a slim bar that brings it back. */
+.cx-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.cx-p{display:flex;flex-direction:column;gap:10px;min-width:0;min-height:196px;padding:14px;border-radius:16px;background:var(--rb-card);border:1px solid var(--rb-line);color:inherit;text-align:left;font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cx-p:active{transform:scale(.985)}.cx-p.mu{border-color:rgba(255,92,168,.35)}.cx-p.ct{border-color:rgba(61,184,255,.35)}
+.cx-k{font:700 11px/1 var(--rb-font);letter-spacing:.12em;text-transform:uppercase;color:var(--rb-mut)}
+.cx-fig{font:800 48px/1 var(--rb-font);letter-spacing:-.03em}.cx-fig small{font:700 17px var(--rb-font);color:var(--rb-mut);letter-spacing:0;margin-left:4px}
+.cx-sub{font:600 14px/1.3 var(--rb-font);color:var(--rb-mut)}.cx-sub b{color:var(--rb-fg)}
+.cx-shape{margin-top:auto}
+.cx-track{position:relative;height:28px}.cx-track:before{content:"";position:absolute;left:0;right:0;top:13px;height:2px;border-radius:2px;background:var(--rb-card2)}
+.cx-track i{position:absolute;top:8px;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#46566A;box-shadow:0 0 0 2px var(--rb-card)}.cx-track i.me{top:4px;width:20px;height:20px;margin-left:-10px;background:var(--rb-acc)}.cx-track i.op{background:#FF5CA8}
+.cx-ends{display:flex;justify-content:space-between;font:600 11px var(--rb-font);color:var(--rb-dim)}
+.cx-bar{display:flex;height:10px;border-radius:99px;overflow:hidden;background:var(--rb-card2);gap:2px}.cx-bar b{display:block;background:var(--rb-acc)}.cx-bar u{display:block;flex:1;background:#FF5CA8}
+.cx-vs{display:flex;justify-content:space-between;gap:6px;margin-top:6px;font:700 13px var(--rb-font)}.cx-vs span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cx-vs span:last-child{text-align:right;color:#FF8CC2}
+.cx-big .cx-p{width:100%;min-height:0;cursor:pointer}.cx-big .cx-fig{font-size:64px}
+.cx-slim{display:flex;align-items:center;gap:10px;width:100%;min-height:52px;margin-bottom:10px;padding:8px 14px;border-radius:14px;background:var(--rb-card);border:1px solid var(--rb-line);color:inherit;font:inherit;text-align:left;cursor:pointer}
+.cx-slim .cx-k{flex:none}.cx-slim b{font:800 20px var(--rb-font)}.cx-slim span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--rb-mut);font:600 13px var(--rb-font)}.cx-slim em{font-style:normal;color:var(--rb-acc);font:700 13px var(--rb-font)}
+.cx-sec{margin:18px 0 8px;font:700 11px var(--rb-font);letter-spacing:.12em;text-transform:uppercase;color:var(--rb-mut);display:flex;justify-content:space-between}
+.cx-rec{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.cx-rec div{background:var(--rb-card);border-radius:14px;padding:12px}.cx-rec b{display:block;font:800 28px var(--rb-font)}.cx-rec i{font-style:normal;font-size:13px;color:var(--rb-mut)}
+.cx-slips{display:flex;flex-direction:column;gap:10px}.cx-none{color:var(--rb-mut);font-size:14px;padding:10px 2px}
+.cx-sl{background:var(--rb-card);border-radius:14px;padding:12px}.cx-sl b{display:block}.cx-sl i{font-style:normal;color:var(--rb-mut);font-size:13px}
+.rk-face{flex:none;display:grid;place-items:center}
 .rk-cs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 12px;padding:0 16px}.rk-cs::-webkit-scrollbar{display:none}
 .rk-cs button,.rk-cs a{flex:none;display:inline-flex;align-items:center;gap:7px;font:600 13px var(--rb-font);color:var(--rb-mut);background:var(--rb-card);border:1px solid var(--rb-line);border-radius:99px;padding:7px 12px;cursor:pointer;text-decoration:none;white-space:nowrap}
 .rk-cs button.on{color:var(--rb-fg);background:#22303D;border-color:rgba(255,255,255,.22)}.rk-cs small{font:600 11.5px var(--rb-font);color:var(--rb-mut)}.rk-cs a{background:none;border-style:dashed}
@@ -54,12 +73,13 @@ a.rk-row{text-decoration:none;color:inherit}a.rk-row:active{background:var(--rb-
  <div class="rk-seg" role="tablist" id="rk-seg"></div>
  <div id="rk-main"><div class="rk-skel"></div><div class="rk-skel"></div><div class="rk-skel"></div></div>
 </div>
-<div class="rk-pin" id="rk-pin" hidden></div>
 <nav id="rb-tabs" hidden></nav>
 <script src="shared/state.js?v=f1104"></script>
 <script src="week-games.js?v=f1104"></script>
+<script src="faces.js?v=f1"></script>
 <script src="shared/nav.js?v=f1105"></script>
-<script src="shared/events.js?v=f1104"></script>
+<script src="shared/events.js?v=f1105"></script>
+<script src="slip-card.js?v=s5"></script>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
@@ -67,41 +87,49 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const U=n=>Math.round(1000+(+n||0)*10).toLocaleString('en-US');
 let tab='week';try{tab=localStorage.getItem('rk.tab')||'week'}catch(e){}
 let games=RW.cached()||[];
+const face=(r,n)=>{try{if(window.RushFace&&RushFace.html)return'<span class="rk-face">'+RushFace.html({id:r.id,name:r.name,me:!!r.me},n||32,true)+'</span>'}catch(e){}return av(r)};
 const av=r=>`<span class="rk-av" style="background:${r.me?'#0080FF':`hsl(${Math.floor(RW.hash(r.id+'c')*360)} 50% 36%)`}">${esc(r.name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`;
 function seg(){$('rk-seg').innerHTML=[['week','This week'],['season','Season']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" class="${tab===k?'on':''}" data-t="${k}">${l}</button>`).join('')}
-function wkRow(r,cut){return`<a href="player.html?u=${encodeURIComponent(r.id)}" class="rk-row${r.me?' me':''}${cut?' cut':''}"><span class="rk-pos">${r.out?'-':r.rank}</span>${av(r)}<span class="rk-nm"><b>${esc(r.name)}${r.me?'<span class="rk-tag you">YOU</span>':'<span class="rk-tag">SIM</span>'}</b><i>${r.out?'Not entered yet':(r.w||r.l)?`${r.w}-${r.l} graded`:r.me?(r.open?`${r.open} open pick${r.open>1?'s':''}`:'No picks yet'):'Picking this week'}${!r.me&&r.open?` &middot; ${r.open} open`:''}</i></span><span class="rk-u ${r.units>0?'up':r.units<0?'dn':''}">${U(r.units)}<small>Stack</small></span></a>`}
+function wkRow(r,cut){return`<a href="player.html?u=${encodeURIComponent(r.id)}" class="rk-row${r.me?' me':''}${cut?' cut':''}"><span class="rk-pos">${r.out?'-':r.rank}</span>${face(r)}<span class="rk-nm"><b>${esc(r.name)}${r.me?'<span class="rk-tag you">YOU</span>':''}</b><i>${r.out?'Not entered':(r.w||r.l)?`${r.w}-${r.l}`:''}${r.open?`${(r.w||r.l)?' &middot; ':''}${r.open} open`:(r.w||r.l||r.out)?'':'No Slips yet'}</i></span><span class="rk-u ${r.units>0?'up':r.units<0?'dn':''}">${U(r.units)}<small>Stack</small></span></a>`}
 const R=window.Rush&&typeof Rush.field==='function'?Rush:null;
-function fieldRows(){if(!R)return RW.field(games);const m=R.me();let mw=0,ml=0;try{const ps=R.picks({week:R.week().id});mw=ps.filter(p=>p.status==='won').length;ml=ps.filter(p=>p.status==='lost').length}catch(e){}const rows=R.field().map(r=>({...r,w:r.me?mw:(r.w||0),l:r.me?ml:(r.l||0),open:r.me?m.open:(r.open||0),today:0}));if(!rows.some(r=>r.me))rows.push({id:'me',name:m.handle||'You',me:true,units:0,w:0,l:0,open:0,today:0,out:true});rows.forEach(r=>r.rank=1+rows.filter(x=>x.units>r.units+1e-9).length);rows.sort((a,b)=>b.units-a.units||(a.me?-1:b.me?1:0));return rows}
-/* the week, moving: the newest contest events with the players on them (shared/events.js) */
-function pulse(){if(!R||!R.events)return'';let ev=[];try{ev=R.events()}catch(e){}{let np=0;ev=ev.filter(e=>e.type!=='live'&&(e.type!=='play'||np++<3)).slice(0,8)}if(!ev.length)return'';const AVf=(n,sm)=>R.nav&&R.nav.avatar?R.nav.avatar(n,sm):'';
- const ago=t=>{const m=Math.max(0,Math.round((Date.now()-t)/6e4));return m<1?'now':m<60?m+'m':m<1440?Math.floor(m/60)+'h':Math.floor(m/1440)+'d'};
- const nm=p=>p.me?'You':esc(p.name.split(' ')[0]);
- const line=e=>{const P=e.players||[],first=P[0]||{};let t='';
-  if(e.type==='sealed')t=`<b>${nm(first)}</b> sealed a pick on ${esc(e.game)}`;
-  else if(e.type==='reveal')t=`Seal broken on <b>${esc(e.game)}</b>: ${P.length} pick${P.length>1?'s':''} open`;
-  else if(e.type==='settled'){const w=P.filter(p=>p.result==='won').length,l=P.filter(p=>p.result==='lost').length;t=`<b>${esc(e.game)}</b> final: ${w} hit, ${l} missed`}
-  else if(e.type==='rank')t=P.map(p=>`<b>${nm(p)}</b> ${p.to<p.from?'up':'down'} to #${p.to}`).join(', ');
-  else if(e.type==='play'){const on=P.filter(p=>p.team);t=`<b>${esc(e.team||'')}</b> scored in ${esc(e.game)}${on.length?': good for '+on.slice(0,2).map(nm).join(', ')+(on.length>2?' +'+(on.length-2):''):''}`}
-  else if(e.type==='lead')t=`<b>${nm(first)}</b> ${first.me?'lead':'leads'} your matchup`;
-  const faces=(e.type==='play'?P.filter(p=>p.team):P).slice(0,2).map(p=>p.me?AVf((R.me().handle||'You'),1):`<a href="player.html?u=${encodeURIComponent(p.id)}">${AVf(p.name,1)}</a>`).join('');
-  const gh=e.gameId?'game.html?league='+e.league+'&id='+encodeURIComponent(e.gameId):'ranks.html';return`<div class="rk-pl" style="display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px"><span class="rk-pf" style="display:flex;align-items:center">${faces}</span><a class="rk-pt" href="${gh}" style="color:inherit;text-decoration:none">${t}</a><small>${ago(e.at)}</small></div>`};
- return`<div class="rk-card"><h2>The week, moving <span><a href="lounge.html" style="color:inherit">Lounge</a></span></h2>${ev.map(line).join('')}</div>`}
+function fieldRows(){if(!R)return RW.field(games);const m=R.me();let mw=0,ml=0;try{const ps=R.picks({week:R.week().id});mw=ps.filter(p=>p.status==='won').length;ml=ps.filter(p=>p.status==='lost').length}catch(e){}const rows=R.field().map(r=>({...r,w:r.me?mw:(r.w||0),l:r.me?ml:(r.l||0),open:r.me?m.open:(r.open||0),today:0}));if(!rows.some(r=>r.me))rows.push({id:'me',name:m.handle||'You',me:true,units:0,w:0,l:0,open:0,today:0,out:true});rows.sort((a,b)=>(a.out?1:0)-(b.out?1:0)||(a.rank||99)-(b.rank||99));return rows}
 let CIRC=(()=>{try{return localStorage.getItem('rk.circle')==='1'}catch(e){return false}})();
 function circleBar(){const n=R&&R.circle?R.circle().length:0;return`<div class="rk-seg" role="tablist" style="margin:0 0 10px"><button type="button" data-circ="0" class="${CIRC?'':'on'}">The Field</button><button type="button" data-circ="1" class="${CIRC?'on':''}">My circle${n?' · '+n:''}</button></div>`}
 function circleEmpty(){const sg=R&&R.circleSuggest?R.circleSuggest(3):[];const AVf=n=>R.nav&&R.nav.avatar?R.nav.avatar(n,1):'';return`<div class="rk-card"><h2>Your circle starts with you</h2><div class="rk-note" style="padding:0 0 10px">Add friends and the Ranks show just you and them. Ranks stay Field ranks.</div><a class="rk-open" href="index.html#invite">Invite a friend</a>${sg.length?`<div class="rk-note" style="padding:12px 0 6px">In your friends' circles</div>`+sg.map(x=>`<a href="player.html?u=${encodeURIComponent(x.id)}#circle" style="display:flex;align-items:center;gap:10px;padding:8px 0;color:inherit;text-decoration:none">${AVf(x.name)}<b style="flex:1">${esc(x.name)}</b><span style="color:var(--rb-acc);font-weight:800">Add</span></a>`).join(''):''}</div>`}
-function vWeek(){const rows=fieldRows(),mine=rows.find(r=>r.me),opp=(o=>rows.find(r=>o&&(String(r.id)===String(o.id)||r.name===o.name))||o)(R?(R.rival()||RW.opponent(rows)):RW.opponent(rows)),done=games.filter(g=>g.state==='post').length,live=games.filter(g=>g.state==='in').length;
- const third=rows[2],gap=mine.rank>3?third.units-mine.units:0;
- let h=(R&&!R.me().entered)?`<div class="rk-card"><h2>Join the Field</h2><div class="rk-note" style="padding:0">Enter Week ${RW.week().n} on Home to get 1,000 Stack and a place on this list.</div><a href="index.html" style="display:block;margin-top:10px;text-align:center;padding:13px;border-radius:12px;background:linear-gradient(135deg,#00C0FF,#0080FF);color:#fff;font-weight:700;text-decoration:none">Enter the week</a></div>`:'';h+=`<div class="rk-card"><h2>Your week <span>${mine.rank<=3?'In the prize spots':`${Math.round(gap*10).toLocaleString('en-US')} Stack from the top 3`}</span></h2><div class="rk-stats"><div><b>#${mine.rank}</b><i>of ${rows.length} in the Field</i></div><div><b class="${mine.units>0?'up':''}">${U(mine.units)}</b><i>Stack this week</i></div><div><b>${done}/${games.length}</b><i>games final${live?` &middot; ${live} live`:''}</i></div></div></div>`;
- if(opp){const d=mine.units-opp.units;h+=`<div class="rk-card" style="order:-1;border:1px solid rgba(60,200,255,.35)"><h2>This week's matchup <span>${R&&R.honest&&R.honest()?'Your matchup':'Pairs Thursday 7:00 PM'}</span></h2><div class="rk-mu"><div><b>${esc(mine.name)}</b><strong>${U(mine.units)}</strong><i>#${mine.rank}</i></div><em>${Math.abs(d)<0.05?'Level':(d>0?'Leading':'Chasing')+' by '+Math.round(Math.abs(d)*10).toLocaleString('en-US')}</em><a class="r" href="player.html?u=${encodeURIComponent(opp.id)}" style="color:inherit;text-decoration:none"><b>${esc(opp.name)}</b><strong>${U(opp.units)}</strong><i>${opp.rank?"#"+opp.rank+" &middot; ":""}card &rsaquo;</i></a></div></div>`}
- h+=pulse();
- const td=[...rows].sort((a,b)=>b.today-a.today).slice(0,3);if(td.some(r=>r.today!==0))h+=`<div class="rk-card"><h2>Today's race <span>Stack won today</span></h2>${td.map((r,i)=>`<div class="rk-row" style="padding-inline:0"><span class="rk-pos">${i+1}</span>${av(r)}<span class="rk-nm"><b>${esc(r.name)}</b></span><span class="rk-u ${r.today>0?'up':'dn'}">${((r.today>=0?"+":"")+Math.round(r.today*10).toLocaleString("en-US"))}</span></div>`).join('')}</div>`;
- {const cs=new Set((R&&R.circle?R.circle():[]).map(c=>String(c.id)));h+=circleBar();if(CIRC&&!cs.size)h+=circleEmpty();}
- const shownRows=CIRC?rows.filter(r=>r.me||(R&&R.circle&&R.circle().some(c=>String(c.id)===String(r.id)))):rows;
- h+=`<div class="rk-list">${shownRows.map((r,i)=>wkRow(r,!CIRC&&i===2)).join('').replace('</div><div class="rk-row','</div><div class="rk-row')}</div>`;
- h=h.replace(/(<a [^>]*class="rk-row[^"]*cut[^"]*">[\s\S]*?<\/span><\/a>)/,'$1<div class="rk-cutl">Top 3 take the week\'s prizes</div>');
- h+=`<div class="rk-note">Ranks order the Field by Stack. SIM players stand in for the real Field. Their Stacks move through the week as games are played.</div>`;
- const pin=$('rk-pin');pin.hidden=mine.rank<=8;if(!pin.hidden)pin.innerHTML=wkRow(mine,false);return h}
-function vSeason(){const n=RW.week().n;let rows;if(R){const se=R.season(),cur=fieldRows();rows=(se.table||[]).map((t,i)=>{const c=cur.find(x=>x.name===t.name)||{};return{id:t.me?'me':'s'+i,name:t.name,me:!!t.me,sim:!!t.sim,sw:t.w||0,sl:t.l||0,units:c.units||0,hist:t.me?(se.weeks||[]).map(w=>w.result):[]}}).sort((a,b)=>b.sw-a.sw||a.sl-b.sl||b.units-a.units)}else rows=RW.season(RW.field(games));$('rk-pin').hidden=true;
+let EXP=(()=>{try{return localStorage.getItem('rk.exp')||''}catch(e){return''}})();
+const fmtS=n=>Math.round(n).toLocaleString('en-US');
+function slipsOf(id){try{return(RW.playerPicks(id,games)||[]).slice().sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||(b.at||0)-(a.at||0))}catch(e){return[]}}
+function slipCard(p,mine){if(!mine&&R&&R.sealView){try{p=R.sealView(p)}catch(e){}}if(window.SlipCard&&SlipCard.html){try{return SlipCard.html(p,{sealed:!mine})}catch(e){}}const legs=p.legs&&p.legs.length?p.legs:[p];return`<div class="cx-sl"><b>${legs.length>1?legs.length+'-leg parlay':esc(mine?p.label:(legs[0].game||'Sealed'))}</b><i>${esc(p.status||'open')}</i></div>`}
+function rec(ps){return{w:ps.filter(p=>p.status==='won').length,l:ps.filter(p=>p.status==='lost').length,o:ps.filter(p=>p.status!=='won'&&p.status!=='lost').length}}
+function vWeek(){const rows=fieldRows(),mine=rows.find(r=>r.me);let mu=null;try{mu=R&&R.matchup?R.matchup():null}catch(e){}
+ const oppId=mu&&mu.opp?mu.opp.id:null,opp=oppId!=null?rows.find(r=>String(r.id)===String(oppId))||null:null;
+ let h=(R&&!R.me().entered)?`<div class="rk-card"><h2>Join the Field</h2><div class="rk-note" style="padding:0">Enter Week ${RW.week().n} on Home to get 1,000 Stack and a place on this list.</div><a href="index.html" style="display:block;margin-top:10px;text-align:center;padding:13px;border-radius:12px;background:linear-gradient(135deg,#00C0FF,#0080FF);color:#fff;font-weight:700;text-decoration:none">Enter the week</a></div>`:'';
+ const st=r=>1000+Math.round((+r.units||0)*10),N=rows.filter(r=>!r.out).length,first=rows[0],my=st(mine),gap1=first&&!first.me?st(first)-my:0;
+ const second=rows.find(r=>!r.me&&!r.out),lead1=mine.rank===1&&second?my-st(second):0;
+ const lo=Math.min(...rows.map(st)),hi=Math.max(...rows.map(st)),pos=v=>hi>lo?6+(v-lo)/(hi-lo)*88:50;
+ const ctSub=mine.out?'Enter to take a place':mine.rank===1?(lead1>0?`<b>${fmtS(lead1)}</b> clear of 2nd`:'Level at the top'):`<b>${fmtS(gap1)}</b> behind 1st`;
+ const ctShape=`<div class="cx-shape"><div class="cx-track" aria-hidden="true">${(()=>{const seen={};return rows.filter(r=>!r.out).map(r=>{const v=st(r),k=seen[v]=(seen[v]||0)+1;return{r,v,k,n:rows.filter(x=>!x.out&&st(x)===v).length}})})().map(({r,v,k,n})=>`<i class="${r.me?'me':opp&&String(r.id)===String(opp.id)?'op':''}" style="left:calc(${pos(v).toFixed(1)}% + ${((k-1)-(n-1)/2)*11}px)"></i>`).join('')}</div><div class="cx-ends"><span>${fmtS(lo)}</span><span>${fmtS(hi)}</span></div></div>`;
+ const ct=big=>`<button type="button" class="cx-p ct" data-x="contest" aria-expanded="${EXP==='contest'}"><span class="cx-k">The contest</span><span class="cx-fig">${mine.out?'-':'#'+mine.rank}<small>of ${N}</small></span><span class="cx-sub">${ctSub}</span>${ctShape}</button>`;
+ const lead=mu&&mu.opp?mu.lead:0,their=mu&&mu.opp?mu.opp.stack:0,myS=mu?mu.me.stack:my,share=their+myS>0?Math.max(4,Math.min(96,myS/(myS+their)*100)):50;
+ const oName=opp?opp.name:(mu&&mu.opp?mu.opp.name:'');
+ const mt=()=>mu&&mu.opp?`<button type="button" class="cx-p mu" data-x="matchup" aria-expanded="${EXP==='matchup'}"><span class="cx-k">Your matchup</span><span class="cx-fig ${lead>0?'up':lead<0?'dn':''}" style="color:${lead>0?'var(--rb-win)':lead<0?'var(--rb-loss)':'inherit'}">${lead===0?'Level':(lead>0?'+':'\u2212')+fmtS(Math.abs(lead))}</span><span class="cx-sub">${lead===0?'Nobody leads':lead>0?'You lead':esc(oName.split(' ')[0])+' leads'}</span><div class="cx-shape"><div class="cx-bar" aria-hidden="true"><b style="width:${share.toFixed(1)}%"></b><u></u></div><div class="cx-vs"><span>You ${fmtS(myS)}</span><span>${fmtS(their)} ${esc(oName.split(' ')[0])}</span></div></div></button>`:`<div class="cx-p mu" style="cursor:default"><span class="cx-k">Your matchup</span><span class="cx-sub">Pairs Thursday 7:00 PM</span></div>`;
+ const slim=k=>k==='contest'?`<button type="button" class="cx-slim" data-x="contest"><span class="cx-k">Contest</span><b>${mine.out?'-':'#'+mine.rank}</b><span>of ${N} &middot; ${ctSub.replace(/<[^>]+>/g,'')}</span><em>Open</em></button>`:`<button type="button" class="cx-slim" data-x="matchup"><span class="cx-k">Matchup</span><b style="color:${lead>0?'var(--rb-win)':lead<0?'var(--rb-loss)':'inherit'}">${lead===0?'Level':(lead>0?'+':'\u2212')+fmtS(Math.abs(lead))}</b><span>vs ${esc(oName)}</span><em>Open</em></button>`;
+ const exp=EXP==='matchup'&&!(mu&&mu.opp)?'':EXP;
+ if(!exp){h+=`<div class="cx-two">${ct()}${mt()}</div><div class="cx-none" style="text-align:center">Tap one to open it</div>`;return h}
+ if(exp==='contest'){h+=(mu&&mu.opp?slim('matchup'):'')+`<div class="cx-big">${ct(1)}</div>`;
+  const cs=new Set((R&&R.circle?R.circle():[]).map(c=>String(c.id)));h+=`<div style="margin-top:14px">${circleBar()}</div>`;if(CIRC&&!cs.size)h+=circleEmpty();
+  const shown=CIRC?rows.filter(r=>r.me||cs.has(String(r.id))):rows;
+  h+=`<div class="rk-list">${shown.map((r,i)=>wkRow(r,!CIRC&&i===2&&shown.length>3)).join('')}</div>`;
+  h=h.replace(/(<a [^>]*class="rk-row[^"]*cut[^"]*">[\s\S]*?<\/span><\/a>)/,'$1<div class="rk-cutl">Top 3 take the week\'s prizes</div>');return h}
+ // matchup open: both Stacks, both sets of Slips (theirs sealed per leg), the record
+ const mp=slipsOf('me'),op=opp?slipsOf(opp.id):[],a=rec(mp),b=rec(op);
+ h+=slim('contest')+`<div class="cx-big">${mt()}</div>`;
+ h+=`<div class="cx-rec"><div><i>You</i><b>${a.w}-${a.l}</b><i>Slips won-lost${a.o?' &middot; '+a.o+' open':''}</i></div><div><i>${esc(oName)}</i><b>${b.w}-${b.l}</b><i>Slips won-lost${b.o?' &middot; '+b.o+' open':''}</i></div></div>`;
+ h+=`<div class="cx-sec"><span>Your Slips</span><span>${mp.length}</span></div><div class="cx-slips">${mp.length?mp.map(p=>slipCard(p,true)).join(''):'<div class="cx-none">No Slips yet. Make a pick on the Board.</div>'}</div>`;
+ h+=`<div class="cx-sec"><span>${esc(oName)}'s Slips</span><span>${op.length}</span></div><div class="cx-slips">${op.length?op.map(p=>slipCard(p,false)).join(''):'<div class="cx-none">No Slips yet.</div>'}</div>`;
+ if(opp)h+=`<a class="rk-open" href="player.html?u=${encodeURIComponent(opp.id)}">${esc(oName)}'s profile</a>`;
+ return h}
+function vSeason(){const n=RW.week().n;let rows;if(R){const se=R.season(),cur=fieldRows();rows=(se.table||[]).map((t,i)=>{const c=cur.find(x=>x.name===t.name)||{};return{id:t.me?'me':'s'+i,name:t.name,me:!!t.me,sim:!!t.sim,sw:t.w||0,sl:t.l||0,units:c.units||0,hist:t.me?(se.weeks||[]).map(w=>w.result):[]}}).sort((a,b)=>b.sw-a.sw||a.sl-b.sl||b.units-a.units)}else rows=RW.season(RW.field(games));
  return`<div class="rk-card"><h2>Season record <span>Season 1 opens with Week ${n}</span></h2><div class="rk-note" style="padding:0">A week finished above 1,000 Stack is a win, at or below with a settled pick is a loss, no settled pick is not played. Most wins leads. Week ${n} is in progress.</div></div><div class="rk-list">${rows.map((r,i)=>`<a href="player.html?u=${encodeURIComponent(r.me?'me':r.id)}" class="rk-row${r.me?' me':''}"><span class="rk-pos">${i+1}</span>${av(r)}<span class="rk-nm"><b>${esc(r.name)}${r.me?'<span class="rk-tag you">YOU</span>':'<span class="rk-tag">SIM</span>'}</b><i>Week ${n}: ${U(r.units)} Stack<span class="rk-hist">${r.hist.slice(-8).map(x=>`<i class="${x==='W'?'w':x==='L'?'l':''}"></i>`).join('')}</span></i></span><span class="rk-u">${r.sw}-${r.sl}<small>W-L</small></span></a>`).join('')}</div>`}
 /* contest selector: The Rush first, then every contest you are in; picking one makes it the active contest everywhere (Rush.wallet) */
 const COLOK=x=>/^#[0-9a-fA-F]{3,8}$/.test(x||'')?x:'#66768A';
@@ -117,7 +145,7 @@ function render(){const L=wl(),a=act(L);csBar(L,a);const w=RW.week();if(!games.l
  if(a!=='rush'){$('rk-seg').hidden=true;$('rk-week').textContent='Contest standings';const h=vContest(a,L.find(e=>e.id===a));const m=$('rk-main');if(m._h!==h){m.innerHTML=h;m._h=h}return}
  $('rk-seg').hidden=false;seg();$('rk-week').textContent=`Week ${w.n} · Tuesday to Monday night`;const h=tab==='week'?vWeek():vSeason();const m=$('rk-main');if(m._h!==h){m.innerHTML=h;m._h=h}}
 async function refresh(){try{games=await RW.load(true)}catch(e){}render()}
-document.addEventListener('click',e=>{const cb2=e.target.closest('[data-circ]');if(cb2){CIRC=cb2.dataset.circ==='1';try{localStorage.setItem('rk.circle',CIRC?'1':'0')}catch(x){}render();return}const b=e.target.closest('[data-t]');if(b){tab=b.dataset.t;try{localStorage.setItem('rk.tab',tab)}catch(x){}render();scrollTo(0,0)}});
+document.addEventListener('click',e=>{const cb2=e.target.closest('[data-circ]');if(cb2){CIRC=cb2.dataset.circ==='1';try{localStorage.setItem('rk.circle',CIRC?'1':'0')}catch(x){}render();return}const xp=e.target.closest('[data-x]');if(xp){const k=xp.dataset.x;EXP=EXP===k?'':k;try{localStorage.setItem('rk.exp',EXP)}catch(x){}render();scrollTo(0,0);return}const b=e.target.closest('[data-t]');if(b){tab=b.dataset.t;try{localStorage.setItem('rk.tab',tab)}catch(x){}render();scrollTo(0,0)}});
 function loop(){refresh().finally(()=>setTimeout(loop,games.some(g=>g.state==='in')?20000:60000))}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
 window.addEventListener('storage',()=>render());if(R&&R.on)R.on(()=>render());
