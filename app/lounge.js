@@ -42,7 +42,10 @@
     list = list.slice().sort((a, b) => stk(b) - stk(a)); list.forEach((r, i) => { r.rk = i + 1; });
     return { list, me: list.find(r => r.me) || me, riv: riv && list.find(r => r.id === riv.id) };
   }
-  function picksOf(r) {
+  /* each player's Slips, computed once per render */
+  let PC = new Map();
+  function picksOf(r) { const key = r.me ? 'me' : String(r.id); if (PC.has(key)) return PC.get(key); const v = picksOf0(r); PC.set(key, v); return v; }
+  function picksOf0(r) {
     if (r.me) { try { return (Rush.picks({ week: Rush.week().id }) || []).filter(p => p.gameId).map(p => Object.assign({}, p, { g: games.find(g => String(g.id) === String(p.gameId)) })); } catch (e) { return []; } }
     try { const seal = (window.Rush && typeof Rush.sealView === 'function') ? Rush.sealView : (x => x); return (RW.playerPicks(r.id, games) || []).filter(p => p.g || (p.legs && p.legs.length)).map(p => seal(p) || p); } catch (e) { return []; }
   }
@@ -96,6 +99,7 @@
 
   /* ---------- render ---------- */
   function render() {
+    PC = new Map();
     const FF = field(), C = circleIds(), CIRCLE = circleOn(), now = Date.now();
     const F = CIRCLE ? { list: FF.list.filter(r => r.me || C.has(String(r.id))), me: FF.me, riv: FF.riv && C.has(String(FF.riv.id)) ? FF.riv : null } : FF;
     const mine = FF.me ? picksOf(FF.me) : [], mySide = g => { for (const p of mine) { const l = legsOf(p).find(x => String(x.gameId) === String(g.id)); if (l) return sideOf(l); } return null; };
