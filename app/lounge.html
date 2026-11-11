@@ -98,7 +98,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 .lg-bub,.lg-sys span,.lg-reply{overflow-wrap:anywhere;word-break:break-word}.lg-room{overflow-x:hidden}.lg-faces,#lg-games{overscroll-behavior-x:contain}
 .lg-sc svg.tmk{width:24px;height:24px;flex:none}
 /* Gold's one game card, compact in the pinned head so the room keeps its height */
-.lg-game .rgc-lg{display:none}.lg-game .lg-nx{margin-top:4px;padding:3px 10px}.lg-game .lg-gside{margin-top:4px}
+.lg-game .rgc-lg{display:none}.lg-game .rgc-h{padding:0 2px 1px!important;min-height:0!important}.lg-game .rgc-h>*{font-size:11px!important;padding-top:1px!important;padding-bottom:1px!important}.lg-game .rgc-row,.lg-game .rgc-row:last-child{padding:1px 2px!important}.lg-game .rgc-sc{font-size:20px!important}.lg-game .lg-nx{margin-top:4px;padding:3px 10px}.lg-game .lg-gside{margin-top:4px}
 .lg-game .rgc{display:block!important;margin:0;border:0;background:none;border-radius:0}.lg-game .rgc-h{padding:0 2px 2px;gap:6px}.lg-game .rgc-row{padding:1px 2px;gap:8px}
 .lg-game svg.tmk{width:24px!important;height:24px!important}.lg-game .rgc-t b{font-size:17px;display:inline}.lg-game .rgc-t small{display:inline;margin-left:6px;font-size:11px}
 .lg-game .rgc-sc{font-size:22px;min-width:30px}.lg-game .rgc-cols{grid-template-columns:repeat(3,54px)}.lg-game .rgc-cells{grid-template-columns:repeat(3,54px)}
@@ -108,6 +108,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 .lg-main-blur,.lg-gated .lg-mu,.lg-gated .lg-faces,.lg-gated .lg-gsides,.lg-gated .lg-room .lg-sys,.lg-gated .lg-room .lg-blk,.lg-gated .lg-nx{filter:blur(6px);pointer-events:none;user-select:none}
 .lg-mu,.lg-faces,.lg-gsides,.lg-room .lg-sys,.lg-nx{transition:filter .9s ease}
 .lg-lift .lg-mu,.lg-lift .lg-faces,.lg-lift .lg-gsides,.lg-lift .lg-room .lg-sys{animation:lglift 1.2s ease}@keyframes lglift{0%{filter:blur(6px);transform:scale(.98)}60%{filter:none;transform:scale(1.02)}100%{filter:none;transform:none}}
+.lg-tight .lg-game .lg-gside,.lg-tight .lg-game .lg-gsides,.lg-tight .lg-game .lg-nx,.lg-tight .lg-face small,.lg-tight .lg-dots{display:none!important}.lg-tight .lg-faces{padding-top:2px}
 @media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-lift .lg-mu,.lg-lift .lg-faces,.lg-lift .lg-gsides,.lg-lift .lg-room .lg-sys,.lg-sc strong.tick,.lg-face em.bump,.lg-face b.flash{animation:none}.lg-face{transition:none!important}}
 </style>
 </head>
@@ -121,8 +122,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 <script src="shared/nav.js?v=f1111"></script>
 <script src="shared/events.js?v=f1107"></script>
 <script src="faces.js?v=f1" data-rushface="1"></script>
-<script src="game-card.js?v=c4"></script>
-<script src="slip-card.js?v=s6"></script>
-<script src="lounge.js?v=l1136"></script>
+<script src="game-card.js?v=c5"></script>
+<script src="slip-card.js?v=s7"></script>
+<script src="lounge.js?v=l1137"></script>
 </body>
 </html>
