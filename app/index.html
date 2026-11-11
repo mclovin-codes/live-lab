@@ -84,7 +84,10 @@ function render(){
   // 5. The Ranks.
   const top=f.slice(0,5);if(!top.some(r=>r.me))top.push(m);
   h+=`<div class="h-lbl">The Field <a href="ranks.html">Ranks</a></div><section class="h-card">${top.map(r=>{const k=mv[r.id]||0;return `<div class="row"><span class="rk">${r.rank}</span>${GU.av(r,40)}<div class="nm">${GU.nameLink(r)}</div><span class="mv ${k>0?'up':k<0?'dn':''}">${k>0?'▲'+k:k<0?'▼'+(-k):''}</span><span class="h-num">${F(r.stack)}</span></div>`}).join('')}</section>`;
+  h+=`<section class="h-card" id="invite" style="margin-top:22px"><div style="font-weight:800;font-size:18px">Bring a friend into the week</div><div style="color:var(--mute);margin-top:4px">Entry is free. They start with 1,000 Stack like everyone.</div><button class="h-btn" id="inv" style="margin-top:12px;width:100%;border:0;cursor:pointer">Send an invite</button></section>`;
   document.getElementById('app').innerHTML=h;
+  const iv=document.getElementById('inv');if(iv)iv.onclick=async()=>{const u=location.origin+location.pathname.replace(/[^/]*$/,'')+'index.html';try{if(navigator.share){await navigator.share({title:'Rush',text:'Join this week on Rush',url:u});return}await navigator.clipboard.writeText(u);iv.textContent='Link copied'}catch(e){}};
+  if(location.hash==='#invite'&&!window._invScrolled){window._invScrolled=1;setTimeout(()=>{const el=document.getElementById('invite');if(el)el.scrollIntoView({block:'center'})},300)}
 }
 render();
 if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});

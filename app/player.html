@@ -41,6 +41,7 @@ body{background:var(--bg);color:var(--tx)}
 const E=GU.esc,F=GU.fmt,Q=new URLSearchParams(location.search),UID=Q.get('u')&&Q.get('u')!=='me'?Q.get('u'):null;
 let tab=location.hash==='#settled'?'done':'open';
 const BK='rush-block';
+const CK='rush-circle',circ=()=>{try{return JSON.parse(localStorage.getItem(CK)||'[]')}catch(e){return[]}};
 const blocked=()=>{try{return JSON.parse(localStorage.getItem(BK)||'[]')}catch(e){return[]}};
 function myLine(p){const g=p.g,live=g&&g.state==='in',st=p.status;
   const r=st==='open'?`<span>${F(p.stake)}</span><small>returns ${F(p.stake+(p.win||0))}</small>`:st==='won'?`<span class="up">+${F((p.pay||0)-p.stake)}</span><small>hit</small>`:st==='lost'?`<span class="dn">-${F(p.stake)}</span><small>missed</small>`:`<span>${F(p.pay||p.stake)}</span><small>${E(st)}</small>`;
@@ -70,7 +71,7 @@ function render(){
     if(!ps.length)h+=`<div class="p-card empty">No picks yet this week.</div>`;
     const bl=blocked().includes(who.id);
     h+=`<div style="display:flex;gap:10px;margin-top:16px"><a class="p-btn" href="lounge.html">Talk in the Lounge</a>${isOpp?'':`<a class="p-btn ghost" href="ranks.html">The contest</a>`}</div>
-     <div style="display:flex;gap:18px;justify-content:center;margin-top:10px"><button class="lnk" id="blk">${bl?'Unblock':'Block'}</button><button class="lnk" id="rpt">Report</button></div>`;
+     <button class="p-btn ${circ().includes(who.id)?'ghost':''}" id="circ" style="width:100%;margin-top:10px;${location.hash==='#circle'?'box-shadow:0 0 0 3px var(--vio)':''}">${circ().includes(who.id)?'In your circle ✓':'Add to my circle'}</button><div style="display:flex;gap:18px;justify-content:center;margin-top:10px"><button class="lnk" id="blk">${bl?'Unblock':'Block'}</button><button class="lnk" id="rpt">Report</button></div>`;
   }else{
     // Your Slips live here and in the Stack sheet: open first, then settled.
     const all=GU.mine(),open=all.filter(p=>p.status==='open'),done=all.filter(p=>p.status!=='open');
@@ -84,6 +85,7 @@ function render(){
   document.getElementById('app').innerHTML=h;
   document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
   const bk=document.getElementById('blk');if(bk)bk.onclick=()=>{let b=blocked();b=b.includes(who.id)?b.filter(x=>x!==who.id):b.concat(who.id);try{localStorage.setItem(BK,JSON.stringify(b))}catch(e){}render()};
+  const cb=document.getElementById('circ');if(cb)cb.onclick=()=>{let c=circ();c=c.includes(who.id)?c.filter(x=>x!==who.id):c.concat(who.id);try{localStorage.setItem(CK,JSON.stringify(c))}catch(e){}render()};
   const rp=document.getElementById('rpt');if(rp)rp.onclick=()=>{rp.textContent='Reported';rp.disabled=true};
 }
 render();
