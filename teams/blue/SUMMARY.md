@@ -12,11 +12,12 @@
 1. Open the **Reads** tab (it replaces the Lounge tab). The three steps sit under the title: Sealed, You read it, Flips at kickoff.
 2. Your matchup opponent's sealed picks are at the top. Every card offers the same four calls: either team, Over or Under. Tap one to read their pick.
 3. Watch "Waiting to flip" go up and the "Next flip" clock count down.
-4. After kickoff, the card flips: their real pick shows, and your read says "Read right" or "Misread".
+4. In the last ten minutes the flip clock counts seconds. At kickoff the card flips over with motion, and a banner says what they took and whether you read it right. The card then shows "Read right" or "Misread".
 5. The footer has the toggle between the honest view (7 players) and the full Field.
 
 ## How it works with 7 players and nobody typing
 
+- The first thing on the page, under the three steps, is your opponent's next sealed card with its four calls, so there is something to tap in the first five seconds.
 - Reads needs no talk at all. Each of the 6 other players in a 7-player Field has sealed picks on tonight's games, and every one is a card you can read with one tap.
 - With 7 players there are still plenty of cards. A read takes one tap and nothing to type.
 - Your own sealed picks are listed with "Nobody has read you yet" until someone does. In the honest view nobody else's reads are invented, so that line stays honest.
@@ -31,7 +32,7 @@
 ## What brings a player back
 
 - **The same evening:** every read is pending until its kickoff. The red badge on the Reads tab counts your reads waiting to flip. The "Next flip" clock tells you when the next one scores, and the game's final then grades the pick itself.
-- **The next day:** new sealed picks appear as the Field picks tomorrow's games.
+- **The next day:** new sealed picks appear as the Field picks tomorrow's games. Under the timeline, a line says how many seals break tonight and how many of tomorrow's picks are already sealed.
 - **Your record:** your read record shows on Home, on your profile and on every other player's profile ("you on Line"). Your matchup opponent is always first to read.
 - **From any profile:** another player's profile lists their next sealed picks with read buttons, so tapping a name anywhere leads straight to reading them.
 
