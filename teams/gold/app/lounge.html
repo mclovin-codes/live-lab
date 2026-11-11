@@ -27,6 +27,7 @@
 .res.ok .ic{background:rgba(61,214,140,.2);color:var(--grn)}.res.no .ic{background:rgba(255,107,107,.18);color:var(--red)}.res.na .ic{background:rgba(255,255,255,.08);color:var(--mute)}
 .chips{display:flex;gap:8px;overflow-x:auto;margin-top:14px}.chips button{flex:none;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--mute);font:800 13px -apple-system,sans-serif}.chips button.on{background:var(--tx);color:var(--bg)}
 .how{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;margin-top:4px;font-size:15px}
+.ppl{display:flex;gap:10px;overflow-x:auto;margin:14px -16px 0;padding:2px 16px 6px}.ppl button{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:76px;padding:10px 4px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--tx);font:700 12px -apple-system,sans-serif}.ppl button.on{border-color:var(--vio);background:rgba(155,140,255,.14)}.ppl button span{max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ppl button small{color:var(--mute);font-size:11px}
 .how b{font:800 20px/1 "Barlow Condensed",sans-serif;color:var(--vio)}
 </style></head>
 <body data-tab="lounge">
@@ -34,7 +35,7 @@
 <script src="shared/state.js"></script><script src="week-games.js"></script><script src="shared/nav.js"></script><script src="g4.js"></script>
 <script>
 const LOCK='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
-let lg='all';
+let lg='all',who='';
 function when(t){return new Date(t).toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})}
 function card(x,rival){
   const p=x.pl,k=G.R.key(p.id,x),rd=G.R.get(k),g=x.g,open=!G.R.started(g),sides=G.R.sides(x),truth=G.R.side(x);
@@ -54,7 +55,7 @@ function render(){
   const f=G.field(),m=G.meRow(),op=G.opponent(),all=G.R.deck(),st=G.R.stats();
   const sealed=all.filter(x=>!G.R.started(x.g)),broken=all.filter(x=>G.R.started(x.g)&&G.R.get(G.R.key(x.pl.id,x))).slice(0,8);
   const leagues=[...new Set(sealed.map(x=>x.g.league))];
-  const show=sealed.filter(x=>lg==='all'||x.g.league===lg);
+  const show=sealed.filter(x=>(lg==='all'||x.g.league===lg)&&(!who||String(x.pl.id)===who));
   const riv=op?show.filter(x=>x.pl.id===op.id):[],rest=show.filter(x=>!op||x.pl.id!==op.id);
   const next=sealed.slice().sort((a,b)=>a.g.date-b.g.date)[0];
   const mine=G.R.mine();
@@ -63,6 +64,8 @@ function render(){
    <div class="rec"><span class="big">${st.right}<span style="color:var(--mute)">/${st.graded}</span></span><span style="color:var(--mute);font-weight:700">reads right this week</span></div>
    <div class="tri"><div><div class="num">${st.pending}</div><small>WAITING</small></div><div><div class="num">${next?G.until(next.g.date):'-'}</div><small>NEXT SEAL BREAKS</small></div><div><div class="num">${mine.length}</div><small>YOURS SEALED</small></div></div>
    <div class="how" style="margin-top:14px"><b>1</b><span>Every pick in the Field is sealed until its game kicks off.</span><b>2</b><span>Tap the side you think they took.</span><b>3</b><span>At kickoff the seal breaks and your read is graded.</span></div></section>`;
+  const others=f.filter(r=>!r.me);
+  h+=`<div class="ppl">${others.map(p=>{const n=sealed.filter(x=>x.pl.id===p.id).length,r=G.R.of(p.id);return `<button data-who="${G.esc(p.id)}" class="${who===String(p.id)?'on':''}">${G.av(p,44,1)}<span>${G.esc(p.name.split(' ')[0])}</span><small>${n} sealed${r.graded?' · '+r.right+'/'+r.graded:''}</small></button>`}).join('')}</div>`;
   if(leagues.length>1)h+=`<div class="chips"><button data-lg="all" class="${lg==='all'?'on':''}">All</button>${leagues.map(l=>`<button data-lg="${G.esc(l)}" class="${lg===l?'on':''}">${G.esc(String(l).toUpperCase())}</button>`).join('')}</div>`;
   if(riv.length)h+=`<div class="lbl">Read your matchup</div>`+riv.slice(0,4).map(x=>card(x,1)).join('');
   h+=`<div class="lbl">Sealed now <span style="color:var(--mute);text-transform:none;letter-spacing:0;font-size:13px">${rest.length}</span></div>`+(rest.slice(0,14).map(x=>card(x,0)).join('')||'<div class="empty">No sealed picks right now. New picks seal as players make them.</div>');
@@ -72,6 +75,7 @@ function render(){
   document.getElementById('app').innerHTML=h;
   document.querySelectorAll('form.ln').forEach(f=>f.onsubmit=e=>{e.preventDefault();const v=f.querySelector('input').value.trim();if(v){G.R.line(f.dataset.lk,v);f.querySelector('input').blur();render()}});
   document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{G.R.set(b.dataset.k,b.dataset.s);render()});
+  document.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>{who=who===b.dataset.who?'':b.dataset.who;render()});
   document.querySelectorAll('[data-lg]').forEach(b=>b.onclick=()=>{lg=b.dataset.lg;render()});
 }
 G.render=render;render();
