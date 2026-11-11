@@ -5,16 +5,17 @@ Home opens on the weekly contest, in this order:
 1. **The contest card:**
    - your rank as one big number ("#3 of 7 in the Field");
    - your Stack and how far it has moved since Tuesday;
-   - a strip with every player's face placed by Stack, so you see where you sit and who is near you;
+   - every face in the Field in rank order (a window around you in a big Field), each with its Stack and a rank-move arrow since you last looked;
    - two doors: Make picks (Board) and The contest.
-2. **On tonight:** the three games that matter most right now. Live games come first, then games you hold a pick on, then games the Field is on.
+2. **Your matchup:** you and your opponent face to face, a tug bar, "You lead by 38", and the countdown to Thursday's 7:00 PM pairing.
+3. **For you:** the one-tap actions other players aimed at you in the Lounge, each with an Answer door, and the answers to your own taps. The honest view shows only real ones, so tonight it reads "Nothing aimed at you yet".
+4. **On tonight:** the three games that matter most right now. Live games come first, then games you hold a pick on, then games the Field is on.
    - Before kickoff a card shows the faces of the players who have a pick on it, the number of sealed picks and the countdown to the seal breaking. It never shows a side or a stake.
    - After kickoff it splits into With you and Against you, by face.
    - Each card opens that game, and also the Lounge focused on that game.
-3. **Your matchup:** you and your opponent face to face, a tug bar, "You lead by 38", and the countdown to Thursday's 7:00 PM pairing.
-4. **The Field right now:** the latest events from the one event source, each with up to three faces and the people named ("Sharp hit, Tungsten missed · COL at TOR").
-5. **The Field:** the top five plus you, with rank arrows that show who moved since you last looked.
-6. **An invite door at the bottom** (index.html#invite): the share sheet, or copy the link.
+5. **The Field right now:** the latest events from the one event source, each with up to three faces and the people named ("Sharp hit, Tungsten missed · COL at TOR"), including big plays with who they are good and bad for.
+6. **The Field:** the top five plus you, with rank arrows that show who moved since you last looked.
+7. **An invite door at the bottom** (index.html#invite): the share sheet, or copy the link.
 
 ## Profile: yours and everyone else's
 - **Opening one:** every face and name on Home, in the Lounge and in the Contest opens player.html?u=<id>. Your own avatar in the top bar opens yours (the Me tab).
