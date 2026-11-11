@@ -97,6 +97,12 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 /* sweep: long lines wrap inside their bubble; the room never scrolls sideways; sideways rows never pull the page */
 .lg-bub,.lg-sys span,.lg-reply{overflow-wrap:anywhere;word-break:break-word}.lg-room{overflow-x:hidden}.lg-faces,#lg-games{overscroll-behavior-x:contain}
 .lg-sc svg.tmk{width:24px;height:24px;flex:none}
+/* Gold's one game card, compact in the pinned head so the room keeps its height */
+.lg-game .rgc-lg{display:none}.lg-game .lg-nx{margin-top:4px;padding:3px 10px}.lg-game .lg-gside{margin-top:4px}
+.lg-game .rgc{display:block!important;margin:0;border:0;background:none;border-radius:0}.lg-game .rgc-h{padding:0 2px 2px;gap:6px}.lg-game .rgc-row{padding:1px 2px;gap:8px}
+.lg-game svg.tmk{width:24px!important;height:24px!important}.lg-game .rgc-t b{font-size:17px;display:inline}.lg-game .rgc-t small{display:inline;margin-left:6px;font-size:11px}
+.lg-game .rgc-sc{font-size:22px;min-width:30px}.lg-game .rgc-cols{grid-template-columns:repeat(3,54px)}.lg-game .rgc-cells{grid-template-columns:repeat(3,54px)}
+.lg-game .rb-c{width:54px!important;height:32px!important;gap:0!important;font-size:10px!important}.lg-game .rb-c b{font-size:12.5px!important}
 @media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-sc strong.tick,.lg-face em.bump,.lg-face b.flash{animation:none}.lg-face{transition:none!important}}
 </style>
 </head>
@@ -104,13 +110,14 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 <div id="lg-main"></div>
 <div id="lg-say"><div id="lg-reply" hidden></div><form><input maxlength="160" placeholder="Say something to the Field" autocomplete="off" aria-label="Message"><button>Send</button></form></div>
 <script src="shared/state.js?v=f1104"></script>
-<script src="team-mark.js?v=m1"></script>
+<script src="team-mark.js?v=m2"></script>
 <script src="week-games.js?v=f1108"></script>
 <script src="honest.js"></script>
 <script src="shared/nav.js?v=f1105"></script>
 <script src="shared/events.js?v=f1105"></script>
 <script src="faces.js?v=f1" data-rushface="1"></script>
+<script src="game-card.js?v=c4"></script>
 <script src="slip-card.js?v=s6"></script>
-<script src="lounge.js?v=l1134"></script>
+<script src="lounge.js?v=l1135"></script>
 </body>
 </html>
