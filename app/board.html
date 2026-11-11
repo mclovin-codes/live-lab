@@ -124,7 +124,11 @@ function bar(){const sp=C.sports.length?C.sports:['nfl','nba','nhl'];if(!sp.incl
  const P=$('rb-pills'),ph=sp.map(k=>`<button role="tab" aria-selected="${k===lg}" class="${k===lg?'on':''}" data-lg="${k}">${LGN[k]}</button>`).join('');if(P._h!==ph){P.innerHTML=ph;P._h=ph}
  const T=$('rb-fams'),th=F.map(([k,l])=>`<button role="tab" aria-selected="${k===fam}" class="${k===fam?'on':''}" data-fam="${k}">${l}</button>`).join('');if(T._h!==th){T.innerHTML=th;T._h=th}}
 function paintSel(root){if(!window.Rush||!Rush.slip)return;(root||$('rb-main')).querySelectorAll('[data-k]').forEach(b=>{const on=Rush.slip.has(b.dataset.k);if(b.classList.contains('on')!==on){b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)}})}
-function show(){bar();if(!games.length){if(!err)return;}const k=lg+'|'+fam+'|'+ver;let h=VIEW.get(k);if(h==null){h=build();VIEW.set(k,h)}const m=$('rb-main');if(m._k!==k){m.innerHTML=h;m._k=k;paintSel(m)}}
+function show(){bar();if(!games.length){if(!err)return;}const k=lg+'|'+fam+'|'+ver;let h=VIEW.get(k);if(h==null){h=build();VIEW.set(k,h)}const m=$('rb-main');if(m._k!==k){m.innerHTML=h;m._k=k;paintSel(m)}if(PB!==ver){PB=ver;prebuild()}}
+let PB=-1;
+/* every other league and tab is built while the phone is idle, so a first tap is a swap too */
+function prebuild(){const v=ver,todo=[];(C.sports.length?C.sports:['nfl','nba','nhl']).forEach(l=>(FAMS[l]||[]).forEach(([f])=>todo.push([l,f])));const idle=window.requestIdleCallback||(cb=>setTimeout(()=>cb({timeRemaining:()=>8}),60));
+ const step=d=>{while(todo.length&&d.timeRemaining()>4){if(v!==ver)return;const[l,f]=todo.shift(),k=l+'|'+f+'|'+v;if(VIEW.has(k))continue;const L0=lg,F0=fam;lg=l;fam=f;try{VIEW.set(k,build())}finally{lg=L0;fam=F0}}if(todo.length)idle(step)};idle(step)}
 /* the pinned bar sits under the shared header */
 function pin(){const t=document.getElementById('rtop');const h=t&&getComputedStyle(t).position==='sticky'?Math.round(t.getBoundingClientRect().height):0;document.documentElement.style.setProperty('--rb-top',h+'px')}
 /* ---------- taps ---------- */
