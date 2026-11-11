@@ -24,12 +24,16 @@
   - a game settled (who hit, who missed, the Stack change);
   - the Ranks moving;
   - your matchup lead changing hands.
-- **Top bar and tabs** (Blue): Home, Board, Contest, Lounge, Me on every page. Your rank and your opponent sit under your name.
-- **Contest tab** (Blue):
-  - your matchup first ("Your matchup", or "Pairs Thursday 7:00 PM");
-  - your week;
-  - "The week, moving": the newest events with faces, big plays included ("WPG scored in NJ at WPG: good for Degen"); a face opens the profile, the line opens the game;
-  - the Field ordered by Stack.
+- **Top bar** (Gold's topbar.js, drawn through Blue's nav.js after the founder's 11:00 PM note): your face and the page's name on the left; on the right one Stack pill with the Stack mark. It counts up or down and flashes when your Stack moves, and a tap opens the Stack sheet.
+- **Tabs** (Blue): Home, Board, Contest, Lounge, Me on every page.
+- **One rank rule** (Blue, in the store, after the founder's 11:00 PM note): ranks are unique. Equal Stacks are ordered by more Slips won, then fewer Slips lost, then name. Every page reads r.rank from the store, so no two players share a number anywhere.
+- **Contest tab** (Blue, rebuilt after the founder's 11:00 PM note): two equal panels at the top.
+  - **The contest:** your rank of N as one big figure, the gap to 1st, and every player on one track by Stack (you blue, your opponent pink).
+  - **Your matchup:** the lead as one big figure and the lead bar, both Stacks under it.
+  - Tap a panel and it takes the screen; the other shrinks to a slim bar that brings it back. Tap the open one to see both again.
+  - The contest, opened: The Field / My circle, the Field by Stack, and the line under 3rd: "Top 3 take the week's prizes".
+  - Your matchup, opened: both Slip records (won-lost, open), your Slips, then your opponent's Slips, each leg sealed until its own kickoff.
+  - Gone: "The week, moving" (the Lounge is the only home for the stream), the "Your week" tiles, and the floating pinned row that covered the list.
 - **Board** (Blue): every game shows the faces of the players with a pick on it, sealed until kickoff. Live games show the score and Follow, because picks lock at kickoff this round.
 - **Game page** (Blue):
   - picks lock at kickoff;
@@ -91,7 +95,7 @@
 
 ## With 7 players and nobody typing
 
-- The honest view gives exactly 7 players everywhere, ranks 1 to 7 (ties share a rank), and about 6 picks per player, as Week 8 ran.
+- The honest view gives exactly 7 players everywhere, ranks 1 to 7 (unique: equal Stacks go by Slips won, then Slips lost, then name), and about 6 picks per player, as Week 8 ran.
 - Your matchup opponent is always one of the 7.
 - Nothing is generated: no stand-in talk, no stand-in tapbacks, no head counts.
 - The pages are still full:
