@@ -31,6 +31,10 @@
     const anySealed = s.legs.some(l => l.sealed) || (!!opts.sealed && s.legs.some(l => !started(l.g)));
     const kind = parlay ? ((s.same || new Set(s.legs.map(l => l.game)).size === 1) ? 'Same-game parlay · ' + n + ' legs' : 'Parlay · ' + n + ' legs') : (s.kind === 'prop' || s.legs[0].player ? 'Player prop' : s.legs[0].market || 'Straight');
     const head = s.status === 'hit' ? '<span class="sc-st hit">HIT</span>' : s.status === 'miss' ? '<span class="sc-st miss">MISSED</span>' : s.status === 'push' ? '<span class="sc-st">PUSH</span>' : anySealed ? '<span class="sc-st sealed">SEALED</span>' : s.legs.some(l => l.g && l.g.state === 'in') ? '<span class="sc-st live">LIVE</span>' : '<span class="sc-st">OPEN</span>';
+    // A visitor (not entered this week) sees another player's Slip as its games only: no side, line, price or result, even after kickoff,
+    // and the stake and pays row blurred in place (placeholder figures, never the real ones). The chief's visitor rules, 11:40 PM.
+    let vis = false; try { vis = !!opts.sealed && !!(window.Rush && Rush.entered && !Rush.entered()); } catch (e) {}
+    if (vis) return `<div class="sc sealedall${parlay ? ' par' : ''}"><div class="sc-h"><span class="sc-k">${esc(n > 1 ? 'Parlay · ' + n + ' legs' : 'Slip')}</span><span class="sc-st sealed">ENTER TO SEE</span></div><div class="sc-leg">${ICON.sealed}<div class="sc-l"><b>${esc(s.legs.map(l => l.game).filter(Boolean).join(', ') || 'This week')}</b><small>Sides and stakes open when you enter</small></div></div><div class="sc-f sc-vb" aria-hidden="true"><div><small>STAKE</small><b>000</b></div><div><small>PRICE</small><b>+000</b></div><div><small>PAYS</small><b>0,000</b></div></div></div>`;
     // Every leg still sealed: one compact row (how many legs, which games, the next kickoff), not a screen of locks.
     const isSealed = l => l.sealed || (opts.sealed && !started(l.g));
     if (s.legs.every(isSealed)) { const next = s.legs.map(l => l.g && l.g.date).filter(Boolean).sort((x, y) => x - y)[0]; return `<div class="sc sealedall${parlay ? ' par' : ''}"><div class="sc-h"><span class="sc-k">${esc(n > 1 ? kind : 'Slip')}</span><span class="sc-st sealed">SEALED</span></div><div class="sc-leg">${ICON.sealed}<div class="sc-l"><b>${esc(s.legs.map(l => l.game).filter(Boolean).join(', '))}</b><small>${n > 1 ? 'Each leg opens at its kickoff' : 'Opens at kickoff'}${next ? ', first in ' + until(next) : ''} · stake sealed</small></div></div></div>`; }
@@ -57,7 +61,7 @@
 .sc-leg.miss .sc-l b{color:#A3AFBD;text-decoration:line-through;text-decoration-color:rgba(255,107,107,.7)}
 .sc-i{width:22px;height:22px;flex:none;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:13px}
 .sc-i.open{box-shadow:inset 0 0 0 2px #A3AFBD}.sc-i.live{background:#FF6B6B;box-shadow:0 0 0 4px rgba(255,107,107,.2);animation:scb 1.4s infinite}.sc-i.hit{background:#3DD68C;color:#0A0F15}.sc-i.miss{background:#FF6B6B;color:#0A0F15}.sc-i.push{background:#A3AFBD;color:#0A0F15}
-.sc-i.sealed{background:rgba(242,193,78,.14)}.sc-i.sealed svg{width:13px;height:13px;stroke:#F2C14E;fill:none;stroke-width:2.4}
+.sc-vb{filter:blur(6px);user-select:none;pointer-events:none}.sc-i.sealed{background:rgba(242,193,78,.14)}.sc-i.sealed svg{width:13px;height:13px;stroke:#F2C14E;fill:none;stroke-width:2.4}
 @keyframes scb{50%{opacity:.35}}
 .sc-f{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 14px 12px;border-top:1px dashed rgba(255,255,255,.14)}
 .sc-f small{display:block;font-size:11px;font-weight:800;letter-spacing:1px;color:#A3AFBD}.sc-f b{font:800 22px/1.1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums}.sc-f div:last-child{text-align:right}.sc-f div:nth-child(2){text-align:center}

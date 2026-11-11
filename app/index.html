@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body>
 <div id="app" class="h-wrap"></div>
-<script src="shared/state.js?v=f1108"></script><script src="week-games.js?v=f1108"></script><script src="honest.js?v=g621"></script><script src="shared/nav.js?v=f1110"></script><script src="shared/events.js?v=f1108"></script><script src="faces.js?v=f1"></script><script src="team-mark.js?v=m2"></script><script src="game-card.js?v=c4"></script><script src="gold-ui.js?v=g624"></script>
+<script src="shared/state.js?v=f1108"></script><script src="week-games.js?v=f1108"></script><script src="honest.js?v=g621"></script><script src="shared/nav.js?v=f1110"></script><script src="shared/events.js?v=f1108"></script><script src="faces.js?v=f1"></script><script src="team-mark.js?v=m2"></script><script src="game-card.js?v=c5"></script><script src="gold-ui.js?v=g624"></script>
 <script>
 const E=GU.esc,F=GU.fmt;
 let VIEW=(()=>{try{return localStorage.getItem('gu-home-view')||'field'}catch(e){return'field'}})();
@@ -65,7 +65,7 @@ function renderEnter(){
    <div style="display:flex;align-items:baseline;gap:8px;margin-top:14px"><span class="h-big" style="font-size:60px">${n}</span><span style="color:var(--mute);font-weight:700">in the Field this week</span></div>
    <div style="color:var(--mute);margin-top:4px">Free to enter. Every entrant starts with <span style="white-space:nowrap">${GU.stk(1000)} Stack</span>, top finishers take the prize.</div>
    <button class="h-btn" id="enterbtn" style="width:100%;margin-top:16px;min-height:58px;font-size:20px;border:0;cursor:pointer">Enter free</button>
-   <div class="strip2" style="margin-top:18px"><div class="sx-row">${f.filter(r=>!r.me).map(r=>`<span class="sx blur">${GU.av(r,36,1)}<b>${F(r.stack)}</b><small>${E(r.name.split(' ')[0])}</small></span>`).join('')}</div></div>
+   <div class="strip2" style="margin-top:18px"><div class="sx-row">${f.filter(r=>!r.me).sort((x,y)=>String(x.name).localeCompare(String(y.name))).map(r=>`<span class="sx blur">${GU.av(r,36,1)}<b aria-hidden="true">0,000</b><small>${E(r.name.split(' ')[0])}</small></span>`).join('')}</div></div>
    <div class="sx-gap">Enter to see the Stacks and where you'd stand</div></section>`;
   const gs=GU.games().filter(g=>!g.done&&g.date-Date.now()<36*36e5).sort((a,b)=>(b.state==='in')-(a.state==='in')||a.date-b.date).slice(0,2);
   if(gs.length)h+=`<div class="h-lbl">On tonight <a href="board.html">Board</a></div>`+gs.map(g=>{const k=GU.gameView(g).players.length;return GameCard.html(g,{foot:`<div style="padding:8px 12px 10px;border-top:1px solid rgba(255,255,255,.06);color:#A3AFBD;font:700 13px/1 'Barlow Condensed',sans-serif;letter-spacing:.8px">${k?k+' IN THIS GAME':'NO ONE IN THIS GAME YET'}</div>`})}).join('');

@@ -18,6 +18,7 @@ body{background:var(--bg);color:var(--tx)}
 .p-num{font:800 24px/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
 .up{color:var(--grn)}.dn{color:var(--red)}
 .p-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-top:14px}
+.vb{filter:blur(7px);user-select:none;pointer-events:none}
 .p-lbl{font-size:13px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--mute);margin:22px 4px 0;display:flex;justify-content:space-between;align-items:center}
 .p-lbl a{color:var(--acc)!important;letter-spacing:.3px;text-transform:none;font-size:14px;font-weight:700}
 .p-btn{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 16px;border-radius:14px;border:0;background:var(--acc);color:#04121C!important;font:800 16px/1 -apple-system,sans-serif;flex:1;cursor:pointer}
@@ -37,7 +38,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body data-tab="me"><script>(function(){var u=new URLSearchParams(location.search).get("u");if(u&&u!=="me")document.body.dataset.tab="contest"})()</script>
 <div id="app" class="p-wrap"></div>
-<script src="shared/state.js?v=f1108"></script><script src="week-games.js?v=f1108"></script><script src="honest.js?v=g621"></script><script src="shared/nav.js?v=f1110"></script><script src="shared/events.js?v=f1108"></script><script src="faces.js?v=f1"></script><script src="team-mark.js?v=m2"></script><script src="gold-ui.js?v=g624"></script><script src="slip-card.js?v=s6"></script>
+<script src="shared/state.js?v=f1108"></script><script src="week-games.js?v=f1108"></script><script src="honest.js?v=g621"></script><script src="shared/nav.js?v=f1110"></script><script src="shared/events.js?v=f1108"></script><script src="faces.js?v=f1"></script><script src="team-mark.js?v=m2"></script><script src="gold-ui.js?v=g624"></script><script src="slip-card.js?v=s7"></script>
 <script>
 const E=GU.esc,F=GU.fmt,Q=new URLSearchParams(location.search),UID=Q.get('u')&&Q.get('u')!=='me'?Q.get('u'):null;
 let tab=location.hash==='#settled'?'done':'open';
@@ -71,11 +72,12 @@ function render(){
   if(!isMe)h+=`<a class="p-back" href="javascript:history.back()">‹ Back</a>`;
   const BN=window.RushFace?(isMe?RushFace.banner():RushFace.BANNERS[[...String(who.id)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,0)%RushFace.BANNERS.length].css):'var(--card)';
   h+=`<section class="p-hero" style="background:${BN}">${isMe?'<button id="edit" class="p-edit" aria-label="Edit profile">Edit</button>':''}${GU.av(who,96,1)}<h1>${E(who.name)}</h1>
-   <div class="p-stats"><div><div class="p-num">${isMe&&!GU.entered()?'<span style="color:var(--acc)">ENTER</span>':GU.stk(who.stack)}</div><small>STACK</small></div><div><div class="p-num">${isMe&&!GU.entered()?'-':'#'+(who.rank||'-')}<span style="color:var(--mute);font-size:16px"> of ${f.length}</span></div><small>RANK</small></div><div><div class="p-num">${rec.w}-${rec.l}</div><small>SEASON</small></div></div>
-   ${isMe&&!GU.entered()?'':`<div style="margin-top:12px"><span class="p-num ${d>=0?'up':'dn'}" style="font-size:22px">${d>=0?'+':''}${F(d)}</span> <small style="color:var(--mute);font-weight:800;letter-spacing:1px;font-size:12px">WEEK ${wk.n}</small></div>`}</section>`;
+   <div class="p-stats"><div><div class="p-num">${isMe&&!GU.entered()?'<span style="color:var(--acc)">ENTER</span>':!GU.entered()?'<span class="vb" aria-hidden="true">0,000</span>':GU.stk(who.stack)}</div><small>STACK</small></div><div><div class="p-num">${isMe&&!GU.entered()?'-':!GU.entered()?'<span class="vb" aria-hidden="true">#0</span>':'#'+(who.rank||'-')}<span style="color:var(--mute);font-size:16px"> of ${f.length}</span></div><small>RANK</small></div><div><div class="p-num">${rec.w}-${rec.l}</div><small>SEASON</small></div></div>
+   ${!GU.entered()?'':`<div style="margin-top:12px"><span class="p-num ${d>=0?'up':'dn'}" style="font-size:22px">${d>=0?'+':''}${F(d)}</span> <small style="color:var(--mute);font-weight:800;letter-spacing:1px;font-size:12px">WEEK ${wk.n}</small></div>`}</section>`;
   if(!isMe){
     const MU=(()=>{try{return Rush.matchup?Rush.matchup():null}catch(e){return null}})(),one=MU&&MU.opp&&String(MU.opp.id)===String(who.id),myS=one?MU.me.stack:m.stack,thS=one?MU.opp.stack:who.stack;const gap=one?MU.lead:myS-thS,A=Math.max(1,myS),B=Math.max(1,thS),op=GU.opponent(),isOpp=op&&op.id===who.id;
-    h+=`<div class="p-lbl">${isOpp?'Your matchup':'You vs '+E(who.name)}</div><section class="p-card"><div style="display:flex;align-items:center;gap:10px">${GU.av(m,40,1)}<div style="flex:1"><div class="tug"><i class="a" style="flex:${A}"></i><i class="b" style="flex:${B}"></i></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span class="p-num" style="font-size:18px">${F(myS)}</span><span class="p-num" style="font-size:18px">${F(thS)}</span></div></div>${GU.av(who,40,1)}</div><div style="text-align:center;margin-top:8px;font-weight:800" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You are '+F(gap)+' ahead':'You are '+F(-gap)+' behind'}</div></section>`;
+    if(!GU.entered())h+=`<div class="p-lbl">You vs ${E(who.name)}</div><section class="p-card" style="position:relative;overflow:hidden"><div class="vb" aria-hidden="true" style="display:flex;align-items:center;gap:10px">${GU.av(m,40,1)}<div style="flex:1"><div class="tug"><i class="a" style="flex:1"></i><i class="b" style="flex:1"></i></div></div>${GU.av(who,40,1)}</div><div style="text-align:center;margin-top:12px;color:var(--mute)">Enter to see the Stacks, the ranks and every side</div><button class="p-btn" data-enter="1" style="width:100%;margin-top:10px;min-height:48px;background:var(--acc);color:#0A0F15;border:0;border-radius:14px;font-weight:800;font-size:17px;cursor:pointer">Enter free</button></section>`;
+    else h+=`<div class="p-lbl">${isOpp?'Your matchup':'You vs '+E(who.name)}</div><section class="p-card"><div style="display:flex;align-items:center;gap:10px">${GU.av(m,40,1)}<div style="flex:1"><div class="tug"><i class="a" style="flex:${A}"></i><i class="b" style="flex:${B}"></i></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span class="p-num" style="font-size:18px">${F(myS)}</span><span class="p-num" style="font-size:18px">${F(thS)}</span></div></div>${GU.av(who,40,1)}</div><div style="text-align:center;margin-top:8px;font-weight:800" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You are '+F(gap)+' ahead':'You are '+F(-gap)+' behind'}</div></section>`;
     // Between you: your tapbacks and replies to them, and their replies to you (Red's Lounge keys). The honest view shows only real ones from them.
     {const meName=m.name,hon=GU.honest();let taps=[],talk=[];try{taps=Object.values(JSON.parse(localStorage.getItem('rush-lounge-tap-v1')||'{}')).filter(x=>x&&x.emoji&&String(x.emoji).indexOf('&#')!==0)}catch(e){}try{talk=JSON.parse(localStorage.getItem('rush-lounge-talk-v2')||'[]')}catch(e){}
      const nm=E(who.name.split(' ')[0]),theirs=talk.filter(x=>!x.mine&&x.who===who.name&&x.quote&&String(x.quote).indexOf(meName+':')===0&&(!hon||x.real));
@@ -88,7 +90,7 @@ function render(){
     const mineBy={};GU.mine().forEach(p=>{if(p.g)mineBy[p.gameId]=GU.mySide(p)});
     const rel=x=>{const ms=mineBy[x.gameId];if(!ms)return'';const s=GU.sideOf(x);return s===ms?'<span class="tag with">WITH YOU</span>':({away:'home',home:'away',over:'under',under:'over'})[ms]===s?'<span class="tag vs">AGAINST YOU</span>':''};
     h+=`<div class="p-lbl">Their week</div>`;
-    h+=ps.slice().sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||T(a)-T(b)).slice(0,8).map(x=>{const r=GU.started(x.g)?rel(x):'';return (r?`<div style="margin:12px 2px -4px">${r}</div>`:'')+SlipCard.html(Rush.sealView?Rush.sealView(x):x,{sealed:true})}).join('');
+    h+=ps.slice().sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||T(a)-T(b)).slice(0,8).map(x=>{const r=GU.entered()&&GU.started(x.g)?rel(x):'';return (r?`<div style="margin:12px 2px -4px">${r}</div>`:'')+SlipCard.html(Rush.sealView?Rush.sealView(x):x,{sealed:true})}).join('');
     if(!ps.length)h+=`<div class="p-card empty">No Slips yet</div>`;
     const bl=blocked().includes(who.id);
     h+=`<div style="display:flex;gap:10px;margin-top:16px"><a class="p-btn" href="lounge.html">Talk in the Lounge</a>${isOpp?'':`<a class="p-btn ghost" href="ranks.html">The contest</a>`}</div>
@@ -121,7 +123,7 @@ function render(){
   const cb=document.getElementById('circ');if(cb)cb.onclick=()=>{if(cb.dataset.c==='confirm')GU.circle.confirm(who.id);else GU.circle.ask(who.id);render();setTimeout(render,10500)};
   document.querySelectorAll('[data-cf]').forEach(b=>b.onclick=()=>{GU.circle.confirm(b.dataset.cf);render()});
   document.querySelectorAll('[data-ca]').forEach(b=>b.onclick=()=>{GU.circle.ask(b.dataset.ca);render();setTimeout(render,10500)});
-  const pe=document.getElementById('pent');if(pe)pe.onclick=()=>{if(window.RushTopbar&&RushTopbar.enterNow)RushTopbar.enterNow(window._rtLast&&window._rtLast[1]);else GU.enter();setTimeout(render,700)};
+  document.querySelectorAll('#pent,[data-enter]').forEach(pe=>pe.onclick=()=>{if(window.RushTopbar&&RushTopbar.enterNow)RushTopbar.enterNow(window._rtLast&&window._rtLast[1]);else GU.enter();setTimeout(render,700)});
   const ed=document.getElementById('edit');if(ed)ed.onclick=openEdit;
   const rp=document.getElementById('rpt');if(rp)rp.onclick=()=>{rp.textContent='Reported';rp.disabled=true};
 }

@@ -1,5 +1,5 @@
 /* One game card for the whole app (owner: Gold): Home, the Board and the Lounge's pinned game draw the same card,
- * modelled on the Rush app's board cards (rush-arena MarketGameCard / BoardTeamLineCard): a header with the clock or kickoff,
+ * in the team's own look (founder 11:40: the team's sizing, type and contrast; only the mechanics come from the Rush app's board cards): a header with the clock or kickoff,
  * two team rows (team mark, code, name and record, score), and the price cells while the game is open.
  * GameCard.html(game, opts) is a pure string function: no DOM work, no listeners.
  *   opts.cell(g, spec, top, odds, label, cls): the Board passes its own cell builder; otherwise GameCard.cell registers the pick in GameCard.REG.
@@ -46,25 +46,24 @@
     const seal = w && w.sealed ? `<div class="rgc-seal"><span>${w.sealed} sealed</span>${faces(w.sealedFaces)}</div>` : '';
     return `<div class="rgc${g.state === 'in' ? ' rgc-islive' : ''}"><a class="rgc-h" href="${href}"><span class="rgc-lg">${esc(String(g.league || '').toUpperCase())}</span>${when(g)}${st ? '' : '<span class="rgc-cols"><i>SPREAD</i><i>TOTAL</i><i>ML</i></span>'}</a>${row('away')}${row('home')}${tot}${seal}${opts.foot || ''}</div>`;
   }
-  const CSS = `.rgc{background:#121A23;border:1px solid rgba(255,255,255,.08);border-radius:16px;margin-top:10px;overflow:hidden;font:400 15px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#F4F7FA}
-.rgc.rgc-islive{border-color:rgba(239,68,68,.45)}
-.rgc-h{display:flex;align-items:center;gap:8px;padding:9px 12px 4px;color:inherit!important;text-decoration:none}
-.rgc-lg{font:700 12px/1 'Barlow Condensed',sans-serif;letter-spacing:1px;color:#A3AFBD;background:#1A2530;padding:3px 7px;border-radius:6px}
-.rgc-time{font:700 13px/1 'Barlow Condensed',sans-serif;color:#A3AFBD;letter-spacing:.4px}
-.rgc-live{font:700 13px/1 'Barlow Condensed',sans-serif;color:#EF4444;letter-spacing:.4px;display:inline-flex;align-items:center;gap:5px}.rgc-live::before{content:"";width:7px;height:7px;border-radius:50%;background:#EF4444;animation:gcb 1.4s infinite}
-.rgc-fin{font:700 13px/1 'Barlow Condensed',sans-serif;color:#A3AFBD;letter-spacing:.6px}
-.rgc-cols{margin-left:auto;display:grid;grid-template-columns:repeat(3,64px);gap:4px;text-align:center}.rgc-cols i{font:700 11px/1 'Barlow Condensed',sans-serif;font-style:normal;letter-spacing:.8px;color:#A3AFBD}
-.rgc-row{display:flex;align-items:center;gap:10px;padding:6px 12px}
+  const CSS = `.rgc{background:#141C26;border:1px solid rgba(255,255,255,.09);border-radius:20px;margin-top:10px;overflow:hidden;font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#F4F7FA}
+.rgc.rgc-islive{border-color:rgba(255,107,107,.4)}
+.rgc-h{display:flex;align-items:center;gap:8px;padding:14px 16px 6px;color:inherit!important;text-decoration:none}
+.rgc-lg,.rgc-time,.rgc-fin,.rgc-live{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#1B2531;font:800 13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;letter-spacing:.6px;color:#A3AFBD}
+.rgc-live{background:rgba(255,107,107,.16);color:#FF6B6B}.rgc-live::before{content:"";width:7px;height:7px;border-radius:50%;background:#FF6B6B;animation:gcb 1.4s infinite}
+.rgc-cols{margin-left:auto;display:grid;grid-template-columns:repeat(3,64px);gap:4px;text-align:center}.rgc-cols i{font:800 12px/1 "Barlow Condensed",sans-serif;font-style:normal;letter-spacing:1px;color:#A3AFBD}
+.rgc-row{display:flex;align-items:center;gap:10px;padding:6px 16px}
 .rgc-row .tmk{flex:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
-.rgc-t{flex:1;min-width:0}.rgc-t b{display:block;font:400 22px/1 'Bebas Neue','Barlow Condensed',sans-serif;letter-spacing:.6px}.rgc-t small{display:block;font-size:12px;color:#A3AFBD;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rgc-sc{font:400 32px/1 'Bebas Neue','Barlow Condensed',sans-serif;font-variant-numeric:tabular-nums;color:#A3AFBD;min-width:40px;text-align:right}.rgc-row.rgc-w .rgc-sc{color:#F4F7FA}
+.rgc-t{flex:1;min-width:0}.rgc-t b{display:block;font:800 26px/1.1 "Barlow Condensed",sans-serif;letter-spacing:.3px}.rgc-t small{display:block;font-size:13px;color:#A3AFBD;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rgc-sc{font:800 30px/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums;color:#A3AFBD;min-width:40px;text-align:right}.rgc-row.rgc-w .rgc-sc{color:#F4F7FA}
 .rgc-cells{display:grid;grid-template-columns:repeat(3,64px);gap:4px;flex:none}
-.rgc .rb-c{width:64px;height:46px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:#1A2530;color:#A3AFBD;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:600 12px/1 -apple-system,sans-serif;padding:0;cursor:pointer}
-.rgc .rb-c b{font:700 15px/1 -apple-system,sans-serif;color:#00BFFF}.rgc .rb-c.rgc-sel{background:#F4F7FA;color:#0B1118}.rgc .rb-c.rgc-sel b{color:#0B1118}.rgc .rb-c.rgc-off{opacity:.45;cursor:default}
-.rgc-dot{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#1A2530;font:800 12px sans-serif}
-.rgc-who{display:flex;align-items:center;margin-top:4px}.rgc-who>*{margin-right:-6px}.rgc-who em{font-style:normal;font:700 12px/1 -apple-system,sans-serif;color:#A3AFBD;margin-left:12px}
-.rgc-tot,.rgc-seal{display:flex;align-items:center;gap:8px;padding:6px 12px 10px;border-top:1px solid rgba(255,255,255,.06);font:700 12px/1 'Barlow Condensed',sans-serif;letter-spacing:.8px;color:#A3AFBD}.rgc-tot .rgc-who,.rgc-seal .rgc-who{margin-top:0;margin-right:8px}
-.rgc-seal span:first-child{background:rgba(242,193,78,.14);color:#F2C14E;padding:4px 9px;border-radius:999px}
+.rgc .rb-c{width:64px;height:48px;border-radius:12px;border:1px solid rgba(255,255,255,.09);background:#1B2531;color:#A3AFBD;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:700 12px/1 -apple-system,sans-serif;padding:0;cursor:pointer}
+.rgc .rb-c b{font:800 17px/1 "Barlow Condensed",sans-serif;color:#3DB8FF}.rgc .rb-c.rgc-sel{background:#3DB8FF;border-color:#3DB8FF;color:#0A0F15}.rgc .rb-c.rgc-sel b{color:#0A0F15}.rgc .rb-c.rgc-off{opacity:.45;cursor:default}
+.rgc-dot{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#1B2531;font:800 12px sans-serif}
+.rgc-who{display:flex;align-items:center;margin-top:4px}.rgc-who>*{margin-right:-6px}.rgc-who em{font-style:normal;font:700 13px/1 -apple-system,sans-serif;color:#A3AFBD;margin-left:12px}
+.rgc-tot,.rgc-seal{display:flex;align-items:center;gap:8px;padding:8px 16px 12px;border-top:1px solid rgba(255,255,255,.06);font:800 13px/1 -apple-system,sans-serif;letter-spacing:.6px;color:#A3AFBD}.rgc-tot .rgc-who,.rgc-seal .rgc-who{margin-top:0;margin-right:8px}
+.rgc-seal span:first-child{background:rgba(242,193,78,.14);color:#F2C14E;padding:4px 10px;border-radius:999px}
+.rgc>*:last-child{padding-bottom:12px}
 @keyframes gcb{50%{opacity:.3}}@media (prefers-reduced-motion:reduce){.rgc-live::before{animation:none}}`;
   if (typeof document !== 'undefined') { const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); }
   window.GameCard = { html, cell, REG, key, homeSpread };
