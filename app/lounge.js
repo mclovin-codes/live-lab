@@ -58,7 +58,7 @@
   const kindOf = l => l.market === 'prop' ? 'prop' : l.market === 'total' ? 'total' : (l.market === 'ml' || l.market === 'spread') ? 'side' : (l.player || /prop|player|points|yards|rebound|assist|goal|shot|td|touchdown|hits|strikeout|anytime/i.test(String(l.market || ''))) ? 'prop' : /total|over|under/i.test(String(l.market || '') + ' ' + String(l.label || '')) ? 'total' : 'side';
   const sideOf = l => { const g = l.g, L = String(l.label || ''); if (!g || kindOf(l) === 'prop' || l.sealed) return null; if (l.side === 'home') return g.home.abbr; if (l.side === 'away') return g.away.abbr; if (l.side === 'over') return 'Over'; if (l.side === 'under') return 'Under'; if (/^over\b/i.test(L)) return 'Over'; if (/^under\b/i.test(L)) return 'Under'; if (L.startsWith(g.home.abbr + ' ')) return g.home.abbr; if (L.startsWith(g.away.abbr + ' ')) return g.away.abbr; return null; };
   const isStarted = g => g && (g.state !== 'pre' || +g.date <= Date.now());
-  const odds = o => o == null || o === '' ? '' : (+o > 0 ? '+' + (+o) : String(o));
+  const odds = o => { const n = Number(o); if (o == null || o === '' || !isFinite(n)) return ''; return n > 0 ? '+' + n : String(n); };
   const STAT = { won: ['Hit', 'up'], lost: ['Missed', 'dn'], push: ['Push', ''], void: ['Void', ''], open: ['Open', ''] };
   const legStat = l => STAT[l.status || l.st || 'open'] || STAT.open;
   function legHTML(l) { const g = l.g; if (l.sealed || !g || !isStarted(g)) return `<div class="lg-leg sealed"><span>Sealed</span><b>${g ? esc(gname(g)) : esc(l.game || '')}</b><small>${g ? 'opens ' + esc(new Date(+g.date).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })) : ''}</small></div>`;
