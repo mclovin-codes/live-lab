@@ -113,7 +113,7 @@
  *   Rush.joiner.NOTE     -> "Your note is shared with the Field." (show it on the join form)
  *   Rush.joiner.clean(f, allowed) -> {note} only: tags, links and "$" dropped, 140 chars. Any other key is discarded.
  *   Rush.joiner.get() / set(f)    -> this phone's saved note, to prefill the join form.
- *   Rush.joiner.card(cid, f, allowed) -> code a joiner sends the commissioner (no backend);
+ *   Rush.joiner.card(cid, f, allowed) -> code a joiner sends the contest (no backend);
  *   Rush.joiner.readCard(code, allowed)     -> {contest, name, fields:{note?}, at} cleaned, or null.
  *
  */
