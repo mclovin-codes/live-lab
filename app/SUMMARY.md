@@ -45,7 +45,7 @@
 
 ## The one social space: the Lounge (Red, rebuilt after the council's 4-0 verdict)
 
-- **One screen for the whole Field,** about 1.7 phone screens in the honest view. It opens at the newest row. There are no rooms and no fixed lines. From the top:
+- **One screen for the whole Field.** The matchup, the faces and the live game card stay pinned, and only the room scrolls, opening at its newest row. There are no rooms per game and no fixed lines. From the top:
   1. **The Field / My circle** switch.
   2. **Your matchup:** "You 1,000, them 817, lead 183". It is one figure from one source (`Rush.matchup()`), the same number Contest and Home show.
   3. **The faces:** every player with rank and Stack, you and your opponent ringed. A rank change re-sorts the row, each face sliding to its new place. Every face opens a profile.
