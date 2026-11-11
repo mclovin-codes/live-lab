@@ -1,112 +1,93 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0B1118">
-<title>Player · Rush</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Player · Rush</title><meta name="theme-color" content="#0A0F15">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&display=swap">
 <link rel="stylesheet" href="shared/rush.css">
 <style>
-/* Player card: hero card (avatar, rank, Stack, record), head-to-head bar against you, then Open picks as sealed teasers that open at game start, then Settled picks in full. */
-:root{--pc-bg:#0B1118;--pc-card:#121A23;--pc-card2:#1A2530;--pc-line:rgba(255,255,255,.07);--pc-fg:#fff;--pc-mut:#9AA8B6;--pc-dim:#66768A;--pc-acc:#00BFFF;--pc-win:#10B981;--pc-loss:#D95151;--pc-warn:#F59E0B;--pc-font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Inter,Roboto,system-ui,sans-serif;color-scheme:dark}
-html,body{margin:0}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}[hidden]{display:none!important}
-body{background:var(--pc-bg);color:var(--pc-fg);font:15px/1.38 var(--pc-font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
-.pc-wrap{max-width:620px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 10px) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
-.pc-back{display:inline-flex;align-items:center;gap:4px;color:var(--pc-acc);text-decoration:none;font:600 15px var(--pc-font);padding:6px 0 10px;background:none;border:0;cursor:pointer}
-.pc-hero{position:relative;border-radius:20px;padding:18px;overflow:hidden;background:linear-gradient(150deg,var(--pc-c1,#163246) 0%,#121A23 70%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);margin-bottom:14px}
-.pc-hero .row1{display:flex;align-items:center;gap:14px}
-.pc-av{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font:800 26px var(--pc-font);color:#fff;flex:none;box-shadow:0 0 0 3px rgba(255,255,255,.12)}
-.pc-hero h1{margin:0;font:800 26px/1.1 var(--pc-font);letter-spacing:-.02em}
-.pc-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
-.pc-tag{font:600 11px var(--pc-font);padding:3px 8px;border-radius:99px;background:rgba(255,255,255,.1);color:var(--pc-mut)}.pc-tag.you{background:var(--pc-acc);color:#002233}.pc-tag.rk{background:rgba(0,191,255,.18);color:var(--pc-acc)}
-.pc-big{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:16px}
-.pc-big b{font:800 40px/1 var(--pc-font);letter-spacing:-.02em}.pc-big b.up{color:var(--pc-win)}.pc-big b.dn{color:var(--pc-loss)}.pc-big span{color:var(--pc-mut);font-size:13px;text-align:right}
-.pc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}
-.pc-grid div{background:rgba(11,17,24,.45);border-radius:12px;padding:9px 8px}.pc-grid b{display:block;font:700 17px var(--pc-font)}.pc-grid i{font-style:normal;font-size:11.5px;color:var(--pc-mut)}
-.pc-mix{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:12px;background:rgba(255,255,255,.08)}.pc-mix i{display:block}
-.pc-mixl{display:flex;gap:12px;margin-top:6px;font-size:12px;color:var(--pc-mut)}.pc-mixl span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;background:var(--c)}
-.pc-sec{background:var(--pc-card);border-radius:16px;padding:14px;margin-bottom:14px}
-.pc-sec h2{margin:0 0 10px;font:700 18px/1.2 var(--pc-font);display:flex;justify-content:space-between;align-items:baseline;gap:8px}.pc-sec h2 span{font:500 13px var(--pc-font);color:var(--pc-mut)}
-.pc-vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}.pc-vs b{display:block;font:800 24px var(--pc-font)}.pc-vs i{font-style:normal;font-size:12px;color:var(--pc-mut)}.pc-vs .r{text-align:right}.pc-vs em{font:600 12px var(--pc-font);font-style:normal;color:var(--pc-acc);text-align:center}
-.pc-vsbar{display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:10px;background:var(--pc-card2)}.pc-vsbar i{display:block;background:var(--pc-acc)}.pc-vsbar u{display:block;background:#7B61FF;text-decoration:none}
-.pc-pk{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;padding:12px;border-radius:12px;background:var(--pc-card2);margin-top:8px;text-decoration:none;color:inherit}
-.pc-pk:first-of-type{margin-top:0}
-.pc-gm{display:flex;align-items:center;gap:7px;min-width:0;font:600 14px var(--pc-font)}.pc-gm img{width:22px;height:22px;object-fit:contain}.pc-gm .at{color:var(--pc-dim);font-weight:500}
-.pc-lg{font:700 10px var(--pc-font);letter-spacing:.06em;padding:2px 6px;border-radius:99px;background:rgba(0,191,255,.14);color:var(--pc-acc)}
-.pc-mk{font-size:13px;color:var(--pc-mut);grid-column:1}
-.pc-sealed{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 8px,rgba(255,255,255,.07) 8px 16px);color:var(--pc-mut);font-size:13px}
-.pc-sealed svg{width:18px;height:18px;flex:none;color:var(--pc-warn)}.pc-sealed b{color:var(--pc-fg);font-weight:600}
-.pc-when{text-align:right;font:600 12.5px var(--pc-font);color:var(--pc-mut);white-space:nowrap}.pc-when.live{color:#FF8A8A}
-.pc-pick{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;gap:8px;font:600 15px var(--pc-font)}.pc-pick span{color:var(--pc-acc)}
-.pc-res{font:700 12px var(--pc-font);letter-spacing:.04em;padding:3px 8px;border-radius:99px}.pc-res.won{background:rgba(16,185,129,.18);color:var(--pc-win)}.pc-res.lost{background:rgba(217,81,81,.16);color:#FF8A8A}.pc-res.push,.pc-res.void,.pc-res.cashed{background:rgba(255,255,255,.08);color:var(--pc-mut)}
-.pc-u{font:700 15px var(--pc-font)}.pc-u.up{color:var(--pc-win)}.pc-u.dn{color:var(--pc-loss)}
-.pc-tail{grid-column:1/-1;display:flex;justify-content:flex-end}.pc-tail span{font:600 13px var(--pc-font);color:var(--pc-acc)}
-.pc-empty{color:var(--pc-mut);font-size:14px}
-.pc-note{color:var(--pc-dim);font-size:12.5px;margin:-4px 2px 16px}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-.pc-ct{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-top:.5px solid rgba(255,255,255,.07);color:inherit;text-decoration:none}.pc-ct:first-of-type{border-top:0}.pc-ct>i{width:10px;height:10px;border-radius:50%}.pc-ct b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pc-ct small{display:block;font-size:12px;color:#9AA8B6}.pc-ct em{font:700 17px/1.1 inherit;font-style:normal;text-align:right}
-.pc-acts{display:flex;gap:8px;margin:12px 0}.pc-acts>*{flex:1;display:grid;place-items:center;min-height:48px;padding:8px;border:0;border-radius:14px;background:#1A2530;color:#fff;font:800 14px/18px -apple-system,BlinkMacSystemFont,sans-serif;text-decoration:none;text-align:center;cursor:pointer}.pc-acts>:first-child{background:#3CC8FF;color:#06121C}.pc-acts .sent{background:#1E3A2A;color:#3DDC84}
-.pc-rd{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid rgba(255,255,255,.08)}.pc-rd>div:first-child{flex:1;min-width:0}.pc-rd b{display:block;font-weight:800}.pc-rd small{display:block;color:#93A3B5;font-size:13px}.pc-rdb{display:grid;grid-template-columns:repeat(2,62px);gap:6px}.pc-rdb button{min-width:62px;min-height:44px;border-radius:12px;border:2px solid #2A3A4A;background:#0A0F15;color:#fff;font:800 14px -apple-system,BlinkMacSystemFont,sans-serif;cursor:pointer}.pc-rdb button.on{background:#3CC8FF;border-color:#3CC8FF;color:#06121C}
-</style>
-</head>
-<body data-tab="ranks">
-<div class="pc-wrap">
- <button class="pc-back" id="pc-back">&lsaquo; Back</button><script>if(!new URLSearchParams(location.search).get("u")||new URLSearchParams(location.search).get("u")==="me")document.getElementById("pc-back").style.display="none"</script>
- <div id="pc-main"><div class="pc-sec"><div class="pc-empty">Loading the player.</div></div></div>
-</div>
-<script src="shared/state.js"></script>
-<script src="week-games.js"></script>
-<script src="shared/nav.js"></script>
+/* Profile (owner: Gold): yours (Me, with your Slips) and every other player's. Same face, same Stack figure as everywhere else. */
+:root{--bg:#0A0F15;--card:#141C26;--card2:#1B2531;--line:rgba(255,255,255,.09);--tx:#F4F7FA;--mute:#A3AFBD;--acc:#3DB8FF;--gold:#F2C14E;--grn:#3DD68C;--red:#FF6B6B;--vio:#9B8CFF}
+body{background:var(--bg);color:var(--tx)}
+.p-wrap{max-width:560px;margin:0 auto;padding:0 16px 8px;font:400 16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
+.p-wrap a{color:inherit;text-decoration:none}
+.p-back{display:inline-block;margin-top:12px;color:var(--acc)!important;font-weight:700}
+.p-hero{text-align:center;padding:24px 16px 20px;border-radius:24px;margin-top:12px;border:1px solid var(--line)}
+.p-hero h1{margin:12px 0 2px;font:800 32px/1.1 "Barlow Condensed",sans-serif}
+.p-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.p-stats>div{background:rgba(10,15,21,.55);border-radius:14px;padding:12px 6px}
+.p-stats small{display:block;color:var(--mute);font-size:11px;font-weight:800;letter-spacing:1px;margin-top:4px}
+.p-num{font:800 24px/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
+.up{color:var(--grn)}.dn{color:var(--red)}
+.p-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-top:14px}
+.p-lbl{font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--mute);margin:22px 4px 0;display:flex;justify-content:space-between;align-items:center}
+.p-lbl a{color:var(--acc)!important;letter-spacing:.3px;text-transform:none;font-size:14px;font-weight:700}
+.p-btn{display:flex;align-items:center;justify-content:center;min-height:48px;padding:0 16px;border-radius:14px;border:0;background:var(--acc);color:#04121C!important;font:800 16px/1 -apple-system,sans-serif;flex:1;cursor:pointer}
+.p-btn.ghost{background:var(--card2);color:var(--tx)!important;border:1px solid var(--line)}
+.tug{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--card2)}.tug .a{background:var(--acc)}.tug .b{background:var(--vio)}
+.seg{display:flex;gap:6px;background:var(--card);padding:4px;border-radius:14px;margin-top:12px}.seg button{flex:1;min-height:42px;border:0;border-radius:10px;background:none;color:var(--mute);font:800 15px/1 -apple-system,sans-serif;cursor:pointer}.seg button.on{background:var(--card2);color:var(--tx)}
+.slip{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:var(--card2);margin-top:8px}
+.slip .l{flex:1;min-width:0}.slip .l b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.slip .l small{color:var(--mute);font-size:13px}
+.slip .r{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}.slip .r small{display:block;color:var(--mute);font-weight:600;font-size:12px}
+.seal{background:repeating-linear-gradient(135deg,#1B2531 0 10px,#18212C 10px 20px)}
+.tag{display:inline-block;padding:3px 8px;border-radius:8px;font-size:12px;font-weight:800;letter-spacing:.4px}
+.tag.with{background:rgba(61,214,140,.16);color:var(--grn)}.tag.vs{background:rgba(255,107,107,.15);color:var(--red)}.tag.live{background:rgba(255,107,107,.16);color:var(--red)}
+.wks{display:flex;gap:6px;flex-wrap:wrap}.wks span{min-width:36px;height:36px;padding:0 8px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:13px;background:var(--card2);color:var(--mute)}.wks .w{background:rgba(61,214,140,.18);color:var(--grn)}.wks .l{background:rgba(255,107,107,.14);color:var(--red)}
+.empty{color:var(--mute);text-align:center;padding:16px 8px;font-size:15px}
+.lnk{background:none;border:0;color:var(--mute);font:700 14px -apple-system,sans-serif;cursor:pointer;padding:6px}
+</style></head>
+<body data-tab="me">
+<div id="app" class="p-wrap"></div>
+<script src="shared/state.js"></script><script src="week-games.js"></script><script src="honest.js"></script><script src="shared/nav.js"></script><script src="gold-ui.js"></script>
 <script>
-'use strict';
-const $=id=>document.getElementById(id);
-const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const U=n=>Math.round(1000+(+n||0)*10).toLocaleString('en-US');
-const fo=o=>o==null?'':(o>0?'+':'')+o;
-const uid=new URLSearchParams(location.search).get('u')||'me';
-const R=window.Rush&&typeof Rush.field==='function'?Rush:null;
-let games=RW.cached()||[];
-const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
-const START={nfl:'kickoff',nba:'tip-off',nhl:'puck drop'};
-const hue=id=>Math.floor(RW.hash(id+'c')*360);
-const left=ms=>{const s=Math.max(0,Math.round((ms-Date.now())/1000)),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return d?`${d}d ${h}h`:h?`${h}h ${m}m`:`${m}m`};
-const when=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'numeric',minute:'2-digit'}).format(new Date(ms))+' ET';
-$('pc-back').onclick=()=>{if(history.length>1)history.back();else location.href='ranks.html'};
-
-function fieldRows(){let rows;if(R){rows=R.field().map(r=>({...r}));}else rows=RW.field(games);if(!rows.some(r=>r.me)){const m=R?R.me():{handle:'You',units:0};rows.push({id:'me',name:m.handle||'You',me:true,units:0,out:true})}rows.sort((a,b)=>b.units-a.units);rows.forEach(r=>r.rank=1+rows.filter(x=>x.units>r.units+1e-9).length);return rows}
-function gameLine(g,fallback){if(!g)return`<span class="pc-gm">${esc(fallback||'')}</span>`;return`<span class="pc-gm"><span class="pc-lg">${RW.LEAGUES[g.league].name}</span><img src="${esc(g.away.logo)}" alt="" width="22" height="22" loading="lazy">${esc(g.away.abbr)}<span class="at">at</span><img src="${esc(g.home.logo)}" alt="" width="22" height="22" loading="lazy">${esc(g.home.abbr)}</span>`}
-function openCard(p,mine){const g=p.g,started=g&&g.state!=='pre',href=g?`game.html?league=${g.league}&id=${encodeURIComponent(g.id)}`:'board.html';
- const w=!g?'':g.state==='in'?`<span class="pc-when live">${esc(g.detail)}</span>`:g.state==='post'?`<span class="pc-when">Final, grading</span>`:`<span class="pc-when">${esc(when(g.date))}</span>`;
- if(!mine&&!started)return`<a class="pc-pk" href="${href}">${gameLine(g,p.game)}${w}<span class="pc-mk">${esc(p.market)}</span><span class="pc-when">in ${left(g?g.date:Date.now())}</span><div class="pc-sealed">${LOCK}<span><b>Pick sealed.</b> Side and line show at ${START[p.league]||'game start'}.</span></div><div class="pc-tail"><span>Make your own pick &rsaquo;</span></div></a>`;
- return`<a class="pc-pk" href="${href}">${gameLine(g,p.game)}${w}<span class="pc-mk">${esc(p.market)}${!mine&&started?' &middot; revealed at '+(START[p.league]||'start'):''}</span><span></span><div class="pc-pick"><b>${esc(p.label)}</b><span>${fo(p.odds)}</span></div><div class="pc-tail"><span>${started?'Tail it live on the game':'Open the game'} &rsaquo;</span></div></a>`}
-function doneCard(p){const g=p.g,res={won:'HIT',lost:'MISS',push:'PUSH',void:'NO ACTION',cashed:'CLOSED'}[p.status]||p.status.toUpperCase();
- return`<div class="pc-pk">${gameLine(g,p.game)}<span class="pc-res ${p.status}">${res}</span><div class="pc-pick"><b>${esc(p.label)} <span>${fo(p.odds)}</span></b>${p.units!=null?`<b class="pc-u ${p.units>0?'up':p.units<0?'dn':''}">${U(p.units)} U</b>`:''}</div><span class="pc-mk">${esc(p.market)}${g&&g.home.score!=null?` &middot; final ${g.away.abbr} ${g.away.score}, ${g.home.abbr} ${g.home.score}`:''}</span></div>`}
-const chal=()=>{try{return JSON.parse(localStorage.getItem('rush-chal-v1'))||[]}catch(e){return[]}};
-document.addEventListener('click',e=>{const rb=e.target.closest('[data-rk]');if(rb){let R={};try{R=JSON.parse(localStorage.getItem('rush-reads-v1'))||{}}catch(x){}if(R[rb.dataset.rk]===rb.dataset.rv)delete R[rb.dataset.rk];else R[rb.dataset.rk]=rb.dataset.rv;try{localStorage.setItem('rush-reads-v1',JSON.stringify(R))}catch(x){}render();return}const b=e.target.closest('[data-act]');if(!b)return;if(b.dataset.act==='stack'&&Rush.nav)Rush.nav.openStack();if(b.dataset.act==='ch'){const c=chal();if(!c.includes(b.dataset.id)){c.push(b.dataset.id);try{localStorage.setItem('rush-chal-v1',JSON.stringify(c))}catch(x){}}render()}});
-function render(){const rows=fieldRows(),row=rows.find(r=>String(r.id)===uid)||(uid==='me'?rows.find(r=>r.me):null);
- if(!row){$('pc-main').innerHTML='<div class="pc-sec"><div class="pc-empty">This player is not in this week\'s Field.</div></div>';return}
- const mine=!!row.me,picks=RW.playerPicks(mine?'me':row.id,games)||[];
- const open=picks.filter(p=>p.status==='open').sort((a,b)=>(a.g?a.g.date:a.at)-(b.g?b.g.date:b.at));
- const done=picks.filter(p=>p.status!=='open').sort((a,b)=>(b.g?b.g.date:b.at)-(a.g?a.g.date:a.at));
- const w=done.filter(p=>p.status==='won').length,l=done.filter(p=>p.status==='lost').length;
- const best=done.filter(p=>p.status==='won').sort((a,b)=>b.units-a.units)[0];
- const mix={nfl:0,nba:0,nhl:0};picks.forEach(p=>{if(mix[p.league]!=null)mix[p.league]++});const tot=Math.max(1,mix.nfl+mix.nba+mix.nhl);
- const C={nfl:'#00BFFF',nba:'#F59E0B',nhl:'#7B61FF'};
- const name=row.name||'Player';document.title=`${name} · Rush`;
- let h=`<div class="pc-hero" style="--pc-c1:hsl(${mine?205:hue(row.id)} 45% 22%)"><div class="row1"><span class="pc-av" style="background:${mine?'linear-gradient(135deg,#00C0FF,#0080FF)':`hsl(${hue(row.id)} 50% 36%)`}">${esc(Rush.nav&&Rush.nav.ini?Rush.nav.ini(name):name.split(' ').map(x=>x[0]).join('').slice(0,2))}</span><div><h1>${esc(name)}</h1><div class="pc-tags">${mine?'<span class="pc-tag you">YOU</span>':'<span class="pc-tag">SIM</span>'}${row.out?'<span class="pc-tag">Not entered</span>':`<span class="pc-tag rk">#${row.rank} of ${rows.length}</span>`}${row.rank<=3&&!row.out?'<span class="pc-tag rk">Prize spot</span>':''}</div></div></div>
-  <div class="pc-big"><b class="${row.units>0?'up':row.units<0?'dn':''}">${U(row.units)}</b><span>Stack this week<br>Week ${RW.week().n}</span></div>
-  <div class="pc-grid"><div><b>${w}-${l}</b><i>Record</i></div><div><b>${w+l?Math.round(100*w/(w+l))+'%':'-'}</b><i>Hit rate</i></div><div><b>${open.length}</b><i>Open</i></div><div><b>${best?'+'+Math.round(best.units*10).toLocaleString('en-US'):'-'}</b><i>Best hit</i></div></div>
-  ${picks.length?`<div class="pc-mix">${['nfl','nba','nhl'].map(k=>`<i style="width:${100*mix[k]/tot}%;background:${C[k]}"></i>`).join('')}</div><div class="pc-mixl">${['nfl','nba','nhl'].filter(k=>mix[k]).map(k=>`<span style="--c:${C[k]}">${RW.LEAGUES[k].name} ${Math.round(100*mix[k]/tot)}%</span>`).join('')}</div>`:''}</div>`;
- h+=mine?`<div class="pc-acts"><button type="button" data-act="stack">Your Stack</button><a href="slips.html">Your Slips</a><a href="lounge.html">Lounge</a></div>`:`<div class="pc-acts"><button type="button" data-act="ch" data-id="${esc(row.id)}" class="${chal().includes(String(row.id))?'sent':''}">${chal().includes(String(row.id))?'Challenge sent':'Challenge to a matchup'}</button>${(()=>{let rv=null;try{rv=Rush.rival()}catch(e){}const isR=rv&&(String(rv.id)===String(row.id)||rv.name===name);return '<a href="lounge.html">Lounge</a>'})()}</div>`;
- if(mine&&window.Rush&&Rush.season){let se=null;try{se=Rush.season()}catch(e){}if(se){const me=(se.table||[]).find(r=>r.me),played=se.w+se.l,wk=Rush.week();h+=`<div class="pc-sec"><h2>Season 1 <span>${me?'#'+me.rank+' of '+se.table.length:''}</span></h2><div class="pc-grid" style="grid-template-columns:repeat(3,1fr)"><div><b>${se.w}</b><i>Winning weeks</i></div><div><b>${se.l}</b><i>Other weeks</i></div><div><b>${Math.max(0,3-played)}</b><i>To qualify</i></div></div><div class="pc-empty" style="margin-top:10px">A week is a win when you finish at or above 1,000 or beat your matchup. Most winning weeks at the Super Bowl takes the season.</div></div>`}}
- if(!mine){const me=rows.find(r=>r.me),d=(me?me.units:0)-row.units,a=Math.max(.01,Math.abs(me?me.units:0)),b=Math.max(.01,Math.abs(row.units));h+=`<div class="pc-sec"><h2>You and ${esc(name.split(' ')[0])} <span>This week</span></h2><div class="pc-vs"><div><b>${U(me?me.units:0)}</b><i>You${me&&!me.out?` &middot; #${me.rank}`:''}</i></div><em>${d>0?'You lead':d<0?'They lead':'Level'}${d?' by '+Math.round(Math.abs(d)*10).toLocaleString('en-US'):''}</em><div class="r"><b>${U(row.units)}</b><i>#${row.rank}</i></div></div><div class="pc-vsbar"><i style="width:${100*a/(a+b)}%"></i><u style="width:${100*b/(a+b)}%"></u></div></div>`}
- h+=`<div class="pc-sec"><h2>Open picks <span>${open.length?open.length+' open':''}</span></h2>${open.length?open.map(p=>openCard(p,mine)).join(''):`<div class="pc-empty">${mine?'No open picks. Find a game on the Board.':'Nothing open right now.'}</div>`}</div>`;
- if(!mine&&open.some(p=>p.g&&p.g.state==='pre'))h+=`<div class="pc-note">Other players' picks stay sealed until that game starts, so nobody can copy a line before it moves.</div>`;
- h+=`<div class="pc-sec"><h2>Settled <span>${w}-${l}</span></h2>${done.length?done.slice(0,40).map(doneCard).join(''):'<div class="pc-empty">No settled picks yet this week.</div>'}</div>`;
- const m=$('pc-main');if(m._h!==h){m.innerHTML=h;m._h=h}}
-async function refresh(){try{games=await RW.load()}catch(e){}render()}
-render();refresh();setInterval(refresh,30000);setInterval(render,15000);
-if(R&&R.on)R.on(()=>render());
-</script>
-</body>
-</html>
+const E=GU.esc,F=GU.fmt,Q=new URLSearchParams(location.search),UID=Q.get('u')&&Q.get('u')!=='me'?Q.get('u'):null;
+let tab=location.hash==='#settled'?'done':'open';
+const BK='rush-block';
+const blocked=()=>{try{return JSON.parse(localStorage.getItem(BK)||'[]')}catch(e){return[]}};
+function myLine(p){const g=p.g,live=g&&g.state==='in',st=p.status;
+  const r=st==='open'?`<span>${F(p.stake)}</span><small>returns ${F(p.stake+(p.win||0))}</small>`:st==='won'?`<span class="up">+${F((p.pay||0)-p.stake)}</span><small>hit</small>`:st==='lost'?`<span class="dn">-${F(p.stake)}</span><small>missed</small>`:`<span>${F(p.pay||p.stake)}</span><small>${E(st)}</small>`;
+  const sub=g?`${E(g.away.abbr)} at ${E(g.home.abbr)} · ${live?`<span class="tag live">${E(g.away.score||0)}-${E(g.home.score||0)} ${E(g.detail||'LIVE')}</span>`:g.done?'final':GU.started(g)?'kicked off':'kicks off in '+GU.until(g.date)}`:E(String(p.league||'').toUpperCase());
+  return `<a class="slip" href="${g?'game.html?id='+encodeURIComponent(g.id)+'&league='+encodeURIComponent(g.league||''):'board.html'}"><div class="l"><b>${E(p.label||p.sel||'Pick')}</b><small>${sub}</small></div><div class="r">${r}</div></a>`;}
+function render(){
+  const f=GU.field(),m=GU.meRow(),who=UID?GU.player(UID):m,isMe=!UID||(who&&who.me);
+  let h='';
+  if(!who){document.getElementById('app').innerHTML=`<a class="p-back" href="javascript:history.back()">‹ Back</a><div class="p-card empty">This player is not in the Field in this view.</div>`;return}
+  const wk=Rush.week(),d=who.stack-1000,hu=GU.hue(who.name);
+  let rec={w:0,l:0};try{const t=Rush.season().table.find(r=>isMe?r.me:r.name===who.name);if(t)rec={w:t.w,l:t.l}}catch(e){}
+  if(!isMe)h+=`<a class="p-back" href="javascript:history.back()">‹ Back</a>`;
+  h+=`<section class="p-hero" style="background:linear-gradient(180deg,hsl(${hu} 45% 22%) 0%,var(--card) 78%)">${GU.av(who,96,1)}<h1>${E(who.name)}</h1><div style="color:var(--mute)">${isMe?'You':'In the Field'} · Week ${wk.n}</div>
+   <div class="p-stats"><div><div class="p-num">${F(who.stack)}</div><small>STACK</small></div><div><div class="p-num">#${who.rank||'-'}<span style="color:var(--mute);font-size:16px"> of ${f.length}</span></div><small>RANK</small></div><div><div class="p-num">${rec.w}-${rec.l}</div><small>SEASON</small></div></div>
+   <div style="margin-top:12px;font-weight:800" class="${d>=0?'up':'dn'}">${d>=0?'+':''}${F(d)} this week</div></section>`;
+  if(!isMe){
+    const gap=m.stack-who.stack,A=Math.max(1,m.stack),B=Math.max(1,who.stack),op=GU.opponent(),isOpp=op&&op.id===who.id;
+    h+=`<div class="p-lbl">${isOpp?'Your matchup':'You vs '+E(who.name)}</div><section class="p-card"><div style="display:flex;align-items:center;gap:10px">${GU.av(m,40,1)}<div style="flex:1"><div class="tug"><i class="a" style="flex:${A}"></i><i class="b" style="flex:${B}"></i></div><div style="display:flex;justify-content:space-between;margin-top:6px"><span class="p-num" style="font-size:18px">${F(m.stack)}</span><span class="p-num" style="font-size:18px">${F(who.stack)}</span></div></div>${GU.av(who,40,1)}</div><div style="text-align:center;margin-top:8px;font-weight:800" class="${gap>=0?'up':'dn'}">${gap===0?'Dead even':gap>0?'You are '+F(gap)+' ahead':'You are '+F(-gap)+' behind'}</div></section>`;
+    // Their week: sealed picks show only the game until kickoff; then the side, and whether they are with you or against you.
+    const ps=GU.picksOf(who.id).sort((a,b)=>a.g.date-b.g.date),sealed=ps.filter(x=>!GU.started(x.g)),open=ps.filter(x=>GU.started(x.g)&&x.status==='open'),done=ps.filter(x=>x.status!=='open');
+    const mineBy={};GU.mine().forEach(p=>{if(p.g)mineBy[p.gameId]=GU.mySide(p)});
+    const rel=x=>{const ms=mineBy[x.gameId];if(!ms)return'';const s=GU.sideOf(x);return s===ms?'<span class="tag with">WITH YOU</span>':({away:'home',home:'away',over:'under',under:'over'})[ms]===s?'<span class="tag vs">AGAINST YOU</span>':''};
+    h+=`<div class="p-lbl">Their week</div>`;
+    h+=open.map(x=>`<a class="slip" href="game.html?id=${encodeURIComponent(x.g.id)}&league=${encodeURIComponent(x.g.league||'')}"><div class="l"><b>${E(x.label)}</b><small>${E(x.g.away.abbr)} at ${E(x.g.home.abbr)} · ${x.g.state==='in'?E(x.g.detail||'live'):'kicked off'}</small></div><div class="r">${rel(x)||`<span>${F(x.stake)}</span><small>staked</small>`}</div></a>`).join('');
+    h+=sealed.slice(0,5).map(x=>`<div class="slip seal"><div class="l"><b>${E(x.g.away.abbr)} at ${E(x.g.home.abbr)}</b><small>Sealed until kickoff, in ${GU.until(x.g.date)}</small></div><div class="r"><span class="tag" style="background:rgba(242,193,78,.14);color:var(--gold)">SEALED</span></div></div>`).join('');
+    h+=done.slice(0,5).map(x=>`<div class="slip"><div class="l"><b>${E(x.label)}</b><small>${E(x.g.away.abbr)} at ${E(x.g.home.abbr)} · final</small></div><div class="r">${x.status==='won'?'<span class="up">HIT</span>':x.status==='lost'?'<span class="dn">MISS</span>':E(x.status)}</div></div>`).join('');
+    if(!ps.length)h+=`<div class="p-card empty">No picks yet this week.</div>`;
+    const bl=blocked().includes(who.id);
+    h+=`<div style="display:flex;gap:10px;margin-top:16px"><a class="p-btn" href="lounge.html">Talk in the Lounge</a>${isOpp?'':`<a class="p-btn ghost" href="ranks.html">The contest</a>`}</div>
+     <div style="display:flex;gap:18px;justify-content:center;margin-top:10px"><button class="lnk" id="blk">${bl?'Unblock':'Block'}</button><button class="lnk" id="rpt">Report</button></div>`;
+  }else{
+    // Your Slips live here and in the Stack sheet: open first, then settled.
+    const all=GU.mine(),open=all.filter(p=>p.status==='open'),done=all.filter(p=>p.status!=='open');
+    h+=`<div class="p-lbl" id="slips">Your Slips <a href="board.html">Board</a></div><div class="seg"><button data-t="open" class="${tab==='open'?'on':''}">Open · ${open.length}</button><button data-t="done" class="${tab==='done'?'on':''}">Settled · ${done.length}</button></div>`;
+    h+=(tab==='open'?open:done).map(myLine).join('')||`<div class="empty">${tab==='open'?'No open Slips. Make a pick on the Board.':'Nothing settled yet this week.'}</div>`;
+    const op=GU.opponent();
+    if(op)h+=`<div class="p-lbl">Your matchup</div><a class="p-card" style="display:flex;align-items:center;gap:12px" href="${GU.prof(op)}">${GU.av(op,44,1)}<div style="flex:1;font-weight:700">${E(op.name)}<div style="color:var(--mute);font-weight:500;font-size:14px">${F(op.stack)} Stack · #${op.rank}</div></div><span style="color:var(--acc);font-weight:800">Profile ›</span></a>`;
+    let weeks=[];try{weeks=Rush.season().weeks||[]}catch(e){}
+    h+=`<div class="p-lbl">Season 1</div><section class="p-card"><div class="wks">${weeks.length?weeks.map(w=>`<span class="${w.result==='W'?'w':w.result==='L'?'l':''}">${w.n}</span>`).join(''):'<span>Week 9 settles first</span>'}</div><div style="color:var(--mute);font-size:14px;margin-top:10px">A green week or a matchup win is a win. Most wins at the Super Bowl takes the season, 3 weeks played to qualify.</div></section>`;
+  }
+  document.getElementById('app').innerHTML=h;
+  document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
+  const bk=document.getElementById('blk');if(bk)bk.onclick=()=>{let b=blocked();b=b.includes(who.id)?b.filter(x=>x!==who.id):b.concat(who.id);try{localStorage.setItem(BK,JSON.stringify(b))}catch(e){}render()};
+  const rp=document.getElementById('rpt');if(rp)rp.onclick=()=>{rp.textContent='Reported';rp.disabled=true};
+}
+render();
+if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
+if(window.Rush&&Rush.on)try{Rush.on(render)}catch(e){}
+setInterval(render,30000);
+</script></body></html>
