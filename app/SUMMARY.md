@@ -47,7 +47,7 @@
 
 - **One page for the whole Field.** There are no rooms; tonight's games are chips that refocus it. From the top:
   - the Field as faces, ranked by Stack, with you and your opponent ringed;
-  - **the game that is on**: the score and the clock. Before kickoff, the faces of who picked it and a countdown. After kickoff, "With you" and "Against you" by face, and score changes as big plays;
+  - **the game that is on**: the score and the clock. Before kickoff, the faces of who picked it and a countdown. After kickoff, "With you" and "Against you" by face. Big plays are real scoring plays from the event source, with the faces of the players riding them;
   - **Seal broken**: when a kickoff passes with the page open, a panel flips every pick on that game face up. Nothing is scored;
   - **Next seal breaks** and its countdown;
   - **Sent to you**: taps other players sent you, each answered in one tap;
