@@ -40,6 +40,12 @@ Home opens on the weekly contest, in this order:
 - **Me:** your Slips, Open and Settled, each with its game, its live score or kickoff countdown, the stake and the return.
 - **slips.html:** the full page of placed picks, linked from Me ("All Slips"). Its Parlay tab opens the one shared Slip (Rush.slip), so there is one way to build a parlay.
 - There is no Slips tab.
+- **One Slip card everywhere (slip-card.js):** Me, slips.html, other players' profiles and the Lounge all draw a Slip the same way, like a real slip.
+  - A straight or a prop is one line with market, line and price.
+  - A parlay (two to five legs, across games or inside one game) is ONE card listing every leg with its state: sealed, open, live with the score, hit or missed.
+  - Underneath: Stake, the combined price, and what it pays (or paid).
+  - On another player's Slip, each leg shows only its game until its own kickoff, and the stake, price and payout stay sealed until every leg has started.
+  - Home counts a Slip once per game, so a five-leg parlay is one Slip with one stake.
 
 ## The visual pass
 - **One palette and type scale on Home, profiles and Slips:**
