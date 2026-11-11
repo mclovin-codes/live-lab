@@ -30,7 +30,7 @@
   GS.card = (id, name) => `<a class="g-plink" href="player.html?u=${encodeURIComponent(id)}">${escH(name)}</a>`;
   GS.idOf = name => { const r = R.field().find(x => x.name === name); return r ? r.id : null; };
   // Commissioner mode: Red's pages and Blue's store. Page names live here so one edit retargets every door.
-  GS.CPAGE = { create: 'contests.html?new=1', list: 'contests.html', one: id => 'contest.html?c=' + encodeURIComponent(id), invite: i => 'contest.html?i=' + encodeURIComponent(i) };
+  GS.CPAGE = { create: 'ranks.html', list: 'ranks.html', one: () => 'ranks.html', invite: () => 'ranks.html' };
   // Red's contest kit (app/contest-kit.js, window.RC) first; Blue's Rush.contests if the kit is not on the page.
   const C = () => window.RC || R.contests || null;
   const arr = v => Array.isArray(v) ? v : [];

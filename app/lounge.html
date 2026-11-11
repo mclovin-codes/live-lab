@@ -6,73 +6,142 @@
 <title>Rush · Lounge</title>
 <link rel="stylesheet" href="shared/rush.css">
 <style>
-/* Lounge: the Field talking across the week. A week thread and one thread per game. */
-:root{--bg:#0B1118;--card:#121A23;--card2:#1A2530;--line:#22303D;--fg:#fff;--mute:#8C9BAD;--acc:#00BFFF;--grad:linear-gradient(135deg,#00C0FF,#0080FF);--win:#10B981;--loss:#D95151;--f:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif}
+/* Reads (Blue, Phase 4 round two): the Field's social space. Every pick is sealed until kickoff. Before kickoff you
+   read another player's sealed pick with one tap (call the side they took). At kickoff the pick flips for everyone and
+   every read on it scores right or wrong; at the final the pick itself grades. Your own sealed picks are read by the Field.
+   ?field=7 is the honest view: exactly 7 players, nothing generated (no crowd reads, no counts). */
+:root{--bg:#0A0F15;--card:#111A24;--card2:#18242F;--line:#23313F;--fg:#F4F7FA;--mute:#93A3B5;--acc:#3CC8FF;--gold:#FFB020;--win:#3DDC84;--loss:#FF6B6B;--f:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.4 var(--f);-webkit-font-smoothing:antialiased}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 var(--f);-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
-.g-wrap{padding:calc(14px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 170px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px;max-width:640px;margin:0 auto}
-.g-top{display:flex;align-items:center;gap:10px}.g-top h1{font:800 26px/1 var(--f);letter-spacing:-.03em;margin:0}.g-top small{margin-left:auto;color:var(--mute);font-size:13px}.g-top [data-rush-pill]{margin-left:auto;min-width:0;max-width:70%}
-.threads{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.threads::-webkit-scrollbar{display:none}
-.th{flex:none;display:flex;align-items:center;gap:6px;background:var(--card);border-radius:999px;padding:9px 13px;font:600 14px var(--f);color:var(--mute);min-height:40px;white-space:nowrap}
-.th.on{background:var(--card2);color:var(--fg);box-shadow:inset 0 0 0 1.5px var(--acc)}
-.th img{width:18px;height:18px}.th i{width:7px;height:7px;border-radius:50%;background:var(--loss);display:inline-block}
-.g-card{background:var(--card);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:2px}
-.g-h{display:flex;align-items:center;gap:8px;font:700 17px var(--f);margin-bottom:6px}.g-h a{margin-left:auto;font:600 13px var(--f);color:var(--acc);text-decoration:none;padding:8px 0}
-.msg{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.msg:last-child{border-bottom:0}
-.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--f);color:#fff;flex:none}
-.msg .t{min-width:0;flex:1}.msg .t b{font-weight:600}.msg .t small{color:var(--mute);font-size:12px;margin-left:6px}
-.msg .t p{margin:2px 0 0}
-.pill{display:inline-block;padding:1px 6px;border-radius:6px;font:700 10px var(--f);background:var(--card2);color:var(--mute);margin-left:4px}.pill.you{background:var(--acc);color:#00131C}
-.compose{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:rgba(11,17,24,.94);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);z-index:9}
-.compose input{flex:1;min-width:0;background:var(--card2);border:0;border-radius:12px;padding:13px;color:var(--fg);font:15px var(--f)}
-.compose button{background:var(--grad);color:#fff;border-radius:12px;padding:0 18px;font-weight:700;min-height:46px}
-.g-note{font-size:12.5px;color:var(--mute)}
-.g-plink{color:inherit;text-decoration:none;font-weight:600}
-#g-nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(5,1fr);background:rgba(18,26,35,.9);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:.5px solid #2C3B4A;padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
-#g-nav a{padding:9px 0 8px;text-align:center;font:600 11px var(--f);color:#5E6E80;text-decoration:none;min-height:44px}
-#g-nav a.on{color:var(--acc)}#g-nav svg{display:block;width:24px;height:24px;margin:0 auto 2px}
+a{color:inherit}
+.rd-wrap{padding:14px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px;max-width:640px;margin:0 auto}
+h1{font:800 30px/1 var(--f);letter-spacing:-.03em;margin:0}
+.rd-sub{margin:6px 0 0;color:var(--mute);font:600 15px/20px var(--f)}
+.rd-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rd-tile{background:var(--card);border-radius:16px;padding:12px}.rd-tile b{display:block;font:800 26px/30px var(--f);font-variant-numeric:tabular-nums}.rd-tile span{display:block;color:var(--mute);font:700 12px/15px var(--f)}
+.rd-lbl{display:flex;justify-content:space-between;align-items:baseline;font:800 12px/16px var(--f);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:6px 0 -4px}.rd-lbl small{letter-spacing:0;text-transform:none;font-weight:700}
+.rd-card{background:var(--card);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:12px;border:1px solid transparent}
+.rd-card.rd-mu{border-color:rgba(60,200,255,.45);background:linear-gradient(160deg,#0F2232,#111A24 60%)}
+.rd-who{display:flex;align-items:center;gap:10px;min-width:0}.rd-who a{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none;flex:1}
+.rd-who b{display:block;font:800 17px/21px var(--f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rd-who small{display:block;color:var(--mute);font:600 13px/16px var(--f)}
+.rd-clock{flex:none;text-align:right;font:800 15px/18px var(--f);font-variant-numeric:tabular-nums}.rd-clock small{display:block;color:var(--mute);font:700 11px/14px var(--f);letter-spacing:.08em}
+.rd-game{display:flex;align-items:center;gap:10px}.rd-stake{flex:none;text-align:right;font:800 14px/18px var(--f);color:var(--gold);max-width:72px}
+.rd-tl{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:0 max(16px,env(safe-area-inset-left,0px))}.rd-tl::-webkit-scrollbar{display:none}.rd-tl button{text-align:left;color:var(--fg);flex:none;min-width:96px;background:var(--card);border-radius:14px;padding:10px 12px;border:1px solid var(--line)}.rd-tl b{display:block;font:800 17px/20px var(--f)}.rd-tl span{display:block;color:var(--mute);font:700 12px/16px var(--f)}.rd-tl button.rd-nx{border-color:var(--gold)}.rd-tl button.rd-sel{background:rgba(255,176,32,.14)}
+.rd-quick{display:flex;flex-wrap:wrap;gap:8px}.rd-quick button{min-height:38px;padding:6px 12px;border-radius:19px;background:var(--card2);font:800 14px/18px var(--f)}.rd-quick button:last-child{background:transparent;border:1px solid var(--line);color:var(--mute)}
+.rd-line{display:flex;align-items:center;gap:8px;font:600 15px/20px var(--f)}.rd-line b{font-weight:800}
+.rd-type{display:flex;gap:8px}.rd-type input{flex:1;min-width:0;background:var(--card2);border:0;border-radius:12px;padding:12px;color:var(--fg);font:16px var(--f)}.rd-type button{border-radius:12px;padding:0 14px;background:var(--acc);color:#06121C;font-weight:800}
+.rd-faces{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:2px max(16px,env(safe-area-inset-left,0px))}.rd-faces::-webkit-scrollbar{display:none}
+.rd-faces button{flex:none;width:72px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:14px;border:1px solid transparent}.rd-faces button.rd-on{background:var(--card);border-color:var(--acc)}.rd-faces b{font:800 13px/16px var(--f);max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rd-faces small{color:var(--mute);font:700 11px/14px var(--f)}
+.rd-ring{display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p)*1%),#22303D 0)}.rd-faces .rd-mu .rd-ring{background:conic-gradient(var(--acc) calc(var(--p)*1%),#22303D 0)}
+.rd-steps{display:flex;align-items:center;gap:6px}.rd-steps span{display:flex;align-items:center;gap:6px;font:800 13px/16px var(--f);white-space:nowrap}.rd-steps b{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--gold);color:#1A1200;font:900 13px/1 var(--f)}.rd-steps i{flex:1;height:2px;min-width:8px;background:var(--line)}
+@keyframes rdflip{0%{transform:perspective(600px) rotateX(90deg);opacity:.2}60%{transform:perspective(600px) rotateX(-12deg)}100%{transform:none;opacity:1}}.rd-flip{animation:rdflip .9s ease-out;border-color:var(--gold)!important}
+.rd-banner{position:sticky;top:calc(64px + env(safe-area-inset-top,0px));z-index:5;background:var(--gold);color:#1A1200;border-radius:14px;padding:12px 14px;font:800 15px/20px var(--f);animation:rdflip .6s ease-out}
+.rd-duel{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border-radius:16px;padding:12px 14px;font:800 15px/20px var(--f)}.rd-duel span{color:var(--mute);font:700 13px/16px var(--f)}
+.rd-sealed{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;background:repeating-linear-gradient(135deg,#17222D 0 10px,#1B2734 10px 20px);border:1px dashed #3A4B5C;border-radius:14px;padding:12px 14px;min-height:56px}
+.rd-sealed b{font:800 16px/20px var(--f)}.rd-sealed span{color:var(--mute);font:800 12px/16px var(--f);letter-spacing:.12em;text-align:right}
+.rd-open{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card2);border-radius:14px;padding:12px 14px;min-height:56px}
+.rd-open b{font:800 18px/22px var(--f)}.rd-open em{font-style:normal;font:800 13px/16px var(--f);padding:4px 10px;border-radius:10px;background:#22303D}
+.rd-open em.rd-won{background:rgba(61,220,132,.16);color:var(--win)}.rd-open em.rd-lost{background:rgba(255,107,107,.14);color:var(--loss)}
+.rd-calls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rd-calls button{min-height:52px;border-radius:14px;background:#0A0F15;border:2px solid #2A3A4A;font:800 17px/20px var(--f)}
+.rd-calls button.rd-on{background:var(--acc);border-color:var(--acc);color:#06121C}
+.rd-calls button:active{transform:scale(.97)}
+.rd-res{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;font:800 15px/20px var(--f)}
+.rd-res.rd-right{background:rgba(61,220,132,.14);color:var(--win)}.rd-res.rd-wrong{background:rgba(255,107,107,.12);color:var(--loss)}.rd-res.rd-none{background:var(--card2);color:var(--mute)}
+.rd-side{display:inline-block;padding:3px 9px;border-radius:9px;font:800 12px/16px var(--f);background:#22303D;color:var(--fg)}
+.rd-side.rd-same{background:rgba(61,220,132,.16);color:var(--win)}.rd-side.rd-opp{background:rgba(255,176,32,.16);color:var(--gold)}
+.rd-mine{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:12px 14px}.rd-mine b{flex:1;font:800 16px/20px var(--f)}.rd-mine small{color:var(--mute);font:700 13px/16px var(--f);text-align:right}
+.rd-empty{background:var(--card);border-radius:16px;padding:16px;color:var(--mute);font:600 15px/21px var(--f)}
+.rd-empty a{color:var(--acc);font-weight:800;text-decoration:none}
+.rd-foot{display:flex;flex-direction:column;gap:8px;align-items:center;margin-top:8px;color:var(--mute);font:600 13px/18px var(--f);text-align:center}
+.rd-foot a{display:inline-block;padding:10px 16px;border-radius:14px;background:var(--card2);color:var(--fg);font:800 14px var(--f);text-decoration:none}
+.rd-hon{display:inline-block;vertical-align:middle;padding:3px 9px;border-radius:9px;font:800 11px/16px var(--f);letter-spacing:.08em;background:rgba(255,176,32,.16);color:var(--gold)}
 </style>
 </head>
 <body>
-<div class="g-wrap" id="lounge"></div>
-<form class="compose" id="cf"><input id="ci" maxlength="160" placeholder="Say something to the Field" autocomplete="off"><button type="submit">Post</button></form>
-<nav id="g-nav"></nav>
+<div class="rd-wrap" id="reads"><div class="rd-empty">Loading the Field's sealed picks...</div></div>
 <script src="shared/state.js"></script>
 <script src="week-games.js"></script>
-<script src="contest-kit.js"></script>
 <script src="shared/nav.js"></script>
-<script src="gold-store.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const PATHS={nfl:'football/nfl',nba:'basketball/nba',nhl:'hockey/nhl'},KEY='rush-lounge-v1';
+const Q=new URLSearchParams(location.search),HONEST=Q.get('field')==='7',KEY='rush-reads-v1';
+const AV=(n,sm)=>Rush.nav&&Rush.nav.avatar?Rush.nav.avatar(n,sm):'';
+const fmt=n=>Math.round(+n||0).toLocaleString('en-US');
 const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0)/4294967296};
-const AVC=['#0080FF','#10B981','#F59E0B','#D95151','#8B5CF6','#06B6D4','#EC4899','#64748B'];
-const avatar=n=>{const ini=String(n).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();return`<span class="av" style="background:${AVC[Math.floor(hash(n)*AVC.length)]}">${esc(ini)}</span>`};
-let GAMES=[],thread=new URLSearchParams(location.search).get('t')||'week';
-const mine=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
-const saveMine=m=>{try{localStorage.setItem(KEY,JSON.stringify(m))}catch(e){}};
-const names=()=>GS.field().filter(r=>r.sim).map(r=>r.name);
-function pickName(seed){const n=names();return n.length?n[Math.floor(hash(seed)*n.length)]:'Field player'}
-const TEMPL={pre:['Who is on {fav} tonight? {line}.','{fav} feels too easy. Fading.','Locked in {dog} before the line moves.','Parlaying this with two others. Wish me luck.'],live:['{a} {as}, {h} {hs}. {det}. My Slip is sweating.','Live line on {h} looks soft right now.','Tailing whoever said under in this one.','This is why you watch every play.'],post:['{win} closes it out. My Slip says thanks.','{lose} cost me Units tonight. Next game.','Final in {a} at {h}. Called it in here first.']};
-function fill(t,g){const fav=g.line?String(g.line).split(' ')[0]:g.h.ab,dog=fav===g.h.ab?g.a.ab:g.h.ab,win=+g.h.s>+g.a.s?g.h.ab:g.a.ab,lose=win===g.h.ab?g.a.ab:g.h.ab;return t.replace('{fav}',fav).replace('{dog}',dog).replace('{line}',g.line||'line posted').replace('{a}',g.a.ab).replace('{h}',g.h.ab).replace('{as}',g.a.s).replace('{hs}',g.h.s).replace('{det}',g.detail).replace('{win}',win).replace('{lose}',lose)}
-function gameMsgs(g){const out=[],ts=TEMPL[g.state]||TEMPL.pre,n=g.state==='live'||g.state==='in'?5:3;for(let i=0;i<n;i++){const seed=g.id+g.state+i+(g.state==='in'?g.detail:'');out.push({who:pickName(seed),txt:fill(ts[Math.floor(hash(seed+'t')*ts.length)],g),at:g.state==='pre'?g.date-3600e3*(n-i):Date.now()-60e3*(n-i)})}return out}
-function weekMsgs(){const f=GS.field(),top=f[0],me=f.find(r=>r.you),riv=Rush.rival&&Rush.rival(),out=[];if(top)out.push({who:top.you?'You':top.name,txt:`Top of the Field at ${top.units>=0?'+':''}${top.units.toFixed(1)} Units. Come get me.`,at:Date.now()-5400e3});if(riv&&me)out.push({who:riv.name,txt:me.units>=riv.units?`You are up on me this week. Monday night decides it.`:`Up ${(riv.units-me.units).toFixed(1)} Units on you this week. Your move.`,at:Date.now()-3600e3});const live=GAMES.filter(g=>g.state==='in');if(live.length)out.push({who:pickName('wk'+live[0].id),txt:`${live.length} game${live.length>1?'s':''} live right now. Board is wide open.`,at:Date.now()-600e3});out.push({who:pickName('mnf'),txt:'Entry closes at Monday night kickoff. Reload is free once a week if you run dry.',at:Date.now()-7200e3});return out}
-/* One thread per contest the player is in, linking to that contest's page. */
-function contestMsgs(c){const nm=GS.contests.name(c),n=GS.contests.count(c),T=[`Who else is in ${nm}? ${n?n+' in so far.':'Field is filling up.'}`,`Commissioner, are live picks on in ${nm}?`,`Top of ${nm} by Monday night. Calling it.`,`Just joined ${nm}. Taking the underdogs.`];return T.map((t,i)=>({who:pickName(c.id+'c'+i),txt:t,at:Date.now()-(4-i)*1800e3}))}
-function render(){const m=mine(),me=GS.me();const g=GAMES.find(x=>x.lg+':'+x.id===thread);const CS=GS.contests.mine(),ct=thread.startsWith('c:')?CS.find(x=>'c:'+x.id===thread):null;let msgs=thread==='week'?weekMsgs():g?gameMsgs(g):ct?contestMsgs(ct):[];msgs=msgs.concat((m[thread]||[]).map(x=>({...x,you:1})));msgs.sort((a,b)=>a.at-b.at);
-  const order=[...GAMES.filter(x=>x.state==='in'),...GAMES.filter(x=>x.state==='pre').slice(0,8),...GAMES.filter(x=>x.state==='post').slice(-4)];
-  let h=`<div class="g-top"><h1>Lounge</h1><span data-rush-pill></span></div><div class="threads"><button class="th${thread==='week'?' on':''}" data-t="week">Week ${GS.week().n}</button>${CS.map(x=>`<button class="th${thread==='c:'+x.id?' on':''}" data-t="c:${esc(x.id)}">&#9733; ${esc(GS.contests.name(x))}</button>`).join('')}${order.map(x=>`<button class="th${thread===x.lg+':'+x.id?' on':''}" data-t="${x.lg}:${esc(x.id)}">${x.state==='in'?'<i></i>':''}<img alt="" src="${esc(x.a.logo)}">${esc(x.a.ab)} at ${esc(x.h.ab)}</button>`).join('')}</div>`;
-  h+=`<div class="g-card"><div class="g-h">${thread==='week'?`Week ${GS.week().n} thread`:g?`${esc(g.a.ab)} at ${esc(g.h.ab)}`:ct?esc(GS.contests.name(ct)):'Thread'}${g?`<a href="game.html?league=${g.lg}&id=${encodeURIComponent(g.id)}">Open game</a>`:ct?`<a href="${GS.CPAGE.one(ct.id)}">Open contest</a>`:''}</div>${msgs.slice(-40).map(x=>`<div class="msg">${avatar(x.you?'You':x.who)}<div class="t"><b>${x.you?GS.card('me',me.name||'You'):(GS.idOf(x.who)?GS.card(GS.idOf(x.who),x.who):esc(x.who))}</b>${x.you?'<span class="pill you">YOU</span>':'<span class="pill">SIM</span>'}<small>${new Date(x.at).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</small><p>${esc(x.txt)}</p></div></div>`).join('')||'<div class="g-note">Quiet so far. Say something.</div>'}</div><div class="g-note">SIM players stand in for the real Field. Your posts stay on this phone in the prototype.</div>`;
-  $('lounge').innerHTML=h;const bd=document.getElementById('rpill-band');if(bd)bd.remove();if(Rush.nav)try{Rush.nav.refresh()}catch(e){}}
-window.render=render;
-document.addEventListener('click',e=>{const t=e.target.closest('[data-t]');if(!t)return;thread=t.dataset.t;history.replaceState(null,'','?t='+encodeURIComponent(thread));render();scrollTo(0,0)});
-$('cf').addEventListener('submit',e=>{e.preventDefault();const i=$('ci'),txt=(i.value||'').trim();if(!txt)return;const m=mine();(m[thread]=m[thread]||[]).push({who:'You',txt,at:Date.now()});const reply=['Bold. Show me the Slip.','Respect.','We will see at the final.','Tailing that.','No chance. Fading you.'];(m[thread]).push({who:pickName(txt),txt:reply[Math.floor(hash(txt)*reply.length)],at:Date.now()+1500,sim:1});saveMine(m);i.value='';render();setTimeout(()=>scrollTo(0,document.body.scrollHeight),30)});
-const etDay=off=>new Date(Date.now()+off*864e5).toLocaleDateString('en-CA',{timeZone:'America/New_York'}).replace(/-/g,'');
-async function loadGames(){const days=[etDay(-1),etDay(0),etDay(1)];const urls=[['nfl','https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard']];for(const lg of['nba','nhl'])for(const d of days)urls.push([lg,`https://site.api.espn.com/apis/site/v2/sports/${PATHS[lg]}/scoreboard?dates=${d}`]);const out=[];await Promise.all(urls.map(async([lg,u])=>{try{const d=await(await fetch(u)).json();for(const e of d.events||[]){const c=e.competitions[0],h=c.competitors.find(x=>x.homeAway==='home'),a=c.competitors.find(x=>x.homeAway==='away');out.push({lg,id:e.id,date:Date.parse(e.date),state:c.status.type.state,detail:c.status.type.shortDetail,h:{ab:h.team.abbreviation,s:h.score,logo:h.team.logo},a:{ab:a.team.abbreviation,s:a.score,logo:a.team.logo},line:(c.odds||[])[0]&&c.odds[0].details})}}catch(e){}}));const seen={};GAMES=out.filter(g=>!seen[g.lg+g.id]&&(seen[g.lg+g.id]=1)).sort((x,y)=>x.date-y.date);render()}
-GS.nav('lounge');render();loadGames();setInterval(loadGames,60000);
+const reads=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
+const saveReads=r=>{try{localStorage.setItem(KEY,JSON.stringify(r))}catch(e){}};
+const etTime=ms=>new Date(ms).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit'});
+const etDay=ms=>new Date(ms).toLocaleDateString('en-CA',{timeZone:'America/New_York'});const when=ms=>etDay(ms)===etDay(Date.now())?etTime(ms):new Date(ms).toLocaleDateString('en-US',{timeZone:'America/New_York',weekday:'short'})+' '+etTime(ms);
+const left=ms=>{ms=Math.max(0,ms);if(ms<6e5){const m=Math.floor(ms/6e4),sec=Math.floor(ms%6e4/1e3);return m+':'+String(sec).padStart(2,'0')}const h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4);return h>23?Math.floor(h/24)+'d '+(h%24)+'h':h?h+'h '+m+'m':m+'m'};
+let GAMES=[],FILTER=null,PF=null;
+/* the Field this page shows: everyone, or (honest view) exactly 7: you, your opponent and the next five by the Field's own order */
+function people(){let f=[];try{f=RW.field(GAMES)}catch(e){}const me=f.find(r=>r.me);let others=f.filter(r=>!r.me);let riv=null;try{riv=Rush.rival()}catch(e){}
+  const rv=riv&&others.find(r=>String(r.id)===String(riv.id)||r.name===riv.name);
+  if(HONEST){const rest=others.filter(r=>r!==rv).sort((a,b)=>String(a.id).localeCompare(String(b.id),undefined,{numeric:true}));others=(rv?[rv]:[]).concat(rest).slice(0,6)}
+  return{me,others,rv}}
+/* the side a pick took, from its label: home, away, over or under */
+function sideOf(p){const g=p.g,l=String(p.label||'');if(/^over/i.test(l))return'over';if(/^under/i.test(l))return'under';if(g&&l.startsWith(g.home.abbr))return'home';if(g&&l.startsWith(g.away.abbr))return'away';return null}
+function optsOf(p){return[['away',p.g.away.abbr],['home',p.g.home.abbr],['over','Over'],['under','Under']]}
+const LINES='rush-reads-lines-v1';const lines=()=>{try{return JSON.parse(localStorage.getItem(LINES))||{}}catch(e){return{}}};function say(k,t){t=String(t||'').trim().slice(0,80);if(!t)return;const L=lines();(L[k]=L[k]||[]).push({t,at:Date.now()});try{localStorage.setItem(LINES,JSON.stringify(L))}catch(e){}render()}
+const keyOf=(id,p)=>id+'|'+p.league+'|'+p.gameId+'|'+(p.t||'');
+const started=g=>g.state!=='pre'||Date.now()>=g.date;
+/* one card per player per game, soonest kickoff first. Sealed cards come from the Field's picks; once a game starts its
+   card is kept from the last time it was seen sealed (rush-reads-cards-v1) and flips, graded from the final score. */
+const SNAP='rush-reads-cards-v1';
+const snap=()=>{try{return JSON.parse(localStorage.getItem(SNAP))||{}}catch(e){return{}}};
+function gradeOf(p){const g=p.g;if(!g||g.state!=='post')return'open';const H=+g.home.score,A=+g.away.score;if(isNaN(H)||isNaN(A))return'open';const s=sideOf(p),n=parseFloat((String(p.label).match(/[-+]?d+(.d+)?/)||[])[0]);
+  if(s==='over'||s==='under'){if(isNaN(n))return'open';const t=H+A;return t===n?'push':(t>n)===(s==='over')?'won':'lost'}
+  const mine=s==='home'?H:A,theirs=s==='home'?A:H;if(p.t==='spread'&&!isNaN(n)){const d=mine+n-theirs;return d===0?'push':d>0?'won':'lost'}return mine===theirs?'push':mine>theirs?'won':'lost'}
+function cardsFor(r){let ps=[];try{ps=RW.playerPicks(r.id,GAMES)||[]}catch(e){}const horizon=Date.now()+36*36e5,seen=new Set,S=snap();
+  const sealed=ps.filter(p=>p.g&&p.g.state==='pre'&&p.g.date>Date.now()&&p.g.date<horizon&&sideOf(p)).sort((a,b)=>a.g.date-b.g.date).filter(p=>{const k=p.league+p.gameId;if(seen.has(k))return false;seen.add(k);return true}).slice(0,HONEST?4:3);
+  sealed.forEach(p=>{S[keyOf(r.id,p)]={id:r.id,league:p.league,gameId:String(p.gameId),t:p.t,label:p.label,market:p.market,date:p.g.date}});
+  const flipped=Object.entries(S).filter(([k,c])=>c.id===r.id&&c.date<=Date.now()&&c.date>Date.now()-12*36e5).map(([k,c])=>{const g=GAMES.find(x=>x.league===c.league&&String(x.id)===c.gameId);if(!g)return null;const p={league:c.league,gameId:c.gameId,t:c.t,label:c.label,market:c.market,g};p.status=gradeOf(p);return p}).filter(Boolean);
+  for(const k in S)if(S[k].date<Date.now()-48*36e5)delete S[k];try{localStorage.setItem(SNAP,JSON.stringify(S))}catch(e){}
+  return sealed.concat(flipped)}
+function myPickOn(g){try{const p=Rush.picks({week:Rush.week().id}).find(q=>String(q.gameId)===String(g.id)&&!q.legs);if(!p)return null;const l=String(p.label||'');return /^over/i.test(l)?'over':/^under/i.test(l)?'under':l.startsWith(g.home.abbr)?'home':l.startsWith(g.away.abbr)?'away':null}catch(e){return null}}
+function sideName(p,s){return s==='over'?'Over':s==='under'?'Under':s==='home'?p.g.home.abbr:p.g.away.abbr}
+const SEEN=new Set,FLIPPED=new Set;let BANNER='';
+function card(r,p,isMu){const R=reads(),k=keyOf(r.id,p),mine=R[k],truth=sideOf(p),g=p.g,flip=started(g),mySide=myPickOn(g);
+  const crowd=HONEST?0:Math.floor(hash(k+'c')*5);const stack=1000+Math.round((r.units||0)*10);
+  if(!flip)SEEN.add(k);const just=flip&&SEEN.has(k)&&!FLIPPED.has(k);if(just){FLIPPED.add(k);const tv=sideOf(p);BANNER=`${r.name.split(' ')[0]}'s pick flipped: ${p.label}.${mine?(mine===tv?' You read it right.':' You misread it.'):''}`;setTimeout(()=>{BANNER='';render()},9000)}
+  let h=`<div class="rd-card${isMu?' rd-mu':''}${just?' rd-flip':''}"><div class="rd-who"><a href="player.html?u=${encodeURIComponent(r.id)}">${AV(r.name)}<span style="min-width:0"><b>${esc(r.name)}</b><small>${isMu?'Your matchup · ':''}#${r.rank} · ${fmt(stack)} Stack</small></span></a><div class="rd-clock">${flip?(g.state==='post'?'Final':'Flipped'):left(g.date-Date.now())}<small>${flip?esc(g.away.abbr+' '+(g.away.score??'')+' '+g.home.abbr+' '+(g.home.score??'')):'FLIPS '+when(g.date).toUpperCase()}</small></div></div>`;
+  if(!flip){h+=`<div class="rd-game"><div class="rd-sealed"><b>${esc(g.away.abbr)} at ${esc(g.home.abbr)}</b><span>SEALED</span></div><div class="rd-stake"></div></div>`;
+    const bits=[`Sealed until kickoff at ${etTime(g.date)}.`];if(mySide)bits.push(`You are on <span class="rd-side">${esc(sideName(p,mySide))}</span>.`);h+=`<div class="rd-sub" style="margin:0;font-size:14px">${bits.join(' ')}</div>`}
+  else{const st=p.status==='rd-won'?'rd-won':p.status==='rd-lost'?'rd-lost':'';h+=`<div class="rd-game"><div class="rd-open"><b>${esc(p.label)}</b><em class="rd-${st}">${st==='rd-won'?'Hit':st==='rd-lost'?'Missed':'Live'}</em></div></div>`;
+    if(mySide&&(['over','under'].includes(mySide)===['over','under'].includes(truth)))h+=`<div><span class="rd-side ${mySide===truth?'rd-same':'rd-opp'}">${mySide===truth?'Same side as you':'Against you'}</span></div>`;
+}
+  return h+'</div>'}
+function render(){if(!GAMES.length)return;const ae=document.activeElement;if(ae&&ae.closest&&ae.closest('.rd-type'))return;const {others,rv}=people();
+  const R=reads();let right=0,pending=0,nextFlip=Infinity;const all=[];
+  others.forEach(r=>cardsFor(r).forEach(p=>{all.push({r,p});const v=R[keyOf(r.id,p)];if(!started(p.g))nextFlip=Math.min(nextFlip,p.g.date);if(v){if(started(p.g)){if(v===sideOf(p))right++}else pending++}}));
+  const scored=all.filter(x=>R[keyOf(x.r.id,x.p)]&&started(x.p.g)).length;
+  let h=`<div><h1>Lounge ${HONEST?'<span class="rd-hon">7 PLAYERS</span>':''}</h1><p class="rd-sub">Every pick is sealed until kickoff. At kickoff every pick on that game is revealed to the whole Field.</p></div><div class="rd-steps"><span><b>1</b>Sealed</span><i></i><span><b>2</b>Kickoff reveal</span><i></i><span><b>3</b>Settles</span></div>`;
+  const MARK=h.length;h+=`<div class="rd-tiles"><div class="rd-tile"><b>${all.filter(x=>!started(x.p.g)).length}</b><span>Sealed now</span></div><div class="rd-tile"><b>${others.length+1}</b><span>In the Field</span></div><div class="rd-tile"><b>${nextFlip<Infinity?when(nextFlip).replace(/ (?=[AP]M)/,''):'-'}</b><span>Next reveal</span></div></div>`;
+  const sealed0=all.filter(x=>!started(x.p.g));const TL={};sealed0.forEach(x=>{const t=x.p.g.date;(TL[t]=TL[t]||{n:0,r:0}).n++;if(R[keyOf(x.r.id,x.p)])TL[t].r++});const tk=Object.keys(TL).map(Number).sort((a,b)=>a-b).slice(0,8);
+  if(tk.length)h+=`<div class="rd-tl" aria-label="Tonight's flips">${tk.map((t,i)=>`<button type="button" data-tl="${t}" class="${FILTER===t?'rd-nx rd-sel':i===0&&!FILTER?'rd-nx':''}" aria-pressed="${FILTER===t}"><b>${when(t)}</b><span>${TL[t].n} sealed</span></button>`).join('')}</div>`;
+  {const tm=sealed0.filter(x=>etDay(x.p.g.date)!==etDay(Date.now()));const tn=sealed0.length-tm.length;h+=`<div class="rd-sub" style="margin:0;font-size:14px">${tn?`<b style="color:var(--fg)">Tonight:</b> ${tn} seals break. `:''}${tm.length?`<b style="color:var(--fg)">Tomorrow:</b> ${tm.length} already sealed, more as the Field picks.`:'Picks for tomorrow seal as the Field makes them.'}</div>`}
+  {const per=others.map(r=>{const c=all.filter(x=>x.r===r&&!started(x.p.g));return{r,n:c.length,d:c.filter(x=>R[keyOf(r.id,x.p)]).length}});
+   h+=`<div class="rd-faces" aria-label="The Field">${per.map(o=>`<button type="button" data-pf="${esc(o.r.id)}" class="${PF===String(o.r.id)?'rd-on':''}${o.r===rv?' rd-mu':''}"><span class="rd-ring" style="--p:${o.n?Math.round(100*o.d/o.n):0}">${AV(o.r.name)}</span><b>${esc(o.r.name.split(' ')[0])}</b><small>${o.n?o.n+' sealed':'none sealed'}</small></button>`).join('')}</div>`}
+  const sealed=all.filter(x=>!started(x.p.g)&&(!PF||String(x.r.id)===PF)),flipped=all.filter(x=>started(x.p.g)).sort((a,b)=>b.p.g.date-a.p.g.date);
+  if(FILTER&&!sealed.some(x=>x.p.g.date===FILTER))FILTER=null;const shown=FILTER?sealed.filter(x=>x.p.g.date===FILTER):sealed;const muCards=rv?shown.filter(x=>x.r===rv):[],rest=shown.filter(x=>x.r!==rv||x!==(rv?shown.find(y=>y.r===rv):null));
+  const DASH=h.slice(MARK);h=h.slice(0,MARK);
+  if(rv&&(!PF||PF===String(rv.id))){const mr=all.filter(x=>x.r===rv&&started(x.p.g)&&R[keyOf(x.r.id,x.p)]),mrr=mr.filter(x=>R[keyOf(x.r.id,x.p)]===sideOf(x.p)).length;h+=`<div class="rd-lbl"><span>Your matchup</span><small>${esc(rv.name)}</small></div><div class="rd-duel">Read duel<span>You read ${esc(rv.name.split(' ')[0])}: ${mr.length?mrr+' of '+mr.length:'none scored yet'} · ${HONEST?esc(rv.name.split(' ')[0])+' has not read you':esc(rv.name.split(' ')[0])+' read you: '+Math.floor(hash(rv.id+'duel')*3)+' right'}</span></div>`;h+=muCards.length?card(muCards[0].r,muCards[0].p,true)+(muCards.length>1?`<div class="rd-sub" style="margin:0;font-size:14px">${muCards.length-1} more from ${esc(rv.name.split(' ')[0])} below</div>`:''):`<div class="rd-empty">${esc(rv.name)} has no sealed pick in the next day. When they pick, it shows here first.</div>`}
+  h+=DASH;
+  h+=`<div class="rd-lbl"><span>Sealed now</span><small>${rest.length} to read${FILTER?' at '+when(FILTER):''}</small></div>`;
+  h+=rest.length?rest.map(x=>card(x.r,x.p,false)).join(''):`<div class="rd-empty">No sealed picks to read right now. They appear as soon as anyone in the Field picks a game.</div>`;
+  let mine=[];try{mine=Rush.picks({status:'open'}).filter(p=>p.start>Date.now())}catch(e){}
+  h+=`<div class="rd-lbl"><span>Your sealed picks</span><small>${mine.length}</small></div>`;
+  h+=mine.length?mine.map(p=>{const n=HONEST?0:Math.floor(hash(p.id+'r')*5);return`<div class="rd-mine"><b>${esc(p.game)}</b><small>${n?n+' read you':'Nobody has read you yet'}<br>flips ${etTime(p.start)}</small></div>`}).join(''):`<div class="rd-empty">You have no sealed pick, so the Field has nothing to read on you. <a href="board.html">Make a pick</a> and it seals until kickoff.</div>`;
+  if(flipped.length){h+=`<div class="rd-lbl"><span>Flipped</span><small>${right} right of ${scored}</small></div>`+flipped.slice(0,12).map(x=>card(x.r,x.p,x.r===rv)).join('')}
+  h+=`<div class="rd-foot">${HONEST?'Honest view: exactly 7 players, nothing generated. Every card is a pick in the Field.':'Full Field view. Counts of other readers are simulated in the prototype.'}<a href="lounge.html${HONEST?'':'?field=7'}">${HONEST?'Show the full Field':'Honest view: 7 players'}</a></div>`;
+  if(BANNER)h=`<div class="rd-banner" role="status">${esc(BANNER)}</div>`+h;
+  const el=$('reads');if(el._h!==h){el.innerHTML=h;el._h=h}}
+document.addEventListener('click',e=>{const pf=e.target.closest('[data-pf]');if(pf){PF=PF===pf.dataset.pf?null:pf.dataset.pf;render();return}const tl=e.target.closest('[data-tl]');if(tl){const t=+tl.dataset.tl;FILTER=FILTER===t?null:t;render();return}const sy=e.target.closest('[data-say]');if(sy){say(sy.dataset.say,sy.dataset.t);return}const ty=e.target.closest('[data-type]');if(ty){const box=document.createElement('form');box.className='rd-type';box.innerHTML='<input maxlength="80" placeholder="One line about this flip" autocomplete="off"><button type="submit">Say it</button>';ty.parentElement.replaceWith(box);const inp=box.querySelector('input');inp.focus();box.addEventListener('submit',ev=>{ev.preventDefault();say(ty.dataset.type,inp.value)});return}const b=e.target.closest('[data-k]');if(!b)return;const R=reads(),k=b.dataset.k;if(R[k]===b.dataset.v)delete R[k];else R[k]=b.dataset.v;saveReads(R);render()});
+async function load(){try{GAMES=await RW.load()}catch(e){GAMES=RW.cached()||[]}render()}
+GAMES=(window.RW&&RW.cached&&RW.cached())||[];render();load();setInterval(load,60000);setInterval(render,30000);setInterval(()=>{const n=GAMES.filter(g=>g.state==='pre'&&g.date>Date.now()).reduce((a,g)=>Math.min(a,g.date),Infinity);const t=Date.now();if(n-t<6e5||GAMES.some(g=>g.date<=t&&g.date>t-9e4))render()},1000);setInterval(()=>{if(GAMES.some(g=>g.state==='pre'&&g.date<=Date.now()+5e3))load()},15000);
 </script>
 </body>
 </html>
