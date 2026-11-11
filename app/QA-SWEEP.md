@@ -191,3 +191,9 @@ The checks:
 | Board | Rows | The Board's rows do not use the shared card, so the chip is not there; the game page carries it | Open (by plan) |
 | Lounge | Open an NBA game's card | Foot "Watch NBC, KSBI" (Dome only for NFL and MLB), pregame header on one line, no errors | Fixed in 25ffd05 (Red) |
 | Game page | OKC at POR, end of the 3rd quarter | The lock engine opened the lines ("End of the quarter", 73 s left on the feed's clock) and closed them again ("Stoppage ending") | OK |
+
+## The final sweep, live, 1:20 AM ET
+
+| Views | Pages | Result | Fixed in / open |
+|---|---|---|---|
+| Honest 375x812; full Field 375x667; visitor 375x667 | Home, Board, Contest, Lounge, Profile, Slips, a game page | No errors, no sideways scroll, no inner scrollers, no banned words, no logo or photo images; rank the same on every page (4 of 7; 7 of 31); the visitor flag holds on every page | OK |
