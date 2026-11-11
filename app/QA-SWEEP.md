@@ -175,3 +175,15 @@ The checks:
 | Lounge | Slip card s10, live | Cards draw, parlays start collapsed, View legs opens in place | Fixed in 6492a64 (Red) |
 | Board, Lounge | nav f1114 live | Load the new Slip; the room is 72% of the screen at 375x812; no errors | Fixed in f1eadd7 (Red) |
 | Board | Live section | View-only tonight; started games' cells are disabled | Open (by plan) |
+
+## The founder's 12:43, 12:50 and 12:52 AM notes: the game page header and tabs
+
+| Page | Action | Result | Fixed in / open |
+|---|---|---|---|
+| Game page | WSH at NYG, two days before kickoff | Box Score and Plays tabs showed with nothing in them | Fixed in 63f27aa (only Odds and Stats before kickoff) |
+| Game page | Where to watch, venue, weather (WSH at NYG) | "Watch Prime Video", "MetLife Stadium · East Rutherford, NJ", "52°F Cloudy", "Weather impact None" | Added in 2cdb530 |
+| Game page | An indoor venue | "Dome", no weather | Added in 2cdb530 |
+| Game page | You hold three picks on WSH at NYG | "You: NYG -2.5, Over 41.5, J. Daniels over 200.5 Pass Yds"; the three cells stay marked | Added in 26e7578 |
+| Game page | The Field's split before kickoff | Only "4 sealed on this game" | Added in 26e7578 |
+| Game page | The Field's split on OKC at POR (live) | Moneyline and Total bars with percentages; Picks and Stack switch | Added in 26e7578 |
+| Board, Lounge | Slip card s12, team mark m6, nav f1115 | Cards and marks render, no errors | Fixed in 1f32258, e6200c0 (Red) |

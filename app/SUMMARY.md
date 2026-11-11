@@ -57,6 +57,10 @@
   - team marks at the team's own scale (64 px in the header, 44 px in rows), and on every prop row the player's number on his team's jersey (40 px);
   - no logos and no player photos: teams are Gold's drawn team marks in their two colours (for football, a speed-style helmet in side profile; all four marks share one light);
   - a game in progress takes live picks under the lock-before rule (see Live picking below);
+  - before a game starts the page draws only Odds and Stats; Box Score and Plays appear at kickoff, and a link to them before then opens Odds;
+  - **where to watch, where it is played, the weather** (the founder's 12:43 and 12:50 AM notes): one strip under the header with "Watch Prime Video" (plain names from the feed, no channel logos), the venue and city, "Dome" for an indoor venue (and no weather), and for outdoor football the kickoff weather with its impact grade, or "Forecast closer to kickoff" more than seven days out;
+  - **your side:** "You: NYG -2.5, Over 41.5" above the game lines, and the cells you hold stay marked;
+  - **the Field's split:** Moneyline, Spread and Total bars in the teams' colours, by picks or by Stack staked. The seal decides when: before kickoff only "N sealed on this game" shows; the split draws from kickoff and updates with live picks. A visitor never sees it;
   - "The Field on this game" shows each player as sealed until kickoff. At kickoff it becomes "Seal broken: who took what": the side, price and stake for each player, tagged With you or Against you. This is the full table the Lounge's seal-break rows open;
   - a Lounge link opens the Lounge focused on that game.
 - **Home** (Gold): the contest card with the rank strip, your matchup, For you, On tonight, The Field right now, and the invite door (details in Gold's section below).
@@ -347,6 +351,9 @@ Every team swept its own pages on the live link, in both views, at 375x812 and 3
 - If the space or its moment gets a name, the candidates are "The Rail" (Red) and "Sealbreak" (Gold). The founder chooses, and each needs a trademark check.
 
 ## Unfinished or faked
+
+- **The weather impact rule** (one place: RW.wxGrade in week-games.js; facts only, never a lean): wind 20 mph or more, or gusts 30 or more, is High; wind 15 or more is Moderate; heavy rain, snow or storms is High; steady rain or showers (or a 60% chance or more) is Moderate; 25 F or colder, or 90 F or hotter, lifts None to Low. The source is the game feed's own weather (temperature, sky, chance of rain, gusts). It carries no steady wind speed, so the wind steps only fire when the feed sends one; no outside forecast service is used.
+- **Where to watch** shows only on the game page tonight; the shared game card on the Board, Home and the Lounge draws it when Gold's card picks up g.broadcasts and g.venue.
 
 - **Live picking:** game pages only; the Board's Live section is view-only tonight, and timed markets (next score, this drive) are not in. The feed runs 15 to 49 seconds behind, so many stoppage windows have already closed by the time the page sees them.
 - **Slip cards** show the score and FINAL on each leg's game strip, but no period-by-period scores, because the scoreboard feed carries none.
