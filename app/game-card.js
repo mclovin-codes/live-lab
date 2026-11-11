@@ -38,10 +38,11 @@
     const bits = [], bc = Array.isArray(g.broadcasts) ? g.broadcasts.filter(Boolean).slice(0, 2) : [];
     if (bc.length) bits.push('Watch ' + bc.join(', '));
     const v = g.venue || null;
-    if (v && v.indoor) bits.push('Dome');
+    const lg = String(g.league || '').toLowerCase();
+    if (v && v.indoor) { if (lg === 'nfl' || lg === 'mlb') bits.push('Dome'); }
     else if (g.weather && String(g.league).toLowerCase() === 'nfl') {
       const w = g.weather; let gr = null; try { gr = window.RW && RW.wxGrade ? RW.wxGrade(w, false) : null; } catch (e) {}
-      bits.push([w.temp != null && isFinite(+w.temp) ? Math.round(+w.temp) + '\u00B0' : '', w.text || '', gr && gr.grade ? gr.grade + ' impact' : ''].filter(Boolean).join(' '));
+      bits.push([w.temp != null && isFinite(+w.temp) ? Math.round(+w.temp) + '\u00B0' : '', w.text || '', gr && gr.grade ? (gr.grade === 'None' ? 'no weather impact' : gr.grade + ' impact') : ''].filter(Boolean).join(' '));
     }
     const out = bits.filter(Boolean);
     return out.length ? '<div class="rgc-info">' + out.map(esc).join(' &middot; ') + '</div>' : '';
@@ -57,14 +58,15 @@
     const href = opts.href || `game.html?id=${encodeURIComponent(g.id)}&league=${encodeURIComponent(g.league || '')}`;
     const tot = w && ((w.over && w.over.length) || (w.under && w.under.length)) ? `<div class="rgc-tot">${w.over && w.over.length ? `<span>OVER</span>${faces(w.over)}` : ''}${w.under && w.under.length ? `<span>UNDER</span>${faces(w.under)}` : ''}</div>` : '';
     const seal = w && w.sealed ? `<div class="rgc-seal"><span>${w.sealed} sealed</span>${faces(w.sealedFaces)}</div>` : '';
-    return `<div class="rgc${g.state === 'in' ? ' rgc-islive' : ''}"><a class="rgc-h" href="${href}"><span class="rgc-lg">${esc(String(g.league || '').toUpperCase())}</span>${when(g)}${st ? '' : '<span class="rgc-cols"><i>SPREAD</i><i>TOTAL</i><i>ML</i></span>'}</a>${row('away')}${row('home')}${tot}${seal}${info(g)}${opts.foot || ''}</div>`;
+    return `<div class="rgc${g.state === 'in' ? ' rgc-islive' : ''}"><a class="rgc-h" href="${href}"><span class="rgc-lg">${esc(String(g.league || '').toUpperCase())}</span>${when(g)}</a>${st ? '' : '<div class="rgc-colrow"><span class="rgc-cols"><i>SPREAD</i><i>TOTAL</i><i>ML</i></span></div>'}${row('away')}${row('home')}${tot}${seal}${info(g)}${opts.foot || ''}</div>`;
   }
   const CSS = `.rgc{background:#141C26;border:1px solid rgba(255,255,255,.09);border-radius:20px;margin-top:10px;overflow:hidden;font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#F4F7FA}
 .rgc.rgc-islive{border-color:rgba(255,107,107,.4)}
 .rgc-h{display:flex;align-items:center;gap:8px;padding:14px 16px 6px;color:inherit!important;text-decoration:none}
 .rgc-lg,.rgc-time,.rgc-fin,.rgc-live{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#1B2531;font:800 13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;letter-spacing:.6px;color:#A3AFBD}
 .rgc-live{background:rgba(255,107,107,.16);color:#FF6B6B}.rgc-live::before{content:"";width:7px;height:7px;border-radius:50%;background:#FF6B6B;animation:gcb 1.4s infinite}
-.rgc-cols{margin-left:auto;display:grid;grid-template-columns:repeat(3,62px);gap:4px;text-align:center}.rgc-cols i{font:800 13px/1 "Barlow Condensed",sans-serif;font-style:normal;letter-spacing:1px;color:#A3AFBD}
+.rgc-colrow{display:flex;justify-content:flex-end;padding:2px 14px 0}.rgc-time{white-space:nowrap}
+.rgc-cols{display:grid;grid-template-columns:repeat(3,62px);gap:4px;text-align:center}.rgc-cols i{font:800 13px/1 "Barlow Condensed",sans-serif;font-style:normal;letter-spacing:1px;color:#A3AFBD}
 .rgc-row{display:flex;align-items:center;gap:10px;padding:8px 14px}
 .rgc-row .tmk{flex:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
 .rgc-t{flex:1;min-width:0}.rgc-t b{display:block;font:800 30px/1.05 "Barlow Condensed",sans-serif;letter-spacing:.3px}.rgc-t small{display:block;font-size:13px;color:#A3AFBD;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
