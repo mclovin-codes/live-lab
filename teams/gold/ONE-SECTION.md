@@ -47,7 +47,7 @@ Home opens on the weekly contest, in this order:
 - **An empty circle** shows three faces to add and the invite door, never a blank page.
 
 ## One game card, and no logos (game-card.js, team-mark.js)
-- **One card for Home, the Board and the Lounge's pinned game,** modelled on the Rush app's board cards:
+- **One card for Home and the Lounge's pinned game,** in the team's own look (the Board draws its own rows with the same team marks and three-column cells). It takes only the mechanics from the Rush app's board cards:
   - a header with the league and the clock or kickoff;
   - two team rows, each with the team mark, its code, name and record, and the score;
   - while the game is open, the price cells: Spread, Total and ML, tapping into the one Slip exactly as on the Board.
@@ -82,6 +82,18 @@ Home opens on the weekly contest, in this order:
 - Sub-lines are 13px or larger. Motion (the Field strip, the tug bars, the live dot) turns off under reduced motion.
 - The same palette went to Blue and Red for their pages, plus one face system for everyone.
 - The last Units labels on Slips are gone (Stack only).
+
+## Viewing as not entered (founder 11:35)
+- **The footer toggle** on every page has a second line: "Viewing as: entered · not entered" (?entered=0 or 1, kept in localStorage 'rush-entered'; Blue's store reads the same key through Rush.entered()).
+- **The top bar:** the Stack pill reads ENTER in cyan. A tap enters.
+- **Home becomes the Enter door:**
+  - the week and when it ends, how many are in the Field, one line ("Free to enter. Every entrant starts with 1,000 Stack"), and one big Enter free;
+  - the Field as faces with their Stacks blurred ("Enter to see the Stacks and where you'd stand"), with no rank, no gap and no matchup;
+  - tonight's game cards with scores and "N IN THIS GAME" (or "No one in this game yet");
+  - the invite door.
+- **Me:** the Stack reads ENTER and the rank reads "-". The Slips block becomes "Enter to start" with Enter free. Profile, Edit, the circle and the invite door all still work.
+- **The Enter moment:** one tap (the hero button, the Me card or the pill). The blur clears, the pill counts up from 0 to 1,000 and flashes green, and Home turns into the contest card with your tile in the strip.
+- Blue's Contest shows a visitor no rank or matchup, plus the Join card; the game page shows its Enter card.
 
 ## The honest view
 - ?field=7 on any page, or the footer toggle on every page, shows exactly 7 players with nothing generated. The choice holds across pages (honest.js, the footer and the localStorage key 'rush-field'). The store gives the 7-player Field, so ranks run 1 to 7 everywhere.
