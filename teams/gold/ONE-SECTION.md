@@ -47,16 +47,17 @@ Home opens on the weekly contest, in this order:
 - **An empty circle** shows three faces to add and the invite door, never a blank page.
 
 ## One game card, and no logos (game-card.js, team-mark.js)
-- **One card for Home and the Lounge's pinned game,** in the team's own look (the Board draws its own rows with the same team marks and three-column cells). It takes only the mechanics from the Rush app's board cards:
+- **One card for Home and the Lounge's pinned game,** in the team's own look (founder 11:40: the team's sizing, type and contrast: #141C26 card, 20px corners, a chip header, Barlow Condensed 800 figures, #3DB8FF price cells). The Board draws its own rows with the same team marks and three-column cells. It takes only the mechanics from the Rush app's board cards:
   - a header with the league and the clock or kickoff;
   - two team rows, each with the team mark, its code, name and record, and the score;
   - while the game is open, the price cells: Spread, Total and ML, tapping into the one Slip exactly as on the Board.
 - **Home adds only one quiet line:** small faces beside the side each player took (a count when more than four), totals as one small group at the bottom, and a single "N sealed" chip before kickoff. The old four boxes are gone.
 - **No official logos or player photos:** a drawn, shaded object per sport, tinted with the team's two colours from the feed, with the team's code on it:
-  - football: a helmet;
+  - football: a speed-style helmet in side profile (founder's 11:50 style note, our own drawing): a shaded shell with a crown highlight, dark vents, ear hole, jaw pad, chin strap and a multi-bar mask with clips;
   - basketball: a jersey;
   - hockey: a sweater;
   - baseball: a cap.
+  - All four share one light, from the top left, so they read as one set.
   - A player gets a jersey with their number. A missing or too-close colour pair falls back to a readable one.
 - **Logo requests:** Blue's store hands every page the mark in place of the logo, so no logo image request leaves Home, profiles or Slips.
 
@@ -88,11 +89,13 @@ Home opens on the weekly contest, in this order:
 - **The top bar:** the Stack pill reads ENTER in cyan. A tap enters.
 - **Home becomes the Enter door:**
   - the week and when it ends, how many are in the Field, one line ("Free to enter. Every entrant starts with 1,000 Stack"), and one big Enter free;
-  - the Field as faces with their Stacks blurred ("Enter to see the Stacks and where you'd stand"), with no rank, no gap and no matchup;
+  - the Field as faces in name order (not rank order) with placeholder figures blurred under them ("Enter to see the Stacks and where you'd stand"), with no rank, no gap and no matchup;
   - tonight's game cards with scores and "N IN THIS GAME" (or "No one in this game yet");
   - the invite door.
 - **Me:** the Stack reads ENTER and the rank reads "-". The Slips block becomes "Enter to start" with Enter free. Profile, Edit, the circle and the invite door all still work.
 - **The Enter moment:** one tap (the hero button, the Me card or the pill). The blur clears, the pill counts up from 0 to 1,000 and flashes green, and Home turns into the contest card with your tile in the strip.
+- **Another player's profile, for a visitor:** Stack and rank are blurred placeholders in place, the week's move is hidden, You vs them is one Enter door over a blurred bar, and there are no WITH YOU or AGAINST YOU tags.
+- **Their Slips, for a visitor (slip-card.js):** only the games and ENTER TO SEE, even after kickoff; stake, price and what it pays are blurred placeholders. A real figure never reaches the page.
 - Blue's Contest shows a visitor no rank or matchup, plus the Join card; the game page shows its Enter card.
 
 ## The honest view
