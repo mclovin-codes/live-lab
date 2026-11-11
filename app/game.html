@@ -182,9 +182,9 @@
 <div id="gtoast"></div>
 <script src="shared/state.js?v=f1106"></script>
 <script src="week-games.js?v=f1109"></script>
-<script src="team-mark.js?v=m5"></script>
+<script src="team-mark.js?v=m6"></script>
 <script src="faces.js?v=f1"></script>
-<script src="shared/nav.js?v=f1114"></script>
+<script src="shared/nav.js?v=f1115"></script>
 <script src="shared/events.js?v=f1107"></script>
 <script>
 /* Rush game page: pregame full book and live mode for NFL, NBA and NHL (owner: Team Blue).
@@ -369,7 +369,8 @@ const MWK='rush-mwp-'+LG+ID;
 function mktTrack(M){if(!M.g.live||!M.b||M.b.off||M.b.hw==null)return;if(!S.mwp){try{S.mwp=JSON.parse(localStorage.getItem(MWK)||'[]').filter(x=>x&&isFinite(x.hw)&&isFinite(x.x))}catch(e){S.mwp=[]}}const L=S.mwp,p=L[L.length-1];if(!p||Math.abs(p.hw-M.b.hw)>.001){L.push({t:Date.now(),hw:M.b.hw,x:clamp(1-M.g.secs/SPORT.total,0,1)});if(L.length>400)L.splice(1,1);try{localStorage.setItem(MWK,JSON.stringify(L.slice(-400)))}catch(e){}}
   /* the Board's Live card reads the last posted line from here (Red's week-games.js, rw.lastLive) */
   if(!p||p.hw!==M.b.hw){try{const k='rw.lastLive',o=JSON.parse(localStorage.getItem(k)||'{}');o[LG+ID]={h:M.b.mlH,a:M.b.mlA,ou:M.b.tot,at:Date.now()};localStorage.setItem(k,JSON.stringify(o))}catch(e){}}}
-function vPills(){return[['odds','Odds'],['box','Box Score'],['stats','Stats'],['plays','Plays']].map(x=>`<button class="${pillTab===x[0]?'on':''}" data-a="pill" data-v="${x[0]}">${x[1]}</button>`).join('')}
+function pillsNow(){const g=game();const pre=!g.live&&!g.done&&g.state!=='post'&&g.state!=='in';return pre?[['odds','Odds'],['stats','Stats']]:[['odds','Odds'],['box','Box Score'],['stats','Stats'],['plays','Plays']]}
+function vPills(){if(!pillsNow().some(x=>x[0]===pillTab))pillTab='odds';return pillsNow().map(x=>`<button class="${pillTab===x[0]?'on':''}" data-a="pill" data-v="${x[0]}">${x[1]}</button>`).join('')}
 const FAST='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor"/></svg>';
 function vSubs(){if(pillTab!=='odds')return'';const per=SPORT.per===4?'Quarters':'Periods';return[['popular','Popular'],['lines','Game Lines'],['alts','Alt Lines'],['team','Team Totals'],['halves',SPORT.per===4?'Halves':'Game Periods'],['qtr',per],['props',(game().live?FAST:'')+'Player Props']].filter(x=>!(SPORT.per!==4&&x[0]==='halves')).map(x=>`<button class="${subTab===x[0]?'on':''}" data-a="sub" data-v="${x[0]}">${x[1]}</button>`).join('')}
 function vGate(M){if(!S.sum)return`<div class="lockbar shut"><span>Loading the game</span><span></span></div>`;const gt=gate(M);if(gt.pre)return`<div class="lockbar open"><span>Pregame lines open until ${esc(new Date(M.g.start).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}))}</span><span>${Rush.clock(M.g.start-Date.now())}</span></div>`;if(gt.open)return`<div class="lockbar open"><span>${esc(gt.name)}: lines open</span><span>${gt.book&&!gt.stop?'game lines at the book price':'locks in '+Math.ceil(gt.left)+'s'}</span></div>`;return`<div class="lockbar shut"><span>&#128274; ${esc(gt.why)}</span><span></span></div>`}
