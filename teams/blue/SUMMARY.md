@@ -65,6 +65,7 @@ What is new compared with a group chat, a pick feed or a reaction bar:
 - The Ranks contest switcher and its link to contests.
 - Home's contest cards, join-with-a-code handler and crew boost.
 - The game page's "Place in" contest row.
+- The Slips page's contest header (contest name, ACTIVE tag and a Units total) and the Units figure on each open Slip.
 - The store's list of created contests (it now returns none, so there is one contest: the week).
 - The old Lounge rooms: one space now, Reads.
 - The unused contest kit script and the contest tag on the game page's Field rows.
