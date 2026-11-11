@@ -14,7 +14,7 @@ Home opens on the weekly contest, in this order:
    - After kickoff it splits into With you and Against you, by face.
    - Each card opens that game, and also the Lounge focused on that game.
 5. **The Field right now:** the latest events from the one event source, each with up to three faces and the people named ("Sharp hit, Tungsten missed · COL at TOR"), including big plays with who they are good and bad for.
-6. **The Field:** the top five plus you, with rank arrows that show who moved since you last looked.
+6. **The Field (only in a Field bigger than 7):** the top five plus you, with rank arrows. In a Field of 7 the ladder already shows everyone.
 7. **An invite door at the bottom** (index.html#invite): the share sheet, or copy the link.
 
 ## Profile: yours and everyone else's
