@@ -1,62 +1,80 @@
-# Team Red, Phase 4 round two: Reads
+# Team Red, Phase 4 round two: Blindside
 
 - App: https://mclovin-codes.github.io/live-lab/teams/red/app/
 - Honest view, 7 players and nothing generated: https://mclovin-codes.github.io/live-lab/teams/red/app/lounge.html?field=7
 
-## The mechanic: Reads
-Every pick in the Field is sealed until kickoff. Reads turns each sealed pick into a one-tap question: which side did they take? You answer before kickoff, the kickoff reveal scores you, and the final settles the pick.
+## The mechanic: Blindside
+Every pick in the Field is sealed until kickoff. Blindside turns each sealed pick into one blind call: what did they take? Pick one of four (either team, Over or Under). The kickoff reveal scores your call, and the final settles the pick.
 
 ## What to tap first
-1. Open the Reads tab (it replaces the Lounge). At ?field=7 it shows exactly 7 players: you, your matchup opponent and five more.
-2. On the first card, your opponent's sealed pick, tap a side: Over or Under, or one of the two teams. Your read is in.
-3. Optionally tag the read with one tap: Lock, Gut call or Trap.
-4. Look at the Read-off panel: you vs your opponent on who reads the other better this week.
-5. Tap any face to open that player's profile. "Read their picks" there shows only that player's sealed picks.
-6. On any game page, "Read the Field's sealed picks on this game" opens Reads for that one game.
+1. Open the Blindside tab (it replaces the Lounge). At ?field=7 it shows exactly 7 players: you, your matchup opponent and five more.
+2. "Next reveal" at the top shows the next kickoff, how many sealed picks it opens and a countdown.
+3. On the first card (your opponent's sealed pick), tap one of the four calls. You can change it until kickoff. Optionally tag it Lock, Gut call or Trap.
+4. Below your opponent's cards, the Read-off scores you vs your opponent on who calls the other better this week.
+5. Any face opens a profile. There, "Call their picks" shows only that player's sealed picks, and Block and Report sit on every player. Every game page links to Blindside for that game.
 
 ## How it works with 7 players and nobody typing
-It runs on taps, not talk. With 7 players the honest view has well over a hundred sealed picks to read this week. Each one is a two-button card with the game, the market, the Stack sealed on it and a countdown to kickoff. Nothing on the screen needs anyone to type, and nothing in ?field=7 is invented: no head counts, no generated reads, no chatter. The only social numbers are your own reads and your opponent's, and the page says "has not read you yet" when that is the truth.
+It runs on fixed taps, not talk. With 7 players the honest view has about 90 sealed line picks to call this week. Each card shows only the player, the game and a countdown; side, line, market and stake stay sealed. Nothing in ?field=7 is invented: no head counts, no generated calls, no chatter. Where the truth is zero, the page says so ("No reads yet", "has not read you yet").
 
 ## What brings a player back
-- Something pending: every read waits for its kickoff. Reads opens on "Next reveal": the next game, how many sealed picks it reveals and a countdown. Home shows the same reveal time.
-- The reveal moment: reads that resolved while you were away open the page once ("Dan took TOR. You read it"), then clear.
-- Something that resolves twice: the kickoff reveal scores your read, then the final settles the pick.
-- Something to answer: your opponent's sealed picks sit on top. The Read-off score moves every night, and the 1v1 has a second contest inside it.
-- Something that sticks: your Read record (percent read right, scored, waiting) sits on your profile.
+- Something pending: every call waits for its kickoff, and Home shows the next reveal time.
+- The reveal moment: calls that resolved while you were away open the page once ("Dan took TOR. You read it"), then clear.
+- Two resolutions: the kickoff scores the call, then the final settles the pick.
+- The 1v1: your opponent's sealed picks sit on top, and the Read-off moves every game night.
+- A record that sticks: percent called right, scored and waiting, on your profile and on every player card you have called.
 
 ## What is ownable
-- Name: Reads (and the Read-off).
+- Name: Blindside, with the Read-off as the 1v1 score inside it.
+  - It is suggestive, not descriptive, and avoids pick, parlay, react, feed, chat, squad, social, league and challenge.
+  - Quick screen on 2026-11-10 (aggregator sites only): no live US mark for BLINDSIDE in class 9 or 41 was seen. A class 9 game-software registration was cancelled in 2019, and a class 28 toy mark exists.
+  - The app stores and the USPTO's own Trademark Search were not checked. This is a screen, not a clearance: the name needs a full trademark register check before it ships or is announced.
 - The steps, in order:
-  1. A player stakes Stack on a pick that stays sealed from the whole Field until its game starts.
-  2. Before kickoff, any other player answers a two-sided question about that sealed pick in one tap, optionally tagged Lock, Gut call or Trap.
-  3. At kickoff the pick is revealed and every read on it is scored right or misread.
-  4. At the final the pick itself settles, and both the reader's record and the picker's readability update.
-  5. Inside each 1v1 matchup, the two players' reads of each other form a second score, the Read-off.
+  1. A player stakes Stack on a line pick that stays sealed from the whole Field until its game starts.
+  2. Before kickoff, any other player makes one blind call on that sealed pick from four fixed options (either team, Over, Under). The four options are the same for every line market, so the call itself reveals nothing about the market.
+  3. At kickoff the pick is revealed and every call on it is scored right or misread.
+  4. At the final the pick settles. The caller's record updates, and so would the picker's readability, once other real players call them.
+  5. Inside each 1v1 matchup, the two players' calls on each other form a second score, the Read-off.
 - What is new:
-  - A group chat needs typing.
-  - A pick feed shows picks after they are made.
-  - A reaction bar rates something already visible.
-  - Reads makes the hidden pick itself the thing you play with, scored by the reveal, and ties it to the 1v1. It only works in a contest where every pick is sealed until kickoff.
+  - A group chat needs typing, a pick feed shows picks once made, a reaction bar rates something visible, and tail or fade copies a visible pick.
+  - Blindside acts on a pick nobody can see, scores the act at the reveal and ties it to the weekly 1v1.
+  - It depends on what only Rush has: every pick sealed until kickoff, one shared 1,000 Stack and a small known Field.
+
+## Playbook checklist
+1. The name is suggestive; the screen is partial (above). Yes, with the check still owed.
+2. No banned or descriptive words in the name. Yes.
+3. Written as ordered steps. Yes (above).
+4. One sentence on what is new. Yes (above).
+5. Depends on what only Rush has. Yes.
+6. Does anything of value move between players? No.
+7. Does a tap change a Stack, finish, record or prize? No. Calls make display and history only.
+8. Can a player learn another's side, price or stake before kickoff? No:
+   - Cards hide side, line, market and stake.
+   - Calls by others show only as a count, never which side.
+   - The Matchup page and player cards no longer show stake or market for sealed picks.
+   - One caveat: in this prototype the answer sits in the phone's storage, which a server must hold in the real app.
+9. Fixed taps only, with block and report. Yes: four calls and three tags, no free text, Block and Report on every player card (stored on the phone).
+10. Kept off public addresses? No. The mechanic has been public on GitHub Pages since about 8:09 PM ET on 2026-11-10 (first version, r5.2), and the earlier Lounge rooms since the afternoon. For attorney question 1.
 
 ## The two mechanics we dropped
-- Clash: when two players hold opposite sides of one game, pair them on a card and let the Field back one. Dropped because with 7 players clashes are rare, so most nights the space would be empty.
-- Ride or Fade: trust or doubt someone's sealed pick without guessing it. Dropped because it is a reaction bar on a hidden card. Reads asks a real question with a right answer at kickoff, which is what makes it scoreable and worth coming back for.
+- Clash: pair players who hold opposite sides of one game and let the Field back one. Dropped because with 7 players clashes are rare, and showing who is on which side before kickoff leaks sealed picks.
+- Ride or Fade: trust or doubt someone's sealed pick without guessing it. Dropped because it is tail and fade on a hidden card, which the competitor scan lists as generic.
 
 ## What the cleanup removed
 - Deleted: contest.html, contests.html, contest-kit.js, and the Phase 3 Contests sim (sim.html, sim-data.js).
 - Removed:
   - The contest switcher sheet and "Find or start a contest" from the top bar code.
-  - The Ranks contest switcher and its links.
+  - The Ranks contest switcher.
   - The Board's "Picking in" strip.
   - Home's contest lists, join-with-a-code and the Contest Boost row.
-  - The profile's "Contests you share" section.
-  - Every generated line naming a contest, since the old Lounge is gone.
+  - The profile's "Contests you share".
+  - The old Lounge and its contest lines.
+- Units are gone from the game page too.
 - A grep of the folder for contests.html, contest.html, contestId, commissioner, crew and squad finds nothing.
 
 ## Unfinished or faked
-- The 6 other players are stand-ins with stand-in picks. In a real build they are the real entrants and their real sealed picks.
-- Reads are stored on this phone only. With a server, your opponent's reads of you would appear at kickoff; in ?field=7 that panel honestly reads 0.
-- Readability (how often the Field reads you right) is described on your profile but stays empty until other real players read you, which needs the server.
-- With the honest view off, the page fills the full stand-in Field and stand-in reads; that view is labelled in the page footer.
-- Props and anything without two clear sides are not readable yet.
+- The 6 other players are stand-ins with stand-in picks.
+- Calls, tags, blocks and reports are stored on this phone only. With a server, your opponent's calls on you would appear at kickoff; in ?field=7 they honestly read 0.
+- Readability is named on your profile but stays empty until real players call you.
+- With the honest view off, the full stand-in Field and stand-in call counts show. The page footer labels that view.
+- Props and other non-line picks are not callable yet.
 - The Slips page still groups picks under one contest heading (the week), and the Board still offers live picks from the shared app.
