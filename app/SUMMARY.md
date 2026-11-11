@@ -39,13 +39,7 @@
   - picks lock at kickoff;
   - "The Field on this game" shows each player as sealed until kickoff. At kickoff it becomes "Seal broken: who took what": the side, price and stake for each player, tagged With you or Against you. This is the full table the Lounge's seal-break rows open;
   - a Lounge link opens the Lounge focused on that game.
-- **Home** (Gold), in order:
-  1. **The contest card:** your rank as one big number, your Stack and its move since Tuesday, every face in rank order with rank arrows, and doors to the Board and the contest.
-  2. **Your matchup:** a tug bar with the same lead figure as everywhere else, and the countdown to Thursday's pairing.
-  3. **For you:** replies aimed at you in the Lounge, then your own tapbacks and replies with what came back ("Waiting on Fade" until a real person answers).
-  4. **On tonight:** the three games that matter most, with faces, sealed counts and countdowns, then With you and Against you after kickoff.
-  5. **The Field right now:** the latest events, big plays included.
-  6. **An invite door.**
+- **Home** (Gold): the contest card with the rank strip, your matchup, For you, On tonight, The Field right now, and the invite door (details in Gold's section below).
 
 ## The one social space: the Lounge (Red, rebuilt after the council's 4-0 verdict)
 
@@ -158,21 +152,76 @@
   - the other side of the same pick replaces it;
   - picks from one game combine into a same-game parlay.
 
-## Profile and Slips (Gold)
+## Gold: the top bar, Home, profiles and where Slips live
 
-- **Every profile:** a big face, the Stack, the rank, the season record and the move this week. One player has one face everywhere.
+### The top bar (every page)
+- **As the Rush app has it** (AppHeader.tsx): on the left, your face (your chosen preset avatar) and the page title; on the right, ONE pill with the real Stack mark (the three chips from CreditCoin.tsx) and your Stack. Nothing else: no subtitle, no rank line, no opponent, no boxed label.
+- **The pill is alive:** when your Stack changes it counts to the new figure and flashes green or red once. A tap opens the Stack sheet.
+- Bebas Neue figures and the app's colours (#0B1118, #121A23, #00BFFF, #10B981, #EF4444).
+
+### Home: the week, front and centre
+Home opens on the weekly contest, in this order:
+1. **The contest card:**
+   - your rank and your Stack side by side as big figures, the Stack with its mark, and the move since Tuesday;
+   - the Field or My circle switch;
+   - the rank strip: every player in rank order, swiped sideways, with the gap under it ("91 behind 1st"):
+     - 1st is pinned at the left edge, always.
+     - Your tile sits in its own place in the order. While your place is off to the right, your tile waits at the right edge and the others pass by.
+     - When your place arrives, your tile falls back into line, and past you it scrolls away to the left. If you are 1st, there is one tile, pinned left.
+     - Ranks are unique (the store breaks ties). Each face carries its Stack and a rank-move arrow, and pulses green or red when that player's pick settles.
+   - two doors: Make picks (Board) and The contest.
+2. **Your matchup:** one row with both Stacks and the gap as the figure ("+89, you lead"), a tug bar, and the countdown to Thursday's 7:00 PM pairing.
+3. **For you:** replies other players aimed at you in the Lounge, each with a door to reply, then your own tapbacks and replies with what came back ("You sent Fade 🔥 · Waiting on Fade"). The honest view shows only real replies, so the waiting line stays until a real person answers.
+4. **On tonight:** the three games that matter most right now. Live games come first, then games you hold a pick on, then games the Field is on.
+   - Before kickoff a card shows the faces of the players who have a pick on it, the number of sealed picks and the countdown to the seal breaking. It never shows a side or a stake.
+   - After kickoff it splits into With you and Against you, by face.
+   - Each card opens that game, and also the Lounge focused on that game.
+5. **The Field right now:** the latest events from the one event source, each with up to three faces and the people named ("Sharp hit, Tungsten missed · COL at TOR"), including big plays with who they are good and bad for.
+6. **The Field (only in a Field bigger than 7):** the top five plus you, with rank arrows. In a Field of 7 the ladder already shows everyone.
+7. **An invite door at the bottom** (index.html#invite): the share sheet, or copy the link.
+
+### Profile: yours and everyone else's
+- **Opening one:** every face and name on Home, in the Lounge and in the Contest opens player.html?u=<id>. Your own avatar in the top bar opens yours (the Me tab).
+- **Every profile:** a banner, a big face, the name, then figures only: Stack (with the mark), rank of the Field, season record, and the move this week.
+- **Faces everywhere** are the Rush app's 12 preset avatars (an Ionicon in a tinted disc, from faces.js). Yours is the one you choose; stand-ins keep a stable one.
+- **Edit profile (on Me):** choose your avatar from the app's presets, a banner from six, and your display name. The avatar shows in the header, on Home, on profiles, and wherever a page draws faces with faces.js.
 - **Another player's profile adds:**
-  - you vs them, as a Stack bar;
-  - Between you: your tapbacks and replies to them ("Waiting on Fade" until one comes back), and their replies to you;
-  - their week: sealed picks show only the game and the countdown; picks that have kicked off show the side, tagged With you or Against you; settled picks show HIT or MISS;
-  - Talk in the Lounge, Add to my circle, Block and Report.
-- **Your profile adds:** your Slips (Open and Settled), your opponent, and your Season 1 weeks as green and red tiles.
-- **Slips live in two places:** the Stack sheet (one tap from any page) and Me. The full Slips page (placed picks, Open and Settled) is linked from Me, and its Parlay button opens the one Slip. There is no Slips tab.
-- **Visual pass:**
-  - one palette on every page: background #0A0F15, cards #141C26, text #F4F7FA, accent #3DB8FF;
-  - big numbers in Barlow Condensed;
-  - sub-lines 13px or larger;
-  - motion off under reduced motion.
+  - You vs them: a Stack bar and "You are 319 behind";
+  - Between you: your tapbacks and replies to them ("Waiting on Fade" until one comes back), and their replies to you with a door to reply in the Lounge;
+  - their week: picks that have kicked off show the side, with a WITH YOU or AGAINST YOU tag when you are on the same game; sealed picks show only the game and the countdown; settled picks show HIT or MISS;
+  - Talk in the Lounge, Add to my circle (the Lounge's My circle reads it), Block and Report.
+- **Your profile adds:** your Slips (Open and Settled), your matchup opponent, and your Season 1 weeks as green and red tiles.
+
+### My circle (Gold's parts)
+- **A filter, not a second space.** Home's contest card has a switch: The Field or My circle. My circle keeps the same ladder, ranks and Stacks, showing only you and your circle (ranks stay the whole Field's).
+- **Who is in it:** the players you invited, the one who invited you, and friends you added, once both sides confirm.
+- **Adding:** on another player's profile, "Add Dan to my circle" sends an ask. The button then reads "Asked. Waiting on Dan to confirm". When someone asks you, it reads "Dan asked to join your circle. Confirm" (one tap). Stand-ins confirm only in the stand-in view, never in the honest view.
+- **Inviting:** the invite door at the bottom of Home shares the app link with your name in it. A friend arriving by that link sees "Dan invited you" with Confirm. The link only prefills; the circle commits when both sides confirm. There is no reward for inviting or adding, and no push.
+- **Me:** your circle, who is waiting on whom, "In your friends' circles" (friends of friends to add) or, when that is empty, players to add, and Invite a friend while the circle is small.
+- **An empty circle** shows three faces to add and the invite door, never a blank page.
+
+### Where Slips live
+- **The Stack sheet:** tap your Stack in the top bar for the Stack, the rank and your open Slips (Blue's shell).
+- **Me:** your Slips, Open and Settled, each with its game, its live score or kickoff countdown, the stake and the return.
+- **slips.html:** the full page of placed picks, linked from Me ("All Slips"). Its Parlay tab opens the one shared Slip (Rush.slip), so there is one way to build a parlay.
+- There is no Slips tab.
+- **One Slip card everywhere (slip-card.js):** Me, slips.html, other players' profiles and the Lounge all draw a Slip the same way, like a real slip.
+  - A straight or a prop is one line with market, line and price.
+  - A parlay (two to five legs, across games or inside one game) is ONE card listing every leg with its state: sealed, open, live with the score, hit or missed.
+  - Underneath: Stake, the combined price, and what it pays (or paid).
+  - On another player's Slip, each leg shows only its game until its own kickoff, and the stake, price and what it pays stay sealed until every leg has started (Blue's Rush.sealView).
+  - A Slip with every leg still sealed folds into one compact row: its games, "Each leg opens at its kickoff, first in 3d 13h", and "stake sealed". A profile of six Slips fits on a phone screen.
+  - Home counts a Slip once per game, so a five-leg parlay is one Slip with one stake.
+
+### The visual pass
+- **One palette and type scale on Home, profiles and Slips:**
+  - background #0A0F15, cards #141C26 and #1B2531;
+  - text #F4F7FA, muted text #A3AFBD, accent #3DB8FF;
+  - green #3DD68C, red #FF6B6B;
+  - big numbers in Barlow Condensed 800.
+- Sub-lines are 13px or larger. Motion (the Field strip, the tug bars, the live dot) turns off under reduced motion.
+- The same palette went to Blue and Red for their pages, plus one face system for everyone.
+- Slips show Stack only; the old unit labels are gone.
 
 ## What came from each team
 
