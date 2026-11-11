@@ -29,6 +29,7 @@ Then open Home: the Sealbreak card shows how many picks are left to read, your r
 ## What brings a player back
 - Something is always pending: reads waiting on kickoffs, and a "next seal breaks in 31m" clock on Sealbreak and on Home.
 - Each card resolves twice: the read at kickoff, the pick at the final.
+- **The moment the seal breaks plays on screen,** on any page, once per read. The sealed card fades away and the pick appears: "Sharp Shelly took HOU -4.5, 59 staked", then YOU READ IT or MISREAD, with your call and your line. Several breaks play one after another.
 - New picks seal every day.
 - Your read record sits on Sealbreak, Home and your profile. Another player's profile shows how well you read them, with a link to their sealed picks.
 
