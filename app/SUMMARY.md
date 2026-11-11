@@ -66,7 +66,7 @@
 
 - What you sent stays on the card, with their answer under it.
 - Talk sits on top: "Say something about this game" attaches a line to the game.
-- **The Field or My circle:** a switch filters the same space to the players you invited, the one who invited you and friends you added. This was approved by the chief of staff. Ranks stay Field ranks, and there is no boost, timer or separate contest.
+- **The Field or My circle:** the founder's 9:50 PM addition, as a switch on the same space (see My circle below).
 
 ## My circle (the founder's 9:50 PM note): a filter, not a second space
 
@@ -117,7 +117,7 @@
 **Tap counts, before and after:**
 - **One straight:** 2 before (price, Lock in a sheet over the game). 3 after (price, bar, Place), and the game stays in view until you choose to open the Slip.
 - **Two-leg parlay across games:** not possible before (6 taps for two legs inside one game). 4 after (price, price on the other game, bar, Place), plus the taps to move between games.
-- **Two picks from one game:** 4 before (price, Lock, price, Lock). 4 after (price, price, bar, Place), as two straights or a parlay with one tab tap.
+- **Two picks from one game:** 4 before (price, Lock, price, Lock). 4 after (price, price, bar, Place) as a parlay, or one more tap (Straights) to place them as two straights.
 
 ## Profile and Slips (Gold)
 
@@ -127,7 +127,7 @@
   - their week: sealed picks show only the game and the countdown; picks that have kicked off show the side, tagged With you or Against you; settled picks show HIT or MISS;
   - Talk in the Lounge, Add to my circle, Block and Report.
 - **Your profile adds:** your Slips (Open and Settled), your opponent, and your Season 1 weeks as green and red tiles.
-- **Slips live in two places:** the Stack sheet (one tap from any page) and Me. The full page with the parlay builder is linked from Me. There is no Slips tab.
+- **Slips live in two places:** the Stack sheet (one tap from any page) and Me. The full Slips page (placed picks, Open and Settled) is linked from Me, and its Parlay button opens the one Slip. There is no Slips tab.
 - **Visual pass:**
   - one palette on every page: background #0A0F15, cards #141C26, text #F4F7FA, accent #3DB8FF;
   - big numbers in Barlow Condensed;
