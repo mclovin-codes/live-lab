@@ -10,7 +10,7 @@
 ## What to tap first
 
 1. **Home:** your rank as one big number, your Stack, and a strip of every player's face placed by Stack. Below them are tonight's games, with the faces of who is on each.
-2. **Lounge:** one screen. Your matchup, every face, the game that is on (with you, against you), then the room. Hold or double-tap any row for a tapback or a reply.
+2. **Lounge:** one page that scrolls, with a slim game bar and the composer that stay put. Tap the bar for the game card. Hold or double-tap any row for a tapback or a reply.
 3. **Contest:** two equal panels, The contest and Your matchup. Tap one to open it.
 4. **Board:** league pills, one row of market tabs, three price columns. A tap adds the pick to the one Slip bar; tap the bar to place.
 5. **Your Stack** (top right on every page): your Stack, rank, matchup, open Slips and the free Reload.
@@ -61,26 +61,22 @@
   - a Lounge link opens the Lounge focused on that game.
 - **Home** (Gold): the contest card with the rank strip, your matchup, For you, On tonight, The Field right now, and the invite door (details in Gold's section below).
 
-## The one social space: the Lounge (Red, rebuilt after the council's 4-0 verdict)
+## The one social space: the Lounge (Red, rebuilt as one page scroll after the founder's 12:05 AM note)
 
-**One screen for the whole Field.** The Lounge fits one phone screen. At the top, always in view: your matchup, the faces of the Field, and the game that is on. Below them, only the room scrolls, and it opens at its newest row. There are no rooms and no fixed lines.
+**One page that scrolls like a chat.** The Lounge is one page scroll with no box scrolling inside another. Three things stay put: the header, a slim game bar, and the composer docked above the tabs and the Slip bar. Everything else, the room included, scrolls with the page, and the page opens at its newest row (or at "New since you left"). There are no rooms and no fixed lines.
 
-**At the top (pinned):**
+**At the top (scrolls away):**
 1. **The Field / My circle** switch.
 2. **Your matchup:** You 1,000, them 1,091, "down 91". It is one figure from one source (Blue's `Rush.matchup()`), the same number Contest shows.
-3. **The faces:** the app's preset avatars (Gold's `RushFace`, your own from Edit profile) for every player with rank and Stack (1 to 7 in the honest view), the rank read straight from the store's unique `r.rank` (ties broken there), you ringed blue and your opponent pink. Every face opens a profile.
-4. **The game that is on:** Gold's one game card (`GameCard`, the same card as Home and the Board, drawn compact here), with drawn team marks and no logo images. Swipe for the others. Before kickoff its Spread, Total and ML cells add to the one Slip.
-   - Live score and period with a pulsing dot.
-   - Before kickoff: who holds a Slip on it, and a countdown.
-   - Each side keeps to one row of faces, with "+N" for the rest.
-   - After kickoff: "With you on NY", "Against you on MIL", "On the Over", or "On this game" for props, which have no opponent. With and against compares only legs of the same market.
-   - A "Next seal" chip counts down to the next kickoff.
+3. **The faces:** the app's preset avatars (Gold's `RushFace`, your own from Edit profile) for every player with rank and Stack (1 to 7 in the honest view), the rank read straight from the store's unique `r.rank`, you ringed blue and your opponent pink. Every face opens a profile.
 
-**The room (scrolls):** the only home for the week's stream of moments, one thread, newest at the bottom, with a "New since you left" divider.
+**The game bar (sticky):** one line for the game that is on: both team marks, the score, and the live clock with a pulsing dot (or SEALED and a countdown before kickoff). A tap opens Gold's one game card (`GameCard`, the same card as Home, drawn compact) with drawn team marks, no logo images; swipe it for the other games, and before kickoff its Spread, Total and ML cells add to the one Slip. A "Next seal" chip counts down to the next kickoff.
+
+**The room:** the only home for the week's stream of moments, one thread, newest at the bottom, with a "New since you left" divider.
 - **Slips sealing:** one row per player, naming only the games.
 - **Seal broken:** one row per game (score, faces ringed green with you and red against you). It opens to each player's Slip.
 - **Slips settling:** a Stack move shows as a big green or red figure that counts up on arrival, only on the game that decided the Slip; other legs show Blue's line ("Needs WSH +4.5 and 1 more"). Several on one game fold into one row ("4 Slips settled on FLA at CBJ") with the two biggest moves, and a tap anywhere on the row opens the rest.
-- **Opening a row** (a settlement, a seal broken): one block open at a time. Its header sticks to the top of the room, its Slips scroll inside it, and it ends in "Hide 17 Slips", so it closes from where the thumb is. While it is open the game card steps aside so the block gets the room's height; closing returns the room to where the block started.
+- **Opening a row** (a settlement, a seal broken): one block open at a time. Its header sticks under the game bar, its Slips scroll inside it, and it ends in "Hide 17 Slips", so it closes from where the thumb is; closing returns the page to where the block started.
 - **Earlier today** holds everything older.
 
 **Every pick is a Slip,** drawn with Gold's one Slip card:
@@ -94,11 +90,11 @@
 - When ranks change, the faces slide into their new order and the moved rank badges flash.
 - The live score ticks when it changes.
 
-**Phone details:** the composer rides on top of the keyboard (`visualViewport`) with a 16 px input; long lines wrap inside their bubble; sideways rows never pull the page; the room re-docks when the Slip bar appears and stays pinned down to a 375 x 667 screen.
+**Phone details:** the composer rides on top of the keyboard (`visualViewport`) with a 16 px input; long lines wrap inside their bubble; sideways rows never pull the page; the composer re-docks when the Slip bar appears.
 
 **One tap, and talk on top:**
 - Hold or double-tap any row for the tapback tray: heart, thumbs up, thumbs down, laugh, exclamation, question, or Reply. One per player per row; your face shows as a badge on the row.
-- Reply quotes the row into the one composer, docked above the tabs and the Slip bar. A line you send is tagged with the game on the pinned card ("on DET at STL").
+- Reply quotes the row into the one composer, docked above the tabs and the Slip bar. A line you send is tagged with the game on the game bar ("on DET at STL").
 - Home's "For you" shows your tapbacks and replies.
 
 ## My circle (the founder's 9:50 PM note): a filter, not a second space
@@ -224,7 +220,7 @@ Home opens on the weekly contest, in this order:
 
 ### One game card, and no logos (game-card.js, team-mark.js)
 - **At the team's scale (founder 12:10):** 46 px team marks, 30 px team codes, 40 px scores, 62 by 54 px price cells, and no text under 13 px.
-- **One card for Home and the Lounge's pinned game,** in the team's own look (founder 11:40: the team's sizing, type and contrast: #141C26 card, 20px corners, a chip header, Barlow Condensed 800 figures, #3DB8FF price cells). The Board draws its own rows with the same team marks and three-column cells. It takes only the mechanics from the Rush app's board cards:
+- **One card for Home and the Lounge's game bar,** in the team's own look (founder 11:40: the team's sizing, type and contrast: #141C26 card, 20px corners, a chip header, Barlow Condensed 800 figures, #3DB8FF price cells). The Board draws its own rows with the same team marks and three-column cells. It takes only the mechanics from the Rush app's board cards:
   - a header with the league and the clock or kickoff;
   - two team rows, each with the team mark, its code, name and record, and the score;
   - while the game is open, the price cells: Spread, Total and ML, tapping into the one Slip exactly as on the Board.
@@ -294,7 +290,7 @@ Home opens on the weekly contest, in this order:
   - real Slips for every player (straights, props, parlays), the seal per leg, and grading;
   - one rank rule (unique ranks) and one lead figure;
   - QA-SWEEP.md and this summary.
-- **Red:** the Lounge, rebuilt as one screen:
+- **Red:** the Lounge, rebuilt as one page scroll:
   - the matchup and faces;
   - the live game card with you and against you;
   - Seal broken, live;
@@ -312,7 +308,7 @@ Home opens on the weekly contest, in this order:
 
 ## The sweep (the founder's 11:20 PM note)
 
-Every team swept its own pages on the live link, in both views, at 375x812 and 375x667: scrolling, sideways scrollers, every control, every text box, every sheet, back, forward and reload, and the safe area. Each check, its result and the commit that fixed it are in app/QA-SWEEP.md. Still open: the Lounge in the full view at 375x667 scrolls as a whole page, because its head is too tall to pin, and the Lounge composer riding the keyboard needs a check on a real iPhone.
+Every team swept its own pages on the live link, in both views, at 375x812 and 375x667: scrolling, sideways scrollers, every control, every text box, every sheet, back, forward and reload, and the safe area. Each check, its result and the commit that fixed it are in app/QA-SWEEP.md. The Lounge is now one page scroll, so nothing is pinned over the room. Still open: the Lounge composer riding the keyboard needs a check on a real iPhone.
 
 ## Expert lines kept
 
@@ -324,7 +320,7 @@ Every team swept its own pages on the live link, in both views, at 375x812 and 3
 
 ## Unfinished or faked
 
-- **Sample data, stated plainly:** where the feed has no player lines yet, the NFL game page shows Touchdowns, Passing, Rushing and Receiving with sample lines marked "Sample lines until the week's lines post". Sample cells take no picks. Spread and total prices on the Board are a stand-in -110 because the scoreboard feed gives none.
+- **Sample data, stated plainly:** where the feed has no player lines yet, the NFL game page shows Touchdowns, Passing, Rushing and Receiving with sample lines marked "Sample lines until the week's lines post". Sample cells take no picks. The Board's NFL Touchdowns, Passing, Receiving and Rushing tabs show sample player rows under the same note, because the feed carries no NFL player leaders this week. Spread and total prices on the Board are a stand-in -110 because the scoreboard feed gives none.
 
 - **The other players are stand-ins.** Their picks are real games and lines, but not real people. They never tap back or reply, so in the honest view only your own tapbacks and talk appear.
 - **On this phone only:** tapbacks, talk, Block, Report, the circle and the invite link work locally. Nobody else sees them until a server exists.

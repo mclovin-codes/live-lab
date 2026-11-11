@@ -122,3 +122,17 @@ The checks:
 | Game page | Prop rows | A plain grey jersey for every player; names and lines wrapped at 375 | Fixed in 7bea218 (the player's number in his team's colours, 40 px; one line each) |
 | Game page | NFL player props | Real lines show (Pass Yds, Rush Yds, Rec Yds, Receptions, Anytime touchdown); sample sections only when the feed has none | OK (7bea218) |
 | Store | Team colours and jersey numbers | Both colours on every team; leaders carry the jersey number and position | Fixed in 6c04ccf |
+
+## The founder's 12:05 AM note: the Lounge as one page, and the 12:10 Board note
+
+| Page | Action | Result | Fixed in / open |
+|---|---|---|---|
+| Lounge | Scroll top to bottom and back, 375x812 and 375x667 | One page scroll, no nested scroller; the game bar stays at 53 px | Fixed in ad84723 (Red) |
+| Lounge | Tap the game bar, then again | The shared card opens and closes under the bar | Fixed in ad84723 (Red) |
+| Lounge | Open a settlement, then Hide | The block header sits right under the bar; Hide closes it back to its start | Fixed in ad84723 (Red) |
+| Lounge | Send a line at the bottom of the page | The line lands above the composer and stays in view | OK |
+| Lounge | Visitor, 31-player view, 375x667 | Contest lines blurred, talk readable, the door works, Enter lifts the blur | OK |
+| Board | NFL chips | Touchdowns, Passing, Receiving, Rushing with sample player rows and the sample note | Fixed in 6affb28 (Red) |
+| Board | Marks | 44 px team marks, 40 px player marks with the jersey number, no images | Fixed in 6affb28, 647ff05 (Red) |
+| Board | Chip and pill taps, live, 375x667 | 8 to 24 ms | OK |
+| Board | NFL player rows | Samples, because the feed carries no NFL player leaders this week | Open (stated in SUMMARY.md) |
