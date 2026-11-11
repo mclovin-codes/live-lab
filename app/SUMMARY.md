@@ -102,6 +102,7 @@
   - **Parlay:** the legs, remove per leg, and Add picks, which drops you back with the bar minimized.
   - **Straights:** a stake box per pick, plus Stake all.
 - Under both tabs: quick-add chips (+10, +25, +50, +100, no Max) and a number pad. One button reads the stake and what it pays, or "Enter stake" (disabled) when there is none. The stake starts at your last stake.
+- At Place the price is checked: a better price is taken, a worse one asks once ("Price moved... Tap again"). A stake above your Stack reads "Your Stack is 225".
 - After placing: a receipt with the picks, stake, pays and time, plus Keep picks in Slip and Done.
 - Featured parlays fill the same Slip.
 
@@ -177,5 +178,5 @@
 - **Big plays** come from ESPN's scoring plays for NFL and NHL. The time shown is when this phone first saw the play. NBA has no big plays, because scoring is constant.
 - **The time a stand-in placed a Slip** is simulated before its kickoff. Your own Slips use the real time.
 - **Rank arrows on Home** compare with what this phone last saw.
-- **The Slip places at the price shown when you tapped.** It does not yet recheck a price that moved before you place (the ruling: a better price is taken, a worse one asks).
+- **The price check at Place** covers picks on the game page you have open: a better price is taken, a worse one asks once. A pick from another game places at the price shown when you tapped it.
 - **A stand-in's pick on a game that started before this phone first loaded it** is a moneyline at -110, because the scoreboard no longer carries that game's pregame line.
