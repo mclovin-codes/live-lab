@@ -145,3 +145,16 @@ The checks:
 | Lounge | Open a block | Grows in the page with no inner scroll; one at a time; Hide Slips closes it | Fixed in 3b76231 (Red) |
 | Lounge | Keyboard up (iPhone Safari) | The composer rides visualViewport | Open: needs a check on a real iPhone |
 | Board | Live taps on the final marks and card, 375x667 | 8 to 48 ms, no images, no errors | OK |
+
+## The founder's 12:35 AM note: the Slip while placing
+
+| Page | Action | Result | Fixed in / open |
+|---|---|---|---|
+| Slip | Six legs from two games | A flat list; the number pad pushed Place off the screen | Fixed in 41dbf7d (legs grouped by game; the stake row and Place pinned; the pad opens from the stake box) |
+| Slip | Leg names | "WSH RB anytime TD" (a position, not a name) | Fixed in 41dbf7d and 075d126 (the player's real name and one list of short market names) |
+| Slip | NYG -2.5 and NYG moneyline together | Both sat in one parlay | Fixed in 41dbf7d (one line says they cannot share a parlay; Straights offered) |
+| Slip | Clear all | Cleared at once | Fixed in 41dbf7d (asks once in one row) |
+| Slip | Place a 3-pick parlay, live link, 375x667 | The receipt lists the legs by game with a ring each, then stake, pays and time | OK |
+| Slip | An NFL sample pick from the Board | Would place a line that never grades | Fixed in 3b66adc (marked as a sample; Place is disabled with one line saying why) |
+| Board | Picks into the Slip, live | "Anytime goal / J. Guentzel #59", "Points 25+ / J. Brunson #11" | Fixed in 8c73daf (Red) |
+| Lounge | After the Slip change, 375x812 | The room is 72% of the screen, opens at the newest row, page width 375 | OK (Red) |
