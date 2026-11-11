@@ -121,6 +121,27 @@
 - **Two-leg parlay across games:** not possible before (6 taps for two legs inside one game). 4 after, straight from the Board: price, price on another row, bar, Place.
 - **Two picks from one game:** 4 before (price, Lock, price, Lock). 4 after (price, price, bar, Place) as a parlay, or one more tap (Straights) to place them as two straights.
 
+## Real Slips, for every player (after the founder's 10:45 PM note)
+
+- **Every player's picks are real Slips, in the honest view and the full Field alike:**
+  - straights on the spread, the total and the moneyline;
+  - player props, built from each game's pregame leaders: NBA points, rebounds and assists; NHL goals ("to score"), assists and points at 0.5;
+  - parlays of 2 to 5 legs, some across games and some inside one game.
+- **The mix** follows COHORT-WEEK8.md (Weeks 5 to 8: about 6 Slips per entrant, 48% parlays). The cohort has no figure for props, so about a third of straights are props. Tonight's stand-in Field comes out at about 43% parlays, 8% props and 49% straights.
+- **One Slip shape for all of them:** legs (game, market, selection, line, price, result), stake, combined price, what it pays, and status. Gold's Slip card draws it on Me, Slips and every profile.
+- **The seal holds on each leg.** A straight or prop opens at its game's kickoff. A parlay is one card whose legs open one by one, each at its own game's kickoff. Before that a leg shows only the game: no market, side, line, price or stake, and the stake and price stay sealed while any leg is sealed.
+- **Grading:**
+  - each leg grades at its game's final, props from the box score;
+  - a parlay settles as soon as a leg misses, or when its last leg is in;
+  - the Stack moves once, on the game that decided the Slip.
+- **The events carry the whole Slip:** a settled row says which leg hit or missed and what the Slip still needs ("Needs WSH +4.5 and 1 more", "Missed: Over 226.5"). Rank and Stack moves come from Slip results.
+- **With you or against you** compares like with like: team against team, Over against Under. A prop sits under "on this game", with no opponent invented.
+- **The builder takes props the same way as sides:**
+  - a prop row on the game page taps into the same minimized Slip bar;
+  - props from different players stack;
+  - the other side of the same pick replaces it;
+  - picks from one game combine into a same-game parlay.
+
 ## Profile and Slips (Gold)
 
 - **Every profile:** a big face, the Stack, the rank, the season record and the move this week. One player has one face everywhere.
@@ -179,4 +200,5 @@
 - **The time a stand-in placed a Slip** is simulated before its kickoff. Your own Slips use the real time.
 - **Rank arrows on Home** compare with what this phone last saw.
 - **The price check at Place** covers picks on the game page you have open: a better price is taken, a worse one asks once. A pick from another game places at the price shown when you tapped it.
+- **Props:** the NFL weekly scoreboard carries no player leaders, so stand-ins hold no NFL props yet; your own NFL props from the game page work. A prop leg on a game this phone first saw after kickoff is not offered, because the pregame leaders are gone by then.
 - **A stand-in's pick on a game that started before this phone first loaded it** uses that game's closing line from ESPN's game summary, because the scoreboard drops the pregame line at kickoff. Only when no closing line exists does it fall back to a moneyline at -110.
