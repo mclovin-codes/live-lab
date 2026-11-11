@@ -15,7 +15,7 @@ function week(){const s=RS();try{if(s&&s.week){const w=typeof s.week==='function
 function days(w){const out=[];for(let t=w.start+3*36e5;t<w.end;t+=864e5)out.push(etDay(t));return[...new Set(out)]}
 
 const num=x=>{if(x==null||x==='')return null;const t=String(x).toUpperCase();if(t==='EVEN'||t==='EV')return 100;const n=parseFloat(t.replace(/[^0-9.+-]/g,''));return isFinite(n)?n:null};
-function norm(league,e){const c=e.competitions&&e.competitions[0]||{},st=e.status||c.status||{},ty=st.type||{};const side=h=>{const x=(c.competitors||[]).find(k=>k.homeAway===h)||{},t=x.team||{};return{id:t.id,abbr:t.abbreviation||'',name:t.shortDisplayName||t.displayName||'',logo:t.logo||(t.abbreviation?`https://a.espncdn.com/i/teamlogos/${league}/500/${t.abbreviation.toLowerCase()}.png`:''),score:x.score!=null?+x.score:null,record:x.records&&x.records[0]&&x.records[0].summary||''}};
+function norm(league,e){const c=e.competitions&&e.competitions[0]||{},st=e.status||c.status||{},ty=st.type||{};const side=h=>{const x=(c.competitors||[]).find(k=>k.homeAway===h)||{},t=x.team||{};return{id:t.id,abbr:t.abbreviation||'',name:t.shortDisplayName||t.displayName||'',logo:t.logo||(t.abbreviation?`https://a.espncdn.com/i/teamlogos/${league}/500/${t.abbreviation.toLowerCase()}.png`:''),score:x.score!=null?+x.score:null,record:x.records&&x.records[0]&&x.records[0].summary||'',leaders:(x.leaders||[]).filter(l=>['points','rebounds','assists','goals'].includes(l.name)).map(l=>{const a=(l.leaders||[])[0]||{},t=a.athlete||{};return{cat:l.name,id:t.id?String(t.id):'',name:t.shortName||t.displayName||'',value:+a.value}}).filter(x=>x.id&&x.value>0)}};
  const o=(c.odds||[])[0]||{},ml=o.moneyline||{};const hml=num(o.homeTeamOdds&&o.homeTeamOdds.moneyLine)??num(ml.home&&(ml.home.close||ml.home.open||{}).odds),aml=num(o.awayTeamOdds&&o.awayTeamOdds.moneyLine)??num(ml.away&&(ml.away.close||ml.away.open||{}).odds);
  return{league,id:e.id,date:Date.parse(e.date),state:ty.state||'pre',done:!!ty.completed,detail:ty.shortDetail||ty.detail||'',period:st.period||0,clock:st.displayClock||'',home:side('home'),away:side('away'),line:{details:o.details||'',ou:num(o.overUnder),spread:num(o.spread),hml,aml},broadcast:(c.broadcasts||[]).flatMap(b=>b.names||[]).join(', ')}}
 /* live line: the scoreboard drops odds once a game starts. The book posts live odds at whistles and goes OFF while play runs,
@@ -42,7 +42,9 @@ async function load(force){if(!force&&cache&&Date.now()-cacheAt<15000)return cac
  const all=(await Promise.all(jobs)).flat(),seen=new Set,games=[];for(const g of all){const k=g.league+g.id;if(seen.has(k))continue;seen.add(k);if(g.date>=w.start-6*36e5&&g.date<=w.end)games.push(g)}
  await Promise.all(games.filter(g=>g.state==='in'&&g.line.hml==null&&SP[g.league]).map(async g=>{const k=g.league+g.id;if(!AT[k]||Date.now()-AT[k]>30e3){AT[k]=Date.now();try{const r=await J(`${SB}${LEAGUES[g.league].path}/summary?event=${g.id}`),L=postedLine((r.pickcenter||[])[0]);if(L)keepLast(k,L);else dropLast(k)}catch(e){}}const L=liveLine(g,last()[k]);if(L)g.liveLine=L}));
  /* keep each game's pregame line after kickoff (the scoreboard drops it), so the Field's picks stay the same picks once revealed */
- try{const LN=JSON.parse(localStorage.getItem('rw.lines')||'{}'),has=L=>L&&(L.hml!=null||L.ou!=null||L.spread!=null),keep={};for(const g of games){const k=g.league+g.id;if(g.state==='pre'&&has(g.line))LN[k]=g.line;else if(!has(g.line)&&LN[k])g.line=LN[k];if(LN[k])keep[k]=LN[k]}
+ try{const LN=JSON.parse(localStorage.getItem('rw.lines')||'{}'),has=L=>L&&(L.hml!=null||L.ou!=null||L.spread!=null),keep={};const LD=JSON.parse(localStorage.getItem('rw.leaders')||'{}'),keepL={};for(const g of games){const k=g.league+g.id;if(g.state==='pre'&&has(g.line))LN[k]=g.line;else if(!has(g.line)&&LN[k])g.line=LN[k];if(LN[k])keep[k]=LN[k];const ld=[...(g.away.leaders||[]).map(x=>({...x,team:'away'})),...(g.home.leaders||[]).map(x=>({...x,team:'home'}))];if(g.state==='pre'&&ld.length)LD[k]=ld;if(LD[k]){g.propsFrom=LD[k];keepL[k]=LD[k]}}try{localStorage.setItem('rw.leaders',JSON.stringify(keepL))}catch(e){}
+  /* box scores for games gone final in the last 30 hours (prop grading), fetched once each */
+  const BX=JSON.parse(localStorage.getItem('rw.box')||'{}');const needBox=games.filter(g=>g.done&&g.propsFrom&&!BX[g.league+g.id]&&Date.now()-g.date<30*36e5).slice(0,12);await Promise.all(needBox.map(async g=>{try{const r=await J(`${SB}${LEAGUES[g.league].path}/summary?event=${g.id}`);const box={};((r.boxscore&&r.boxscore.players)||[]).forEach(t=>(t.statistics||[]).forEach(gr=>(gr.athletes||[]).forEach(a=>{const id=a.athlete&&a.athlete.id;if(!id)return;const b=box[id]=box[id]||{};(gr.keys||gr.names||[]).forEach((kk,i)=>{const v=parseFloat(String((a.stats||[])[i]||'').split('-')[0]);if(!isNaN(v))b[kk]=v})})));BX[g.league+g.id]=box}catch(e){}}));try{localStorage.setItem('rw.box',JSON.stringify(BX))}catch(e){}
   /* a started game this phone never saw before kickoff: take its closing line from the summary, once */
   const miss=games.filter(g=>g.state!=='pre'&&!has(g.line)&&Date.now()-g.date<18*36e5).slice(0,20);await Promise.all(miss.map(async g=>{try{const r=await J(`${SB}${LEAGUES[g.league].path}/summary?event=${g.id}`),L=closeLine((r.pickcenter||[])[0]);if(L){g.line=L;keep[g.league+g.id]=L}}catch(e){}}));
   localStorage.setItem('rw.lines',JSON.stringify(keep))}catch(e){}
@@ -65,9 +67,37 @@ function grade(p){const g=p.g;if(!g.done||g.home.score==null)return null;const H
  return r}
 let inField=false;
 function field(games){const nested=inField;inField=true;try{return fieldRows(games,nested)}finally{inField=nested}}
+/* ---------- Slips: every player's picks as real Slips (straights, player props, parlays of 2 to 5 legs) ----------
+   Mix (COHORT-WEEK8.md, Weeks 5 to 8): about 48% parlays (325 of 678); the cohort has no prop share, so a third of
+   straights are props. One shape for all: {id, kind, legs[], stake, odds, win, status, units}; each leg
+   {league, gameId, g, game, start, market, label, line, odds, side, player?, stat?, status}. */
+const STATK={points:'points',rebounds:'rebounds',assists:'assists',goals:'goals'};
+function boxOf(g){try{return(JSON.parse(localStorage.getItem('rw.box')||'{}'))[g.league+g.id]||null}catch(e){return null}}
+function legOf(b,g,salt){const k=b.id+'|'+g.league+g.id+'|'+salt,m=hash(k+'m'),gm=g.away.abbr+' at '+g.home.abbr,base={league:g.league,gameId:String(g.id),g,game:gm,start:g.date};
+ const ld=g.propsFrom||[];if(ld.length&&m<.34){const p=ld[Math.floor(hash(k+'p')*ld.length)],over=hash(k+'o')<.72,line=(p.cat==='goals'||g.league==='nhl')?.5:Math.max(.5,Math.floor(p.value)+.5);
+  return{...base,market:'prop',t:'prop',player:p.name,playerId:p.id,stat:p.cat,line,side:over?'over':'under',odds:p.cat==='goals'?(over?180:-240):g.league==='nhl'?(over?120:-150):(over?-115:-105),label:p.cat==='goals'?(p.name+(over?' to score':' no goal')):(p.name+' '+(over?'Over':'Under')+' '+line+' '+p.cat)}}
+ const q=botPick({...b,act:2},g);if(!q)return null;const side=q.side==='o'?'over':q.side==='u'?'under':q.side;return{...base,market:q.t,t:q.t,side,line:q.line,odds:q.odds,label:pickLabel(q,g)}}
+function legGrade(l){const g=l.g;if(!g||!g.done||g.home.score==null)return'open';if(l.market==='prop'){const bx=boxOf(g);if(!bx)return'open';const st=bx[l.playerId];const v=st?(+st[STATK[l.stat]]||0):0;if(l.stat==='goals')return(v>=1)===(l.side==='over')?'won':'lost';if(v===l.line)return'push';return(v>l.line)===(l.side==='over')?'won':'lost'}
+ const r=grade({t:l.market,side:l.side==='over'?'o':l.side==='under'?'u':l.side,line:l.line,g});return r||'open'}
+const decO=o=>o>0?1+o/100:1+100/Math.abs(o),amerD=d=>d>=2?Math.round((d-1)*100):Math.round(-100/(d-1));
+function slipFrom(id,legs,stake,at){legs.forEach(l=>{l.status=legGrade(l)});const live=legs.filter(l=>l.status!=='push');const d=live.reduce((x,l)=>x*decO(l.odds),1),odds=live.length?amerD(d):100;
+ let status='open';if(legs.some(l=>l.status==='lost'))status='lost';else if(legs.every(l=>l.status!=='open'))status=live.length?'won':'push';
+ const win=Math.round(stake*d),kind=legs.length>1?'parlay':legs[0].market==='prop'?'prop':'straight',f=legs[0];
+ const sl={id,kind,legs,stake,odds,win,status,at,units:status==='won'?(win-stake)/10:status==='lost'?-stake/10:status==='push'?0:null,
+  league:f.league,gameId:f.gameId,g:f.g,game:legs.length>1?[...new Set(legs.map(l=>l.game))].join(' + '):f.game,market:legs.length>1?legs.length+'-leg parlay':(f.market==='prop'?'Player prop':marketName(f.market,f.league)),t:legs.length>1?'parlay':f.market,label:legs.length>1?legs.length+'-leg parlay':f.label};
+ if(legs.length>1)sl.same=new Set(legs.map(l=>l.gameId)).size===1;return sl}
+const SLIPM={};
+function botSlips(b,games){const n=games.reduce((a,g)=>a+(g.done?1:0)+(g.state==='in'?1000:0)+(g.propsFrom?7:0)+(boxOf(g)?3:0),0)+'|'+games.length;if(SLIPM[b.id]&&SLIPM[b.id].n===n&&SLIPM[b.id].g===games)return SLIPM[b.id].v;
+ const cand=games.filter(g=>hash(b.id+'|'+g.league+g.id)<b.act).sort((x,y)=>x.date-y.date),out=[];let i=0;
+ while(i<cand.length){const g=cand[i],k=b.id+'|'+g.league+g.id,stake=Math.round(b.unit*(.6+hash(k+'q')*1.2));
+  if(hash(k+'kind')<.5&&i+1<cand.length){const n2=2+Math.floor(hash(k+'n')*4),legs=[];let j=i;
+   const sgp=hash(k+'sgp')<.35;if(sgp){for(const salt of ['a','c','d','e'].slice(0,Math.min(4,n2))){const l=legOf(b,g,salt);if(l&&!legs.some(x=>x.market===l.market&&(x.market!=='prop'||x.playerId===l.playerId)))legs.push(l)}j=i+1}
+   while(!sgp&&legs.length<n2&&j<cand.length){const l=legOf(b,cand[j],'p');if(l&&!legs.some(x=>x.gameId===l.gameId&&x.market===l.market))legs.push(l);j++}
+   if(legs.length>=2){out.push(slipFrom(b.id+'-'+k+'-par',legs,Math.max(5,Math.round(stake*.5)),Math.min(...legs.map(l=>l.start))-(1+hash(k+'t')*30)*36e5));i=Math.max(j,i+1);continue}}
+  const l=legOf(b,g,'s');if(l)out.push(slipFrom(b.id+'-'+k,[l],stake,g.date-(1+hash(k+'t')*30)*36e5));i++}
+ SLIPM[b.id]={n,g:games,v:out};return out}
 let botMemo={g:null,n:-1,day:"",rows:null};
-function botRows(games){const td=etDay(Date.now()),n=games.reduce((a,g)=>a+(g.done?1:0)+(g.state==="in"?1000:0),0);if(botMemo.g===games&&botMemo.n===n&&botMemo.day===td)return botMemo.rows.map(r=>({...r}));const rows=FIELD.map(b=>{let pl=0,w=0,l=0,open=0,today=0;for(const g of games){const p=botPick(b,g);if(!p)continue;const r=botResult(b,g,p);/* botResult carries the seeded skill edge */
-   if(!r){open++;continue}if(r==='push')continue;const d=r==='won'?toWin(p.stake,p.odds):-p.stake;pl+=d;if(etDay(g.date)===td)today+=d;r==='won'?w++:l++}
+function botRows(games){const td=etDay(Date.now()),n=games.reduce((a,g)=>a+(g.done?1:0)+(g.state==="in"?1000:0),0);if(botMemo.g===games&&botMemo.n===n&&botMemo.day===td)return botMemo.rows.map(r=>({...r}));const rows=FIELD.map(b=>{let pl=0,w=0,l=0,open=0,today=0;for(const p of botSlips(b,games)){const r=p.status;if(r==='open'){open++;continue}if(r==='push')continue;const d=p.units*10;pl+=d;const last=Math.max(...p.legs.map(x=>x.start));if(etDay(last)===td)today+=d;r==='won'?w++:l++}
   return{id:b.id,name:b.name,units:pl/10,today:today/10,w,l,open,sim:true}});botMemo={g:games,n,day:td,rows};return rows.map(r=>({...r}))}
 /* one bot's result on one game, the same rule the Field uses */
 function botResult(b,g,p){let r=grade(p);if(r==='won'||r==='lost'){if(r==='lost'&&hash(b.id+g.id+'x')<Math.max(0,b.edge))r='won';if(r==='won'&&hash(b.id+g.id+'y')<Math.max(0,-b.edge))r='lost'}return r}
@@ -77,9 +107,11 @@ function marketName(t,league){if(t==='spread'&&league==='nhl')return'Puck line';
 function pickLabel(p,g){const fl=x=>(x>0?'+':'')+x;if(!g)return p.label||'';if(p.t==='ml')return`${(p.side==='home'?g.home:g.away).abbr} to win`;if(p.t==='spread')return`${(p.side==='home'?g.home:g.away).abbr} ${fl(p.line)}`;if(p.t==='total')return`${p.side==='o'?'Over':'Under'} ${p.line}`;return p.label||''}
 function playerPicks(id,games,cid){games=games||cached()||[];const out=[];
  if(id==='me'){const s=RS();if(!s||typeof s.picks!=='function')return out;let ps=[];if(cid&&cid!=='rush'&&s.wallet&&typeof s.wallet.picks==='function'){try{ps=s.wallet.picks(cid)||[]}catch(e){}}else{try{ps=s.picks({week:s.week().id})}catch(e){ps=s.picks()}}
-  for(const p of ps){const g=games.find(x=>x.league===p.league&&String(x.id)===String(p.gameId));const k=p.spec&&p.spec.k||'';out.push({league:p.league,gameId:p.gameId,g,game:p.game,market:p.legs?`${p.legs.length}-leg parlay`:marketName(k,p.league)||k,t:k,label:p.label,odds:p.odds,stake:p.stake,status:p.status,units:p.status==='open'?null:((p.pay||0)-p.stake)/10,at:p.at,live:!!p.live,raw:p})}return out}
+  for(const p of ps){const g=games.find(x=>x.league===p.league&&String(x.id)===String(p.gameId));const k=p.spec&&p.spec.k||'';const sd=sp=>sp&&(sp.side==='o'?'over':sp.side==='u'?'under':sp.side);
+   const legs=(p.legs&&p.legs.length?p.legs:[{league:p.league,gameId:p.gameId,game:p.game,spec:p.spec,label:p.label,odds:p.odds,st:p.status}]).map(x=>{const gg=games.find(y=>y.league===x.league&&String(y.id)===String(x.gameId));const sp=x.spec||{};return{league:x.league,gameId:String(x.gameId),g:gg,game:x.game,start:gg?gg.date:p.start,market:(sp.k==='prop'||sp.k==='pp')?'prop':(sp.k||k),label:x.label,line:sp.line,odds:x.odds,side:sd(sp),player:sp.name||sp.player,status:x.st||x.status||(p.legs?'open':p.status)}});
+   out.push({id:p.id,kind:legs.length>1?'parlay':legs[0].market==='prop'?'prop':'straight',legs,league:p.league,gameId:p.gameId,g,game:p.game,market:p.legs?(p.legs.length+'-leg parlay'):(marketName(k,p.league)||k),t:k,label:p.label,odds:p.odds,stake:p.stake,win:p.win!=null?Math.round(p.stake+p.win):null,status:p.status,units:p.status==='open'?null:((p.pay||0)-p.stake)/10,at:p.at,live:!!p.live,raw:p,me:true})}return out}
  const b=FIELD.find(x=>x.id===id);if(!b)return null;
- for(const g of games){const p=botPick(b,g);if(!p)continue;const r=botResult(b,g,p);out.push({league:g.league,gameId:g.id,g,game:`${g.away.abbr} at ${g.home.abbr}`,market:marketName(p.t,g.league),t:p.t,label:pickLabel(p,g),odds:p.odds,stake:p.stake,status:r||'open',units:r==='won'?toWin(p.stake,p.odds)/10:r==='lost'?-p.stake/10:r==='push'?0:null,at:g.date})}
+ return botSlips(b,games).slice()
  return out}
 function fieldRows(games,nested){const rows=botRows(games);
  if(nested){rows.sort((a,b)=>b.units-a.units);return rows}/* called from the shared store while it builds its own Field: bots only, no me(), or the two would recurse */

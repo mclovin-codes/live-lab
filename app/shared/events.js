@@ -21,7 +21,7 @@
   const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
   const honest = () => !!(R.honest && R.honest());
   const gname = g => g.away.abbr + ' at ' + g.home.abbr;
-  function sideOf(p) { const g = p.g, l = String(p.label || ''); if (/^over/i.test(l)) return 'over'; if (/^under/i.test(l)) return 'under'; if (g && l.startsWith(g.home.abbr)) return 'home'; if (g && l.startsWith(g.away.abbr)) return 'away'; return null; }
+  function sideOf(p) { if (['home', 'away', 'over', 'under'].includes(p.side)) return p.side; const g = p.g, l = String(p.label || ''); if (/^over/i.test(l)) return 'over'; if (/^under/i.test(l)) return 'under'; if (g && l.startsWith(g.home.abbr)) return 'home'; if (g && l.startsWith(g.away.abbr)) return 'away'; return null; }
   const started = g => g.state !== 'pre' || Date.now() >= g.date;
   const ended = g => g.state === 'post' || g.done;
   function build() {
@@ -30,29 +30,38 @@
     let field = []; try { field = W.field(games); } catch (e) {}
     const now = Date.now(), ev = [], byGame = {};
     const H = honest();
+    /* every player's Slips (stand-ins and yours), one entry per leg on each game */
+    const bySlip = [];
     field.forEach(r => {
       let ps = []; try { ps = W.playerPicks(r.me ? 'me' : r.id, games) || []; } catch (e) {}
-      ps.forEach(p => {
-        const g = p.g || games.find(x => x.league === p.league && String(x.id) === String(p.gameId)); if (!g) return;
-        const pp = Object.assign({}, p, { g });
-        const who = { id: r.me ? 'me' : String(r.id), name: r.me ? (r.name || 'You') : r.name, me: !!r.me };
-        /* when the Slip was placed: the store's own time for you, a fixed spread before kickoff for the Field */
-        const placed = r.me ? (p.at || (p.raw && p.raw.at) || g.date - 36e5) : g.date - (1 + hash(who.id + '|' + g.id) * 40) * 36e5;
-        if (placed <= now) ev.push({ id: 's|' + who.id + '|' + g.league + g.id, type: 'sealed', at: placed, league: g.league, gameId: String(g.id), game: gname(g), players: [{ id: who.id, name: who.name, me: who.me }], text: who.name + ' sealed a pick on ' + gname(g), honest: H });
-        const k = g.league + '|' + g.id; (byGame[k] = byGame[k] || { g, picks: [] }).picks.push({ who, p: pp });
+      const who = { id: r.me ? 'me' : String(r.id), name: r.me ? (r.name || 'You') : r.name, me: !!r.me };
+      ps.forEach(sl => {
+        const legs = (sl.legs && sl.legs.length ? sl.legs : [sl]).map(l => Object.assign({}, l, { g: l.g || games.find(x => x.league === l.league && String(x.id) === String(l.gameId)) })).filter(l => l.g);
+        if (!legs.length) return;
+        const slip = Object.assign({}, sl, { legs });
+        const placed = r.me ? (sl.at || legs[0].g.date - 36e5) : (sl.at || legs[0].g.date - 36e5);
+        bySlip.push({ who, slip });
+        if (placed <= now) ev.push({ id: 's|' + who.id + '|' + (sl.id || legs[0].league + legs[0].gameId), type: 'sealed', at: Math.min(placed, now), league: legs[0].league, gameId: String(legs[0].gameId), game: [...new Set(legs.map(l => l.game))].join(' + '), players: [{ id: who.id, name: who.name, me: who.me, slipId: sl.id }], text: who.name + ' sealed a Slip on ' + [...new Set(legs.map(l => l.game))].join(', '), honest: H });
+        legs.forEach(l => { const k = l.g.league + '|' + l.g.id; (byGame[k] = byGame[k] || { g: l.g, picks: [] }).picks.push({ who, p: l, slip }); });
       });
     });
     let riv = null; try { riv = R.rival ? R.rival() : null; } catch (e) {}
+    /* what a Slip still needs, or why it missed */
+    const need = sl => { const L = sl.legs || []; const lost = L.find(l => l.status === 'lost'); if (lost) return 'Missed: ' + lost.label; const open = L.filter(l => l.status === 'open'); if (!open.length) return sl.status === 'won' ? 'Hit' : ''; if (L.length === 1) return ''; const first = open.slice().sort((a, b) => a.g.date - b.g.date)[0]; return 'Needs ' + (started(first.g) ? first.label : first.game) + (open.length > 1 ? ' and ' + (open.length - 1) + ' more' : ''); };
+    /* the game where a settled Slip was decided: the first leg that missed, else its last leg */
+    const decidedOn = sl => { if (sl.status === 'open') return null; const L = sl.legs || []; const lost = L.filter(l => l.status === 'lost').sort((a, b) => a.g.date - b.g.date)[0]; const l = lost || L.slice().sort((a, b) => b.g.date - a.g.date)[0]; return l ? l.g.league + '|' + l.g.id : null; };
     Object.values(byGame).forEach(({ g, picks }) => {
       if (!started(g)) return;
-      const full = x => ({ id: x.who.id, name: x.who.name, me: x.who.me, side: sideOf(x.p), label: x.p.label, stake: x.p.stake });
+      const k = g.league + '|' + g.id;
+      const full = x => ({ id: x.who.id, name: x.who.name, me: x.who.me, slipId: x.slip.id, side: sideOf(x.p), label: x.p.label, market: x.p.market, leg: x.p, stake: R.sealView(x.slip).stake, slip: x.who.me ? x.slip : R.sealView(x.slip) });
       ev.push({ id: 'r|' + g.league + g.id, type: 'reveal', at: g.date, league: g.league, gameId: String(g.id), game: gname(g), players: picks.map(full), text: 'Seal broken on ' + gname(g) + ': ' + picks.length + ' pick' + (picks.length > 1 ? 's' : ''), honest: H });
-      if (!ended(g)) ev.push({ id: 'l|' + g.league + g.id + '|' + (g.detail || ''), type: 'live', at: Math.max(g.date, now - 6e4), league: g.league, gameId: String(g.id), game: gname(g), players: picks.map(x => ({ id: x.who.id, name: x.who.name, me: x.who.me, side: sideOf(x.p) })), text: g.away.abbr + ' ' + (g.away.score ?? '') + ', ' + g.home.abbr + ' ' + (g.home.score ?? '') + (g.detail ? ' · ' + g.detail : ''), honest: H });
+      if (!ended(g)) ev.push({ id: 'l|' + g.league + g.id + '|' + (g.detail || ''), type: 'live', at: Math.max(g.date, now - 6e4), league: g.league, gameId: String(g.id), game: gname(g), players: picks.map(x => ({ id: x.who.id, name: x.who.name, me: x.who.me, side: sideOf(x.p), market: x.p.market, slipId: x.slip.id })), text: g.away.abbr + ' ' + (g.away.score ?? '') + ', ' + g.home.abbr + ' ' + (g.home.score ?? '') + (g.detail ? ' · ' + g.detail : ''), honest: H });
       else {
         const done = picks.filter(x => ['won', 'lost', 'push'].includes(x.p.status));
-        if (done.length) ev.push({ id: 'f|' + g.league + g.id, type: 'settled', at: Math.min(now, g.date + 3 * 36e5), league: g.league, gameId: String(g.id), game: gname(g), players: done.map(x => Object.assign(full(x), { result: x.p.status, change: Math.round((x.p.units || 0) * 10) })), text: gname(g) + ' is final', honest: H });
+        if (done.length) ev.push({ id: 'f|' + g.league + g.id, type: 'settled', at: Math.min(now, g.date + 3 * 36e5), league: g.league, gameId: String(g.id), game: gname(g), players: done.map(x => Object.assign(full(x), { result: x.p.status, slipStatus: x.slip.status, change: decidedOn(x.slip) === k ? Math.round((x.slip.units || 0) * 10) : 0, need: need(x.slip) })), text: gname(g) + ' is final', honest: H });
       }
     });
+
     /* big plays: scoring plays in live or final NFL and NHL games the Field holds picks on (fetched below) */
     let PL = {}; try { PL = JSON.parse(localStorage.getItem('rush-plays-v1') || '{}'); } catch (e) {}
     Object.values(byGame).forEach(({ g, picks }) => { if (!started(g)) return; (PL[g.league + '|' + g.id] || []).forEach(pl => {
@@ -86,6 +95,8 @@
   function events() { let raw = ''; try { raw = (localStorage.getItem('rw.games') || '').length + '|' + (localStorage.getItem('rush-v2') || localStorage.getItem('rush') || '').length; } catch (e) {} const k = raw + '|' + honest() + '|' + Math.floor(Date.now() / 15e3); if (memo.k !== k) memo = { k, v: build() }; return memo.v; }
   const subs = []; let seen = null;
   function tick() { const list = events(); if (!seen) { seen = new Set(list.map(e => e.id)); return; } list.slice().reverse().forEach(e => { if (!seen.has(e.id)) { seen.add(e.id); subs.forEach(f => { try { f(e); } catch (x) {} }); } }); }
+  /* a Slip as another player may see it: legs whose game has not kicked off show only the game; the stake, price and pays stay sealed while any leg is sealed */
+  R.sealView = function (sl) { if (!sl) return sl; const legs = (sl.legs && sl.legs.length ? sl.legs : [sl]); let any = false; const L = legs.map(l => { const g = l.g || { date: l.start, state: 'pre' }; if (started(g)) return l; any = true; return { league: l.league, gameId: l.gameId, game: l.game, start: l.start || g.date, sealed: true }; }); return Object.assign({}, sl, { legs: L, sealed: any, stake: any ? null : sl.stake, odds: any ? null : sl.odds, win: any ? null : sl.win, label: any ? (L.length > 1 ? L.length + '-leg parlay' : 'Sealed') : sl.label }); };
   R.events = events;
   R.eventsFor = gameId => events().filter(e => String(e.gameId) === String(gameId));
   R.onEvent = fn => { subs.push(fn); if (!seen) tick(); };

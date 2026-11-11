@@ -72,10 +72,10 @@ body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.38 var(--rb-font);fo
  <div id="rb-main"><div class="rb-skel"></div><div class="rb-skel"></div><div class="rb-skel"></div></div>
 </div>
 <nav id="rb-tabs" hidden></nav>
-<script src="shared/state.js?v=f1103"></script>
-<script src="week-games.js?v=f1103"></script>
-<script src="shared/nav.js?v=f1103"></script>
-<script src="shared/events.js?v=f1103"></script>
+<script src="shared/state.js?v=f1104"></script>
+<script src="week-games.js?v=f1104"></script>
+<script src="shared/nav.js?v=f1104"></script>
+<script src="shared/events.js?v=f1104"></script>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
@@ -90,7 +90,7 @@ function ctx(){const W=window.Rush&&Rush.wallet;let cur=null;try{cur=W&&W.curren
 function ctxBar(C){const el=$('rb-ctx');if(el)el.hidden=true}
 function seg(sports){sports=sports||['nfl','nba','nhl'];if(lg!=='all'&&!sports.includes(lg))lg='all';$('rb-seg').hidden=sports.length<2;$('rb-seg').innerHTML=[['all','All'],['nfl','NFL'],['nba','NBA'],['nhl','NHL']].filter(([k])=>k==='all'||sports.includes(k)).map(([k,l])=>`<button role="tab" aria-selected="${lg===k}" class="${lg===k?'on':''}" data-lg="${k}">${l}</button>`).join('')}
 function lineTxt(g){const L=g.state==='in'&&g.liveLine||g.line;if(!L.details&&L.ou==null)return'';return`${esc(L.details||'')}${L.ou!=null?` <i>&middot;</i> O/U ${L.ou}`:''}${g.state==='in'&&L.seen?` <i>&middot;</i> last seen${L.seen>1?' '+esc(hFmt(L.seen).replace(/\s*ET$/,'')):''}`:''}`}
-let FACES={k:'',m:{}};function onGame(){const G=RW.cached()||[],k=G.length+'|'+(window.Rush&&Rush.honest&&Rush.honest())+'|'+Math.floor(Date.now()/3e4);if(FACES.k===k)return FACES.m;const m={};let f=[];try{f=RW.field(G)}catch(e){}f.forEach(r=>{let ps=[];try{ps=RW.playerPicks(r.me?'me':r.id,G)||[]}catch(e){}const seen=new Set;ps.forEach(p=>{const key=p.league+'|'+p.gameId;if(seen.has(key))return;seen.add(key);(m[key]=m[key]||[]).push(r)})});FACES={k,m};return m}
+let FACES={k:'',m:{}};function onGame(){const G=RW.cached()||[],k=G.length+'|'+(window.Rush&&Rush.honest&&Rush.honest())+'|'+Math.floor(Date.now()/3e4);if(FACES.k===k)return FACES.m;const m={};let f=[];try{f=RW.field(G)}catch(e){}f.forEach(r=>{let ps=[];try{ps=RW.playerPicks(r.me?'me':r.id,G)||[]}catch(e){}const seen=new Set;ps.forEach(p=>(p.legs&&p.legs.length?p.legs:[p]).forEach(l=>{const key=l.league+'|'+l.gameId;if(seen.has(key))return;seen.add(key);(m[key]=m[key]||[]).push(r)}))});FACES={k,m};return m}
 function onIt(g){const P=onGame()[g.league+'|'+g.id]||[];if(!P.length)return'';const av=n=>window.Rush&&Rush.nav&&Rush.nav.avatar?Rush.nav.avatar(n,1):'';return`<span class="rb-on" title="Players with a pick on this game">${P.slice(0,4).map(r=>av(r.me?(Rush.me().handle||'You'):r.name)).join('')}<em>${P.length} on it${g.state==='pre'?', sealed':''}</em></span>`}
 /* a tap on a moneyline price adds it to the one Slip (shared/slip.js); a second tap removes it. Same key as the game page. */
 function mlKey(g,side){return g.league+'|'+g.id+'|'+JSON.stringify({k:'ml',side})}
