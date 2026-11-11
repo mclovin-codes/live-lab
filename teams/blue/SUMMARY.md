@@ -29,7 +29,7 @@
 
 ## What brings a player back
 
-- **The same evening:** every read is pending until its kickoff. The "Next flip" clock tells you when the next one scores, and the game's final then grades the pick itself.
+- **The same evening:** every read is pending until its kickoff. The red badge on the Reads tab counts your reads waiting to flip. The "Next flip" clock tells you when the next one scores, and the game's final then grades the pick itself.
 - **The next day:** new sealed picks appear as the Field picks tomorrow's games.
 - **Your record:** your read record shows on Home, on your profile and on every other player's profile ("you on Line"). Your matchup opponent is always first to read.
 - **From any profile:** another player's profile lists their next sealed picks with read buttons, so tapping a name anywhere leads straight to reading them.
