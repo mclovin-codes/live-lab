@@ -19,8 +19,8 @@
       f = me.concat(riv ? f.filter(r => r.id === riv.id) : [], rest.slice(0, riv ? 5 : 6));
     }
     return f.map(r => Object.assign({}, r, { name: r.me ? handle() : clean(r.name), stack: r.stack != null ? Math.round(r.stack) : Math.round(1000 + (+r.units || 0) * 10) }))
-      .sort((a, b) => b.stack - a.stack || (b.me ? 1 : 0) - (a.me ? 1 : 0))
-      .map((r, i, all) => Object.assign(r, { rank: 1 + all.filter(x => x.stack > r.stack).length }));
+      .sort((a, b) => (a.rank && b.rank ? a.rank - b.rank : 0) || b.stack - a.stack || (b.me ? 1 : 0) - (a.me ? 1 : 0))
+      .map((r, i) => Object.assign(r, { rank: r.rank || i + 1 }));
   }
   const meRow = () => field().find(r => r.me) || { id: 'me', me: true, name: handle(), stack: 1000, rank: null };
   const player = id => field().find(r => String(r.id) === String(id)) || null;
@@ -31,7 +31,9 @@
   const col = s => { let h = 0; for (const c of String(s || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0; return HUES[h % HUES.length]; };
   const hue = n => Math.floor(hash('h' + n) * 360);
   const initials = s => { const w = String(s || '?').replace(/[^A-Za-z0-9 _]/g, '').split(/[ _]+/).filter(Boolean); return ((w[0] || '?')[0] + (w[1] ? w[1][0] : (w[0] || '').slice(1, 2))).toUpperCase(); };
-  function av(r, size, plain) { size = size || 40; const tag = plain ? 'span' : 'a'; return `<${tag} class="gu-av${r.me ? ' me' : ''}" ${plain ? '' : `href="${prof(r)}"`} style="width:${size}px;height:${size}px;font-size:${Math.round(size * .38)}px;background:${col(r.name)}" aria-label="${esc(r.name)}">${esc(initials(r.name))}</${tag}>`; }
+  function av(r, size, plain) { size = size || 40; if (window.RushFace) return RushFace.html(r, size, plain); const tag = plain ? 'span' : 'a'; return `<${tag} class="gu-av${r.me ? ' me' : ''}" ${plain ? '' : `href="${prof(r)}"`} style="width:${size}px;height:${size}px;font-size:${Math.round(size * .38)}px;background:${col(r.name)}" aria-label="${esc(r.name)}">${esc(initials(r.name))}</${tag}>`; }
+  const MARK = '<svg viewBox="0 0 100 92" aria-hidden="true" style="width:1em;height:.92em;vertical-align:-.08em;margin-right:.22em"><rect x="0" y="48" width="100" height="44" rx="22" fill="#075A8F"/><rect x="0" y="24" width="100" height="44" rx="22" fill="#0A6FB0"/><rect x="0.75" y="0.75" width="98.5" height="42.5" rx="21.25" fill="#00BFFF" stroke="#5FD8FF" stroke-width="1.5"/><rect x="12" y="6" width="34" height="14" rx="7" fill="#BFEFFF" opacity="0.75"/></svg>';
+  const stk = n => MARK + fmt(n);
   const nameLink = r => `<a class="gu-nm" href="${prof(r)}">${esc(r.me ? 'You' : r.name)}</a>`;
   const games = () => { try { return (window.RW && RW.cached && RW.cached()) || []; } catch (e) { return []; } };
   const started = g => !!g && (g.state !== 'pre' || Date.now() >= g.date);
@@ -76,5 +78,5 @@
     suggest(n) { try { if (Rush.circleSuggest) return (Rush.circleSuggest(n || 4) || []).map(x => player(x.id)).filter(Boolean); } catch (e) {} return field().filter(r => !r.me && this.state(r.id) === 'none').slice(0, n || 4); },
     fof() { const mine = this.ids(), pend = this.pend(), out = {}; mine.forEach(c => this.of(c).forEach(x => { if (!mine.includes(x) && !pend[x]) (out[x] = out[x] || []).push(c); })); return Object.keys(out).map(id => ({ p: player(id), via: out[id].map(player).filter(Boolean) })).filter(x => x.p && !x.p.me); },
   };
-  window.GU = { circle, esc, hash, mix, fmt, honest, field, meRow, player, opponent, prof, av, nameLink, games, started, until, when, picksOf, sideOf, mine, mySide, gameView, moves, hue, col, initials };
+  window.GU = { MARK, stk, circle, esc, hash, mix, fmt, honest, field, meRow, player, opponent, prof, av, nameLink, games, started, until, when, picksOf, sideOf, mine, mySide, gameView, moves, hue, col, initials };
 })();
