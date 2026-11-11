@@ -1,11 +1,13 @@
 /* Lounge (Red, one product): the one place. The game that is on with who is with you and against you, the kickoff
  * reveal as a moment, the Field's week moving with a face on every event, one-tap actions that land on a named player
- * who answers in one tap, and talk on top. Reads Blue's Rush.events when it exists, else derives events from the
+ * who answers in one tap, and talk on top. Uses Blue's Rush.events when it exists, else derives events from the
  * week's games and picks. Honest view (?field=7 or the footer switch): exactly 7 players, nothing generated.
  * Expert lines: nothing of value moves, no tap changes a Stack, no copy button, nothing before kickoff shows a sealed
  * pick's side, line, market or stake (sealed events name only the player, the game and the kickoff). */
 (function () {
   'use strict';
+  /* round two's guessing game is retired: clear anything it left on this phone */
+  ['rush-reads-v1', 'rush-reads-cards-v1', 'rush-field7', 'rush-lounge-rx-v1', 'rush-lounge-v1'].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
   const $ = id => document.getElementById(id), esc = x => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fmt = n => Math.round(+n || 0).toLocaleString('en-US');
   const h01 = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
@@ -23,7 +25,8 @@
   const stk = r => r ? (r.stack != null ? +r.stack : 1000 + Math.round((r.units || 0) * 10)) : 1000;
   const gname = g => g.away.abbr + ' at ' + g.home.abbr;
   const prof = (r, inner) => `<a class="lg-p" href="player.html?u=${encodeURIComponent(r.me ? 'me' : r.id)}">${inner}</a>`;
-  let games = (window.RW && RW.cached && RW.cached()) || [], focus = Q.get('g') || null, BROKE = null, talkOpen = null;
+  let games = (window.RW && RW.cached && RW.cached()) || [], focus = Q.get('g') || null, BROKE = null, talkOpen = null, EARLIER = false;
+  const OPENRV = new Set(), CLOSEDRV = new Set();
 
   /* ---------- My circle: the players you invited, who invited you, and friends you added, both sides confirmed ---------- */
   const SCOPE = 'rush-lounge-scope';
@@ -100,8 +103,8 @@
   function group(list, F) {
     const seal = {}, out = [], liveSeen = {};
     const rev = {};
-    let nPlays = 0;
-    list.forEach(e => { if (e.type === 'play' && e.src) return; if (e.type === 'bigplay' && ++nPlays > 4) return; if (e.type === 'sealed' && e.g && isStarted(e.g)) return;
+    const playSeen = {};
+    list.forEach(e => { if (e.type === 'play' && e.src) return; if (e.type === 'bigplay') { const pk = e.g ? e.g.league + e.g.id : e.text; if (playSeen[pk]) return; playSeen[pk] = 1; } if (e.type === 'sealed' && e.g && isStarted(e.g)) return;
       if (e.type === 'revealed' && e.g) { const k = e.g.league + e.g.id; if (!rev[k]) { rev[k] = { type: 'reveal', at: e.at, g: e.g, rows: [] }; out.push(rev[k]); } rev[k].rows.push(e); rev[k].at = Math.max(rev[k].at, e.at); return; } if (e.type === 'sealed' && e.r) { const k = e.r.id; if (!seal[k]) { seal[k] = { type: 'sealed', r: e.r, at: e.at, gs: [], g: e.g, p: e.p }; out.push(seal[k]); } const s0 = seal[k]; if (e.g && !s0.gs.some(g => g.id === e.g.id)) s0.gs.push(e.g); s0.at = Math.max(s0.at, e.at); } else out.push(e); });
     out.forEach(e => { if (e.gs) e.gs.sort((a, b) => a.date - b.date); });
     const riv = F.riv && F.riv.id, day = 864e5;
@@ -168,7 +171,7 @@
       else { const groups = {}; on.forEach(x => { (groups[x.side || 'Other'] = groups[x.side || 'Other'] || []).push(x); });
         const keys = Object.keys(groups).sort((a, b) => (b === ms) - (a === ms));
         h += `<div class="lg-sides">${keys.map(k => `<div class="lg-side${ms ? (k === ms ? ' with' : opposite(ms, k, g0) ? ' vs' : '') : ''}"><small>${ms ? (k === ms ? 'WITH YOU ON ' : opposite(ms, k, g0) ? 'AGAINST YOU ON ' : 'ON ') : 'ON '}${esc(k.toUpperCase())}</small><div class="lg-row">${groups[k].map(x => prof(x.r, av(x.r.name, 34, x.r.me ? 'me' : F.riv && x.r.id === F.riv.id ? 'riv' : ''))).join('')}</div></div>`).join('') || '<span class="lg-mut">Nobody in this view holds a pick on this game.</span>'}</div>`;
-        const src = PLAYS.filter(b => b.g && b.g.id === g0.id), plays = (src.length ? src : BIG.filter(b => b.g && b.g.id === g0.id)).slice(0, 3); if (plays.length) h += `<div class="lg-plays">${plays.map(b => `<div>${esc(b.text)}${b.on && b.on.length ? `<span class="lg-row" style="margin-top:6px">${b.on.map(r => prof(r, av(r.name, 24, r.me ? 'me' : ''))).join('')}</span>` : ''}</div>`).join('')}</div>`; }
+        const src = PLAYS.filter(b => b.g && b.g.id === g0.id), plays = (src.length ? src : BIG.filter(b => b.g && b.g.id === g0.id)).slice(0, 1); if (plays.length) h += `<div class="lg-plays">${plays.map(b => `<div>${esc(b.text)}${b.on && b.on.length ? `<span class="lg-row" style="margin-top:6px">${b.on.map(r => prof(r, av(r.name, 24, r.me ? 'me' : ''))).join('')}</span>` : ''}</div>`).join('')}</div>`; }
       const gt = (talk['g:' + g0.league + ':' + g0.id] || []).slice(-3);
       h += `${gt.map(t => `<div class="lg-line"><b>${esc(t.who)}</b> ${esc(t.text)}</div>`).join('')}${talkOpen === 'g:' + g0.league + ':' + g0.id ? `<form class="lg-say" data-say="g:${esc(g0.league + ':' + g0.id)}"><input maxlength="120" placeholder="Say something about ${esc(gname(g0))}" autocomplete="off"><button>Post</button></form>` : `<button class="lg-talk" data-talk="g:${esc(g0.league + ':' + g0.id)}">Say something about this game</button>`}</div>`;
     }
@@ -177,14 +180,18 @@
     if (next && next !== g0) h += `<button class="lg-next" data-g="${esc(next.league + ':' + next.id)}"><span><small>NEXT SEAL BREAKS</small><b>${esc(gname(next))}</b></span><b data-k="${+next.date}">${clock(+next.date - now)}</b></button>`;
     /* sent to you */
     const inbox = ls('rush-lounge-inbox-v1', []).filter(m => !honest() || m.real);
-    h += `<div class="lg-sh"><h2>Sent to you</h2></div>${inbox.length ? inbox.slice(-4).reverse().map(m => `<div class="lg-ev">${av(m.who, 36)}<div><b>${esc(m.who)}: ${esc(m.text)}</b><small>${esc(m.about || '')}</small>${m.ans ? `<div class="lg-sent"><span>You: ${esc(m.ans)}</span></div>` : `<div class="lg-acts"><button data-reply="${esc(m.id)}">${esc(ANSWER[m.k] || 'Thanks')}</button></div>`}</div></div>`).join('') : `<div class="lg-empty">${honest() ? 'Nothing yet. When a player taps you, it lands here and you answer in one tap.' : 'Nothing yet.'}</div>`}`;
+    h += inbox.length ? `<div class="lg-sh"><h2>Sent to you</h2></div>` : '';
+    h += `${inbox.length ? inbox.slice(-4).reverse().map(m => `<div class="lg-ev">${av(m.who, 36)}<div><b>${esc(m.who)}: ${esc(m.text)}</b><small>${esc(m.about || '')}</small>${m.ans ? `<div class="lg-sent"><span>You: ${esc(m.ans)}</span></div>` : `<div class="lg-acts"><button data-reply="${esc(m.id)}">${esc(ANSWER[m.k] || 'Thanks')}</button></div>`}</div></div>`).join('') : `<div class="lg-note">Nothing sent to you yet. When a player taps you, it lands here.</div>`}`;
     /* your taps and what came back */
-    const mineSent = Object.values(sent).sort((a, b) => b.at - a.at).slice(0, 3);
+    const mineSent = Object.values(sent).sort((a, b) => b.at - a.at).slice(0, 2);
     if (mineSent.length) h += `<div class="lg-sh"><h2>Your taps</h2></div>${mineSent.map(x => `<div class="lg-ev"><div><b>You to ${esc(x.to)}: ${esc(x.label)}</b>${realAns(x.ans) ? `<div class="lg-sent"><b>${esc(x.ans.who)}: ${esc(x.ans.text)}</b></div>` : `<small>${honest() ? 'Waiting on ' + esc(String(x.to).split(' ')[0]) + '. Their answer lands here.' : 'Waiting'}</small>`}</div></div>`).join('')}`;
     /* the Field's week moving */
     const ev = group(events(F), F);
-    h += `<div class="lg-sh"><h2>The Field this week</h2></div>`;
-    h += ev.length ? ev.map(e => {
+    /* the newest seal that broke in the last three hours leads Right now */
+    { const i = ev.findIndex(e => e.type === 'reveal' && Date.now() - e.at < 3 * 36e5); if (i > 0) ev.unshift(ev.splice(i, 1)[0]); }
+    h += `<div class="lg-sh"><h2>Right now</h2></div>`;
+    let firstRv = true;
+    const items = ev.map(e => {
       const k = evKey(e), s = sent[k], r = e.r; let line = '', sub = '';
       if (e.src && e.text && !['sealed', 'revealed', 'settled', 'bigplay', 'reveal'].includes(e.type)) { line = e.text; sub = ''; }
       else if (e.type === 'sealed') { const n = (e.gs || [e.g]).length; line = `${r.me ? 'You' : r.name} sealed ${n === 1 ? 'a pick on ' + gname(e.g) : n + ' picks'}`; sub = n === 1 ? `Sides open at ${when(+e.g.date)}` : (e.gs || []).slice(0, 4).map(g => gname(g) + ' ' + when(+g.date)).join(', ') + (n > 4 ? ', +' + (n - 4) : ''); }
@@ -192,13 +199,16 @@
       else if (e.type === 'settled') { line = `${r.me ? 'Your' : r.name + "'s"} ${gname(e.g)} pick ${e.p.status === 'won' ? 'hit' : 'missed'}`; sub = `${e.p.label}, ${e.p.status === 'won' ? '+' + fmt(e.p.win || 0) : '-' + fmt(e.p.stake)} Stack`; }
       else if (e.type === 'rank') { line = `${r.name} moved ${e.to < e.from ? 'up' : 'down'} to #${e.to}`; sub = `from #${e.from} in Ranks`; }
       else if (e.type === 'matchup') { line = e.lead > 0 ? `${r.name} leads your matchup by ${fmt(e.lead)}` : `You lead ${r.name} by ${fmt(-e.lead)}`; sub = 'Higher Stack on Monday night takes it'; }
-      else if (e.type === 'reveal') { const ms = mySide(e.g); return `<div class="lg-rv"><div class="lg-rv-h"><small>SEAL BROKEN &middot; ${esc(when(+e.g.date))}</small><b>${esc(gname(e.g))}</b>${e.g.state === 'in' ? `<span>${esc(e.g.away.abbr)} ${esc(e.g.away.score)}, ${esc(e.g.home.abbr)} ${esc(e.g.home.score)}</span>` : e.g.state === 'post' ? '<span>Final</span>' : ''}</div>${e.rows.sort((a, b) => (b.r.me ? 1 : 0) - (a.r.me ? 1 : 0) || (F.riv && b.r.id === F.riv.id ? 1 : 0) - (F.riv && a.r.id === F.riv.id ? 1 : 0)).slice(0, 8).map(x => { const k2 = evKey(x), s2 = sent[k2], tag = x.r.me ? 'you' : ms ? (opposite(ms, x.side, e.g) ? 'against you' : ms === x.side ? 'with you' : '') : '', acts = x.r.me ? [] : actsFor(x, ms);
+      else if (e.type === 'reveal') { const ms = mySide(e.g), rk = e.g.league + ':' + e.g.id, open = OPENRV.has(rk) || (firstRv && !CLOSEDRV.has(rk)); firstRv = false;
+        if (!open) return `<button class="lg-rv1" data-rv="${esc(rk)}"><small>SEAL BROKEN &middot; ${esc(when(+e.g.date))}</small><b>${esc(gname(e.g))}</b><span>${e.rows.length} ${e.rows.length === 1 ? 'pick' : 'picks'} &#8250;</span></button>`;
+        return `<div class="lg-rv"><div class="lg-rv-h"><small>SEAL BROKEN &middot; ${esc(when(+e.g.date))}</small><b>${esc(gname(e.g))}</b>${e.g.state === 'in' ? `<span>${esc(e.g.away.abbr)} ${esc(e.g.away.score)}, ${esc(e.g.home.abbr)} ${esc(e.g.home.score)}</span>` : e.g.state === 'post' ? '<span>Final</span>' : ''}</div>${e.rows.sort((a, b) => (b.r.me ? 1 : 0) - (a.r.me ? 1 : 0) || (F.riv && b.r.id === F.riv.id ? 1 : 0) - (F.riv && a.r.id === F.riv.id ? 1 : 0)).slice(0, 8).map(x => { const k2 = evKey(x), s2 = sent[k2], tag = x.r.me ? 'you' : ms ? (opposite(ms, x.side, e.g) ? 'against you' : ms === x.side ? 'with you' : '') : '', acts = x.r.me ? [] : actsFor(x, ms);
           return `<div class="lg-rv-r${tag === 'against you' ? ' vs' : tag === 'with you' ? ' with' : ''}">${prof(x.r, av(x.r.name, 34, x.r.me ? 'me' : F.riv && x.r.id === F.riv.id ? 'riv' : ''))}<div><b>${esc(x.r.me ? 'You' : x.r.name)} took ${esc(x.side || x.p.label)}</b><small>${fmt(x.p.stake)} Stack${tag ? ' &middot; ' + tag : ''}</small>${s2 ? answered(k2, s2) : ''}</div>${!s2 && acts.length ? `<span class="lg-minis">${acts.map(a0 => `<button class="lg-mini" data-act="${esc(a0[0])}" data-k="${esc(k2)}" data-who="${esc(x.r.name)}" data-id="${esc(x.r.id)}" data-l="${esc(a0[1])}">${esc(a0[1])}</button>`).join('')}</span>` : ''}</div>`; }).join('')}${e.rows.length > 8 ? `<div class="lg-more">+${e.rows.length - 8} more in the Field on this game</div>` : ''}${(() => { const tk = 'g:' + e.g.league + ':' + e.g.id, lines = (talk[tk] || []).slice(-2); return lines.map(t => `<div class="lg-line"><b>${esc(t.who)}</b> ${esc(t.text)}</div>`).join('') + (talkOpen === tk ? `<form class="lg-say" data-say="${esc(tk)}"><input maxlength="120" placeholder="Say something about ${esc(gname(e.g))}" autocomplete="off"><button>Post</button></form>` : `<button class="lg-talk" data-talk="${esc(tk)}">Say something about ${esc(gname(e.g))}</button>`); })()}</div>`; }
       else if (e.type === 'bigplay') return `<div class="lg-ev lg-play"><span class="lg-bolt">&#9679;</span><div><b>${esc(e.text)}</b><small>${esc(gname(e.g))}${e.on && e.on.length ? ' &middot; on it: ' + esc(e.on.map(r => r.me ? 'You' : r.name.split(' ')[0]).join(', ')) : ''}</small>${e.on && e.on.length ? `<div class="lg-row" style="margin-top:6px">${e.on.map(r => prof(r, av(r.name, 28, r.me ? 'me' : F.riv && r.id === F.riv.id ? 'riv' : ''))).join('')}</div>` : ''}</div></div>`;
       else if (e.type === 'play') return `<div class="lg-ev lg-play"><span class="lg-bolt">&#9679;</span><div><b>${esc(e.text)}</b><small>${esc(gname(e.g))}</small></div></div>`;
       const acts = r && !r.me ? actsFor(e, e.g ? mySide(e.g) : null) : [];
       return `<div class="lg-ev${r && F.riv && r.id === F.riv.id ? ' riv' : ''}">${r ? prof(r, av(r.name, 40, r.me ? 'me' : F.riv && r.id === F.riv.id ? 'riv' : '')) : ''}<div><b>${esc(line)}</b><small>${esc(sub)}${e.at && e.type !== 'sealed' ? ' &middot; ' + when(e.at) : ''}</small>${s ? answered(k, s) : acts.length ? `<div class="lg-acts">${acts.map(([a, l]) => `<button data-act="${esc(a)}" data-k="${esc(k)}" data-who="${esc(r.name)}" data-id="${esc(r.id)}" data-l="${esc(l)}">${esc(l)}</button>`).join('')}</div>` : ''}</div></div>`;
-    }).join('') : `<div class="lg-empty">${CIRCLE ? "Your circle's week shows here: their picks sealing, seals breaking, picks settling, Ranks moving." : "The Field's week shows here: picks sealing, seals breaking, picks settling, Ranks moving."}</div>`;
+    });
+    h += items.length ? items.slice(0, 5).join('') + (items.length > 5 ? (EARLIER ? items.slice(5).join('') + `<button class="lg-fold" data-x="less">Show less</button>` : `<button class="lg-fold" data-x="more">Earlier today &middot; ${items.length - 5} more</button>`) : '') : `<div class="lg-empty">${CIRCLE ? "Your circle's week shows here: their picks sealing, seals breaking, picks settling, Ranks moving." : "The Field's week shows here: picks sealing, seals breaking, picks settling, Ranks moving."}</div>`;
     /* the honest-view footer is Gold's honest.js, the same on every page */
     $('lg-main').innerHTML = h;
   }
@@ -215,7 +225,8 @@
     const sc = t.closest('[data-scope]'); if (sc) { try { localStorage.setItem(SCOPE, sc.dataset.scope); } catch (z) {} focus = null; render(); return; }
     const g = t.closest('[data-g]'); if (g) { focus = g.dataset.g; render(); scrollTo({ top: 0, behavior: 'smooth' }); return; }
     const tk = t.closest('[data-talk]'); if (tk) { talkOpen = tk.dataset.talk; render(); const i = document.querySelector('.lg-say input'); if (i) i.focus(); return; }
-    const x = t.closest('[data-x]'); if (x) { if (x.dataset.x === 'sb') BROKE = null; render(); return; }
+    const rv = t.closest('[data-rv]'); if (rv) { OPENRV.add(rv.dataset.rv); render(); return; }
+    const x = t.closest('[data-x]'); if (x) { if (x.dataset.x === 'sb') BROKE = null; if (x.dataset.x === 'more') EARLIER = true; if (x.dataset.x === 'less') { EARLIER = false; scrollTo({ top: 0 }); } render(); return; }
   });
   document.addEventListener('submit', e => { const f = e.target.closest('[data-say]'); if (!f) return; e.preventDefault(); const i = f.querySelector('input'), v = (i.value || '').trim(); if (!v) return; const T = ls('rush-lounge-talk-v1', {}); (T[f.dataset.say] = T[f.dataset.say] || []).push({ who: 'You', text: v.slice(0, 120), at: Date.now() }); lsSet('rush-lounge-talk-v1', T); talkOpen = null; render(); });
 
