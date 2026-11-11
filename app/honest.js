@@ -9,7 +9,8 @@
   function draw() {
     let el = document.getElementById('rhonest');
     if (!el) { el = document.createElement('footer'); el.id = 'rhonest'; document.body.appendChild(el); }
-    el.style.cssText = 'max-width:560px;margin:12px auto 0;padding:16px 16px 22px;text-align:center;font:500 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#A3AFBD';
+    // The footer is the last thing on the page: its own bottom margin clears the tab bar, the Slip bar and the phone's safe area.
+    el.style.cssText = 'max-width:560px;margin:12px auto calc(76px + env(safe-area-inset-bottom,0px));padding:16px 16px 22px;text-align:center;font:500 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#A3AFBD';
     // Keep the page's own parameters (a profile's ?u=, a game's ?id=), change only field.
     const to = v => { const q = new URLSearchParams(location.search); q.set('field', v); return (location.pathname.split('/').pop() || 'index.html') + '?' + q.toString() + location.hash; };
     el.innerHTML = on()
