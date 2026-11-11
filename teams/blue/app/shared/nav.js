@@ -8,6 +8,7 @@
  */
 (function () {
   const ME = 'nickr';
+  const HONEST = new URLSearchParams(location.search).get('field') === '7';
   /* Ties share a rank everywhere: rank = 1 + players with a higher Stack. */
   (function shareRanks() { const R = window.Rush; if (!R || !R.field || R.field._shared) return; const orig = R.field;
     R.field = function () { const f = orig.apply(R, arguments); try { f.forEach(r => { r.rank = 1 + f.filter(x => (+x.units || 0) > (+r.units || 0) + 1e-9).length; }); } catch (e) {} return f; };
@@ -75,7 +76,7 @@ body.has-rnav{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
   function drawTop() {
     let t = document.getElementById('rtop'); if (!t) { t = document.createElement('header'); t.id = 'rtop'; document.body.insertBefore(t, document.body.firstChild); t.addEventListener('click', e => { if (e.target.closest('.stk')) openStack(); }); }
     const d = mine(), s = (d.m.entered ? (Rush.units ? 1000 + Math.round(Rush.units() * 10) : d.m.stack) : 1000), dl = s - 1000;
-    const h = `<a class="av" href="player.html?u=me" aria-label="Your profile">${avatar(d.m.handle || ME)}<span class="who"><span class="nm">${esc(d.m.handle || ME)}</span><span class="sub">${/[?&]field=7/.test(location.search) ? 'Honest view, 7 players' : d.rank ? 'Rank ' + d.rank + ' of ' + d.of : 'The Field'}${d.rival ? ' · vs ' + esc(d.rival.name) : ''}</span></span></a><button type="button" class="stk" aria-label="Your Stack, ${stk(s)}. Open"><small>STACK</small><b>${stk(s)}</b><span class="d ${dl > 0 ? 'up' : dl < 0 ? 'dn' : ''}">${dl > 0 ? '+' : ''}${dl ? stk(dl) : 'even'}</span></button>`;
+    const h = `<a class="av" href="player.html?u=me" aria-label="Your profile">${avatar(d.m.handle || ME)}<span class="who"><span class="nm">${esc(d.m.handle || ME)}</span><span class="sub">${HONEST ? 'Honest view, 7 players' : d.rank ? 'Rank ' + d.rank + ' of ' + d.of : 'The Field'}${d.rival ? ' · vs ' + esc(d.rival.name) : ''}</span></span></a><button type="button" class="stk" aria-label="Your Stack, ${stk(s)}. Open"><small>STACK</small><b>${stk(s)}</b><span class="d ${dl > 0 ? 'up' : dl < 0 ? 'dn' : ''}">${dl > 0 ? '+' : ''}${dl ? stk(dl) : 'even'}</span></button>`;
     if (t._h !== h) { t.innerHTML = h; t._h = h; }
   }
   function closeStack() { ['rsx', 'rsx-scrim'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); }
