@@ -1,13 +1,18 @@
 # Gold's part of the one product (for app/SUMMARY.md)
 
+## The top bar (every page)
+- **As the Rush app has it** (AppHeader.tsx): on the left, your face (your chosen preset avatar) and the page title; on the right, ONE pill with the real Stack mark (the three chips from CreditCoin.tsx) and your Stack. Nothing else: no subtitle, no rank line, no opponent, no boxed label.
+- **The pill is alive:** when your Stack changes it counts to the new figure and flashes green or red once. A tap opens the Stack sheet.
+- Bebas Neue figures and the app's colours (#0B1118, #121A23, #00BFFF, #10B981, #EF4444).
+
 ## Home: the week, front and centre
 Home opens on the weekly contest, in this order:
 1. **The contest card:**
-   - your rank as one big number ("#3 of 7 in the Field");
-   - your Stack and how far it has moved since Tuesday;
-   - every face in the Field in rank order (a window around you in a big Field), each with its Stack and a rank-move arrow since you last looked;
+   - your rank and your Stack side by side as big figures, the Stack with its mark, and the move since Tuesday;
+   - the Field or My circle switch;
+   - the rank strip: every player in rank order, swiped sideways. 1st stays pinned at the left edge and you at the right edge, so both are always in view, with the gap under it ("91 behind 1st"). Ranks are unique (the store breaks ties), each face carries its Stack and a rank-move arrow, and a face pulses green or red when that player's pick settles;
    - two doors: Make picks (Board) and The contest.
-2. **Your matchup:** you and your opponent face to face, a tug bar, "You lead by 38", and the countdown to Thursday's 7:00 PM pairing.
+2. **Your matchup:** one row with both Stacks and the gap as the figure ("+89, you lead"), a tug bar, and the countdown to Thursday's 7:00 PM pairing.
 3. **For you:** replies other players aimed at you in the Lounge, each with a door to reply, then your own tapbacks and replies with what came back ("You sent Fade 🔥 · Waiting on Fade"). The honest view shows only real replies, so the waiting line stays until a real person answers.
 4. **On tonight:** the three games that matter most right now. Live games come first, then games you hold a pick on, then games the Field is on.
    - Before kickoff a card shows the faces of the players who have a pick on it, the number of sealed picks and the countdown to the seal breaking. It never shows a side or a stake.
@@ -19,7 +24,9 @@ Home opens on the weekly contest, in this order:
 
 ## Profile: yours and everyone else's
 - **Opening one:** every face and name on Home, in the Lounge and in the Contest opens player.html?u=<id>. Your own avatar in the top bar opens yours (the Me tab).
-- **Every profile:** a big face, the Stack, the rank of the Field, the season record and the move this week. The face colours and initials are the same as the top bar's, so one player has one face everywhere.
+- **Every profile:** a banner, a big face, the name, then figures only: Stack (with the mark), rank of the Field, season record, and the move this week.
+- **Faces everywhere** are the Rush app's 12 preset avatars (an Ionicon in a tinted disc, from faces.js). Yours is the one you choose; stand-ins keep a stable one.
+- **Edit profile (on Me):** choose your avatar from the app's presets, a banner from six, and your display name. The avatar shows in the header, on Home, on profiles, and wherever a page draws faces with faces.js.
 - **Another player's profile adds:**
   - You vs them: a Stack bar and "You are 319 behind";
   - Between you: your tapbacks and replies to them ("Waiting on Fade" until one comes back), and their replies to you with a door to reply in the Lounge;
