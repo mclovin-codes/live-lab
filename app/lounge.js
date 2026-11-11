@@ -79,8 +79,8 @@
         else if (e.type === 'settled') ps.forEach(p => { const r = who(p); if (r && g && (p.result === 'won' || p.result === 'lost')) ev.push({ type: 'settled', at: e.at, r, g, p: { stake: p.stake, label: p.label || '', status: p.result, win: p.change, t: e.id + p.id }, src: 1 }); });
         else if (e.type === 'rank') ps.forEach(p => { const r = who(p); if (r && !r.me && p.from && p.to) ev.push({ type: 'rank', at: e.at, r, from: p.from, to: p.to, src: 1 }); });
         else if (e.type === 'lead' && ps.length >= 2) { const lead = ps[0], other = ps[1], rv = who(lead.me ? other : lead); if (rv) ev.push({ type: 'matchup', at: e.at, r: rv, lead: (lead.me ? -1 : 1) * Math.abs((lead.stack || 0) - (other.stack || 0)), src: 1 }); }
-        else if (e.type === 'live' && g && e.text) ev.push({ type: 'play', at: e.at, g, text: e.text, src: 1 }); });
-      if (ev.length) return ev.concat(BIG).sort((a, b) => b.at - a.at).slice(0, 60); } catch (e) {} }
+        else if (e.type === 'play' && g && e.text) ev.push({ type: 'bigplay', at: e.at, g, text: e.text, team: e.team, on: ps.filter(p => p.team).map(who).filter(Boolean), src: 1 }); });
+      if (ev.length) { PLAYS.length = 0; ev.filter(x => x.type === 'bigplay').forEach(x => PLAYS.push(x)); return ev.sort((a, b) => b.at - a.at).slice(0, 60); } } catch (e) {} }
     const out = [], now = Date.now();
     F.list.forEach(r => picksOf(r).forEach(p => {
       const g = p.g; if (!g) return;
@@ -100,14 +100,15 @@
   function group(list, F) {
     const seal = {}, out = [], liveSeen = {};
     const rev = {};
-    list.forEach(e => { if (e.type === 'play' && e.src) return; if (e.type === 'sealed' && e.g && isStarted(e.g)) return;
+    let nPlays = 0;
+    list.forEach(e => { if (e.type === 'play' && e.src) return; if (e.type === 'bigplay' && ++nPlays > 4) return; if (e.type === 'sealed' && e.g && isStarted(e.g)) return;
       if (e.type === 'revealed' && e.g) { const k = e.g.league + e.g.id; if (!rev[k]) { rev[k] = { type: 'reveal', at: e.at, g: e.g, rows: [] }; out.push(rev[k]); } rev[k].rows.push(e); rev[k].at = Math.max(rev[k].at, e.at); return; } if (e.type === 'sealed' && e.r) { const k = e.r.id; if (!seal[k]) { seal[k] = { type: 'sealed', r: e.r, at: e.at, gs: [], g: e.g, p: e.p }; out.push(seal[k]); } const s0 = seal[k]; if (e.g && !s0.gs.some(g => g.id === e.g.id)) s0.gs.push(e.g); s0.at = Math.max(s0.at, e.at); } else out.push(e); });
     out.forEach(e => { if (e.gs) e.gs.sort((a, b) => a.date - b.date); });
     const riv = F.riv && F.riv.id, day = 864e5;
     return out.sort((a, b) => ((b.r && b.r.id === riv && Date.now() - b.at < day) - (a.r && a.r.id === riv && Date.now() - a.at < day)) || b.at - a.at).slice(0, 30);
   }
   /* big plays: score changes in the games the Field holds, seen by this page */
-  const BIG = [], lastScore = {};
+  const BIG = [], PLAYS = [], lastScore = {};
   function watchScores() {
     games.filter(g => g.state === 'in').forEach(g => { const k = g.league + g.id, s = (g.away.score || 0) + '-' + (g.home.score || 0);
       if (lastScore[k] && lastScore[k] !== s) { const [a0, h0] = lastScore[k].split('-').map(Number), team = (g.away.score || 0) > a0 ? g.away.abbr : g.home.abbr; BIG.unshift({ type: 'play', at: Date.now(), g, text: `${team} scored. ${g.away.abbr} ${g.away.score}, ${g.home.abbr} ${g.home.score}, ${g.detail || ''}` }); BIG.splice(8); }
@@ -160,7 +161,7 @@
       else { const groups = {}; on.forEach(x => { (groups[x.side || 'Other'] = groups[x.side || 'Other'] || []).push(x); });
         const keys = Object.keys(groups).sort((a, b) => (b === ms) - (a === ms));
         h += `<div class="lg-sides">${keys.map(k => `<div class="lg-side${ms ? (k === ms ? ' with' : opposite(ms, k, g0) ? ' vs' : '') : ''}"><small>${ms ? (k === ms ? 'WITH YOU ON ' : opposite(ms, k, g0) ? 'AGAINST YOU ON ' : 'ON ') : 'ON '}${esc(k.toUpperCase())}</small><div class="lg-row">${groups[k].map(x => prof(x.r, av(x.r.name, 34, x.r.me ? 'me' : F.riv && x.r.id === F.riv.id ? 'riv' : ''))).join('')}</div></div>`).join('') || '<span class="lg-mut">Nobody in this view holds a pick on this game.</span>'}</div>`;
-        const plays = BIG.filter(b => b.g && b.g.id === g0.id).slice(0, 3); if (plays.length) h += `<div class="lg-plays">${plays.map(b => `<div>${esc(b.text)}</div>`).join('')}</div>`; }
+        const src = PLAYS.filter(b => b.g && b.g.id === g0.id), plays = (src.length ? src : BIG.filter(b => b.g && b.g.id === g0.id)).slice(0, 3); if (plays.length) h += `<div class="lg-plays">${plays.map(b => `<div>${esc(b.text)}${b.on && b.on.length ? `<span class="lg-row" style="margin-top:6px">${b.on.map(r => prof(r, av(r.name, 24, r.me ? 'me' : ''))).join('')}</span>` : ''}</div>`).join('')}</div>`; }
       const gt = (talk['g:' + g0.league + ':' + g0.id] || []).slice(-3);
       h += `${gt.map(t => `<div class="lg-line"><b>${esc(t.who)}</b> ${esc(t.text)}</div>`).join('')}${talkOpen === 'g:' + g0.league + ':' + g0.id ? `<form class="lg-say" data-say="g:${esc(g0.league + ':' + g0.id)}"><input maxlength="120" placeholder="Say something about ${esc(gname(g0))}" autocomplete="off"><button>Post</button></form>` : `<button class="lg-talk" data-talk="g:${esc(g0.league + ':' + g0.id)}">Say something about this game</button>`}</div>`;
     }
@@ -170,12 +171,15 @@
     /* sent to you */
     const inbox = ls('rush-lounge-inbox-v1', []).filter(m => !honest() || m.real);
     h += `<div class="lg-sh"><h2>Sent to you</h2></div>${inbox.length ? inbox.slice(-4).reverse().map(m => `<div class="lg-ev">${av(m.who, 36)}<div><b>${esc(m.who)}: ${esc(m.text)}</b><small>${esc(m.about || '')}</small>${m.ans ? `<div class="lg-sent"><span>You: ${esc(m.ans)}</span></div>` : `<div class="lg-acts"><button data-reply="${esc(m.id)}">${esc(ANSWER[m.k] || 'Thanks')}</button></div>`}</div></div>`).join('') : `<div class="lg-empty">${honest() ? 'Nothing yet. When a player taps you, it lands here and you answer in one tap.' : 'Nothing yet.'}</div>`}`;
+    /* your taps and what came back */
+    const mineSent = Object.values(sent).sort((a, b) => b.at - a.at).slice(0, 3);
+    if (mineSent.length) h += `<div class="lg-sh"><h2>Your taps</h2></div>${mineSent.map(x => `<div class="lg-ev"><div><b>You to ${esc(x.to)}: ${esc(x.label)}</b>${x.ans ? `<div class="lg-sent"><b>${esc(x.ans.who)}: ${esc(x.ans.text)}</b></div>` : `<small>${honest() ? 'Waiting on ' + esc(String(x.to).split(' ')[0]) + '. Their answer lands here.' : 'Waiting'}</small>`}</div></div>`).join('')}`;
     /* the Field's week moving */
     const ev = group(events(F), F);
     h += `<div class="lg-sh"><h2>The Field this week</h2></div>`;
     h += ev.length ? ev.map(e => {
       const k = evKey(e), s = sent[k], r = e.r; let line = '', sub = '';
-      if (e.src && e.text && e.type !== 'sealed' && e.type !== 'revealed' && e.type !== 'settled') { line = e.text; sub = ''; }
+      if (e.src && e.text && !['sealed', 'revealed', 'settled', 'bigplay', 'reveal'].includes(e.type)) { line = e.text; sub = ''; }
       else if (e.type === 'sealed') { const n = (e.gs || [e.g]).length; line = `${r.me ? 'You' : r.name} sealed ${n === 1 ? 'a pick on ' + gname(e.g) : n + ' picks'}`; sub = n === 1 ? `Sides open at ${when(+e.g.date)}` : (e.gs || []).slice(0, 4).map(g => gname(g) + ' ' + when(+g.date)).join(', ') + (n > 4 ? ', +' + (n - 4) : ''); }
       else if (e.type === 'revealed') { const ms = mySide(e.g); line = `${r.me ? 'You' : r.name} took ${e.side || e.p.label} in ${gname(e.g)}`; sub = `${fmt(e.p.stake)} Stack${ms && !r.me ? (opposite(ms, e.side, e.g) ? ', against you' : ms === e.side ? ', with you' : '') : ''}`; }
       else if (e.type === 'settled') { line = `${r.me ? 'Your' : r.name + "'s"} ${gname(e.g)} pick ${e.p.status === 'won' ? 'hit' : 'missed'}`; sub = `${e.p.label}, ${e.p.status === 'won' ? '+' + fmt(e.p.win || 0) : '-' + fmt(e.p.stake)} Stack`; }
@@ -183,6 +187,7 @@
       else if (e.type === 'matchup') { line = e.lead > 0 ? `${r.name} leads your matchup by ${fmt(e.lead)}` : `You lead ${r.name} by ${fmt(-e.lead)}`; sub = 'Higher Stack on Monday night takes it'; }
       else if (e.type === 'reveal') { const ms = mySide(e.g); return `<div class="lg-rv"><div class="lg-rv-h"><small>SEAL BROKEN &middot; ${esc(when(+e.g.date))}</small><b>${esc(gname(e.g))}</b>${e.g.state === 'in' ? `<span>${esc(e.g.away.abbr)} ${esc(e.g.away.score)}, ${esc(e.g.home.abbr)} ${esc(e.g.home.score)}</span>` : e.g.state === 'post' ? '<span>Final</span>' : ''}</div>${e.rows.sort((a, b) => (b.r.me ? 1 : 0) - (a.r.me ? 1 : 0) || (F.riv && b.r.id === F.riv.id ? 1 : 0) - (F.riv && a.r.id === F.riv.id ? 1 : 0)).map(x => { const k2 = evKey(x), s2 = sent[k2], tag = x.r.me ? 'you' : ms ? (opposite(ms, x.side, e.g) ? 'against you' : ms === x.side ? 'with you' : '') : '', acts = x.r.me ? [] : actsFor(x, ms);
           return `<div class="lg-rv-r${tag === 'against you' ? ' vs' : tag === 'with you' ? ' with' : ''}">${prof(x.r, av(x.r.name, 34, x.r.me ? 'me' : F.riv && x.r.id === F.riv.id ? 'riv' : ''))}<div><b>${esc(x.r.me ? 'You' : x.r.name)} took ${esc(x.side || x.p.label)}</b><small>${fmt(x.p.stake)} Stack${tag ? ' &middot; ' + tag : ''}</small>${s2 ? answered(k2, s2) : ''}</div>${!s2 && acts.length ? `<span class="lg-minis">${acts.map(a0 => `<button class="lg-mini" data-act="${esc(a0[0])}" data-k="${esc(k2)}" data-who="${esc(x.r.name)}" data-id="${esc(x.r.id)}" data-l="${esc(a0[1])}">${esc(a0[1])}</button>`).join('')}</span>` : ''}</div>`; }).join('')}${(() => { const tk = 'g:' + e.g.league + ':' + e.g.id, lines = (talk[tk] || []).slice(-2); return lines.map(t => `<div class="lg-line"><b>${esc(t.who)}</b> ${esc(t.text)}</div>`).join('') + (talkOpen === tk ? `<form class="lg-say" data-say="${esc(tk)}"><input maxlength="120" placeholder="Say something about ${esc(gname(e.g))}" autocomplete="off"><button>Post</button></form>` : `<button class="lg-talk" data-talk="${esc(tk)}">Say something about ${esc(gname(e.g))}</button>`); })()}</div>`; }
+      else if (e.type === 'bigplay') return `<div class="lg-ev lg-play"><span class="lg-bolt">&#9679;</span><div><b>${esc(e.text)}</b><small>${esc(gname(e.g))}${e.on && e.on.length ? ' &middot; on it: ' + esc(e.on.map(r => r.me ? 'You' : r.name.split(' ')[0]).join(', ')) : ''}</small>${e.on && e.on.length ? `<div class="lg-row" style="margin-top:6px">${e.on.map(r => prof(r, av(r.name, 28, r.me ? 'me' : F.riv && r.id === F.riv.id ? 'riv' : ''))).join('')}</div>` : ''}</div></div>`;
       else if (e.type === 'play') return `<div class="lg-ev lg-play"><span class="lg-bolt">&#9679;</span><div><b>${esc(e.text)}</b><small>${esc(gname(e.g))}</small></div></div>`;
       const acts = r && !r.me ? actsFor(e, e.g ? mySide(e.g) : null) : [];
       return `<div class="lg-ev${r && F.riv && r.id === F.riv.id ? ' riv' : ''}">${r ? prof(r, av(r.name, 40, r.me ? 'me' : F.riv && r.id === F.riv.id ? 'riv' : '')) : ''}<div><b>${esc(line)}</b><small>${esc(sub)}${e.at && e.type !== 'sealed' ? ' &middot; ' + when(e.at) : ''}</small>${s ? answered(k, s) : acts.length ? `<div class="lg-acts">${acts.map(([a, l]) => `<button data-act="${esc(a)}" data-k="${esc(k)}" data-who="${esc(r.name)}" data-id="${esc(r.id)}" data-l="${esc(l)}">${esc(l)}</button>`).join('')}</div>` : ''}</div></div>`;
