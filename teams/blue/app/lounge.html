@@ -75,9 +75,19 @@ function sideOf(p){const g=p.g,l=String(p.label||'');if(/^over/i.test(l))return'
 function optsOf(p){return/^(over|under)/i.test(String(p.label||''))?[['over','Over'],['under','Under']]:[['away',p.g.away.abbr],['home',p.g.home.abbr]]}
 const keyOf=(id,p)=>id+'|'+p.league+'|'+p.gameId+'|'+(p.t||'');
 const started=g=>g.state!=='pre'||Date.now()>=g.date;
-/* one card per player per game, soonest kickoff first; within the next day and a half, or flipped in the last 8 hours */
-function cardsFor(r){let ps=[];try{ps=RW.playerPicks(r.id,GAMES)||[]}catch(e){}const horizon=Date.now()+36*36e5,seen=new Set;
-  return ps.filter(p=>p.g&&p.g.date<horizon&&p.g.date>Date.now()-8*36e5&&sideOf(p)).sort((a,b)=>a.g.date-b.g.date).filter(p=>{const k=p.league+p.gameId;if(seen.has(k))return false;seen.add(k);return true}).slice(0,HONEST?4:3)}
+/* one card per player per game, soonest kickoff first. Sealed cards come from the Field's picks; once a game starts its
+   card is kept from the last time it was seen sealed (rush-reads-cards-v1) and flips, graded from the final score. */
+const SNAP='rush-reads-cards-v1';
+const snap=()=>{try{return JSON.parse(localStorage.getItem(SNAP))||{}}catch(e){return{}}};
+function gradeOf(p){const g=p.g;if(!g||g.state!=='post')return'open';const H=+g.home.score,A=+g.away.score;if(isNaN(H)||isNaN(A))return'open';const s=sideOf(p),n=parseFloat((String(p.label).match(/[-+]?d+(.d+)?/)||[])[0]);
+  if(s==='over'||s==='under'){if(isNaN(n))return'open';const t=H+A;return t===n?'push':(t>n)===(s==='over')?'won':'lost'}
+  const mine=s==='home'?H:A,theirs=s==='home'?A:H;if(p.t==='spread'&&!isNaN(n)){const d=mine+n-theirs;return d===0?'push':d>0?'won':'lost'}return mine===theirs?'push':mine>theirs?'won':'lost'}
+function cardsFor(r){let ps=[];try{ps=RW.playerPicks(r.id,GAMES)||[]}catch(e){}const horizon=Date.now()+36*36e5,seen=new Set,S=snap();
+  const sealed=ps.filter(p=>p.g&&p.g.state==='pre'&&p.g.date>Date.now()&&p.g.date<horizon&&sideOf(p)).sort((a,b)=>a.g.date-b.g.date).filter(p=>{const k=p.league+p.gameId;if(seen.has(k))return false;seen.add(k);return true}).slice(0,HONEST?4:3);
+  sealed.forEach(p=>{S[keyOf(r.id,p)]={id:r.id,league:p.league,gameId:String(p.gameId),t:p.t,label:p.label,market:p.market,date:p.g.date}});
+  const flipped=Object.entries(S).filter(([k,c])=>c.id===r.id&&c.date<=Date.now()&&c.date>Date.now()-12*36e5).map(([k,c])=>{const g=GAMES.find(x=>x.league===c.league&&String(x.id)===c.gameId);if(!g)return null;const p={league:c.league,gameId:c.gameId,t:c.t,label:c.label,market:c.market,g};p.status=gradeOf(p);return p}).filter(Boolean);
+  for(const k in S)if(S[k].date<Date.now()-48*36e5)delete S[k];try{localStorage.setItem(SNAP,JSON.stringify(S))}catch(e){}
+  return sealed.concat(flipped)}
 function myPickOn(g){try{const p=Rush.picks({week:Rush.week().id}).find(q=>String(q.gameId)===String(g.id)&&!q.legs);if(!p)return null;const l=String(p.label||'');return /^over/i.test(l)?'over':/^under/i.test(l)?'under':l.startsWith(g.home.abbr)?'home':l.startsWith(g.away.abbr)?'away':null}catch(e){return null}}
 function sideName(p,s){return s==='over'?'Over':s==='under'?'Under':s==='home'?p.g.home.abbr:p.g.away.abbr}
 function card(r,p,isMu){const R=reads(),k=keyOf(r.id,p),mine=R[k],truth=sideOf(p),g=p.g,flip=started(g),mySide=myPickOn(g);

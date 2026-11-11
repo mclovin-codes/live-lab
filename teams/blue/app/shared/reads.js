@@ -17,6 +17,11 @@
         const k = r.id + '|' + p.league + '|' + p.gameId + '|' + (p.t || ''), v = R[k];
         if (!started(p.g) && p.g.date < horizon && sealedN < 3) { sealedN++; out.open++; out.nextFlip = Math.min(out.nextFlip, p.g.date); }
         if (v) { out.made++; if (started(p.g)) { const b = out.byPlayer[r.id] = out.byPlayer[r.id] || { scored: 0, right: 0 }; out.scored++; b.scored++; if (v === sideOf(p)) { out.right++; b.right++; } } } }); });
+    /* reads on picks that have flipped: the page keeps each card it showed sealed (rush-reads-cards-v1) */
+    let S = {}; try { S = JSON.parse(localStorage.getItem('rush-reads-cards-v1')) || {}; } catch (e) {}
+    Object.keys(S).forEach(k => { const c = S[k], v = R[k]; if (!v) return; const g = games.find(x => x.league === c.league && String(x.id) === c.gameId); if (!g || !started(g)) return;
+      if (out.byPlayer[c.id] && out.byPlayer[c.id]._seen && out.byPlayer[c.id]._seen[k]) return;
+      const t = sideOf({ g, label: c.label }); if (!t) return; const b = out.byPlayer[c.id] = out.byPlayer[c.id] || { scored: 0, right: 0 }; b._seen = b._seen || {}; b._seen[k] = 1; out.scored++; b.scored++; if (v === t) { out.right++; b.right++; } });
     return out;
   }
   window.Rush = window.Rush || {}; window.Rush.reads = { summary, KEY };
