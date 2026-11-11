@@ -192,7 +192,7 @@
   - the other side of the same pick replaces it;
   - picks from one game combine into a same-game parlay.
 
-## Gold: the top bar, Home, profiles, the game card and where Slips live
+## Gold: the top bar, Home, profiles, the game card and the Slip card
 
 ### The top bar (every page)
 - **As the Rush app has it** (AppHeader.tsx): on the left, your face (your chosen preset avatar) and the page title; on the right, ONE pill with the real Stack mark (the three chips from CreditCoin.tsx) and your Stack. Nothing else: no subtitle, no rank line, no opponent, no boxed label.
@@ -242,7 +242,7 @@ Home opens on the weekly contest, in this order:
 
 ### One game card, and no logos (game-card.js, team-mark.js)
 - **At the team's scale (founder 12:10):** 46 px team marks, 30 px team codes, 40 px scores, 62 by 54 px price cells, and no text under 13 px.
-- **One card for Home and the Lounge's game bar,** in the team's own look (founder 11:40: the team's sizing, type and contrast: #141C26 card, 20px corners, a chip header, Barlow Condensed 800 figures, #3DB8FF price cells). The Board draws its own rows with the same team marks and three-column cells. It takes only the mechanics from the Rush app's board cards:
+- **One card for Home and the Lounge's pinned game,** in the team's own look (founder 11:40: the team's sizing, type and contrast: #141C26 card, 20px corners, a chip header, Barlow Condensed 800 figures, #3DB8FF price cells). The Board draws its own rows with the same team marks and three-column cells. It takes only the mechanics from the Rush app's board cards:
   - a header with the league and the clock or kickoff;
   - two team rows, each with the team mark, its code, name and record, and the score;
   - while the game is open, the price cells: Spread, Total and ML, tapping into the one Slip exactly as on the Board.
@@ -264,14 +264,19 @@ Home opens on the weekly contest, in this order:
 - **Me:** your Slips, Open and Settled, each with its game, its live score or kickoff countdown, the stake and the return.
 - **slips.html:** the full page of placed picks, linked from Me ("All Slips"). Its Parlay tab opens the one shared Slip (Rush.slip), so there is one way to build a parlay.
 - There is no Slips tab.
-- **One Slip card everywhere (slip-card.js):** Me, slips.html, other players' profiles and the Lounge all draw a Slip the same way, like a real slip.
-  - A straight or a prop is one line with market, line and price.
-  - A parlay (two to five legs, across games or inside one game) is ONE card listing every leg with its state: sealed, open, live with the score, hit or missed.
-  - Underneath: Stake, the combined price, and what it pays (or paid).
-  - On another player's Slip, each leg shows only its game until its own kickoff, and the stake, price and what it pays stay sealed until every leg has started (Blue's Rush.sealView).
-  - A Slip with every leg still sealed folds into one compact row: its games, "Each leg opens at its kickoff, first in 3d 13h", and "stake sealed". A profile of six Slips fits on a phone screen.
+- **One Slip card everywhere (slip-card.js), rebuilt after the founder's 12:35 AM reference** (structure only; the team's look and scale; Rush words). Me, slips.html, other players' profiles and the Lounge draw a Slip the same way.
+  - **The head:** the title ("10-pick parlay", or for a straight the one selection with its mark), the combined price, a status pill (Open, Live, Won, Lost), and "Stake 10 · Pays 5,961" on one line.
+  - **A parlay** is collapsed to one line of its leg names, with View legs and Hide legs. A straight shows in full.
+  - **A leg:**
+    - a status ring: open, a red ring while live, a green check for a hit, red for a miss;
+    - a mark: the player mark with the number for a prop (the number comes from the game's leaders), the team mark for a side, or a neutral O/U disc for a total;
+    - the short name in bold ("T. Thompson", "BUF -2.5", "Over 41.5"), the market in small text (Blue's Rush.mktName), and the price at the right.
+  - **A game strip under each leg:** both team marks and codes, with the kickoff before the game, the score and clock during, and FINAL with the score after. The feed has no period scores, so there is no quarter grid.
+  - **Same-game legs** sit under "2-pick same game · +320" with their own price and share one game strip.
+  - **The footer** shows when it was placed.
+  - **slips.html:** filter chips All, Open, Live, Settled. Parlay is a door beside them (the one shared Slip).
+  - **Sealed rules unchanged:** another player's leg shows its game only until its own kickoff, with stake and pays sealed. A Slip with every leg sealed reads "Slip" or "Parlay · N legs", with nothing about its kind. A visitor sees games only, even after kickoff, and a sealed Slip's markup carries no result or live state.
   - Home counts a Slip once per game, so a five-leg parlay is one Slip with one stake.
-
 ### The visual pass
 - **One palette and type scale on Home, profiles and Slips:**
   - background #0A0F15, cards #141C26 and #1B2531;
