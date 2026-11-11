@@ -9,7 +9,7 @@
 
 ## Tap first
 
-1. Open the **Reads** tab (it replaces the Lounge tab).
+1. Open the **Reads** tab (it replaces the Lounge tab). The three steps sit under the title: Sealed, You read it, Flips at kickoff.
 2. Your matchup opponent's sealed picks are at the top. Tap a side ("Over" or "Under", or one of the two teams) to read their pick.
 3. Watch "Waiting to flip" go up and the "Next flip" clock count down.
 4. After kickoff, the card flips: their real pick shows, and your read says "Read right" or "Misread".
