@@ -60,9 +60,13 @@
      - picks settling, with the Stack move counting up, and several on one game folded into one row;
      - older moments behind "Earlier today".
   6. **The seal breaking, live:** at kickoff, with the page open, a "Seal broken" panel flips every pick on that game face up. It fired on the real 10:00 PM kickoffs. Nothing is scored.
+- **It moves:**
+  - when a pick settles, that player's Stack on the faces row counts to its new figure, green up or red down;
+  - when ranks change, the faces slide into their new order and the moved rank badges flash;
+  - new Stack moves in the room count up, and the live score ticks.
 - **One tap, and talk on top:**
   - Hold or double-tap any row for the tapback tray (heart, thumbs up, thumbs down, laugh, exclamation, question) or Reply. One tapback per player per row, and your face shows as a badge on it.
-  - Reply quotes the row into the one composer, docked above the tabs and the Slip bar.
+  - Reply quotes the row into the one composer, docked above the tabs and the Slip bar. Talk is tagged with the pinned game.
 - **The Field or My circle:** the same screen, filtered (see My circle below).
 
 ## My circle (the founder's 9:50 PM note): a filter, not a second space
