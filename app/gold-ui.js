@@ -1,6 +1,8 @@
 /* Gold UI kit (owner: Gold): avatars that open profiles, the Field with the honest view, Stack figures, games and seals.
  * Load after shared/state.js, week-games.js and honest.js. Exposes window.GU. The top bar and Stack sheet are Blue's (shared/nav.js). */
 (function () {
+  // Round two left Sealbreak and earlier Gold keys on this origin (g4-*, g5-*); the one product clears them.
+  try { Object.keys(localStorage).filter(k => /^g[45]-/.test(k)).forEach(k => localStorage.removeItem(k)); } catch (e) {}
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const hash = s => { let h = 2166136261; s = String(s); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
   const mix = s => { let h = Math.floor(hash(s) * 4294967296) >>> 0; h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
