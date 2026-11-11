@@ -96,11 +96,11 @@
     const live = isLive(s);
     const pill = vis ? '<span class="sc-st sp-sealed">ENTER TO SEE</span>' : s.status === 'hit' ? '<span class="sc-st sp-hit">Won</span>' : s.status === 'miss' ? '<span class="sc-st sp-miss">Lost</span>' : s.status === 'push' ? '<span class="sc-st">Push</span>' : allSealed ? '<span class="sc-st sp-sealed">Sealed</span>' : live ? '<span class="sc-st sp-live">Live</span>' : '<span class="sc-st sp-open">Open</span>';
     const V = s.legs.map(l => sealedLeg(l) ? null : view(l));
+    const lp = s.livePick && !anySealed ? '<span class="sc-lp">Live pick</span>' : '';
     const paysWord = s.status === 'hit' || s.status === 'miss' ? 'Paid' : 'Pays';
     const money = vis ? `<div class="sc-m sc-vb" aria-hidden="true">Stake <b>000</b> · Pays <b>0,000</b></div>`
       : anySealed ? '<div class="sc-m">Stake <b>sealed</b> · Pays <b>sealed</b></div>'
       : `<div class="sc-m">${lp}Stake <b>${fmt(s.stake)}</b> · ${paysWord} <b class="${s.status === 'hit' ? 'sm-hit' : s.status === 'miss' ? 'sm-miss' : ''}">${s.status === 'miss' ? '0' : fmt(s.status === 'hit' && s.paid != null ? s.paid : s.toPay)}</b></div>`;
-    const lp = s.livePick && !anySealed ? '<span class="sc-lp">Live pick</span>' : '';
     const placed = s.at && !opts.sealed ? `<div class="sc-ft">Placed ${esc(when(s.at))}</div>` : '';
     const priceTxt = anySealed ? '' : `<span class="sc-pr">${esc(am(s.price))}</span>`;
     const cls = `sc rsc ${vis || anySealed ? 'sc-x-sealed' : 'sc-x-' + s.status}${!vis && !anySealed && live ? ' sc-x-live' : ''}${parlay ? ' sc-x-par' : ''}${opts.open ? ' sc-xp' : ''}`;
