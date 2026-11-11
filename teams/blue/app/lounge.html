@@ -28,6 +28,9 @@ h1{font:800 30px/1 var(--f);letter-spacing:-.03em;margin:0}
 .rd-clock{flex:none;text-align:right;font:800 15px/18px var(--f);font-variant-numeric:tabular-nums}.rd-clock small{display:block;color:var(--mute);font:700 11px/14px var(--f);letter-spacing:.08em}
 .rd-game{display:flex;align-items:center;gap:10px}.rd-stake{flex:none;text-align:right;font:800 14px/18px var(--f);color:var(--gold);max-width:72px}
 .rd-tl{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:0 max(16px,env(safe-area-inset-left,0px))}.rd-tl::-webkit-scrollbar{display:none}.rd-tl div{flex:none;min-width:96px;background:var(--card);border-radius:14px;padding:10px 12px;border:1px solid var(--line)}.rd-tl b{display:block;font:800 17px/20px var(--f)}.rd-tl span{display:block;color:var(--mute);font:700 12px/16px var(--f)}.rd-tl div.rd-nx{border-color:var(--gold)}
+.rd-quick{display:flex;flex-wrap:wrap;gap:8px}.rd-quick button{min-height:38px;padding:6px 12px;border-radius:19px;background:var(--card2);font:800 14px/18px var(--f)}.rd-quick button:last-child{background:transparent;border:1px solid var(--line);color:var(--mute)}
+.rd-line{display:flex;align-items:center;gap:8px;font:600 15px/20px var(--f)}.rd-line b{font-weight:800}
+.rd-type{display:flex;gap:8px}.rd-type input{flex:1;min-width:0;background:var(--card2);border:0;border-radius:12px;padding:12px;color:var(--fg);font:16px var(--f)}.rd-type button{border-radius:12px;padding:0 14px;background:var(--acc);color:#06121C;font-weight:800}
 .rd-duel{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border-radius:16px;padding:12px 14px;font:800 15px/20px var(--f)}.rd-duel span{color:var(--mute);font:700 13px/16px var(--f)}
 .rd-sealed{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;background:repeating-linear-gradient(135deg,#17222D 0 10px,#1B2734 10px 20px);border:1px dashed #3A4B5C;border-radius:14px;padding:12px 14px;min-height:56px}
 .rd-sealed b{font:800 16px/20px var(--f)}.rd-sealed span{color:var(--mute);font:800 12px/16px var(--f);letter-spacing:.12em;text-align:right}
@@ -75,6 +78,7 @@ function people(){let f=[];try{f=RW.field(GAMES)}catch(e){}const me=f.find(r=>r.
 /* the side a pick took, from its label: home, away, over or under */
 function sideOf(p){const g=p.g,l=String(p.label||'');if(/^over/i.test(l))return'over';if(/^under/i.test(l))return'under';if(g&&l.startsWith(g.home.abbr))return'home';if(g&&l.startsWith(g.away.abbr))return'away';return null}
 function optsOf(p){return/^(over|under)/i.test(String(p.label||''))?[['over','Over'],['under','Under']]:[['away',p.g.away.abbr],['home',p.g.home.abbr]]}
+const LINES='rush-reads-lines-v1';const lines=()=>{try{return JSON.parse(localStorage.getItem(LINES))||{}}catch(e){return{}}};function say(k,t){t=String(t||'').trim().slice(0,80);if(!t)return;const L=lines();(L[k]=L[k]||[]).push({t,at:Date.now()});try{localStorage.setItem(LINES,JSON.stringify(L))}catch(e){}render()}
 const keyOf=(id,p)=>id+'|'+p.league+'|'+p.gameId+'|'+(p.t||'');
 const started=g=>g.state!=='pre'||Date.now()>=g.date;
 /* one card per player per game, soonest kickoff first. Sealed cards come from the Field's picks; once a game starts its
@@ -99,9 +103,11 @@ function card(r,p,isMu){const R=reads(),k=keyOf(r.id,p),mine=R[k],truth=sideOf(p
     const bits=[];if(mine)bits.push(`Your read: <b style="color:var(--fg)">${esc(sideName(p,mine))}</b>. It scores at ${etTime(g.date)}.`);else bits.push(`Which side did ${esc(r.name.split(' ')[0])} take?`);if(mySide)bits.push(`You are on <span class="rd-side">${esc(sideName(p,mySide))}</span>.`);if(crowd)bits.push(`${crowd} other${crowd>1?'s':''} read this.`);h+=`<div class="rd-sub" style="margin:0;font-size:14px">${bits.join(' ')}</div>`}
   else{const st=p.status==='rd-won'?'rd-won':p.status==='rd-lost'?'rd-lost':'';h+=`<div class="rd-game"><div class="rd-open"><b>${esc(p.label)}</b><em class="rd-${st}">${st==='rd-won'?'Hit':st==='rd-lost'?'Missed':'Live'}</em></div></div>`;
     h+=mine?`<div class="rd-res ${mine===truth?'rd-right':'rd-wrong'}">${mine===truth?'Read right':'Misread'}: you called ${esc(sideName(p,mine))}</div>`:`<div class="rd-res rd-none">You did not read this one</div>`;
-    if(mySide)h+=`<div><span class="rd-side ${mySide===truth?'rd-same':'rd-opp'}">${mySide===truth?'Same side as you':'Against you'}</span></div>`}
+    if(mySide&&(['over','under'].includes(mySide)===['over','under'].includes(truth)))h+=`<div><span class="rd-side ${mySide===truth?'rd-same':'rd-opp'}">${mySide===truth?'Same side as you':'Against you'}</span></div>`;
+    const L=lines()[k]||[];h+=L.map(x=>`<div class="rd-line">${AV(Rush.me().handle||'You',1)}<span><b>You</b> ${esc(x.t)}</span></div>`).join('');
+    if(!L.length&&mine)h+=`<div class="rd-quick">${(mine===truth?['Called it','Too easy','Read you like a book']:['You got me','Next time','Bold pick']).map(q=>`<button type="button" data-say="${esc(k)}" data-t="${esc(q)}">${esc(q)}</button>`).join('')}<button type="button" data-type="${esc(k)}">Type</button></div>`}
   return h+'</div>'}
-function render(){if(!GAMES.length)return;const {others,rv}=people();
+function render(){if(!GAMES.length)return;const ae=document.activeElement;if(ae&&ae.closest&&ae.closest('.rd-type'))return;const {others,rv}=people();
   const R=reads();let right=0,pending=0,nextFlip=Infinity;const all=[];
   others.forEach(r=>cardsFor(r).forEach(p=>{all.push({r,p});const v=R[keyOf(r.id,p)];if(!started(p.g))nextFlip=Math.min(nextFlip,p.g.date);if(v){if(started(p.g)){if(v===sideOf(p))right++}else pending++}}));
   const scored=all.filter(x=>R[keyOf(x.r.id,x.p)]&&started(x.p.g)).length;
@@ -120,7 +126,7 @@ function render(){if(!GAMES.length)return;const {others,rv}=people();
   if(flipped.length){h+=`<div class="rd-lbl"><span>Flipped</span><small>${right} right of ${scored}</small></div>`+flipped.slice(0,12).map(x=>card(x.r,x.p,x.r===rv)).join('')}
   h+=`<div class="rd-foot">${HONEST?'Honest view: exactly 7 players, nothing generated. Every card is a pick in the Field.':'Full Field view. Counts of other readers are simulated in the prototype.'}<a href="lounge.html${HONEST?'':'?field=7'}">${HONEST?'Show the full Field':'Honest view: 7 players'}</a></div>`;
   const el=$('reads');if(el._h!==h){el.innerHTML=h;el._h=h}}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;const R=reads(),k=b.dataset.k;if(R[k]===b.dataset.v)delete R[k];else R[k]=b.dataset.v;saveReads(R);render()});
+document.addEventListener('click',e=>{const sy=e.target.closest('[data-say]');if(sy){say(sy.dataset.say,sy.dataset.t);return}const ty=e.target.closest('[data-type]');if(ty){const box=document.createElement('form');box.className='rd-type';box.innerHTML='<input maxlength="80" placeholder="One line about this flip" autocomplete="off"><button type="submit">Say it</button>';ty.parentElement.replaceWith(box);const inp=box.querySelector('input');inp.focus();box.addEventListener('submit',ev=>{ev.preventDefault();say(ty.dataset.type,inp.value)});return}const b=e.target.closest('[data-k]');if(!b)return;const R=reads(),k=b.dataset.k;if(R[k]===b.dataset.v)delete R[k];else R[k]=b.dataset.v;saveReads(R);render()});
 async function load(){try{GAMES=await RW.load()}catch(e){GAMES=RW.cached()||[]}render()}
 GAMES=(window.RW&&RW.cached&&RW.cached())||[];render();load();setInterval(load,60000);setInterval(render,30000);
 </script>
