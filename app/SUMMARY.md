@@ -68,6 +68,18 @@
 - Talk sits on top: "Say something about this game" attaches a line to the game.
 - **The Field or My circle:** a switch filters the same space to the players you invited, the one who invited you and friends you added. This was approved by the chief of staff. Ranks stay Field ranks, and there is no boost, timer or separate contest.
 
+## My circle (the founder's 9:50 PM note): a filter, not a second space
+
+- **A switch, The Field or My circle,** on Home (Gold), the Lounge (Red) and the Contest tab (Blue). Every page reads the same list from the store (Rush.circle).
+- **Ranks stay the whole Field's ranks;** the circle only narrows who is shown.
+- **Who is in it:** the players you invited, the one who invited you, and friends you added, once both sides confirm.
+- **Adding:** on another player's profile, "Add to my circle" sends an ask ("Asked. Waiting on Dan to confirm"). The other side confirms with one tap.
+- **Inviting:** the invite door on Home shares the app link with your name in it. The link only prefills; nothing commits until both sides confirm.
+- **There is no reward for inviting or adding, no push, no boost, no timer and no separate contest.** The referral multiplier stays the only boost.
+- **Friends of friends:** "In your friends' circles" suggests players to add, on Me and on an empty circle.
+- **An empty circle** shows the invite door and three faces to add, never a blank page.
+- **In the honest view** no stand-in confirms, so a circle stays as real as the players in it.
+
 ## With 7 players and nobody typing
 
 - The honest view gives exactly 7 players everywhere, ranks 1 to 7 (ties share a rank), and about 6 picks per player, as Week 8 ran.
@@ -132,7 +144,9 @@
   - the honest 7-player store;
   - the pinned matchup;
   - pregame lines kept after kickoff, so revealed picks stay the same picks;
-  - the Phase 3 and multi-contest cleanup.
+  - the Phase 3 and multi-contest cleanup;
+  - the one Slip and its bar;
+  - the circle in the store, and its switch on the Contest tab.
 - **Red:** the Lounge:
   - the live game with you and against you;
   - Seal broken;
@@ -163,4 +177,5 @@
 - **Big plays** come from ESPN's scoring plays for NFL and NHL. The time shown is when this phone first saw the play. NBA has no big plays, because scoring is constant.
 - **The time a stand-in placed a Slip** is simulated before its kickoff. Your own Slips use the real time.
 - **Rank arrows on Home** compare with what this phone last saw.
+- **The Slip places at the price shown when you tapped.** It does not yet recheck a price that moved before you place (the ruling: a better price is taken, a worse one asks).
 - **A stand-in's pick on a game that started before this phone first loaded it** is a moneyline at -110, because the scoreboard no longer carries that game's pregame line.
