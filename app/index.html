@@ -54,7 +54,7 @@ function gameCard(g){
   if(!st){h+=`<div style="display:flex;align-items:center;gap:10px;margin-top:12px">${v.players.length?`<div class="faces">${v.players.slice(0,6).map(p=>GU.av(p,30)).join('')}</div><span style="color:var(--mute);font-size:14px">${v.sealed} sealed pick${v.sealed===1?'':'s'}, seal breaks in ${GU.until(g.date)}</span>`:`<span style="color:var(--mute);font-size:14px">No picks from the Field yet. Seal breaks at kickoff in ${GU.until(g.date)}.</span>`}</div>`;}
   else if(v.ms){h+=`<div class="sides"><div><small>WITH YOU</small>${sideFaces(v.withYou)}</div><div><small>AGAINST YOU</small>${sideFaces(v.against)}</div></div>`;}
   else if(v.players.length){h+=`<div style="display:flex;align-items:center;gap:10px;margin-top:12px"><div class="faces">${v.players.slice(0,6).map(p=>GU.av(p,30)).join('')}</div><span style="color:var(--mute);font-size:14px">on this game</span></div>`;}
-  return h+`<a href="lounge.html" style="display:block;margin-top:12px;color:var(--acc);font-weight:700;font-size:15px">Talk about it in the Lounge ›</a></div>`;
+  return h+`<a href="lounge.html?g=${encodeURIComponent(g.id)}" style="display:block;margin-top:12px;color:var(--acc);font-weight:700;font-size:15px">Who is with you, in the Lounge ›</a></div>`;
 }
 function render(){
   const f=GU.field(),m=GU.meRow(),wk=Rush.week(),op=GU.opponent(),mv=GU.moves(f);
