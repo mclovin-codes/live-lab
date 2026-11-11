@@ -234,7 +234,7 @@ function stopInfo(){const L=S.plays,last=L[L.length-1];if(!last)return null;cons
   if(/official|tv timeout/i.test(t))return{k:'Commercial break',w:LG==='nfl'?150:75,at:w};
   if(/timeout/i.test(t))return{k:'Timeout',w:LG==='nfl'?42:35,at:w};
   return null}
-function gate(M){const g=M.g;if(g.done)return{open:false,why:'Final'};if(!g.live)return g.state==='pre'?{open:true,pre:true,why:''}:{open:false,why:'Not started'};
+function gate(M){const g=M.g;if(g.done)return{open:false,why:'Final'};if(g.live)return{open:false,why:'Picks locked at kickoff. Follow it live.'};if(!g.live)return g.state==='pre'?{open:true,pre:true,why:''}:{open:false,why:'Not started'};
   if(!S.ok.sum||Date.now()-S.ok.sum>20000)return{open:false,why:'Feed paused'};if(!M.b||M.b.off)return{open:false,why:LG==='nhl'?'Book suspended. Lines reopen when the book posts':'Book suspended'};
   /* hockey: the book's own state is the lock. It keeps pricing the moneyline and total while the puck is live and marks them OFF
      when it suspends. While it posts, game lines open at its exact price; model-priced markets wait for an intermission or timeout.
@@ -380,7 +380,7 @@ function vField(){let f=[];try{f=Rush.field()}catch(e){}if(!f.length)return'';co
 /* the Field's picks on this game, Lounge style: name (opens player.html), the pick, how it stands. Cached 15 s. */
 let fgC={k:'',h:''};
 function vFieldGame(){if(!window.RW||!RW.FIELD||!RW.playerPicks||!RW.cached)return'';const gs=RW.cached()||[];let np=0;try{np=Rush.picks({contest:'*'}).length+'.'+Rush.wallet.active()}catch(e){}const k=gs.length+'|'+np+'|'+Math.floor(Date.now()/15e3);if(fgC.k===k)return fgC.h;
-  const rows=[];for(const b of RW.FIELD){let ps=[];try{ps=RW.playerPicks(b.id,gs)||[]}catch(e){}const p=ps.find(x=>x.league===LG&&String(x.gameId)===String(ID));if(p)rows.push({b,p})}
+  const rows=[];let FL=RW.FIELD;try{FL=RW.field(gs).filter(r=>!r.me)}catch(e){}for(const b of FL){let ps=[];try{ps=RW.playerPicks(b.id,gs)||[]}catch(e){}const p=ps.find(x=>x.league===LG&&String(x.gameId)===String(ID));if(p)rows.push({b,p})}
   let mine=[];try{mine=Rush.picks({league:LG,gameId:ID,contest:'*'})}catch(e){}const me=Rush.me&&Rush.me();
   const st=p=>p.status==='won'?'<span class="n up">Won</span>':p.status==='lost'?'<span class="n dn">Lost</span>':p.status==='push'?'<span class="n">Push</span>':'<span class="n dim">Open</span>';
   const sealedNow=(()=>{const g=gs.find(x=>x.league===LG&&String(x.id)===String(ID));return !!(g&&g.state==='pre'&&Date.now()<g.date)})();
