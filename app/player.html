@@ -82,7 +82,7 @@ function render(){
   }else{
     // Your Slips live here and in the Stack sheet: open first, then settled.
     const all=GU.mine(),open=all.filter(p=>p.status==='open'),done=all.filter(p=>p.status!=='open');
-    h+=`<div class="p-lbl" id="slips">Your Slips <a href="slips.html">All Slips and parlays</a></div><div class="seg"><button data-t="open" class="${tab==='open'?'on':''}">Open · ${open.length}</button><button data-t="done" class="${tab==='done'?'on':''}">Settled · ${done.length}</button></div>`;
+    h+=`<div class="p-lbl" id="slips">Your Slips <a href="slips.html">All Slips</a></div><div class="seg"><button data-t="open" class="${tab==='open'?'on':''}">Open · ${open.length}</button><button data-t="done" class="${tab==='done'?'on':''}">Settled · ${done.length}</button></div>`;
     h+=(tab==='open'?open:done).map(myLine).join('')||`<div class="empty">${tab==='open'?'No open Slips. Make a pick on the Board.':'Nothing settled yet this week.'}</div>`;
     // My circle: who is in, who is waiting either way, friends of friends to add, and the invite door when it is small.
     {const ids=GU.circle.ids(),mem=ids.map(GU.player).filter(Boolean),pend=GU.circle.pend(),asks=Object.keys(pend).map(id=>({p:GU.player(id),d:pend[id].dir})).filter(x=>x.p),fof=GU.circle.fof().slice(0,4),sug=fof.length?[]:GU.circle.suggest(4).filter(x=>!ids.includes(String(x.id))&&!pend[x.id]);

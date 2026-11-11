@@ -38,7 +38,7 @@ Home opens on the weekly contest, in this order:
 ## Where Slips live
 - **The Stack sheet:** tap your Stack in the top bar for the Stack, the rank and your open Slips (Blue's shell).
 - **Me:** your Slips, Open and Settled, each with its game, its live score or kickoff countdown, the stake and the return.
-- **slips.html:** the full page, with the parlay builder across games, linked from Me ("All Slips and parlays").
+- **slips.html:** the full page of placed picks, linked from Me ("All Slips"). Its Parlay tab opens the one shared Slip (Rush.slip), so there is one way to build a parlay.
 - There is no Slips tab.
 
 ## The visual pass
