@@ -204,7 +204,7 @@ const refs=()=>{try{return JSON.parse(localStorage.getItem(RKEY))||{list:[],nudg
 const saveRefs=r=>{try{localStorage.setItem(RKEY,JSON.stringify(r))}catch(e){}};
 (function(){const by=new URLSearchParams(location.search).get('ref');if(by){const r=refs();if(!r.invitedBy){r.invitedBy=by.slice(0,24);saveRefs(r)}}})();
 function rungOf(n){let i=0;for(let k=0;k<LADDER.length;k++)if(n>=LADDER[k].at)i=k;return i}
-function multiplier(){const r=refs(),me=GS.me(),picked=GS.picks().length>0;const inN=r.list.filter(x=>x.in).length,theirs=r.list.reduce((t,x)=>t+(x.theirs||0),0);const m=Math.min(3,1+.1*Math.min(inN,20)+.05*theirs);return{m:+m.toFixed(2),inN,theirs,crew:0,picked:me.entered&&picked}}
+function multiplier(){const r=refs(),me=GS.me(),picked=GS.picks().length>0;const inN=r.list.filter(x=>x.in).length,theirs=r.list.reduce((t,x)=>t+(x.theirs||0),0);const m=Math.min(3,1+.1*Math.min(inN,20)+.05*theirs);return{m:+m.toFixed(2),inN,theirs,picked:me.entered&&picked}}
 
 function readsCard(){if(!Rush.reads||!window.RW)return'';const G=RW.cached()||[];const r=Rush.reads.summary(G);const t=r.nextFlip<Infinity?new Date(r.nextFlip).toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit'}):'';
   return`<a class="rd4" href="lounge.html"><span class="rd4-h">READS</span><span class="rd4-r"><b>${r.open}</b><span>sealed picks to read${t?'<br>next flip '+t:''}</span><em>${r.scored?r.right+'/'+r.scored:'-'}<small>read right</small></em></span><span class="rd4-go">Read the Field</span></a>`}
