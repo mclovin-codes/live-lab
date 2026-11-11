@@ -58,7 +58,7 @@
   - no logos and no player photos: teams are Gold's drawn team marks in their two colours (for football, a speed-style helmet in side profile; all four marks share one light);
   - a game in progress takes live picks under the lock-before rule (see Live picking below);
   - before a game starts the page draws only Odds and Stats; Box Score and Plays appear at kickoff, and a link to them before then opens Odds;
-  - **where to watch, where it is played, the weather** (the founder's 12:43 and 12:50 AM notes): one strip under the header with "Watch Prime Video" (plain names from the feed, no channel logos), the venue and city, "Dome" for an indoor venue (and no weather), and for outdoor football the kickoff weather with its impact grade, or "Forecast closer to kickoff" more than seven days out;
+  - **where to watch, where it is played, the weather** (the founder's 12:43 and 12:50 AM notes): one strip under the header with "Watch Prime Video" (plain names from the feed, no channel logos), the venue and city, "Dome" for an indoor football or baseball venue (and no weather; NBA and NHL arenas show the venue only), and for outdoor football the kickoff weather with its impact grade, or "Forecast closer to kickoff" more than seven days out;
   - the shared game card (Gold) carries the same facts as one chip at its foot: "Watch Prime Video", then "Dome" or the weather and its grade;
   - **your side:** "You: NYG -2.5, Over 41.5" above the game lines, and the cells you hold stay marked;
   - **the Field's split:** Moneyline, Spread and Total bars in the teams' colours, by picks or by Stack staked. The seal decides when: before kickoff only "N sealed on this game" shows; the split draws from kickoff and updates with live picks. A visitor never sees it;
@@ -253,6 +253,7 @@ Home opens on the weekly contest, in this order:
   - two team rows, each with the team mark, its code, name and record, and the score;
   - while the game is open, the price cells: Spread, Total and ML, tapping into the one Slip exactly as on the Board.
 - **Home adds only one quiet line:** small faces beside the side each player took (a count when more than four), totals as one small group at the bottom, and a single "N sealed" chip before kickoff. The old four boxes are gone.
+- **The info line at the foot of the card** (Blue's feed, plain text): where to watch ("Watch Prime Video"), then Dome for an indoor NFL or MLB game, or for an outdoor NFL game the temperature, sky and weather impact ("52° Cloudy, no weather impact").
 - **No official logos or player photos:** a drawn, shaded object per sport, tinted with the team's two colours from the feed, with the team's code on it:
   - football: a speed-style helmet in side profile (founder's 11:50 style note, our own drawing): a shaded shell with a crown highlight, dark vents, ear hole, jaw pad, chin strap and a multi-bar mask with clips;
   - basketball: a jersey;

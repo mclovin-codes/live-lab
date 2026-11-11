@@ -339,7 +339,7 @@ function vWatch(){let g=null;try{g=(RW.cached()||[]).find(x=>String(x.id)===Stri
  const sw=gi.weather||null,w=g&&g.weather?Object.assign({},g.weather):(sw?{temp:sw.temperature!=null?+sw.temperature:null,text:sw.displayValue||'',precip:sw.precipitation}:null);if(w&&sw&&sw.precipitation!=null)w.precip=+sw.precipitation;if(w&&sw&&sw.gust!=null)w.gust=+sw.gust;if(w&&sw&&sw.windSpeed!=null)w.wind=+sw.windSpeed;
  const parts=[];if(bc)parts.push('<span class="wt-i"><b>Watch</b> '+esc(bc)+'</span>');
  if(vn)parts.push('<span class="wt-i"><b>'+esc(vn.name)+'</b>'+(vn.city?' · '+esc(vn.city)+(vn.state?', '+esc(vn.state):''):'')+'</span>');
- if(vn&&vn.indoor)parts.push('<span class="wt-i">Dome</span>');
+ if(vn&&vn.indoor&&(LG==='nfl'||LG==='cfb'||LG==='mlb'))parts.push('<span class="wt-i">Dome</span>');
  else if(LG==='nfl'||LG==='cfb'){const far=game().start&&game().start-Date.now()>7*864e5;if(far)parts.push('<span class="wt-i">Forecast closer to kickoff</span>');else if(w){const gr=RW.wxGrade?RW.wxGrade(w,false):null;parts.push('<span class="wt-i">'+(w.temp!=null?Math.round(w.temp)+'°F ':'')+esc(w.text||'')+'</span>');if(gr)parts.push('<span class="wt-i wt-g wt-'+gr.grade.toLowerCase()+'">Weather impact <b>'+gr.grade+'</b>'+(gr.facts.length?': '+esc(gr.facts.join(', ')):'')+'</span>')}}
  return parts.length?'<div class="wtch">'+parts.join('')+'</div>':''}
 function vHdr(M){if(!S.sum)return`<div class="gtop"><a href="board.html">&lsaquo; Board</a><span>${esc(LG.toUpperCase())}</span><span></span></div><div class="pane"><div class="empty">${S.err?'Could not reach the game feed ('+esc(S.err)+'). Retrying.':'Loading the game.'}</div></div>`;const g=M.g,h=M.h,a=M.a,lead=h.score===a.score?'':h.score>a.score?'h':'a';const gt=gate(M);
