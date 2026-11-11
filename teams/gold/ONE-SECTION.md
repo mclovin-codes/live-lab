@@ -46,6 +46,20 @@ Home opens on the weekly contest, in this order:
 - **Me:** your circle, who is waiting on whom, "In your friends' circles" (friends of friends to add) or, when that is empty, players to add, and Invite a friend while the circle is small.
 - **An empty circle** shows three faces to add and the invite door, never a blank page.
 
+## One game card, and no logos (game-card.js, team-mark.js)
+- **One card for Home, the Board and the Lounge's pinned game,** modelled on the Rush app's board cards:
+  - a header with the league and the clock or kickoff;
+  - two team rows, each with the team mark, its code, name and record, and the score;
+  - while the game is open, the price cells: Spread, Total and ML, tapping into the one Slip exactly as on the Board.
+- **Home adds only one quiet line:** small faces beside the side each player took (a count when more than four), totals as one small group at the bottom, and a single "N sealed" chip before kickoff. The old four boxes are gone.
+- **No official logos or player photos:** a drawn, shaded object per sport, tinted with the team's two colours from the feed, with the team's code on it:
+  - football: a helmet;
+  - basketball: a jersey;
+  - hockey: a sweater;
+  - baseball: a cap.
+  - A player gets a jersey with their number. A missing or too-close colour pair falls back to a readable one.
+- **Logo requests:** Blue's store hands every page the mark in place of the logo, so no logo image request leaves Home, profiles or Slips.
+
 ## Where Slips live
 - **The Stack sheet:** tap your Stack in the top bar for the Stack, the rank and your open Slips (Blue's shell).
 - **Me:** your Slips, Open and Settled, each with its game, its live score or kickoff countdown, the stake and the return.
