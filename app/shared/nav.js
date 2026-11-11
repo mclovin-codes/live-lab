@@ -8,10 +8,21 @@
  */
 (function () {
   const ME = 'nickr';
-  const HONEST = new URLSearchParams(location.search).get('field') === '7';
+  /* The honest view: exactly 7 players (you, your matchup opponent, the next five by id), ranks 1 to 7, about 6 picks
+     per stand-in. ?field=7 turns it on, ?field=all off; Gold's honest.js keeps it in localStorage 'rush-field'. */
+  const HONEST = (() => { const q = new URLSearchParams(location.search).get('field'); try { if (q === '7') localStorage.setItem('rush-field', '7'); else if (q === 'all') localStorage.setItem('rush-field', 'all'); return localStorage.getItem('rush-field') === '7'; } catch (e) { return q === '7'; } })();
+  window.Rush = window.Rush || {}; window.Rush.honest = () => HONEST;
+  const RIVK = 'rush-rival-v1';
+  function seven(rows) { if (!HONEST || !rows || rows.length <= 7) return rows; let pin = null; try { pin = JSON.parse(localStorage.getItem(RIVK) || 'null'); } catch (e) {}
+    const me = rows.find(r => r.me), others = rows.filter(r => !r.me), riv = pin && others.find(r => String(r.id) === String(pin.id) || r.name === pin.name);
+    const rest = others.filter(r => r !== riv).sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
+    const keep = [me].concat(riv ? [riv] : []).concat(rest).filter(Boolean).slice(0, 7); return rows.filter(r => keep.includes(r)); }
+  function honestField() { const W = window.RW; if (W && W.field && !W.field._seven) { const of = W.field; W.field = function () { const r = seven(of.apply(W, arguments)); try { r.forEach(x => { x.rank = 1 + r.filter(y => (+y.units || 0) > (+x.units || 0) + 1e-9).length; }); } catch (e) {} return r; }; W.field._seven = true; }
+    if (W && W.playerPicks && !W.playerPicks._six) { const op = W.playerPicks; W.playerPicks = function (id, games) { const ps = op.apply(W, arguments); if (!HONEST || id === 'me' || !Array.isArray(ps) || ps.length <= 6) return ps; const now = Date.now(); return ps.slice().sort((a, b) => Math.abs((a.g ? a.g.date : 0) - now) - Math.abs((b.g ? b.g.date : 0) - now)).slice(0, 6).sort((a, b) => (a.g ? a.g.date : 0) - (b.g ? b.g.date : 0)); }; W.playerPicks._six = true; } }
+  honestField();
   /* Ties share a rank everywhere: rank = 1 + players with a higher Stack. */
   (function shareRanks() { const R = window.Rush; if (!R || !R.field || R.field._shared) return; const orig = R.field;
-    R.field = function () { const f = orig.apply(R, arguments); try { f.forEach(r => { r.rank = 1 + f.filter(x => (+x.units || 0) > (+r.units || 0) + 1e-9).length; }); } catch (e) {} return f; };
+    R.field = function () { const f = seven(orig.apply(R, arguments)); try { f.forEach(r => { r.rank = 1 + f.filter(x => (+x.units || 0) > (+r.units || 0) + 1e-9).length; }); } catch (e) {} return f; };
     R.field._shared = true;
     if (R.me && !R.me._shared) { const om = R.me; R.me = function () { const m = om.apply(R, arguments); try { const f = R.field(), r = f.find(x => x.me); if (r && m) { m.rank = r.rank; m.of = f.length; } } catch (e) {} return m; }; R.me._shared = true; } })();
   /* One opponent per week: the first pairing computed is pinned, so every page shows the same matchup. */
@@ -95,7 +106,8 @@ body.has-rnav{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
     document.body.appendChild(sc); document.body.appendChild(sh);
   }
   function refresh() { draw(); drawTop(); }
-  function init() { const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); signIn(); ['rpill-band'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); refresh(); if (window.Rush && Rush.on) Rush.on(refresh); setInterval(refresh, 30000); }
+  function init() { honestField(); if (!document.querySelector('script[src="honest.js"]')) { const hs = document.createElement('script'); hs.src = 'honest.js'; document.body.appendChild(hs); }
+    const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); signIn(); ['rpill-band'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); refresh(); if (window.Rush && Rush.on) Rush.on(refresh); setInterval(refresh, 30000); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   window.Rush = window.Rush || {}; window.Rush.nav = { refresh, openStack, openSwitch: openStack, avatar, hue, ini };
 })();

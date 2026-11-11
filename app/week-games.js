@@ -39,6 +39,8 @@ async function load(force){if(!force&&cache&&Date.now()-cacheAt<15000)return cac
  for(const lg of['nba','nhl'])for(const d of ds)jobs.push(J(`${SB}${LEAGUES[lg].path}/scoreboard?dates=${d}`).then(r=>(r.events||[]).map(e=>norm(lg,e))).catch(()=>[]));
  const all=(await Promise.all(jobs)).flat(),seen=new Set,games=[];for(const g of all){const k=g.league+g.id;if(seen.has(k))continue;seen.add(k);if(g.date>=w.start-6*36e5&&g.date<=w.end)games.push(g)}
  await Promise.all(games.filter(g=>g.state==='in'&&g.line.hml==null&&SP[g.league]).map(async g=>{const k=g.league+g.id;if(!AT[k]||Date.now()-AT[k]>30e3){AT[k]=Date.now();try{const r=await J(`${SB}${LEAGUES[g.league].path}/summary?event=${g.id}`),L=postedLine((r.pickcenter||[])[0]);if(L)keepLast(k,L);else dropLast(k)}catch(e){}}const L=liveLine(g,last()[k]);if(L)g.liveLine=L}));
+ /* keep each game's pregame line after kickoff (the scoreboard drops it), so the Field's picks stay the same picks once revealed */
+ try{const LN=JSON.parse(localStorage.getItem('rw.lines')||'{}'),has=L=>L&&(L.hml!=null||L.ou!=null||L.spread!=null),keep={};for(const g of games){const k=g.league+g.id;if(g.state==='pre'&&has(g.line))LN[k]=g.line;else if(!has(g.line)&&LN[k])g.line=LN[k];if(LN[k])keep[k]=LN[k]}localStorage.setItem('rw.lines',JSON.stringify(keep))}catch(e){}
  games.sort((a,b)=>a.date-b.date);cache=games;cacheAt=Date.now();try{localStorage.setItem('rw.games',JSON.stringify({at:cacheAt,w:w.n,games}));localStorage.setItem('rw.live',JSON.stringify({n:games.filter(g=>g.state==='in').length,at:cacheAt}))}catch(e){}badge();return games}
 let cRaw=null,cVal=null;function cached(){try{const raw=localStorage.getItem('rw.games');if(raw!==cRaw){cRaw=raw;const j=JSON.parse(raw||'null');cVal=j&&j.w===week().n?j.games:null}return cVal}catch(e){}return null}
 
@@ -49,7 +51,7 @@ const toWin=(st,o)=>o>0?st*o/100:st*100/Math.abs(o);
 function botPick(b,g){const k=b.id+'|'+g.league+g.id;if(hash(k)>b.act)return null;const L=g.line,m=hash(k+'m');let t,side,line=null,odds=-110;
  if(m<.4&&L.hml&&L.aml){t='ml';side=hash(k+'s')<.5+(L.hml<0?.12:-.12)?'home':'away';odds=side==='home'?L.hml:L.aml}
  else if(m<.75&&L.spread!=null){t='spread';side=hash(k+'s')<.5?'home':'away';line=side==='home'?L.spread:-L.spread}
- else if(L.ou!=null){t='total';side=hash(k+'s')<.55?'o':'u';line=L.ou}else return null;
+ else if(L.ou!=null){t='total';side=hash(k+'s')<.55?'o':'u';line=L.ou}else if(g.state!=='pre'){t='ml';side=hash(k+'s')<.5?'home':'away';odds=-110}else return null;
  const stake=Math.round(b.unit*(.6+hash(k+'q')*1.2));return{t,side,line,odds,stake,g}}
 function grade(p){const g=p.g;if(!g.done||g.home.score==null)return null;const H=g.home.score,A=g.away.score;let r;
  if(p.t==='ml'){if(H===A)r='push';else r=(p.side==='home')===(H>A)?'won':'lost'}
