@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0B1118">
-<title>Rush · Reads</title>
+<title>Rush · Blindside</title>
 <link rel="stylesheet" href="shared/rush.css">
 <style>
 /* Reads: one space for the whole Field. Every sealed pick is a question: which side did they take? You answer in one tap
@@ -30,7 +30,7 @@ h1{margin:2px 0 2px;font:900 32px/1.05 var(--f);letter-spacing:-.02em}
 .game{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0 10px;padding:10px 12px;border-radius:14px;background:var(--card2)}
 .game b{display:block;font:800 17px var(--f)}.game small{display:block;color:var(--mut);font:700 12px var(--f)}.game .lock{font-size:15px}.game .t{text-align:right}
 .q{font:800 15px var(--f);margin:0 0 8px}.q i{font-style:normal;color:var(--warn)}
-.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}.opt{min-height:50px!important}
 .opt{min-height:56px;border-radius:14px;background:#22303E;font:900 20px var(--f);letter-spacing:.01em;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08);transition:transform .12s}
 .opt:active{transform:scale(.96)}.opt.on{background:var(--acc);color:#04121C;box-shadow:none}.opt.off{opacity:.45}
 .note{margin-top:10px;color:var(--mut);font-size:13px;display:flex;justify-content:space-between;gap:8px;align-items:center}
@@ -77,14 +77,17 @@ const when=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',week
 let games=RW.cached()||[];
 
 /* who is in the space: the whole Field, or exactly 7 (you, your matchup opponent and five more) */
-function players(){const f=Rush.field(),me=f.find(r=>r.me),riv=Rush.rival&&Rush.rival(),others=f.filter(r=>!r.me);
+function players(){let B={};try{B=JSON.parse(localStorage.getItem('rush-blocked-v1'))||{}}catch(e){}const f=Rush.field().filter(r=>!B[r.id]),me=f.find(r=>r.me),riv=Rush.rival&&Rush.rival(),others=f.filter(r=>!r.me);
  if(!honest)return{me,riv,list:others};
  const pick=[riv,...others.filter(r=>!riv||r.id!==riv.id).sort((a,b)=>a.name.localeCompare(b.name))].filter(Boolean).slice(0,6);
  return{me,riv,list:pick}}
 /* a sealed pick becomes a two-sided question; props and anything without two clear sides are skipped */
-function sides(p){const g=p.g;if(!g||!g.away||!g.home)return null;const L=String(p.label||''),a=g.away.abbr,h=g.home.abbr;
- if(/^over\b/i.test(L))return{opts:['Over','Under'],truth:'Over',ask:'Over or under?'};if(/^under\b/i.test(L))return{opts:['Over','Under'],truth:'Under',ask:'Over or under?'};
- if(L.startsWith(a+' '))return{opts:[a,h],truth:a,ask:'Which side?'};if(L.startsWith(h+' '))return{opts:[a,h],truth:h,ask:'Which side?'};return null}
+/* Blindside: every readable line pick asks the same four-way question (either team, over or under), so a card never
+   shows the market type before kickoff. Props and other markets are not readable. */
+function sides(p){const g=p.g;if(!g||!g.away||!g.home)return null;const L=String(p.label||''),a=g.away.abbr,h=g.home.abbr,opts=[a,h,'Over','Under'];
+ if(!/^(moneyline|spread|total)/i.test(String(p.market||'')))return null;
+ if(/^over\b/i.test(L))return{opts,truth:'Over',ask:'What did they take?'};if(/^under\b/i.test(L))return{opts,truth:'Under',ask:'What did they take?'};
+ if(L.startsWith(a+' '))return{opts,truth:a,ask:'What did they take?'};if(L.startsWith(h+' '))return{opts,truth:h,ask:'What did they take?'};return null}
 const TAGS=['Lock','Gut call','Trap'];
 const pkey=(pid,p)=>pid+':'+p.gameId+':'+p.market;
 const ONLY=Q.get('p'),ONLYG=Q.get('g');
@@ -96,15 +99,15 @@ function crowd(c){if(honest)return[];const{list}=players(),n=Math.floor(h01(c.k+
 
 function sealedCard(c){const g=c.p.g,cw=crowd(c),side=c.mine&&c.mine.side;
  const tally=cw.length?`<span class="tally">${cw.slice(0,4).map(x=>av(x.r.name,22)).join('')} ${cw.length} read it</span>`:`<span>${honest?'No reads yet':'Be the first to read it'}</span>`;
- return`<div class="card${c.rival?' rival':''}" id="c-${esc(c.k).replace(/[^a-z0-9]/gi,'')}"><a class="who" href="player.html?u=${encodeURIComponent(c.r.id)}">${av(c.r.name,40)}<span class="meta"><b>${esc(c.r.name)}</b><small>${c.rival?'<span style="color:#E879F9;font-weight:800">Your matchup</span> &middot; ':''}#${c.r.rank} in the Field</small></span><span class="stk"><b>${fmt(c.p.stake)}</b><small>Stack sealed</small></span></a>
- <div class="game"><div><b>${esc(g.away.abbr)} at ${esc(g.home.abbr)}</b><small>${esc((c.p.league||'').toUpperCase())} &middot; ${esc(c.p.market)}</small></div><div class="t"><span class="lock">${LOCK}${Rush.clock(c.kick-Date.now())}</span><small>until ${START[c.p.league]||'kickoff'}</small></div></div>
+ return`<div class="card${c.rival?' rival':''}" id="c-${esc(c.k).replace(/[^a-z0-9]/gi,'')}"><a class="who" href="player.html?u=${encodeURIComponent(c.r.id)}">${av(c.r.name,40)}<span class="meta"><b>${esc(c.r.name)}</b><small>${c.rival?'<span style="color:#E879F9;font-weight:800">Your matchup</span> &middot; ':''}#${c.r.rank} in the Field</small></span><span class="stk"><span class="lock">${LOCK}</span><small>sealed</small></span></a>
+ <div class="game"><div><b>${esc(g.away.abbr)} at ${esc(g.home.abbr)}</b><small>${esc((c.p.league||'').toUpperCase())} &middot; side, line and stake sealed</small></div><div class="t"><span class="lock">${LOCK}${Rush.clock(c.kick-Date.now())}</span><small>until ${START[c.p.league]||'kickoff'}</small></div></div>
  <div class="q">${esc(c.s.ask)} <i>${side?'Your read is in':'Tap to read'}</i></div>
  <div class="opts">${c.s.opts.map(o=>`<button class="opt${side?side===o?' on':' off':''}" data-read="${esc(c.k)}" data-side="${esc(o)}">${esc(o)}</button>`).join('')}</div>
  ${side?`<div class="tags">${TAGS.map(t=>`<button class="tag${c.mine.tag===t?' on':''}" data-tag="${esc(c.k)}" data-t="${t}">${t}</button>`).join('')}</div>`:''}
  <div class="note">${tally}<span>${side?'Change until '+(START[c.p.league]||'kickoff'):'Reveals at '+(START[c.p.league]||'kickoff')}</span></div></div>`}
 function revealCard(c){const side=c.mine&&c.mine.side,res=c.p.status==='won'?'Hit':c.p.status==='lost'?'Missed':c.p.status==='push'?'Push':'Live';
  const v=!side?'<span class="verd n">Not read</span>':side===c.s.truth?'<span class="verd r">You read it</span>':'<span class="verd m">Misread</span>';
- return`<div class="card${c.rival?' rival':''}"><div class="rev"><a href="player.html?u=${encodeURIComponent(c.r.id)}">${av(c.r.name,44)}</a><div class="meta"><b>${esc(c.r.name)} took ${esc(c.s.truth)}</b><small>${esc(c.p.g.away.abbr)} at ${esc(c.p.g.home.abbr)} &middot; ${esc(c.p.label)} &middot; pick ${res}${c.mine&&c.mine.tag?' &middot; you said '+esc(c.mine.tag):''}</small></div>${v}</div></div>`}
+ return`<div class="card${c.rival?' rival':''}"><div class="rev"><a href="player.html?u=${encodeURIComponent(c.r.id)}">${av(c.r.name,44)}</a><div class="meta"><b>${esc(c.r.name)} took ${esc(c.s.truth)}</b><small>${esc(c.p.g.away.abbr)} at ${esc(c.p.g.home.abbr)} &middot; ${esc(c.p.label)}, ${fmt(c.p.stake)} Stack &middot; pick ${res}${c.mine&&c.mine.tag?' &middot; you said '+esc(c.mine.tag):''}</small></div>${v}</div></div>`}
 
 function render(){const all=cards(),{me,riv}=players(),now=Date.now();
  const sealed=all.filter(c=>!c.started&&c.kick>now).sort((a,b)=>(b.rival-a.rival)||(a.kick-b.kick)),revealed=all.filter(c=>c.started&&(now-c.kick)<36*36e5).sort((a,b)=>b.kick-a.kick);
@@ -112,7 +115,7 @@ function render(){const all=cards(),{me,riv}=players(),now=Date.now();
  const per={},shown=sealed.filter(c=>{per[c.r.id]=(per[c.r.id]||0)+1;return per[c.r.id]<=(c.rival?4:2)}).slice(0,honest?14:16);
  const R=load(),mineR=Object.values(R),done=mineR.filter(x=>x.kick<=now),right=done.filter(x=>x.side===x.truth).length;
  const myPicks=Rush.picks({status:'open',week:Rush.week().id}).filter(p=>p.gameId);
- let h=(ONLY||ONLYG)?`<a class="back" href="lounge.html${honest?'?field=7':''}">&#8249; The whole Field</a>`:'';h+=`<h1>Reads</h1><p class="lede">Every pick is sealed until kickoff. Read the side. Kickoff scores you.</p>`;
+ let h=(ONLY||ONLYG)?`<a class="back" href="lounge.html${honest?'?field=7':''}">&#8249; The whole Field</a>`:'';h+=`<h1>Blindside</h1><p class="lede">Every pick is sealed until kickoff. Call what they took, blind. Kickoff scores you.</p>`;
  h+=`<div class="rec"><a class="hot" href="me.html#reads"><b>${done.length?right+'/'+done.length:'0'}</b><small>${done.length?'Read right':'Reads scored'}</small></a><div><b>${mineR.length-done.length}</b><small>${(()=>{const nx=mineR.filter(x=>x.kick>now).map(x=>x.kick).sort((a,b)=>a-b)[0];return nx?'Reveal '+new Date(nx).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'Waiting on kickoff'})()}</small></div><div><b>${sealed.length}</b><small>Sealed to read</small></div></div>`;
  const fresh=mineR.filter(x=>x.kick<=now&&!x.seen);if(fresh.length)h+=`<button class="rv" id="rvok">${fresh.slice(0,3).map(x=>`<div><b>${esc(x.who)} took ${esc(x.truth)}</b><span class="${x.side===x.truth?'ok':'no'}">${x.side===x.truth?'You read it':'You read '+esc(x.side)}</span></div>`).join('')}<small>${fresh.length>3?'+'+(fresh.length-3)+' more. ':''}Tap to clear</small></button>`;
  if(sealed.length&&!ONLYG){const k0=sealed.reduce((m,c)=>Math.min(m,c.kick),Infinity),at=sealed.filter(c=>c.kick===k0),g0=at[0].p.g,n0=all.filter(c=>c.kick===k0&&!c.started).length,mineAt=at.filter(c=>c.mine).length;
