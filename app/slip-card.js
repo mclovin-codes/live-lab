@@ -31,6 +31,9 @@
     const anySealed = s.legs.some(l => l.sealed) || (!!opts.sealed && s.legs.some(l => !started(l.g)));
     const kind = parlay ? ((s.same || new Set(s.legs.map(l => l.game)).size === 1) ? 'Same-game parlay · ' + n + ' legs' : 'Parlay · ' + n + ' legs') : (s.kind === 'prop' || s.legs[0].player ? 'Player prop' : s.legs[0].market || 'Straight');
     const head = s.status === 'hit' ? '<span class="sc-st hit">HIT</span>' : s.status === 'miss' ? '<span class="sc-st miss">MISSED</span>' : s.status === 'push' ? '<span class="sc-st">PUSH</span>' : anySealed ? '<span class="sc-st sealed">SEALED</span>' : s.legs.some(l => l.g && l.g.state === 'in') ? '<span class="sc-st live">LIVE</span>' : '<span class="sc-st">OPEN</span>';
+    // Every leg still sealed: one compact row (how many legs, which games, the next kickoff), not a screen of locks.
+    const isSealed = l => l.sealed || (opts.sealed && !started(l.g));
+    if (s.legs.every(isSealed)) { const next = s.legs.map(l => l.g && l.g.date).filter(Boolean).sort((x, y) => x - y)[0]; return `<div class="sc sealedall${parlay ? ' par' : ''}"><div class="sc-h"><span class="sc-k">${esc(kind)}</span><span class="sc-st sealed">SEALED</span></div><div class="sc-leg">${ICON.sealed}<div class="sc-l"><b>${esc(s.legs.map(l => l.game).filter(Boolean).join(', '))}</b><small>${n > 1 ? n + ' legs open one by one at each kickoff' : 'Opens at kickoff'}${next ? ', first in ' + until(next) : ''}. Stake sealed.</small></div></div></div>`; }
     const legs = s.legs.map(l => {
       if (l.sealed || (opts.sealed && !started(l.g))) return `<div class="sc-leg">${ICON.sealed}<div class="sc-l"><b>${esc(l.game || 'Sealed leg')}</b><small>Sealed until kickoff${l.g ? ', in ' + until(l.g.date) : ''}</small></div></div>`;
       const live = l.st === 'open' && l.g && l.g.state === 'in';
@@ -49,7 +52,7 @@
 .sc-st.hit{background:rgba(61,214,140,.18);color:#3DD68C}.sc-st.miss{background:rgba(255,107,107,.16);color:#FF6B6B}.sc-st.live{background:rgba(255,107,107,.16);color:#FF6B6B}.sc-st.sealed{background:rgba(242,193,78,.14);color:#F2C14E}
 .sc-leg{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06)}
 .sc-leg:first-of-type{border-top:0}
-.sc-l{flex:1;min-width:0}.sc-l b{display:block;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sc-l small{display:block;color:#A3AFBD;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc.sealedall .sc-l b{white-space:normal;font-size:15px}.sc-l{flex:1;min-width:0}.sc-l b{display:block;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sc-l small{display:block;color:#A3AFBD;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc-p{font:800 18px/1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#F4F7FA}
 .sc-leg.miss .sc-l b{color:#A3AFBD;text-decoration:line-through;text-decoration-color:rgba(255,107,107,.7)}
 .sc-i{width:22px;height:22px;flex:none;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:13px}
