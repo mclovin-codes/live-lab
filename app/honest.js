@@ -5,17 +5,22 @@
   const K = 'rush-field';
   try { const q = new URLSearchParams(location.search).get('field'); if (q === '7') localStorage.setItem(K, '7'); else if (q === 'all') localStorage.removeItem(K); } catch (e) {}
   const on = () => { try { return localStorage.getItem(K) === '7'; } catch (e) { return false; } };
-  window.RushHonest = { on };
+  // Viewing as not entered (founder 11:35): ?entered=0 shows what a signed-in player sees before entering this week; ?entered=1 goes back.
+  const EK = 'rush-entered';
+  try { const q = new URLSearchParams(location.search).get('entered'); if (q === '0') localStorage.setItem(EK, '0'); else if (q === '1') localStorage.removeItem(EK); } catch (e) {}
+  const notIn = () => { try { return localStorage.getItem(EK) === '0'; } catch (e) { return false; } };
+  window.RushHonest = { on, notIn };
   function draw() {
     let el = document.getElementById('rhonest');
     if (!el) { el = document.createElement('footer'); el.id = 'rhonest'; document.body.appendChild(el); }
     // The footer is the last thing on the page: its own bottom margin clears the tab bar, the Slip bar and the phone's safe area.
     el.style.cssText = 'max-width:560px;margin:12px auto calc(76px + env(safe-area-inset-bottom,0px));padding:16px 16px 22px;text-align:center;font:500 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#A3AFBD';
     // Keep the page's own parameters (a profile's ?u=, a game's ?id=), change only field.
-    const to = v => { const q = new URLSearchParams(location.search); q.set('field', v); return (location.pathname.split('/').pop() || 'index.html') + '?' + q.toString() + location.hash; };
+    const to = (v, k) => { const q = new URLSearchParams(location.search); q.delete('field'); q.delete('entered'); q.set(k || 'field', v); return (location.pathname.split('/').pop() || 'index.html') + '?' + q.toString() + location.hash; };
     el.innerHTML = on()
       ? 'Honest view: the 7 players in this week, nothing generated. <a href="' + to('all') + '" style="color:#3DB8FF;font-weight:700;text-decoration:none">Show the stand-in Field</a>'
       : 'Stand-in Field of SIM players. <a href="' + to('7') + '" style="color:#3DB8FF;font-weight:700;text-decoration:none">Honest view: 7 players</a>';
+    el.innerHTML += '<br>Viewing as: ' + (notIn() ? '<b style="color:#F4F7FA">not entered</b> · <a href="' + to('1', 'entered') + '" style="color:#3DB8FF;font-weight:700;text-decoration:none">entered</a>' : '<b style="color:#F4F7FA">entered</b> · <a href="' + to('0', 'entered') + '" style="color:#3DB8FF;font-weight:700;text-decoration:none">not entered</a>');
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', draw); else draw();
 })();

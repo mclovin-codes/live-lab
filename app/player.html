@@ -37,7 +37,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body data-tab="me"><script>(function(){var u=new URLSearchParams(location.search).get("u");if(u&&u!=="me")document.body.dataset.tab="contest"})()</script>
 <div id="app" class="p-wrap"></div>
-<script src="shared/state.js?v=f1108"></script><script src="week-games.js?v=f1108"></script><script src="honest.js?v=g620"></script><script src="shared/nav.js?v=f1108"></script><script src="shared/events.js?v=f1108"></script><script src="faces.js?v=f1"></script><script src="team-mark.js?v=m2"></script><script src="gold-ui.js?v=g623"></script><script src="slip-card.js?v=s6"></script>
+<script src="shared/state.js?v=f1108"></script><script src="week-games.js?v=f1108"></script><script src="honest.js?v=g621"></script><script src="shared/nav.js?v=f1108"></script><script src="shared/events.js?v=f1108"></script><script src="faces.js?v=f1"></script><script src="team-mark.js?v=m2"></script><script src="gold-ui.js?v=g624"></script><script src="slip-card.js?v=s6"></script>
 <script>
 const E=GU.esc,F=GU.fmt,Q=new URLSearchParams(location.search),UID=Q.get('u')&&Q.get('u')!=='me'?Q.get('u'):null;
 let tab=location.hash==='#settled'?'done':'open';
@@ -71,7 +71,7 @@ function render(){
   if(!isMe)h+=`<a class="p-back" href="javascript:history.back()">‹ Back</a>`;
   const BN=window.RushFace?(isMe?RushFace.banner():RushFace.BANNERS[[...String(who.id)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,0)%RushFace.BANNERS.length].css):'var(--card)';
   h+=`<section class="p-hero" style="background:${BN}">${isMe?'<button id="edit" class="p-edit" aria-label="Edit profile">Edit</button>':''}${GU.av(who,96,1)}<h1>${E(who.name)}</h1>
-   <div class="p-stats"><div><div class="p-num">${GU.stk(who.stack)}</div><small>STACK</small></div><div><div class="p-num">#${who.rank||'-'}<span style="color:var(--mute);font-size:16px"> of ${f.length}</span></div><small>RANK</small></div><div><div class="p-num">${rec.w}-${rec.l}</div><small>SEASON</small></div></div>
+   <div class="p-stats"><div><div class="p-num">${isMe&&!GU.entered()?'<span style="color:var(--acc)">ENTER</span>':GU.stk(who.stack)}</div><small>STACK</small></div><div><div class="p-num">${isMe&&!GU.entered()?'-':'#'+(who.rank||'-')}<span style="color:var(--mute);font-size:16px"> of ${f.length}</span></div><small>RANK</small></div><div><div class="p-num">${rec.w}-${rec.l}</div><small>SEASON</small></div></div>
    <div style="margin-top:12px"><span class="p-num ${d>=0?'up':'dn'}" style="font-size:22px">${d>=0?'+':''}${F(d)}</span> <small style="color:var(--mute);font-weight:800;letter-spacing:1px;font-size:12px">WEEK ${wk.n}</small></div></section>`;
   if(!isMe){
     const MU=(()=>{try{return Rush.matchup?Rush.matchup():null}catch(e){return null}})(),one=MU&&MU.opp&&String(MU.opp.id)===String(who.id),myS=one?MU.me.stack:m.stack,thS=one?MU.opp.stack:who.stack;const gap=one?MU.lead:myS-thS,A=Math.max(1,myS),B=Math.max(1,thS),op=GU.opponent(),isOpp=op&&op.id===who.id;
@@ -96,9 +96,11 @@ function render(){
      <div style="display:flex;gap:18px;justify-content:center;margin-top:10px"><button class="lnk" id="blk">${bl?'Unblock':'Block'}</button><button class="lnk" id="rpt">Report</button></div>`;
   }else{
     // Your Slips live here and in the Stack sheet: open first, then settled.
+    if(!GU.entered()){h+=`<div class="p-lbl">Week ${wk.n}</div><section class="p-card" style="text-align:center"><div style="font:400 30px/1 'Bebas Neue','Barlow Condensed',sans-serif;letter-spacing:1px">Enter to start</div><div style="color:var(--mute);margin-top:6px">Free · ${GU.stk(1000)} Stack to start</div><button class="p-btn" id="pent" style="width:100%;margin-top:14px">Enter free</button></section>`}else{
     const all=(()=>{try{const s=window.RW&&RW.playerPicks&&RW.playerPicks('me',GU.games());if(s&&s.length)return s}catch(e){}return GU.mine()})(),open=all.filter(p=>p.status==='open'),done=all.filter(p=>p.status!=='open');
     h+=`<div class="p-lbl" id="slips">Your Slips <a href="slips.html">All Slips</a></div><div class="seg"><button data-t="open" class="${tab==='open'?'on':''}">Open · ${open.length}</button><button data-t="done" class="${tab==='done'?'on':''}">Settled · ${done.length}</button></div>`;
     h+=(tab==='open'?open:done).map(x=>SlipCard.html(x)).join('')||`<div class="empty">${tab==='open'?'No open Slips · <a href="board.html" style="color:var(--acc)!important;font-weight:800">Board ›</a>':'Nothing settled yet'}</div>`;
+    }
     // My circle: who is in, who is waiting either way, friends of friends to add, and the invite door when it is small.
     {const ids=GU.circle.ids(),mem=ids.map(GU.player).filter(Boolean),pend=GU.circle.pend(),asks=Object.keys(pend).map(id=>({p:GU.player(id),d:pend[id].dir})).filter(x=>x.p),fof=GU.circle.fof().slice(0,4),sug=fof.length?[]:GU.circle.suggest(4).filter(x=>!ids.includes(String(x.id))&&!pend[x.id]);
      h+=`<div class="p-lbl">My circle <a href="lounge.html">Lounge</a></div><section class="p-card">`;
@@ -119,6 +121,7 @@ function render(){
   const cb=document.getElementById('circ');if(cb)cb.onclick=()=>{if(cb.dataset.c==='confirm')GU.circle.confirm(who.id);else GU.circle.ask(who.id);render();setTimeout(render,10500)};
   document.querySelectorAll('[data-cf]').forEach(b=>b.onclick=()=>{GU.circle.confirm(b.dataset.cf);render()});
   document.querySelectorAll('[data-ca]').forEach(b=>b.onclick=()=>{GU.circle.ask(b.dataset.ca);render();setTimeout(render,10500)});
+  const pe=document.getElementById('pent');if(pe)pe.onclick=()=>{if(window.RushTopbar&&RushTopbar.enterNow)RushTopbar.enterNow(window._rtLast&&window._rtLast[1]);else GU.enter();setTimeout(render,700)};
   const ed=document.getElementById('edit');if(ed)ed.onclick=openEdit;
   const rp=document.getElementById('rpt');if(rp)rp.onclick=()=>{rp.textContent='Reported';rp.disabled=true};
 }

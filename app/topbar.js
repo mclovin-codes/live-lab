@@ -16,7 +16,7 @@
 #rtop.rt .rt-pill:active{transform:scale(.96)}
 #rtop.rt .rt-mark{width:20px;height:18px;flex:none}
 #rtop.rt .rt-fig{font:400 24px/1 'Bebas Neue',sans-serif;letter-spacing:.5px;font-variant-numeric:tabular-nums;color:#fff;min-width:3ch;text-align:right}
-#rtop.rt .rt-pill.up{background:rgba(16,185,129,.22);border-color:#10B981}#rtop.rt .rt-pill.up .rt-fig{color:#10B981}
+#rtop.rt .rt-pill.rt-in0{background:#00BFFF;border-color:#00BFFF}#rtop.rt .rt-pill.rt-in0 .rt-fig{color:#0B1118;letter-spacing:1.5px}#rtop.rt .rt-pill.up{background:rgba(16,185,129,.22);border-color:#10B981}#rtop.rt .rt-pill.up .rt-fig{color:#10B981}
 #rtop.rt .rt-pill.dn{background:rgba(239,68,68,.2);border-color:#EF4444}#rtop.rt .rt-pill.dn .rt-fig{color:#EF4444}
 @media (prefers-reduced-motion:reduce){#rtop.rt .rt-pill{transition:none}}`;
   let styled = false, shown = null, timer = null;
@@ -30,6 +30,9 @@
     clearInterval(timer); const t0 = Date.now(), dur = 900;
     timer = setInterval(() => { const k = Math.min(1, (Date.now() - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(from + (to - from) * e); if (k >= 1) clearInterval(timer); }, 30);
   }
+  function isIn(d) { if (d && typeof d.entered === 'boolean') return d.entered; try { if (window.GU && GU.entered) return GU.entered(); } catch (e) {} return true; }
+  // The Enter moment: one tap, then the Stack counts up from 0 and the page's own Enter animation runs (window event rush:entered).
+  function enterNow(d) { try { if (d && d.enter) d.enter(); else if (window.GU && GU.enter) GU.enter(); } catch (e) {} try { window.dispatchEvent(new Event('rush:entered')); } catch (e) {} setTimeout(() => { if (window._rtLast) draw.apply(null, window._rtLast); }, 60); }
   function draw(el, data) {
     window._rtLast = [el, data];
     if (!el) return; data = data || {};
@@ -40,13 +43,16 @@
     const stack = Math.round(+data.stack || 0);
     if (!el.querySelector('.rt-pill')) {
       el.innerHTML = `<a class="rt-me" href="player.html" aria-label="Your profile">${face(data.handle, 30)}<span class="rt-title">${esc(title)}</span></a><button class="rt-pill" type="button" aria-label="Your Stack, ${fmt(stack)}. Open">${MARK}<span class="rt-fig">${fmt(stack)}</span></button>`;
-      el.querySelector('.rt-pill').addEventListener('click', () => { const d = window._rtLast && window._rtLast[1]; try { if (d && d.openStack) d.openStack(); } catch (e) {} });
+      el.querySelector('.rt-pill').addEventListener('click', () => { const d = window._rtLast && window._rtLast[1]; if (!isIn(d)) { enterNow(d); return; } try { if (d && d.openStack) d.openStack(); } catch (e) {} });
     } else {
       const me = el.querySelector('.rt-me'); const fh = face(data.handle, 30); const cur = me.firstElementChild; if (cur && cur.outerHTML !== fh) { cur.outerHTML = fh; }
       el.querySelector('.rt-title').textContent = title;
     }
     // Alive: a changed Stack counts to the new figure and flashes once (green up, red down). The last figure is kept per tab.
     const fig = el.querySelector('.rt-fig'), pill = el.querySelector('.rt-pill');
+    // Not entered this week: the pill reads ENTER and a tap enters (as the app's header does).
+    if (!isIn(data)) { fig.textContent = 'ENTER'; pill.classList.add('rt-in0'); pill.setAttribute('aria-label', 'Enter this week'); shown = 0; return; }
+    if (pill.classList.contains('rt-in0')) { pill.classList.remove('rt-in0'); shown = 0; try { sessionStorage.setItem('rt-stack', '0'); } catch (e) {} }
     let last = shown; if (last == null) { try { const v = sessionStorage.getItem('rt-stack'); last = v == null ? null : +v; } catch (e) {} }
     if (last != null && last !== stack) {
       pill.classList.remove('up', 'dn'); void pill.offsetWidth; pill.classList.add(stack > last ? 'up' : 'dn');
@@ -55,5 +61,5 @@
     shown = stack; pill.setAttribute('aria-label', 'Your Stack, ' + fmt(stack) + '. Open');
     try { sessionStorage.setItem('rt-stack', String(stack)); } catch (e) {}
   }
-  window.RushTopbar = { draw, MARK };
+  window.RushTopbar = { draw, MARK, enterNow };
 })();

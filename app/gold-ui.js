@@ -78,5 +78,8 @@
     suggest(n) { try { if (Rush.circleSuggest) return (Rush.circleSuggest(n || 4) || []).map(x => player(x.id)).filter(Boolean); } catch (e) {} return field().filter(r => !r.me && this.state(r.id) === 'none').slice(0, n || 4); },
     fof() { const mine = this.ids(), pend = this.pend(), out = {}; mine.forEach(c => this.of(c).forEach(x => { if (!mine.includes(x) && !pend[x]) (out[x] = out[x] || []).push(c); })); return Object.keys(out).map(id => ({ p: player(id), via: out[id].map(player).filter(Boolean) })).filter(x => x.p && !x.p.me); },
   };
-  window.GU = { MARK, stk, circle, esc, hash, mix, fmt, honest, field, meRow, player, opponent, prof, av, nameLink, games, started, until, when, picksOf, sideOf, mine, mySide, gameView, moves, hue, col, initials };
+  // Entered this week: the store says so, unless the footer is set to view as not entered.
+  const entered = () => { try { if (window.Rush && typeof Rush.entered === 'function') return !!Rush.entered(); } catch (e) {} if (window.RushHonest && RushHonest.notIn && RushHonest.notIn()) return false; try { return !!Rush.me().entered; } catch (e) { return true; } };
+  function enter() { try { localStorage.removeItem('rush-entered'); } catch (e) {} try { if (Rush.enter) Rush.enter(Rush.me().handle); } catch (e) {} try { if (Rush.nav && Rush.nav.refresh) Rush.nav.refresh(); } catch (e) {} }
+  window.GU = { entered, enter, MARK, stk, circle, esc, hash, mix, fmt, honest, field, meRow, player, opponent, prof, av, nameLink, games, started, until, when, picksOf, sideOf, mine, mySide, gameView, moves, hue, col, initials };
 })();
