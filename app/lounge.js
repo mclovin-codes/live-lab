@@ -17,6 +17,7 @@
   const av = (n, s, ring) => { const ini = String(n || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(); return `<span class="lg-av${ring ? ' ' + ring : ''}" style="width:${s}px;height:${s}px;font-size:${Math.round(s * .38)}px;background:${AVC[Math.floor(h01(n) * AVC.length)]}">${esc(ini)}</span>`; };
   const when = ms => { const d = new Date(ms), t = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); return d.toDateString() === new Date().toDateString() ? t : d.toLocaleDateString([], { weekday: 'short' }) + ' ' + t; };
   const clock = ms => (window.Rush && Rush.clock) ? Rush.clock(ms) : Math.ceil(ms / 60000) + 'm';
+  const stk = r => r ? (r.stack != null ? +r.stack : 1000 + Math.round((r.units || 0) * 10)) : 1000;
   const gname = g => g.away.abbr + ' at ' + g.home.abbr;
   const prof = (r, inner) => `<a class="lg-p" href="player.html?u=${encodeURIComponent(r.me ? 'me' : r.id)}">${inner}</a>`;
   let games = (window.RW && RW.cached && RW.cached()) || [], focus = Q.get('g') || null, BROKE = null, talkOpen = null;
@@ -128,7 +129,8 @@
     if (!g0) g0 = gs.filter(g => g.state === 'in').sort((a, b) => onGame(b, F).length - onGame(a, F).length)[0] || gs.find(g => !isStarted(g));
     let h = `<div class="lg-top"><h1>Lounge</h1><span>${honest() ? '7 players' : F.list.length + ' in the Field'}</span></div>`;
     /* the field in faces, ranked by Stack (1 to 7 in the honest view) */
-    h += `<div class="lg-faces">${F.list.map(r => prof(r, `<span class="lg-face${r.me ? ' me' : F.riv && r.id === F.riv.id ? ' riv' : ''}">${av(r.name, 44)}<b>#${r.rk}</b><small>${esc(r.me ? 'You' : r.name.split(' ')[0])}</small></span>`)).join('')}</div>`;
+    h += `<div class="lg-faces">${F.list.map(r => prof(r, `<span class="lg-face${r.me ? ' me' : F.riv && r.id === F.riv.id ? ' riv' : ''}">${av(r.name, 44)}<b>#${r.rk}</b><small>${esc(r.me ? 'You' : r.name.split(' ')[0])}</small><em>${fmt(stk(r))}</em></span>`)).join('')}</div>`;
+    if (F.riv && F.me) { const d = stk(F.me) - stk(F.riv); h += `<a class="lg-mu" href="ranks.html">${av(F.me.name, 26, 'me')}<b>${fmt(stk(F.me))}</b><span>${d > 0 ? 'You lead by ' + fmt(d) : d < 0 ? 'Down ' + fmt(-d) : 'All square'}</span><b>${fmt(stk(F.riv))}</b>${av(F.riv.name, 26, 'riv')}</a>`; }
     /* the seal-broken moment */
     if (BROKE) { const ps = gs.filter(g => +g.date === BROKE.k); const rows = ps.flatMap(g => onGame(g, F).map(x => Object.assign(x, { g })));
       if (rows.length) h += `<div class="lg-sb"><small>SEAL BROKEN</small><b>${esc(ps.map(gname).join(', '))}</b>${rows.map(x => { const ms = mySide(x.g), tag = x.r.me ? 'you' : ms ? (opposite(ms, x.side, x.g) ? 'against you' : ms === x.side ? 'with you' : '') : ''; return `<div class="lg-flip">${prof(x.r, av(x.r.name, 36, x.r.me ? 'me' : F.riv && x.r.id === F.riv.id ? 'riv' : ''))}<span><b>${esc(x.r.me ? 'You' : x.r.name)} took ${esc(x.side || x.p.label)}</b><small>${esc(gname(x.g))}, ${fmt(x.p.stake)} Stack${tag ? ' &middot; ' + tag : ''}</small></span></div>`; }).join('')}<button class="lg-x" data-x="sb">Done</button></div>`; }
