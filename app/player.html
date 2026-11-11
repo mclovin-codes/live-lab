@@ -36,7 +36,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body data-tab="me"><script>(function(){var u=new URLSearchParams(location.search).get("u");if(u&&u!=="me")document.body.dataset.tab="contest"})()</script>
 <div id="app" class="p-wrap"></div>
-<script src="shared/state.js?v=f1103"></script><script src="week-games.js?v=f1103"></script><script src="honest.js?v=g619"></script><script src="shared/nav.js?v=f1103"></script><script src="shared/events.js?v=f1103"></script><script src="gold-ui.js?v=g620"></script><script src="slip-card.js?v=s2"></script>
+<script src="shared/state.js?v=f1104"></script><script src="week-games.js?v=f1104"></script><script src="honest.js?v=g619"></script><script src="shared/nav.js?v=f1104"></script><script src="shared/events.js?v=f1104"></script><script src="gold-ui.js?v=g620"></script><script src="slip-card.js?v=s2"></script>
 <script>
 const E=GU.esc,F=GU.fmt,Q=new URLSearchParams(location.search),UID=Q.get('u')&&Q.get('u')!=='me'?Q.get('u'):null;
 let tab=location.hash==='#settled'?'done':'open';
@@ -80,7 +80,7 @@ function render(){
      <div style="display:flex;gap:18px;justify-content:center;margin-top:10px"><button class="lnk" id="blk">${bl?'Unblock':'Block'}</button><button class="lnk" id="rpt">Report</button></div>`;
   }else{
     // Your Slips live here and in the Stack sheet: open first, then settled.
-    const all=GU.mine(),open=all.filter(p=>p.status==='open'),done=all.filter(p=>p.status!=='open');
+    const all=(()=>{try{const s=window.RW&&RW.playerPicks&&RW.playerPicks('me',GU.games());if(s&&s.length)return s}catch(e){}return GU.mine()})(),open=all.filter(p=>p.status==='open'),done=all.filter(p=>p.status!=='open');
     h+=`<div class="p-lbl" id="slips">Your Slips <a href="slips.html">All Slips</a></div><div class="seg"><button data-t="open" class="${tab==='open'?'on':''}">Open · ${open.length}</button><button data-t="done" class="${tab==='done'?'on':''}">Settled · ${done.length}</button></div>`;
     h+=(tab==='open'?open:done).map(x=>SlipCard.html(x)).join('')||`<div class="empty">${tab==='open'?'No open Slips. Make a pick on the Board.':'Nothing settled yet this week.'}</div>`;
     // My circle: who is in, who is waiting either way, friends of friends to add, and the invite door when it is small.
