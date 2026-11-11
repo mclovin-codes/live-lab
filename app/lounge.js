@@ -133,7 +133,8 @@
     if (e.type === 'settled') return e.p.status === 'won' ? ACT.settled_won : ACT.settled_lost;
     return ACT[e.type] || [];
   }
-  function answered(k, s) { if (!s) return ''; const ans = s.ans; return `<div class="lg-sent"><span>You: ${esc(s.label)}</span>${ans ? `<b>${esc(ans.who)}: ${esc(ans.text)}</b>` : `<i>${honest() ? 'Sent. They see it here and answer in one tap.' : 'Sent'}</i>`}</div>`; }
+  const realAns = a => a && (!honest() || a.real) ? a : null;
+  function answered(k, s) { if (!s) return ''; const ans = realAns(s.ans); return `<div class="lg-sent"><span>You: ${esc(s.label)}</span>${ans ? `<b>${esc(ans.who)}: ${esc(ans.text)}</b>` : `<i>${honest() ? 'Sent. They see it here and answer in one tap.' : 'Sent'}</i>`}</div>`; }
 
   /* ---------- render ---------- */
   function render() {
@@ -176,7 +177,7 @@
     h += `<div class="lg-sh"><h2>Sent to you</h2></div>${inbox.length ? inbox.slice(-4).reverse().map(m => `<div class="lg-ev">${av(m.who, 36)}<div><b>${esc(m.who)}: ${esc(m.text)}</b><small>${esc(m.about || '')}</small>${m.ans ? `<div class="lg-sent"><span>You: ${esc(m.ans)}</span></div>` : `<div class="lg-acts"><button data-reply="${esc(m.id)}">${esc(ANSWER[m.k] || 'Thanks')}</button></div>`}</div></div>`).join('') : `<div class="lg-empty">${honest() ? 'Nothing yet. When a player taps you, it lands here and you answer in one tap.' : 'Nothing yet.'}</div>`}`;
     /* your taps and what came back */
     const mineSent = Object.values(sent).sort((a, b) => b.at - a.at).slice(0, 3);
-    if (mineSent.length) h += `<div class="lg-sh"><h2>Your taps</h2></div>${mineSent.map(x => `<div class="lg-ev"><div><b>You to ${esc(x.to)}: ${esc(x.label)}</b>${x.ans ? `<div class="lg-sent"><b>${esc(x.ans.who)}: ${esc(x.ans.text)}</b></div>` : `<small>${honest() ? 'Waiting on ' + esc(String(x.to).split(' ')[0]) + '. Their answer lands here.' : 'Waiting'}</small>`}</div></div>`).join('')}`;
+    if (mineSent.length) h += `<div class="lg-sh"><h2>Your taps</h2></div>${mineSent.map(x => `<div class="lg-ev"><div><b>You to ${esc(x.to)}: ${esc(x.label)}</b>${realAns(x.ans) ? `<div class="lg-sent"><b>${esc(x.ans.who)}: ${esc(x.ans.text)}</b></div>` : `<small>${honest() ? 'Waiting on ' + esc(String(x.to).split(' ')[0]) + '. Their answer lands here.' : 'Waiting'}</small>`}</div></div>`).join('')}`;
     /* the Field's week moving */
     const ev = group(events(F), F);
     h += `<div class="lg-sh"><h2>The Field this week</h2></div>`;
@@ -205,7 +206,7 @@
     const a = t.closest('[data-act]');
     if (a) { const S = ls(SENT, {}); S[a.dataset.k] = { k: a.dataset.act, label: a.dataset.l, to: a.dataset.who, toId: a.dataset.id || '', at: Date.now() }; lsSet(SENT, S); render();
       /* only the full stand-in view answers for the stand-ins; the honest view waits for a real player */
-      if (!honest()) setTimeout(() => { const S2 = ls(SENT, {}); if (S2[a.dataset.k]) { S2[a.dataset.k].ans = { who: a.dataset.who.split(' ')[0], text: ANSWER[a.dataset.act] || 'Thanks' }; lsSet(SENT, S2); render(); } }, 2500 + h01(a.dataset.k) * 2000);
+      if (!honest()) setTimeout(() => { const S2 = ls(SENT, {}); if (S2[a.dataset.k]) { S2[a.dataset.k].ans = { gen: 1, who: a.dataset.who.split(' ')[0], text: ANSWER[a.dataset.act] || 'Thanks' }; lsSet(SENT, S2); render(); } }, 2500 + h01(a.dataset.k) * 2000);
       return; }
     const rp = t.closest('[data-reply]'); if (rp) { const I = ls('rush-lounge-inbox-v1', []), m = I.find(x => x.id === rp.dataset.reply); if (m) { m.ans = rp.textContent; lsSet('rush-lounge-inbox-v1', I); render(); } return; }
     const sc = t.closest('[data-scope]'); if (sc) { try { localStorage.setItem(SCOPE, sc.dataset.scope); } catch (z) {} focus = null; render(); return; }
