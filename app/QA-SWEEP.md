@@ -29,6 +29,10 @@ The checks:
 | Slip | Close by the backdrop | Closes, the bar returns, the page unlocks | OK |
 | Slip | Reload with picks in the Slip | The picks and the stake survive (kept on the phone) | OK |
 | Stack sheet | Tap the Stack pill; scroll behind; tap the backdrop | The page behind scrolled (Gold's row) | Fixed in 88506bb (page locked) |
+| Game page | Market tabs (Popular, Game Lines, Alt Lines, Team Totals, Halves, Quarters, Player Props) | Each redraws from memory in 2 to 6 ms, with no fetch | OK |
+| Game page | Tap a market section's header | The section folds and opens; the choice is kept on the phone | Added in 3e82c1d |
+| Game page | The bar under the tabs ("Week 10 · Stack 200") and the entry copy | A second Stack figure under the header, and the old unit word in the entry copy | Fixed in 3e82c1d (bar gone; Stack only) |
+| Game page | Team logos and player photos | Logos and photos loaded from the provider | Fixed in 228ec10 (drawn team marks and plain jerseys, no images fetched) |
 | Game page | Sideways, sticky bars | No sideways scroll; the score header scrolls away with the page, so nothing floats over the markets | OK |
 
 ## Gold: Home, the top bar, profiles, Slips
@@ -59,4 +63,27 @@ The checks:
 
 ## Red: the Lounge and the Board
 
-Red's rows are folded in when they arrive.
+| Page | Action | Result | Fixed in / open |
+|---|---|---|---|
+| Lounge | Scroll the room top to bottom and back, 375x812, honest view | The room scrolls inside and the page stays put (812 px, room 338 px) | OK |
+| Lounge | Same at 375x667 with a Slip in the bar | The room fell back to page scrolling (room under 180 px) | Fixed in ebad86d (pin floor 120; room 126 px, one screen) |
+| Lounge | 375x667, full view (31 players) | The head is too tall to pin, so the whole page scrolls; nothing traps | Open (by design) |
+| Lounge | Send a 160-character unbroken line | The room scrolled sideways (scrollWidth 1250) | Fixed in ebad86d (lines wrap) |
+| Lounge | Composer with the keyboard up (iPhone Safari) | It stayed docked to the layout bottom | Fixed in ebad86d (rides visualViewport; needs an iPhone check) |
+| Lounge | Composer input size | 16 px, no zoom | OK |
+| Lounge | Send by button and by Enter | Both add a line, clear the box, keep focus and scroll the room to the end | OK |
+| Lounge | Empty send | Nothing added | OK |
+| Lounge | Type 300 characters | Capped at 160 by maxlength | OK (cap) |
+| Lounge | Send an emoji | Shows in the bubble | OK |
+| Lounge | Faces and game card, sideways | Overscroll was auto | Fixed in ebad86d (contained) |
+| Lounge | Open a settlement or seal-broken block; Hide Slips; tap the header | Opens with its header stuck; Hide and a header tap both close it and return to the block's start; one open at a time | OK (2ab8863) |
+| Lounge | Tapback tray (double-tap) and Reply, then clear the reply | The tray opens, a tap sets the badge and closes it; the reply bar shows and clears | OK |
+| Lounge | Earlier today, Field / My circle, the Next seal chip | Each opens, switches or moves the card | OK |
+| Lounge | Reload or Back with a block open | Comes back closed at the newest row | OK |
+| Board | League pill and market tab taps | 0 to 52 ms live, no refetch (was 41 to 152 ms) | Fixed in e75224b, b549641 |
+| Board | Scroll top to bottom | The shared header scrolled away because the body was fixed at 812 px | Fixed in e75224b (body height auto; the bar sticks under the header) |
+| Board | Pills sideways | Overscroll contained; page width 375 | OK |
+| Board | Tap a price cell, then tap it again | Adds to the Slip bar, then removes it (0, 1, 0) | OK |
+| Board | Reload, and Back from a game page, with a Slip | The league, the Slip and the white cell are all kept | OK |
+| Board | Last card at the bottom, 375x667 | Clears the Slip bar and the tabs | OK |
+| Board | Started games | Cells locked at 45% opacity | OK |

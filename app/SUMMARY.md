@@ -34,8 +34,17 @@
   - The contest, opened: The Field / My circle, the Field by Stack, and the line under 3rd: "Top 3 take the week's prizes".
   - Your matchup, opened: both Slip records (won-lost, open), your Slips, then your opponent's Slips, each leg sealed until its own kickoff.
   - Gone: "The week, moving" (the Lounge is the only home for the stream), the "Your week" tiles, and the floating pinned row that covered the list.
-- **Board** (Blue): every game shows the faces of the players with a pick on it, sealed until kickoff. Live games show the score and Follow, because picks lock at kickoff this round.
+- **Board** (Red, rebuilt after the Rush iOS app on the founder's 11:20 PM note):
+  - league pills NFL, NBA, NHL, landing on NFL, and one row of market tabs, Game Lines first (NBA Points, Rebounds, Assists; NHL Goals, Points, Assists; NFL has no player data yet, so Game Lines only);
+  - day headers (TODAY, TOMORROW, THU · NOV 12) over SPREAD, TOTAL and ML columns;
+  - game cards: the team mark, abbreviation and nickname, 64x46 price cells (line over price, white when picked), the time, and "Props + More". Live games show the score with the cells locked;
+  - a family tab lists up to 5 player rows per game with three rung tiles (20+, 25+, 30+);
+  - pinned: only the shared header and the pills and tabs bar. Nothing else floats;
+  - **the lag, measured on the live link at 375 with performance.now from a tap through layout:** before, 41 to 152 ms per pill tap and a page 15,158 px long; after, 0 to 52 ms, most 4 to 13 ms (the high ones right after a background refresh), 1 to 5 ms warm. Each league and tab view is built once per data version and swapped from memory, the rest prebuilt at idle; data loads only on the timer; nothing refetches on a tap; a skeleton shows on first load.
+  - Spread and total prices on the Board are a stand-in -110, because the scoreboard feed gives none; prop rungs are priced from the pregame leader figures.
 - **Game page** (Blue):
+  - market tabs (Popular, Game Lines, Alt Lines, Team Totals, Halves or Periods, Player Props) redraw from memory in 2 to 6 ms with no fetch; each market section folds by its header, and the choice is kept;
+  - no logos and no player photos: teams are Gold's drawn team marks in their two colours, players a plain jersey;
   - picks lock at kickoff;
   - "The Field on this game" shows each player as sealed until kickoff. At kickoff it becomes "Seal broken: who took what": the side, price and stake for each player, tagged With you or Against you. This is the full table the Lounge's seal-break rows open;
   - a Lounge link opens the Lounge focused on that game.
@@ -248,6 +257,10 @@ Home opens on the weekly contest, in this order:
   - where Slips live;
   - the palette and type;
   - the honest-view toggle in every footer.
+
+## The sweep (the founder's 11:20 PM note)
+
+Every team swept its own pages on the live link, in both views, at 375x812 and 375x667: scrolling, sideways scrollers, every control, every text box, every sheet, back, forward and reload, and the safe area. Each check, its result and the commit that fixed it are in app/QA-SWEEP.md. Still open: the Lounge in the full view at 375x667 scrolls as a whole page, because its head is too tall to pin, and the Lounge composer riding the keyboard needs a check on a real iPhone.
 
 ## Expert lines kept
 
