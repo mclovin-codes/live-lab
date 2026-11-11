@@ -136,3 +136,12 @@ The checks:
 | Board | Marks | 44 px team marks, 40 px player marks with the jersey number, no images | Fixed in 6affb28, 647ff05 (Red) |
 | Board | Chip and pill taps, live, 375x667 | 8 to 24 ms | OK |
 | Board | NFL player rows | Samples, because the feed carries no NFL player leaders this week | Open (stated in SUMMARY.md) |
+| Lounge | Arrival at 375x812 | The room is 72% of the screen, opens at the newest row, composer docked | Fixed in 3b76231 (Red) |
+| Lounge | Arrival at 375x667, 31 players | The room is 66% of the screen | Fixed in 3b76231 (Red) |
+| Lounge | Any scroller inside the page | None; the page scrolls from anywhere | Fixed in ad84723, 3b76231 (Red) |
+| Lounge | Top block | The switch and matchup on one row, one row of small faces; about 120 px | Fixed in 3b76231 (Red) |
+| Lounge | Game bar | 44 px, 28 px marks, score, short clock, swipes across games, a Next seal chip; a tap opens the shared card, a second tap closes it | Fixed in 3b76231, 0bb8039 (Red) |
+| Lounge | Folded rows | One line of title, three faces side by side, about 56 px | Fixed in 0bb8039 (Red) |
+| Lounge | Open a block | Grows in the page with no inner scroll; one at a time; Hide Slips closes it | Fixed in 3b76231 (Red) |
+| Lounge | Keyboard up (iPhone Safari) | The composer rides visualViewport | Open: needs a check on a real iPhone |
+| Board | Live taps on the final marks and card, 375x667 | 8 to 48 ms, no images, no errors | OK |

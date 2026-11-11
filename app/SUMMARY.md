@@ -65,18 +65,19 @@
 
 **One page that scrolls like a chat.** The Lounge is one page scroll with no box scrolling inside another. Three things stay put: the header, a slim game bar, and the composer docked above the tabs and the Slip bar. Everything else, the room included, scrolls with the page, and the page opens at its newest row (or at "New since you left"). There are no rooms and no fixed lines.
 
-**At the top (scrolls away):**
-1. **The Field / My circle** switch.
-2. **Your matchup:** You 1,000, them 1,091, "down 91". It is one figure from one source (Blue's `Rush.matchup()`), the same number Contest shows.
-3. **The faces:** the app's preset avatars (Gold's `RushFace`, your own from Edit profile) for every player with rank and Stack (1 to 7 in the honest view), the rank read straight from the store's unique `r.rank`, you ringed blue and your opponent pink. Every face opens a profile.
+**At the top (scrolls away), one compact block of about 120 px:**
+1. **The Field / My circle** switch and **your matchup** on one row: You 1,000, "lead 19", 981 Chalk. The matchup is one figure from one source (Blue's `Rush.matchup()`), the same number Contest shows.
+2. **The faces** as one row of small tiles that swipes sideways: the app's preset avatar (Gold's `RushFace`, your own from Edit profile), rank and Stack, no names wrapping. Ranks are the store's unique `r.rank`; you are ringed blue and your opponent pink. Every face opens a profile.
 
-**The game bar (sticky):** one line for the game that is on: both team marks, the score, and the live clock with a pulsing dot (or SEALED and a countdown before kickoff). A tap opens Gold's one game card (`GameCard`, the same card as Home, drawn compact) with drawn team marks, no logo images; swipe it for the other games, and before kickoff its Spread, Total and ML cells add to the one Slip. A "Next seal" chip counts down to the next kickoff.
+**The game bar (sticky, 44 px):** one slim bar per game, swiped sideways: both team marks (28 px), the score and the live clock with a pulsing dot (or a countdown before kickoff), and a chevron. A "Next seal" chip sits beside it. A tap drops open Gold's one game card (`GameCard`, the same card as Home) with one line of small faces beside each team and one small group for totals and props; before kickoff its Spread, Total and ML cells add to the one Slip. A second tap closes it. It is closed by default.
+
+**On arrival the room is most of the screen:** about 72% at 375 x 812 and 66% at 375 x 667. The page opens at the newest row with the composer docked.
 
 **The room:** the only home for the week's stream of moments, one thread, newest at the bottom, with a "New since you left" divider.
 - **Slips sealing:** one row per player, naming only the games.
 - **Seal broken:** one row per game (score, faces ringed green with you and red against you). It opens to each player's Slip.
-- **Slips settling:** a Stack move shows as a big green or red figure that counts up on arrival, only on the game that decided the Slip; other legs show Blue's line ("Needs WSH +4.5 and 1 more"). Several on one game fold into one row ("4 Slips settled on FLA at CBJ") with the two biggest moves, and a tap anywhere on the row opens the rest.
-- **Opening a row** (a settlement, a seal broken): one block open at a time. Its header sticks under the game bar, its Slips scroll inside it, and it ends in "Hide 17 Slips", so it closes from where the thumb is; closing returns the page to where the block started.
+- **Slips settling:** a Stack move shows as a big green or red figure that counts up on arrival, only on the game that decided the Slip; other legs show Blue's line ("Needs WSH +4.5 and 1 more"). Several on one game fold into one row of one line ("12 Slips settled on MIA at UTAH", about 57 px) with three faces side by side and the two biggest moves, and a tap anywhere on the row opens the rest.
+- **Opening a row** (a settlement, a seal broken): one block open at a time. Its header sticks under the game bar, it grows in the page (no window inside the page), and it ends in "Hide 17 Slips", so it closes from where the thumb is; closing returns the page to where the block started.
 - **Earlier today** holds everything older.
 
 **Every pick is a Slip,** drawn with Gold's one Slip card:
