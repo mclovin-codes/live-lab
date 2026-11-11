@@ -80,7 +80,7 @@
 .fc .lg{display:flex;align-items:center;gap:8px;font-size:14px}
 .fc .lg img{width:20px;height:20px;border-radius:50%;object-fit:cover;background:var(--panel)}
 .mk{display:grid;gap:8px}
-.mkh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.atrk{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;margin:2px 0 8px;padding:2px 0}.atrk::-webkit-scrollbar{display:none}.atrk button{flex:none;min-width:52px;min-height:36px;padding:0 10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#141C26;color:#A3AFBD;font:700 14px/1 inherit;font-variant-numeric:tabular-nums;cursor:pointer}.atrk button.mn{border-color:rgba(61,184,255,.45)}.atrk button.on{background:#F4F7FA;color:#0A0F15;border-color:#F4F7FA}.mk>.mkh[role=button]{cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:32px;align-items:center}.mk>.mkh[role=button]:after{content:"";flex:none;width:8px;height:8px;margin-left:auto;border-right:2px solid #A3AFBD;border-bottom:2px solid #A3AFBD;transform:rotate(45deg) translateY(-3px);transition:transform .15s}.mk.shut>.mkh[role=button]:after{transform:rotate(-45deg)}.mk.shut>:not(.mkh){display:none!important}.mk>.mkh small{margin-left:auto}.mk>.mkh small+*{margin-left:0}
+.mkh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.wtch{display:flex;flex-wrap:wrap;gap:6px;padding:6px 16px 10px;font-size:13px;color:#A3AFBD}.wt-i{padding:4px 10px;border-radius:99px;background:#141C26;border:1px solid rgba(255,255,255,.08)}.wt-i b{color:#F4F7FA;font-weight:700}.wt-g.wt-moderate{border-color:rgba(245,158,11,.5)}.wt-g.wt-high{border-color:rgba(255,107,107,.6)}.atrk{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;margin:2px 0 8px;padding:2px 0}.atrk::-webkit-scrollbar{display:none}.atrk button{flex:none;min-width:52px;min-height:36px;padding:0 10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#141C26;color:#A3AFBD;font:700 14px/1 inherit;font-variant-numeric:tabular-nums;cursor:pointer}.atrk button.mn{border-color:rgba(61,184,255,.45)}.atrk button.on{background:#F4F7FA;color:#0A0F15;border-color:#F4F7FA}.mk>.mkh[role=button]{cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:32px;align-items:center}.mk>.mkh[role=button]:after{content:"";flex:none;width:8px;height:8px;margin-left:auto;border-right:2px solid #A3AFBD;border-bottom:2px solid #A3AFBD;transform:rotate(45deg) translateY(-3px);transition:transform .15s}.mk.shut>.mkh[role=button]:after{transform:rotate(-45deg)}.mk.shut>:not(.mkh){display:none!important}.mk>.mkh small{margin-left:auto}.mk>.mkh small+*{margin-left:0}
 .mkh h2{margin:0}
 .mrow{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center}
 .mrow .tn{display:flex;align-items:center;gap:8px;font-weight:600;min-width:0}
@@ -181,7 +181,7 @@
 <div id="gsheet" role="dialog" aria-modal="true"></div>
 <div id="gtoast"></div>
 <script src="shared/state.js?v=f1106"></script>
-<script src="week-games.js?v=f1109"></script>
+<script src="week-games.js?v=f1110"></script>
 <script src="team-mark.js?v=m6"></script>
 <script src="faces.js?v=f1"></script>
 <script src="shared/nav.js?v=f1115"></script>
@@ -333,6 +333,15 @@ function hockeyPanel(M){const P=(S.sum&&S.sum.plays)||[],per=M.g.period||1,hc='#
   /* founder: the header is the scorebug and the last play only; stats and skaters live in the Box Score and Stats tabs */
   return card}
 let hkOpen=false;try{hkOpen=localStorage.getItem('rush-hk-more')==='1'}catch(e){}
+function vWatch(){let g=null;try{g=(RW.cached()||[]).find(x=>String(x.id)===String(ID)&&x.league===LG)}catch(e){}const gi=(S.sum&&S.sum.gameInfo)||{},sv=gi.venue||{};
+ const bc=(g&&g.broadcasts&&g.broadcasts.length?g.broadcasts:[]).join(', ');
+ const vn=g&&g.venue?g.venue:(sv.fullName?{name:sv.fullName,city:(sv.address||{}).city||'',state:(sv.address||{}).state||'',indoor:sv.indoor===true}:null);
+ const sw=gi.weather||null,w=g&&g.weather?Object.assign({},g.weather):(sw?{temp:sw.temperature!=null?+sw.temperature:null,text:sw.displayValue||'',precip:sw.precipitation}:null);if(w&&sw&&sw.precipitation!=null)w.precip=+sw.precipitation;if(w&&sw&&sw.gust!=null)w.gust=+sw.gust;if(w&&sw&&sw.windSpeed!=null)w.wind=+sw.windSpeed;
+ const parts=[];if(bc)parts.push('<span class="wt-i"><b>Watch</b> '+esc(bc)+'</span>');
+ if(vn)parts.push('<span class="wt-i"><b>'+esc(vn.name)+'</b>'+(vn.city?' · '+esc(vn.city)+(vn.state?', '+esc(vn.state):''):'')+'</span>');
+ if(vn&&vn.indoor)parts.push('<span class="wt-i">Dome</span>');
+ else if(LG==='nfl'||LG==='cfb'){const far=game().start&&game().start-Date.now()>7*864e5;if(far)parts.push('<span class="wt-i">Forecast closer to kickoff</span>');else if(w){const gr=RW.wxGrade?RW.wxGrade(w,false):null;parts.push('<span class="wt-i">'+(w.temp!=null?Math.round(w.temp)+'°F ':'')+esc(w.text||'')+'</span>');if(gr)parts.push('<span class="wt-i wt-g wt-'+gr.grade.toLowerCase()+'">Weather impact <b>'+gr.grade+'</b>'+(gr.facts.length?': '+esc(gr.facts.join(', ')):'')+'</span>')}}
+ return parts.length?'<div class="wtch">'+parts.join('')+'</div>':''}
 function vHdr(M){if(!S.sum)return`<div class="gtop"><a href="board.html">&lsaquo; Board</a><span>${esc(LG.toUpperCase())}</span><span></span></div><div class="pane"><div class="empty">${S.err?'Could not reach the game feed ('+esc(S.err)+'). Retrying.':'Loading the game.'}</div></div>`;const g=M.g,h=M.h,a=M.a,lead=h.score===a.score?'':h.score>a.score?'h':'a';const gt=gate(M);
   mktTrack(M);const court=`<div class="court ${SPORT.court}"><i class="mid"></i><span class="rd"></span>${g.live?`<span class="ball" style="left:${possLeft()}%"></span>`:''}</div>`;const pt=possTeam();
   return`<div class="gtop"><a href="board.html">&lsaquo; Board</a><span>${esc(LG.toUpperCase())} · ${esc(gameName())}</span><span class="lv">${g.done?'FINAL':g.live?'LIVE':''}</span></div>
@@ -459,7 +468,7 @@ function vSheet(M){if(sheet==='enter'){const wk=Rush.week();return`<div class="g
 let sheet=null;const html={};function put(id,h){if(html[id]!==h){html[id]=h;const c=id==='ghdr'&&$('car'),sl=c?c.scrollLeft:0;$(id).innerHTML=h;if(c){const n=$('car');if(n){n.scrollLeft=sl;fitCar()}}}}
 /* the carousel is as tall as the pane in view, so a short pane leaves no empty space */
 function fitCar(){const c=$('car');if(!c)return;const i=Math.round(c.scrollLeft/Math.max(1,c.clientWidth)),p=c.children[i]||c.children[0];if(p)c.style.height=p.offsetHeight+'px';document.querySelectorAll('.dots i').forEach((d,n)=>d.classList.toggle('on',n===i))}
-function render(){if(!SPORT){$('gview').innerHTML='<div class="empty">Unknown league.</div>';return}const M=model();put('ghdr',vHdr(M));put('pills',vPills());put('subs',vSubs());$('subs').hidden=pillTab!=='odds';put('gview',pillTab==='odds'?vOdds(M):pillTab==='box'?vBox(M):pillTab==='stats'?vStats(M):vPlays(M));if(sheet==='slip'||sheet==='parlay')paintSlip(M);$('slipbar').hidden=!pl.length;if(pl.length)put('slipbar',`<button data-a="plopen"><span>Parlay · ${pl.length} leg${pl.length>1?'s':''}</span><span>${(()=>{const qs=pl.map(sp=>quote(sp,M));return pl.length>1&&qs.every(q=>q.ok)?fo(plOdds(qs.map(q=>q.odds))):'add more'})()}</span></button>`);document.title=(M.a.abbr||'')+' at '+(M.h.abbr||'')+' · Rush'}
+function render(){if(!SPORT){$('gview').innerHTML='<div class="empty">Unknown league.</div>';return}const M=model();put('ghdr',vHdr(M)+vWatch());put('pills',vPills());put('subs',vSubs());$('subs').hidden=pillTab!=='odds';put('gview',pillTab==='odds'?vOdds(M):pillTab==='box'?vBox(M):pillTab==='stats'?vStats(M):vPlays(M));if(sheet==='slip'||sheet==='parlay')paintSlip(M);$('slipbar').hidden=!pl.length;if(pl.length)put('slipbar',`<button data-a="plopen"><span>Parlay · ${pl.length} leg${pl.length>1?'s':''}</span><span>${(()=>{const qs=pl.map(sp=>quote(sp,M));return pl.length>1&&qs.every(q=>q.ok)?fo(plOdds(qs.map(q=>q.odds))):'add more'})()}</span></button>`);document.title=(M.a.abbr||'')+' at '+(M.h.abbr||'')+' · Rush'}
 addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.pin;if(!id||!slip||!slip.sel||!slip.sel[id])return;slip.sel[id].on=e.target.checked;paintSlip(model())});
 function setStk(){const i=$('stk');if(i)i.value=slip.stake||'';paintSlip(model())}
 function openSheet(m){sheet=m;html.gsheet=null;$('gsheet').innerHTML=vSheet(model());$('gscrim').classList.add('open');$('gsheet').classList.add('open');paintSlip(model())}
