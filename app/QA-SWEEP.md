@@ -113,3 +113,12 @@ The checks:
 | Lounge | Visitor taps Enter | The blur lifts with a pulse and the door goes away | Fixed in 118af44 (Red) |
 | Home, Me, profiles | Visitor | Home is the Enter door; Me reads "Enter to start"; profiles blur Stack and rank; Slip cards show only their games | Fixed in eac7d4b (Gold) |
 | Every page | Team logos and player photos | None requested; drawn team marks only (swept live, 7 pages, both views) | Fixed in 228ec10, daa4fa6, eac7d4b |
+
+## The founder's 12:10 AM note: marks at the team's scale
+
+| Page | Action | Result | Fixed in / open |
+|---|---|---|---|
+| Game page | Team marks | Small (24 px rows, 44 px header) | Fixed in 7bea218 (44 px rows, 64 px header) |
+| Game page | Prop rows | A plain grey jersey for every player; names and lines wrapped at 375 | Fixed in 7bea218 (the player's number in his team's colours, 40 px; one line each) |
+| Game page | NFL player props | Real lines show (Pass Yds, Rush Yds, Rec Yds, Receptions, Anytime touchdown); sample sections only when the feed has none | OK (7bea218) |
+| Store | Team colours and jersey numbers | Both colours on every team; leaders carry the jersey number and position | Fixed in 6c04ccf |

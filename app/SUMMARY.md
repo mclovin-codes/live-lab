@@ -54,6 +54,7 @@
 - **Game page** (Blue):
   - market tabs (Popular, Game Lines, Alt Lines, Team Totals, Halves or Periods, Player Props) redraw from memory in 2 to 6 ms with no fetch; each market section folds by its header, and the choice is kept;
   - alternate spreads and totals on a track, as in the app: seven lines around the main one, one tap picks a line, and its two prices sit under it;
+  - team marks at the team's own scale (64 px in the header, 44 px in rows), and on every prop row the player's number on his team's jersey (40 px);
   - no logos and no player photos: teams are Gold's drawn team marks in their two colours (for football, a speed-style helmet in side profile; all four marks share one light), players a plain jersey;
   - picks lock at kickoff;
   - "The Field on this game" shows each player as sealed until kickoff. At kickoff it becomes "Seal broken: who took what": the side, price and stake for each player, tagged With you or Against you. This is the full table the Lounge's seal-break rows open;
@@ -315,6 +316,8 @@ Every team swept its own pages on the live link, in both views, at 375x812 and 3
 - If the space or its moment gets a name, the candidates are "The Rail" (Red) and "Sealbreak" (Gold). The founder chooses, and each needs a trademark check.
 
 ## Unfinished or faked
+
+- **Sample data, stated plainly:** where the feed has no player lines yet, the NFL game page shows Touchdowns, Passing, Rushing and Receiving with sample lines marked "Sample lines until the week's lines post". Sample cells take no picks. Spread and total prices on the Board are a stand-in -110 because the scoreboard feed gives none.
 
 - **The other players are stand-ins.** Their picks are real games and lines, but not real people. They never tap back or reply, so in the honest view only your own tapbacks and talk appear.
 - **On this phone only:** tapbacks, talk, Block, Report, the circle and the invite link work locally. Nobody else sees them until a server exists.
