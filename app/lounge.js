@@ -89,7 +89,7 @@
     let M = null; try { M = (window.Rush && typeof Rush.matchup === 'function') ? Rush.matchup() : null; } catch (e) {}
     if (!M && FF.riv && FF.me) M = { me: { name: FF.me.name, stack: stk(FF.me) }, opp: { name: FF.riv.name, stack: stk(FF.riv) }, lead: stk(FF.me) - stk(FF.riv) };
     if (M && M.opp) { const d = +M.lead || 0; h += `<a class="lg-mu" href="ranks.html"><span>You <b>${fmt(M.me.stack)}</b></span><em class="${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? 'lead ' + fmt(d) : d < 0 ? 'down ' + fmt(-d) : 'level'}</em><span><b>${fmt(M.opp.stack)}</b> ${esc(String(M.opp.name).split(' ')[0])}</span></a>`; }
-    h += `<div class="lg-faces" id="lg-faces">${F.list.map(r => prof(r, `<span class="lg-face${r.me ? ' me' : F.riv && r.id === F.riv.id ? ' riv' : ''}" data-fid="${esc(r.id)}">${av(r.name, 42, ringOf(r, F))}<b>#${r.rk}</b><small>${esc(r.me ? 'You' : r.name.split(' ')[0])}</small><em>${fmt(stk(r))}</em></span>`)).join('')}</div>`;
+    h += `<div class="lg-faces" id="lg-faces">${F.list.map(r => prof(r, `<span class="lg-face${r.me ? ' me' : F.riv && r.id === F.riv.id ? ' riv' : ''}" data-fid="${esc(r.id)}">${av(r.name, 34, ringOf(r, F))}<b>#${r.rk}</b><small>${esc(r.me ? 'You' : r.name.split(' ')[0])}</small><em data-st="${esc(r.id)}" data-v="${stk(r)}">${fmt(stk(r))}</em></span>`)).join('')}</div>`;
     if (CIRCLE && F.list.length < 3) { let sug = []; try { if (Rush.circleSuggest) sug = (Rush.circleSuggest(4) || []).map(x => FF.list.find(r => String(r.id) === String(x.id))).filter(Boolean); } catch (e) {} if (!sug.length) sug = FF.list.filter(r => !r.me && !C.has(String(r.id))).slice(0, 4);
       h += `<div class="lg-circle"><b>${F.list.length === 1 ? 'Your circle starts with you' : 'Your circle is ' + (F.list.length - 1) + ' so far'}</b><small>Friends you invite or add, once both of you confirm.</small><div class="lg-sug"><a class="lg-inv" href="index.html#invite"><span>+</span><small>Invite</small></a>${sug.map(r => `<a href="player.html?u=${encodeURIComponent(r.id)}#circle">${av(r.name, 36)}<small>${esc(r.name.split(' ')[0])}</small></a>`).join('')}</div></div>`; }
     /* the seal breaking, live */
@@ -102,10 +102,10 @@
     gs = gs.slice(0, 6);
     const next = Object.values(held).filter(g => !isStarted(g)).sort((a, b) => a.date - b.date)[0];
     h += `<div class="lg-games" id="lg-games">${gs.map(g => { const on = onGame(g, F), started = isStarted(g), ms = mySide(g), sides = {}; on.forEach(x => { (sides[x.side || '?'] = sides[x.side || '?'] || []).push(x); });
-      const face = x => prof(x.r, av(x.r.name, 30, ringOf(x.r, F)));
+      const face = x => prof(x.r, av(x.r.name, 24, ringOf(x.r, F)));
       const body = !started ? `<div class="lg-gside"><small>${on.length} sealed &middot; sides open at kickoff</small><div class="lg-row">${on.map(face).join('')}</div></div>`
         : `<div class="lg-gsides">${Object.keys(sides).sort((a, b) => (b === ms) - (a === ms)).map(k => `<div class="lg-gside${ms ? (k === ms ? ' with' : opposite(ms, k, g) ? ' vs' : '') : ''}"><small>${ms ? (k === ms ? 'With you' : opposite(ms, k, g) ? 'Against you' : 'On') : 'On'} ${esc(k)}</small><div class="lg-row">${sides[k].map(face).join('')}</div></div>`).join('')}</div>`;
-      return `<div class="lg-game${g.state === 'in' ? ' lg-on' : ''}"><a class="lg-sc" href="${gameUrl(g)}"><div><img alt="" src="${esc(g.away.logo)}"><b>${esc(g.away.abbr)}</b><strong data-sc="${esc(g.id)}a">${started && g.away.score != null ? esc(g.away.score) : ''}</strong></div><div class="lg-mid">${g.state === 'in' ? `<span class="lv"><i></i>LIVE</span><small>${esc(g.detail || '')}</small>` : `<span class="lk">SEALED</span><small><b data-k="${+g.date}">${clock(+g.date - now)}</b></small>`}</div><div><img alt="" src="${esc(g.home.logo)}"><b>${esc(g.home.abbr)}</b><strong data-sc="${esc(g.id)}h">${started && g.home.score != null ? esc(g.home.score) : ''}</strong></div></a>${body}${next && next !== g ? `<button class="lg-nx" data-g="${esc(next.league + ':' + next.id)}">Next seal &middot; ${esc(gname(next))} &middot; <b data-k="${+next.date}">${clock(+next.date - now)}</b></button>` : ''}</div>`; }).join('') || '<div class="lg-game"><div class="lg-mut">No games on the Board right now.</div></div>'}</div>${gs.length > 1 ? `<div class="lg-dots">${gs.map((g, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}`;
+      return `<div class="lg-game${g.state === 'in' ? ' lg-on' : ''}"><a class="lg-sc" href="${gameUrl(g)}"><div><img alt="" src="${esc(g.away.logo)}"><b>${esc(g.away.abbr)}</b><strong data-sc="${esc(g.id)}a">${started && g.away.score != null ? esc(g.away.score) : ''}</strong></div><div class="lg-mid">${g.state === 'in' ? `<span class="lv"><i></i>${esc(g.detail || 'LIVE')}</span>` : `<span class="lk">SEALED <b data-k="${+g.date}">${clock(+g.date - now)}</b></span>`}</div><div><img alt="" src="${esc(g.home.logo)}"><b>${esc(g.home.abbr)}</b><strong data-sc="${esc(g.id)}h">${started && g.home.score != null ? esc(g.home.score) : ''}</strong></div></a>${body}${next && next !== g ? `<button class="lg-nx" data-g="${esc(next.league + ':' + next.id)}">Next seal ${esc(gname(next))} <b data-k="${+next.date}">${clock(+next.date - now)}</b></button>` : ''}</div>`; }).join('') || '<div class="lg-game"><div class="lg-mut">No games on the Board right now.</div></div>'}</div>${gs.length > 1 ? `<div class="lg-dots">${gs.map((g, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}`;
     /* the room: moments and talk as one thread, newest at the bottom */
     const talk = ls(TALK, []).filter(m => !honest() || m.mine || m.real);
     const rows = fold(moments(F)).concat(talk.map(m => ({ t: 'talk', key: 'talk:' + m.id, at: m.at, m })));
@@ -118,7 +118,7 @@
     const R0 = $('lg-room'), keep = R0 ? R0.scrollTop : 0;
     $('lg-main').innerHTML = h;
     $('lg-reply').innerHTML = REPLY ? `<span>Replying to <b>${esc(REPLY.who)}</b>: ${esc(REPLY.text)}</span><button data-x="noreply" aria-label="Cancel reply">&#10005;</button>` : ''; $('lg-reply').hidden = !REPLY;
-    dock(); slideFaces(); tickScores();
+    dock(); slideFaces(); tickScores(); bumpStacks();
     { const R1 = $('lg-room'); if (R1 && !firstPaint) R1.scrollTop = STICK ? R1.scrollHeight : keep; }
     if (firstPaint) { firstPaint = false; scrollTo(0, 0); requestAnimationFrame(() => { const R1 = $('lg-room'), d = document.querySelector('.lg-new'); if (!R1) return; if (d) { STICK = false; R1.scrollTop = Math.max(0, d.offsetTop - R1.offsetTop - 40); } else R1.scrollTop = R1.scrollHeight; }); }
   }
@@ -141,6 +141,13 @@
   /* a rank change is the faces row re-sorting: each face slides from where it was */
   let lastX = {};
   function slideFaces() { const wrap = $('lg-faces'); if (!wrap) return; const now = {}; wrap.querySelectorAll('[data-fid]').forEach(el => { const x = el.offsetLeft; now[el.dataset.fid] = x; const p = lastX[el.dataset.fid]; if (p != null && Math.abs(p - x) > 4) { el.style.transition = 'none'; el.style.transform = `translateX(${p - x}px)`; requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = 'transform .5s ease'; el.style.transform = ''; })); } }); lastX = now; }
+  /* a pick settles: the player's Stack on the faces row bumps and counts to its new figure; their rank badge flashes if it moved */
+  let lastSt = {}, lastRk = {};
+  function bumpStacks() { const now = {}, rk = {}; document.querySelectorAll('[data-st]').forEach(el => { const id = el.dataset.st, v = +el.dataset.v; now[id] = v; const p = lastSt[id];
+      if (p != null && p !== v) { const up = v > p, t0 = performance.now(); el.classList.remove('bump', 'up', 'dn'); void el.offsetWidth; el.classList.add('bump', up ? 'up' : 'dn');
+        const step = t => { const k = Math.min(1, (t - t0) / 800); el.textContent = fmt(p + (v - p) * k); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); } });
+    document.querySelectorAll('[data-fid]').forEach(el => { const id = el.dataset.fid, b = el.querySelector('b'), r = b ? b.textContent : ''; rk[id] = r; if (lastRk[id] && lastRk[id] !== r && b) { b.classList.remove('flash'); void b.offsetWidth; b.classList.add('flash'); } });
+    lastSt = now; lastRk = rk; }
   /* a score that changed since the last paint ticks */
   let lastSc = {};
   function tickScores() { const now = {}; document.querySelectorAll('[data-sc]').forEach(el => { const k = el.dataset.sc, v = el.textContent; now[k] = v; if (lastSc[k] != null && lastSc[k] !== v && v !== '') { el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick'); } }); lastSc = now; }

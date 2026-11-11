@@ -55,7 +55,18 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 /* pinned head, scrolling room: the first screen shows where you stand and the game that is on */
 .lg-room.pinned{overflow-y:auto;overscroll-behavior:contain;padding:8px 2px 6px;margin-top:8px;-webkit-overflow-scrolling:touch;mask-image:linear-gradient(to bottom,transparent 0,#000 14px)}
 .lg-faces{padding:8px 2px 4px}.lg-face b{top:27px}.lg-game{padding:10px 12px}.lg-sc img{width:28px;height:28px}.lg-sc strong{font-size:26px}.lg-sc b{font-size:14px}.lg-gsides{margin-top:8px}.lg-gside{padding:6px 8px;margin-top:8px}.lg-gside small{margin-bottom:4px;font-size:12px}.lg-nx{margin-top:8px;padding:6px 10px}.lg-dots{margin:6px 0 0}.lg-top{margin-bottom:6px}.lg-mu{padding:6px 12px}
-@media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-sc strong.tick{animation:none}.lg-face{transition:none!important}}
+/* compact pinned head: the room keeps the screen */
+.lg-top h1{font-size:22px}.lg-top{margin-bottom:4px}.lg-scope button{padding:5px 9px;font-size:12px}
+.lg-mu{padding:5px 10px;font-size:13px}.lg-mu b{font-size:15px}.lg-mu em{font-size:12px;padding:2px 8px}
+.lg-faces{gap:6px;padding:6px 2px 2px}.lg-face{width:46px}.lg-face b{top:22px;font-size:10px;padding:0 4px}.lg-face small{font-size:12px;margin-top:2px;line-height:1.2}.lg-face em{font-size:12px;line-height:1.2}
+.lg-game{padding:8px 10px;border-radius:16px}.lg-sc{grid-template-columns:1fr auto 1fr!important;gap:6px}.lg-sc>div{flex-direction:row!important;gap:6px;justify-content:center}.lg-sc img{width:22px;height:22px}.lg-sc b{font-size:14px}.lg-sc strong{font-size:22px}
+.lv,.lk{font-size:11px;padding:3px 7px;letter-spacing:.04em}.lk b{color:var(--lg-warn);margin-left:3px}
+.lg-gsides{margin-top:6px;gap:6px}.lg-gside{padding:4px 6px;margin-top:6px;display:flex!important;align-items:center;gap:6px;flex-wrap:wrap}.lg-gside small{margin:0;font-size:12px}.lg-gside .lg-row{gap:4px}
+.lg-nx{margin-top:6px;padding:4px 10px;font-size:12px}.lg-dots{margin:4px 0 0}.lg-dots i{width:5px;height:5px}
+/* motion: a Stack moving, a rank changing */
+.lg-face em.bump{animation:lgbump .9s ease}.lg-face em.up{color:var(--lg-win)}.lg-face em.dn{color:var(--lg-loss)}@keyframes lgbump{0%{transform:scale(1.5)}100%{transform:none}}
+.lg-face b.flash{animation:lgflash 1.2s ease}@keyframes lgflash{0%,40%{background:var(--lg-warn);color:#1B1200}100%{background:#2A3644}}
+@media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-sc strong.tick,.lg-face em.bump,.lg-face b.flash{animation:none}.lg-face{transition:none!important}}
 </style>
 </head>
 <body data-tab="lounge">
@@ -66,6 +77,6 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 <script src="honest.js"></script>
 <script src="shared/nav.js?v=f1103"></script>
 <script src="shared/events.js?v=f1103"></script>
-<script src="lounge.js?v=l1110"></script>
+<script src="lounge.js?v=l1111"></script>
 </body>
 </html>
