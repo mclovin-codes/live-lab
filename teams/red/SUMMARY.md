@@ -28,12 +28,17 @@ It runs on fixed taps, not talk. With 7 players the honest view has about 90 sea
   - It is suggestive, not descriptive, and avoids pick, parlay, react, feed, chat, squad, social, league and challenge.
   - Quick screen on 2026-11-10 (aggregator sites only): no live US mark for BLINDSIDE in class 9 or 41 was seen. A class 9 game-software registration was cancelled in 2019, and a class 28 toy mark exists.
   - The app stores and the USPTO's own Trademark Search were not checked. This is a screen, not a clearance: the name needs a full trademark register check before it ships or is announced.
-- The steps, in order:
-  1. A player stakes Stack on a line pick that stays sealed from the whole Field until its game starts.
-  2. Before kickoff, any other player makes one blind call on that sealed pick from four fixed options (either team, Over, Under). The four options are the same for every line market, so the call itself reveals nothing about the market.
-  3. At kickoff the pick is revealed and every call on it is scored right or misread.
-  4. At the final the pick settles. The caller's record updates, and so would the picker's readability, once other real players call them.
-  5. Inside each 1v1 matchup, the two players' calls on each other form a second score, the Read-off.
+- Name candidates (the founder decides):
+  - Blindside (working name). Suggestive: you take a side blind, and it carries the sports sense of a hit you did not see coming.
+  - Sealcall. A coined word, likely the strongest to register, but it reads less naturally.
+  - Hunch. Suggestive and plain, but a common word, so it is probably crowded in app names.
+  - "Reads" and "The Read" were rejected as descriptive.
+- The steps, in order (marked: new, or standard):
+  1. Standard: a player stakes Stack on a line pick that stays sealed from the whole Field until its game starts. Sealed picks exist in pool software.
+  2. New: before kickoff, any other player makes one blind call on that sealed pick from four fixed options (either team, Over, Under). The four options are the same for every line market, so neither the card nor the call reveals the market, side, line or stake.
+  3. New: the kickoff reveal is staged as an event. Every call on that pick is scored right or misread, and calls you made while away open the page once ("Dan took TOR. You read it").
+  4. Standard: at the final the pick settles. The call keeps its own tally only: the caller's record, and once real players call you, your readability. Nothing else changes.
+  5. New: inside each weekly 1v1 matchup, the two players' calls on each other form a second score, the Read-off. It is display only and decides nothing in the contest.
 - What is new:
   - A group chat needs typing, a pick feed shows picks once made, a reaction bar rates something visible, and tail or fade copies a visible pick.
   - Blindside acts on a pick nobody can see, scores the act at the reveal and ties it to the weekly 1v1.
@@ -45,11 +50,11 @@ It runs on fixed taps, not talk. With 7 players the honest view has about 90 sea
 3. Written as ordered steps. Yes (above).
 4. One sentence on what is new. Yes (above).
 5. Depends on what only Rush has. Yes.
-6. Does anything of value move between players? No.
+6. Does anything of value move between players? No. There is no side contest with anything at stake, and no reward for calling, tagging or inviting.
 7. Does a tap change a Stack, finish, record or prize? No. Calls make display and history only.
 8. Can a player learn another's side, price or stake before kickoff? No:
    - Cards hide side, line, market and stake.
-   - Calls by others show only as a count, never which side.
+   - Calls by others show only as one total count per pick (and only with the honest view off), never a count per side. There is no copy-a-pick button.
    - The Matchup page and player cards no longer show stake or market for sealed picks.
    - One caveat: in this prototype the answer sits in the phone's storage, which a server must hold in the real app.
 9. Fixed taps only, with block and report. Yes: four calls and three tags, no free text, Block and Report on every player card (stored on the phone).
