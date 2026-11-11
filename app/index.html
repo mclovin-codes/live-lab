@@ -21,10 +21,10 @@ body{background:var(--bg);color:var(--tx)}
 .h-btn.ghost{background:var(--card2);color:var(--tx)!important;border:1px solid var(--line)}
 .hero{background:linear-gradient(160deg,#17324A 0%,#141C26 62%);border-color:rgba(61,184,255,.3)}
 .hero .rk{display:flex;align-items:baseline;gap:8px;margin-top:10px}.hero .rk .h-big{font-size:68px}
-.strip{position:relative;height:40px;margin:18px 6px 4px}
-.strip .ln{position:absolute;left:0;right:0;top:19px;height:3px;border-radius:2px;background:linear-gradient(90deg,#FF6B6B55,#3DD68C55)}
-.strip .gu-av{position:absolute;top:6px;transform:translateX(-50%);transition:left .8s cubic-bezier(.2,.8,.2,1)}
-.strip .gu-av.me{top:2px;z-index:2}
+.strip{position:relative;height:60px;margin:16px 10px 4px}
+.strip .ln{position:absolute;left:0;right:0;top:29px;height:3px;border-radius:2px;background:linear-gradient(90deg,#FF6B6B55,#3DD68C55)}
+.strip .gu-av{position:absolute;transform:translateX(-50%);transition:left .8s cubic-bezier(.2,.8,.2,1)}
+.strip .gu-av.me{z-index:2}
 .mu{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center}
 .mu .sd{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}.mu .sd b{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
 .tug{display:flex;height:12px;border-radius:6px;overflow:hidden;margin-top:14px;background:var(--card2)}.tug i{transition:flex .8s}.tug .a{background:var(--acc)}.tug .b{background:var(--vio)}
@@ -43,7 +43,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body>
 <div id="app" class="h-wrap"></div>
-<script src="shared/state.js"></script><script src="week-games.js"></script><script src="honest.js"></script><script src="shared/nav.js"></script><script src="gold-ui.js"></script>
+<script src="shared/state.js"></script><script src="week-games.js"></script><script src="honest.js"></script><script src="shared/nav.js"></script><script src="shared/events.js"></script><script src="gold-ui.js"></script>
 <script>
 const E=GU.esc,F=GU.fmt;
 function sideFaces(list,n){return list.length?`<div class="faces">${[...new Map(list.map(o=>[o.pl.id,o.pl])).values()].slice(0,n||5).map(p=>GU.av(p,30)).join('')}</div>`:'<span style="color:var(--mute);font-size:13px">Nobody</span>'}
@@ -64,7 +64,7 @@ function render(){
   h+=`<section class="h-card hero"><div style="display:flex;justify-content:space-between;align-items:center"><span class="h-chip" style="background:rgba(61,184,255,.16);color:var(--acc)">WEEK ${wk.n} CONTEST</span><span class="h-chip">Ends Monday night</span></div>
    <div class="rk"><span class="h-big">#${m.rank||'-'}</span><span style="color:var(--mute);font-weight:700">of ${f.length} in the Field</span></div>
    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:4px"><div><div style="color:var(--mute);font-size:12px;font-weight:800;letter-spacing:1.2px">YOUR STACK</div><div class="h-big" style="font-size:40px">${F(m.stack)}</div></div><div style="text-align:right"><div class="h-num ${d>=0?'up':'dn'}">${d>=0?'+':''}${F(d)}</div><small style="color:var(--mute)">since Tuesday</small></div></div>
-   <div class="strip"><div class="ln"></div>${f.slice().reverse().map(r=>GU.av(r,r.me?34:26).replace('class="gu-av','style="left:'+pos(r.stack)+'%" class="gu-av').replace('" style="width','; width')).join('')}</div>
+   <div class="strip"><div class="ln"></div>${f.slice().sort((x,y)=>x.stack-y.stack).map((r,k)=>GU.av(r,r.me?34:28).replace('style="width','style="left:'+pos(r.stack)+'%;top:'+(r.me?14:(k%2?28:0))+'px;width')).join('')}</div>
    <div style="display:flex;justify-content:space-between;color:var(--mute);font-size:13px"><span>${F(lo)}</span><span>1st: ${E(f[0].me?'you':f[0].name)} ${F(f[0].stack)}</span></div>
    <div style="display:flex;gap:10px;margin-top:16px"><a class="h-btn" href="board.html">Make picks</a><a class="h-btn ghost" href="ranks.html">The contest</a></div></section>`;
   // 2. Tonight: the games that matter to you and the Field.

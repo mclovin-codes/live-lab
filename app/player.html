@@ -36,7 +36,7 @@ body{background:var(--bg);color:var(--tx)}
 </style></head>
 <body data-tab="me">
 <div id="app" class="p-wrap"></div>
-<script src="shared/state.js"></script><script src="week-games.js"></script><script src="honest.js"></script><script src="shared/nav.js"></script><script src="gold-ui.js"></script>
+<script src="shared/state.js"></script><script src="week-games.js"></script><script src="honest.js"></script><script src="shared/nav.js"></script><script src="shared/events.js"></script><script src="gold-ui.js"></script>
 <script>
 const E=GU.esc,F=GU.fmt,Q=new URLSearchParams(location.search),UID=Q.get('u')&&Q.get('u')!=='me'?Q.get('u'):null;
 let tab=location.hash==='#settled'?'done':'open';
