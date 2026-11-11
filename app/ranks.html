@@ -51,6 +51,12 @@ a.rk-row{text-decoration:none;color:inherit}a.rk-row:active{background:var(--rb-
 .cx-slips{display:flex;flex-direction:column;gap:10px}.cx-none{color:var(--rb-mut);font-size:14px;padding:10px 2px}
 .cx-sl{background:var(--rb-card);border-radius:14px;padding:12px}.cx-sl b{display:block}.cx-sl i{font-style:normal;color:var(--rb-mut);font-size:13px}
 .rk-face{flex:none;display:grid;place-items:center}
+/* A visitor who has not entered: the week, the Field size and the faces show; rank, Stack and the matchup sit blurred in place behind one Enter door. Blurred figures are placeholders, never the real numbers. */
+.cx-enter{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;margin:0 0 12px;padding:14px 16px;border:0;border-radius:16px;background:linear-gradient(135deg,#3DB8FF,#0080FF);color:#04121C;font:800 20px/1.2 var(--rb-font);text-align:left;cursor:pointer}.cx-enter small{font:600 14px var(--rb-font);color:#06233A}
+.bl{filter:blur(7px);opacity:.7;user-select:none;pointer-events:none}
+.cx-faces{display:flex;margin-top:auto}.cx-faces>*{margin-left:-6px;box-shadow:0 0 0 2px var(--rb-card);border-radius:50%}.cx-faces>*:first-child{margin-left:0}
+.cx-lift .bl{animation:cxl .7s ease-out forwards}@keyframes cxl{to{filter:blur(0);opacity:1}}
+@media (prefers-reduced-motion:reduce){.cx-lift .bl{animation:none;filter:none;opacity:1}}
 .rk-cs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 12px;padding:0 16px}.rk-cs::-webkit-scrollbar{display:none}
 .rk-cs button,.rk-cs a{flex:none;display:inline-flex;align-items:center;gap:7px;font:600 13px var(--rb-font);color:var(--rb-mut);background:var(--rb-card);border:1px solid var(--rb-line);border-radius:99px;padding:7px 12px;cursor:pointer;text-decoration:none;white-space:nowrap}
 .rk-cs button.on{color:var(--rb-fg);background:#22303D;border-color:rgba(255,255,255,.22)}.rk-cs small{font:600 11.5px var(--rb-font);color:var(--rb-mut)}.rk-cs a{background:none;border-style:dashed}
@@ -77,8 +83,8 @@ a.rk-row{text-decoration:none;color:inherit}a.rk-row:active{background:var(--rb-
 <script src="shared/state.js?v=f1106"></script>
 <script src="week-games.js?v=f1108"></script>
 <script src="faces.js?v=f1"></script>
-<script src="shared/nav.js?v=f1110"></script>
-<script src="shared/events.js?v=f1106"></script>
+<script src="shared/nav.js?v=f1111"></script>
+<script src="shared/events.js?v=f1107"></script>
 <script src="slip-card.js?v=s6"></script>
 <script>
 'use strict';
@@ -101,7 +107,10 @@ const fmtS=n=>Math.round(n).toLocaleString('en-US');
 function slipsOf(id){try{return(RW.playerPicks(id,games)||[]).slice().sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||(b.at||0)-(a.at||0))}catch(e){return[]}}
 function slipCard(p,mine){if(!mine&&R&&R.sealView){try{p=R.sealView(p)}catch(e){}}if(window.SlipCard&&SlipCard.html){try{return SlipCard.html(p,{sealed:!mine})}catch(e){}}const legs=p.legs&&p.legs.length?p.legs:[p];return`<div class="cx-sl"><b>${legs.length>1?legs.length+'-leg parlay':esc(mine?p.label:(legs[0].game||'Sealed'))}</b><i>${esc(p.status||'open')}</i></div>`}
 function rec(ps){return{w:ps.filter(p=>p.status==='won').length,l:ps.filter(p=>p.status==='lost').length,o:ps.filter(p=>p.status!=='won'&&p.status!=='lost').length}}
-function vWeek(){const rows=fieldRows(),mine=rows.find(r=>r.me);let mu=null;try{mu=R&&R.matchup&&R.me().entered?R.matchup():null}catch(e){}
+function vVisitor(rows){const live=rows.filter(r=>!r.out),N=live.length,n=RW.week().n;const faces=live.slice(0,7).map(r=>face(r,26)).join('');
+ let h=`<button type="button" class="cx-enter" data-enter>Enter the week<small>Free. You get 1,000 Stack.</small></button><div class="cx-two"><div class="cx-p ct" style="cursor:default"><span class="cx-k">The contest</span><span class="cx-fig">${N}<small>in</small></span><span class="cx-sub">Week ${n}</span><span class="cx-sub bl" aria-hidden="true">#0 of ${N} &middot; 000 behind 1st</span><div class="cx-faces">${faces}</div></div><div class="cx-p mu" style="cursor:default"><span class="cx-k">Your matchup</span><span class="cx-fig bl" aria-hidden="true">+00</span><span class="cx-sub">Pairs Thursday 7:00 PM</span><div class="cx-shape bl" aria-hidden="true"><div class="cx-bar"><b style="width:50%"></b><u></u></div><div class="cx-vs"><span>You 1,000</span><span>1,000</span></div></div></div></div>`;
+ h+=`<div class="cx-sec"><span>The Field</span><span>${N} in</span></div><div class="rk-list">${live.slice().sort((a,b)=>String(a.name).localeCompare(String(b.name))).map(r=>`<a href="player.html?u=${encodeURIComponent(r.id)}" class="rk-row"><span class="rk-pos bl" aria-hidden="true">0</span>${face(r)}<span class="rk-nm"><b>${esc(r.name)}</b><i>In the week</i></span><span class="rk-u bl" aria-hidden="true">1,000<small>Stack</small></span></a>`).join('')}</div>`;return h}
+function vWeek(){const rows=fieldRows(),mine=rows.find(r=>r.me);if(R&&R.entered&&!R.entered())return vVisitor(rows);let mu=null;try{mu=R&&R.matchup&&R.me().entered?R.matchup():null}catch(e){}
  const oppId=mu&&mu.opp?mu.opp.id:null,opp=oppId!=null?rows.find(r=>String(r.id)===String(oppId))||null:null;
  let h=(R&&!R.me().entered)?`<div class="rk-card"><h2>Join the Field</h2><div class="rk-note" style="padding:0">Enter Week ${RW.week().n} on Home to get 1,000 Stack and a place on this list.</div><a href="index.html" style="display:block;margin-top:10px;text-align:center;padding:13px;border-radius:12px;background:linear-gradient(135deg,#00C0FF,#0080FF);color:#fff;font-weight:700;text-decoration:none">Enter the week</a></div>`:'';
  const st=r=>1000+Math.round((+r.units||0)*10),N=rows.filter(r=>!r.out).length,first=rows[0],my=st(mine),gap1=first&&!first.me?st(first)-my:0;
@@ -145,7 +154,7 @@ function render(){const L=wl(),a=act(L);csBar(L,a);const w=RW.week();if(!games.l
  if(a!=='rush'){$('rk-seg').hidden=true;$('rk-week').textContent='Contest standings';const h=vContest(a,L.find(e=>e.id===a));const m=$('rk-main');if(m._h!==h){m.innerHTML=h;m._h=h}return}
  $('rk-seg').hidden=false;seg();$('rk-week').textContent=`Week ${w.n} · Tuesday to Monday night`;const h=tab==='week'?vWeek():vSeason();const m=$('rk-main');if(m._h!==h){m.innerHTML=h;m._h=h}}
 async function refresh(){try{games=await RW.load(true)}catch(e){}render()}
-document.addEventListener('click',e=>{const cb2=e.target.closest('[data-circ]');if(cb2){CIRC=cb2.dataset.circ==='1';try{localStorage.setItem('rk.circle',CIRC?'1':'0')}catch(x){}render();return}const xp=e.target.closest('[data-x]');if(xp){const k=xp.dataset.x;EXP=EXP===k?'':k;try{localStorage.setItem('rk.exp',EXP)}catch(x){}render();scrollTo(0,0);return}const b=e.target.closest('[data-t]');if(b){tab=b.dataset.t;try{localStorage.setItem('rk.tab',tab)}catch(x){}render();scrollTo(0,0)}});
+document.addEventListener('click',e=>{const cb2=e.target.closest('[data-circ]');if(cb2){CIRC=cb2.dataset.circ==='1';try{localStorage.setItem('rk.circle',CIRC?'1':'0')}catch(x){}render();return}if(e.target.closest('[data-enter]')){const m=$('rk-main');m.classList.add('cx-lift');setTimeout(()=>{try{Rush.enter()}catch(x){}m.classList.remove('cx-lift');m._h=null;render()},650);return}const xp=e.target.closest('[data-x]');if(xp){const k=xp.dataset.x;EXP=EXP===k?'':k;try{localStorage.setItem('rk.exp',EXP)}catch(x){}render();scrollTo(0,0);return}const b=e.target.closest('[data-t]');if(b){tab=b.dataset.t;try{localStorage.setItem('rk.tab',tab)}catch(x){}render();scrollTo(0,0)}});
 function loop(){refresh().finally(()=>setTimeout(loop,games.some(g=>g.state==='in')?20000:60000))}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
 window.addEventListener('storage',()=>render());if(R&&R.on)R.on(()=>render());
