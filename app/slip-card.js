@@ -1,72 +1,167 @@
-/* One Slip card (owner: Gold), used wherever a pick shows: Home, profiles, Slips, and the Lounge if Red loads it.
- * window.SlipCard.html(slip, opts) -> HTML string. opts.sealed: hide legs that have not kicked off (another player's Slip).
- * Accepts the store's Slip shape {legs:[{label, market, line, price|odds, gameId, game, player, stat, status}], stake, price|odds, toPay|pay|win, status}
- * and the older single pick {label, market|t, odds, stake, win, pay, status, gameId, legs?}. A parlay is one card with every leg on it. */
+/* One Slip card (owner: Gold), used wherever a Slip shows: Me, slips.html, other players' profiles, the Lounge, the Stack sheet.
+ * Structure after the founder's 12:35 AM reference (behaviour only; the team's own look and scale; Rush words):
+ *   head: the title ("5-pick parlay", or for a straight the one selection with its mark), the combined price, a status pill
+ *         (Open, Live, Won, Lost), and stake and pays on one line;
+ *   a parlay is collapsed to one line of its leg names, with View legs / Hide legs; a straight shows in full;
+ *   a leg: a status ring, the mark (player mark with the number for a prop, team mark for a side, a neutral O/U disc for a total),
+ *          the short name in bold, the market in small text, the price at the right; under it a game strip with both marks and codes
+ *          and the kickoff before, the score and clock during, FINAL and the score after;
+ *   same-game legs sit under a sub-header with their own price, and share one game strip;
+ *   footer: when it was placed.
+ * Sealed rules: opts.sealed (another player's Slip) shows a leg as its game only until that leg's kickoff, and stake, price and pays stay
+ * sealed while any leg is. A visitor (not entered) sees another player's Slip as its games only, even after kickoff.
+ * API: SlipCard.html(slip, {sealed, open}) -> string. SlipCard.filter(slips, 'all'|'open'|'live'|'settled'). SlipCard.chips(active, counts?).
+ * Accepts the store's Slip {legs:[{league, gameId, g, label, market|t, line, odds|price, side, spec, player, playerId, stat, status|st}],
+ * stake, odds|price, win|toPay|pay, status, at, kind, same} and the older single pick shape. Short market names: Rush.mktName(leg) when present. */
 (function () {
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fmt = n => Math.round(+n || 0).toLocaleString('en-US');
   const am = o => { o = Math.round(+o); return isFinite(o) && o ? (o > 0 ? '+' + o : String(o)) : ''; };
   const dec = o => o > 0 ? 1 + o / 100 : 1 + 100 / -o;
+  const toAm = d => d >= 2 ? (d - 1) * 100 : -100 / (d - 1);
   const games = () => { try { return (window.RW && RW.cached && RW.cached()) || []; } catch (e) { return []; } };
   const gameOf = (id, g) => g || games().find(x => String(x.id) === String(id)) || null;
   const started = g => !!g && (g.state !== 'pre' || Date.now() >= g.date);
   function until(t) { const d = Math.max(0, t - Date.now()), h = Math.floor(d / 36e5), m = Math.floor(d % 36e5 / 6e4); return h >= 24 ? Math.floor(h / 24) + 'd ' + (h % 24) + 'h' : h ? h + 'h ' + m + 'm' : m + 'm'; }
-  const MK = { ml: 'Moneyline', moneyline: 'Moneyline', spread: 'Spread', total: 'Total', prop: 'Player prop', props: 'Player prop' };
+  const when = t => new Date(t).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' });
   const legState = s => s === 'won' || s === 'hit' ? 'hit' : s === 'lost' || s === 'miss' ? 'miss' : s === 'push' || s === 'void' ? 'push' : 'open';
+  const cap = s => String(s || '').replace(/(^|\s)\S/g, c => c.toUpperCase());
+  const STAT = { points: 'Points', rebounds: 'Rebounds', assists: 'Assists', threes: '3-pointers', goals: 'Goals', shots: 'Shots on goal', saves: 'Saves', passYds: 'Passing yards', rushYds: 'Rushing yards', recYds: 'Receiving yards', receptions: 'Receptions', td: 'Anytime TD', anytd: 'Anytime TD' };
+  const sideOf = l => { const s = l.side != null ? l.side : l.spec && l.spec.side; return s === 'o' ? 'over' : s === 'u' ? 'under' : s; };
+  const kindOf = l => { const k = l.market || l.t || (l.spec && l.spec.k) || (l.player ? 'prop' : ''); return k === 'moneyline' ? 'ml' : k === 'props' ? 'prop' : k; };
+  // The player's number and team come from the game's leaders (the store's feed), matched by id, then by name.
+  function who(l, g) {
+    if (!g) return null; const L = [];
+    ['away', 'home'].forEach(s => (g[s] && g[s].leaders || []).forEach(x => L.push(Object.assign({ side: s }, x))));
+    (g.propsFrom || []).forEach(x => L.push(Object.assign({ side: x.team }, x)));
+    const hit = L.find(x => l.playerId && String(x.id) === String(l.playerId)) || L.find(x => x.name && l.player && x.name === l.player);
+    return hit ? { num: hit.jersey, team: g[hit.side] } : null;
+  }
+  function selName(l) { try { if (window.Rush && Rush.selName) return Rush.selName(l) || null; } catch (e) {} return null; }
+  function mkName(l) { try { if (window.Rush && Rush.mktName) { const n = Rush.mktName(l); if (n) return n; } } catch (e) {} return null; }
+  // Short name, market and mark for one leg.
+  function view(l) {
+    const g = l.g, k = kindOf(l), s = sideOf(l), line = l.line != null && l.line !== 'null' ? +l.line : null;
+    const team = g && (s === 'home' || s === 'away') ? g[s] : null, TM = window.TeamMark;
+    if (l.player) {
+      const p = who(l, g), num = l.num != null ? l.num : l.jersey != null ? l.jersey : p && p.num;
+      let tm = (l.team && typeof l.team === 'object') ? l.team : null;
+      if (!tm && typeof l.team === 'string') tm = (g && [g.home, g.away].find(t => t && String(t.abbr).toUpperCase() === l.team.toUpperCase())) || { abbr: l.team, color: l.teamColor, alt: l.teamAlt };
+      if (!tm && p) tm = p.team;
+      const st = STAT[l.stat] || cap(String(l.stat || '').replace(/([a-z])([A-Z])/g, '$1 $2'));
+      const mk = mkName(l) || (s === 'over' || s === 'under' ? cap(s) + ' ' + (line != null ? line : '') + ' ' + st : st || 'Player prop');
+      const mark = TM ? TM.player(l.league || (g && g.league), tm || {}, num != null && num !== '' ? num : (tm ? null : '#'), 40) : '';
+      return { name: l.player, market: (l.mname || mk).trim(), mark };
+    }
+    if (k === 'total') {
+      const ou = s === 'under' ? 'Under' : 'Over';
+      return { name: ou + (line != null ? ' ' + line : ''), market: mkName(l) || 'Total', mark: `<span class="sc-ou">${ou[0]}</span>` };
+    }
+    const ab = team ? team.abbr : String(l.label || '').split(' ')[0];
+    const mark = TM && team ? TM.svg(l.league || g.league, team, 40) : `<span class="sc-ou">${esc(String(ab).slice(0, 3))}</span>`;
+    if (k === 'spread') return { name: selName(l) || ab + (line != null ? ' ' + (line > 0 ? '+' : '') + line : ''), market: mkName(l) || 'Spread', mark };
+    if (k === 'ml') return { name: ab, market: mkName(l) || 'Moneyline', mark };
+    return { name: String(l.label || 'Pick').replace(/ to win$/, ''), market: mkName(l) || cap(k) || 'Pick', mark };
+  }
   function norm(p) {
     const raw = p.raw || p;
     const legs = (raw.legs && raw.legs.length ? raw.legs : [raw]).map(l => {
       const g = gameOf(l.gameId, l.g);
-      if (l.sealed) return { sealed: true, game: l.game || (g ? g.away.abbr + ' at ' + g.home.abbr : 'Sealed leg'), g: g || (l.start ? { state: 'pre', date: +l.start } : null), st: 'open' };
-      return { label: l.label || l.sel || 'Pick', market: MK[l.market] || l.market || MK[l.t] || MK[l.kind] || (l.player ? 'Player prop' : ''), line: l.line, price: l.price != null ? l.price : l.odds, player: l.player, stat: l.stat,
-        game: l.game || (g ? g.away.abbr + ' at ' + g.home.abbr : ''), g, st: legState(l.status || l.st || (raw.legs ? 'open' : raw.status)) };
+      const game = l.game || (g ? g.away.abbr + ' at ' + g.home.abbr : '');
+      if (l.sealed) return { sealed: true, game: game || 'Sealed leg', gameId: l.gameId, g: g || (l.start ? { state: 'pre', date: +l.start } : null), st: 'open' };
+      return Object.assign({}, l, { g, game, label: l.label || l.sel || 'Pick', price: l.price != null ? l.price : l.odds, st: legState(l.status || l.st || (raw.legs ? 'open' : raw.status)) });
     });
-    const price = raw.price != null ? raw.price : raw.odds != null ? raw.odds : (legs.length > 1 ? (() => { const d = legs.reduce((a, l) => a * dec(+l.price || -110), 1); return d >= 2 ? (d - 1) * 100 : -100 / (d - 1); })() : legs[0].price);
+    const price = raw.price != null ? raw.price : raw.odds != null ? raw.odds : (legs.length > 1 ? toAm(legs.reduce((a, l) => a * dec(+l.price || -110), 1)) : legs[0].price);
     const stake = +raw.stake || 0, toPay = raw.toPay != null ? +raw.toPay : raw.pay != null && raw.status !== 'open' ? +raw.pay : raw.kind && raw.win != null ? +raw.win : stake + (raw.win != null ? +raw.win : (price ? stake * (dec(+price) - 1) : 0));
-    return { legs, stake, price, toPay, status: legState(raw.status), paid: raw.pay, kind: raw.kind, same: raw.same };
+    return { legs, stake, price, toPay, status: legState(raw.status), paid: raw.pay, kind: raw.kind, same: raw.same, at: raw.at, id: raw.id };
   }
-  const ICON = { hit: '<i class="sc-i hit">✓</i>', miss: '<i class="sc-i miss">✗</i>', push: '<i class="sc-i push">=</i>', open: '<i class="sc-i open"></i>', live: '<i class="sc-i live"></i>', sealed: '<i class="sc-i sealed"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></i>' };
+  const LOCK = '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+  const ring = st => `<i class="sc-r ${st}">${st === 'hit' ? '✓' : st === 'miss' ? '✗' : st === 'push' ? '=' : st === 'sealed' ? LOCK : ''}</i>`;
+  const isLive = s => s.status === 'open' && s.legs.some(l => l.g && l.g.state === 'in' && l.st === 'open');
+  // The game strip under a leg (or a same-game group).
+  function strip(g) {
+    if (!g || !g.home) return '';
+    const TM = window.TeamMark, m = t => TM ? TM.svg(g.league, t, 28) : '';
+    const live = g.state === 'in', fin = g.done || g.state === 'post', sc = live || fin;
+    const mid = live ? `<span class="sc-gl">${esc(g.detail || 'LIVE')}</span>` : fin ? '<span class="sc-gf">FINAL</span>' : `<span class="sc-gt">${esc(when(g.date))}</span>`;
+    return `<div class="sc-g">${m(g.away)}<b>${esc(g.away.abbr)}</b>${sc ? `<em>${esc(g.away.score == null ? '' : g.away.score)}</em>` : ''}${mid}${sc ? `<em>${esc(g.home.score == null ? '' : g.home.score)}</em>` : ''}<b>${esc(g.home.abbr)}</b>${m(g.home)}</div>`;
+  }
   function html(p, opts) {
     opts = opts || {}; const s = norm(p), n = s.legs.length, parlay = n > 1;
-    const anySealed = s.legs.some(l => l.sealed) || (!!opts.sealed && s.legs.some(l => !started(l.g)));
-    const kind = parlay ? ((s.same || new Set(s.legs.map(l => l.game)).size === 1) ? 'Same-game parlay · ' + n + ' legs' : 'Parlay · ' + n + ' legs') : (s.kind === 'prop' || s.legs[0].player ? 'Player prop' : s.legs[0].market || 'Straight');
-    const head = s.status === 'hit' ? '<span class="sc-st hit">HIT</span>' : s.status === 'miss' ? '<span class="sc-st miss">MISSED</span>' : s.status === 'push' ? '<span class="sc-st">PUSH</span>' : anySealed ? '<span class="sc-st sealed">SEALED</span>' : s.legs.some(l => l.g && l.g.state === 'in') ? '<span class="sc-st live">LIVE</span>' : '<span class="sc-st">OPEN</span>';
-    // A visitor (not entered this week) sees another player's Slip as its games only: no side, line, price or result, even after kickoff,
-    // and the stake and pays row blurred in place (placeholder figures, never the real ones). The chief's visitor rules, 11:40 PM.
     let vis = false; try { vis = !!opts.sealed && !!(window.Rush && Rush.entered && !Rush.entered()); } catch (e) {}
-    if (vis) return `<div class="sc sealedall${parlay ? ' par' : ''}"><div class="sc-h"><span class="sc-k">${esc(n > 1 ? 'Parlay · ' + n + ' legs' : 'Slip')}</span><span class="sc-st sealed">ENTER TO SEE</span></div><div class="sc-leg">${ICON.sealed}<div class="sc-l"><b>${esc(s.legs.map(l => l.game).filter(Boolean).join(', ') || 'This week')}</b><small>Sides and stakes open when you enter</small></div></div><div class="sc-f sc-vb" aria-hidden="true"><div><small>STAKE</small><b>000</b></div><div><small>PRICE</small><b>+000</b></div><div><small>PAYS</small><b>0,000</b></div></div></div>`;
-    // Every leg still sealed: one compact row (how many legs, which games, the next kickoff), not a screen of locks.
-    const isSealed = l => l.sealed || (opts.sealed && !started(l.g));
-    if (s.legs.every(isSealed)) { const next = s.legs.map(l => l.g && l.g.date).filter(Boolean).sort((x, y) => x - y)[0]; return `<div class="sc sealedall${parlay ? ' par' : ''}"><div class="sc-h"><span class="sc-k">${esc(n > 1 ? kind : 'Slip')}</span><span class="sc-st sealed">SEALED</span></div><div class="sc-leg">${ICON.sealed}<div class="sc-l"><b>${esc(s.legs.map(l => l.game).filter(Boolean).join(', '))}</b><small>${n > 1 ? 'Each leg opens at its kickoff' : 'Opens at kickoff'}${next ? ', first in ' + until(next) : ''} · stake sealed</small></div></div></div>`; }
-    const legs = s.legs.map(l => {
-      if (l.sealed || (opts.sealed && !started(l.g))) return `<div class="sc-leg">${ICON.sealed}<div class="sc-l"><b>${esc(l.game || 'Sealed leg')}</b><small>Sealed until kickoff${l.g ? ', in ' + until(l.g.date) : ''}</small></div></div>`;
-      const live = l.st === 'open' && l.g && l.g.state === 'in';
-      const sub = [l.player && l.stat ? esc(l.stat) : esc(l.market), esc(l.game), live ? esc((l.g.away.score || 0) + '-' + (l.g.home.score || 0) + ' ' + (l.g.detail || '')) : l.st === 'open' && l.g && !started(l.g) ? 'in ' + until(l.g.date) : ''].filter(Boolean).join(' · ');
-      return `<div class="sc-leg ${l.st}">${ICON[live ? 'live' : l.st]}<div class="sc-l"><b>${esc(l.player ? l.player + ' ' + l.label.replace(l.player, '').trim() : l.label)}${l.line != null && String(l.label).indexOf(String(l.line)) < 0 ? ' ' + esc(l.line) : ''}</b><small>${sub}</small></div><span class="sc-p">${esc(am(l.price))}</span></div>`;
+    const sealedLeg = l => l.sealed || vis || (opts.sealed && !started(l.g));
+    const anySealed = s.legs.some(sealedLeg), allSealed = s.legs.every(sealedLeg);
+    const live = isLive(s);
+    const pill = vis ? '<span class="sc-st sealed">ENTER TO SEE</span>' : s.status === 'hit' ? '<span class="sc-st hit">Won</span>' : s.status === 'miss' ? '<span class="sc-st miss">Lost</span>' : s.status === 'push' ? '<span class="sc-st">Push</span>' : allSealed ? '<span class="sc-st sealed">Sealed</span>' : live ? '<span class="sc-st live">Live</span>' : '<span class="sc-st open">Open</span>';
+    const V = s.legs.map(l => sealedLeg(l) ? null : view(l));
+    const paysWord = s.status === 'hit' || s.status === 'miss' ? 'Paid' : 'Pays';
+    const money = vis ? `<div class="sc-m sc-vb" aria-hidden="true">Stake <b>000</b> · Pays <b>0,000</b></div>`
+      : anySealed ? '<div class="sc-m">Stake <b>sealed</b> · Pays <b>sealed</b></div>'
+      : `<div class="sc-m">Stake <b>${fmt(s.stake)}</b> · ${paysWord} <b class="${s.status === 'hit' ? 'hit' : s.status === 'miss' ? 'miss' : ''}">${s.status === 'miss' ? '0' : fmt(s.status === 'hit' && s.paid != null ? s.paid : s.toPay)}</b></div>`;
+    const placed = s.at && !opts.sealed ? `<div class="sc-ft">Placed ${esc(when(s.at))}</div>` : '';
+    const priceTxt = anySealed ? '' : `<span class="sc-pr">${esc(am(s.price))}</span>`;
+    const cls = `sc ${s.status}${live ? ' live' : ''}${parlay ? ' par' : ''}${opts.open ? ' open' : ''}`;
+    // A straight: the selection is the title, with its mark; the game strip under it.
+    if (!parlay) {
+      const l = s.legs[0], v = V[0];
+      if (!v) return `<div class="${cls}"><div class="sc-hd">${ring('sealed')}<div class="sc-t"><b>Slip</b><small>${vis ? 'Sides and stakes open when you enter' : 'Opens at kickoff' + (l.g && !started(l.g) ? ', in ' + until(l.g.date) : '')}</small></div>${pill}</div>${money}${strip(l.g)}${placed}</div>`;
+      return `<div class="${cls}"><div class="sc-hd">${ring(l.g && l.g.state === 'in' && l.st === 'open' ? 'live' : l.st)}<span class="sc-mk">${v.mark}</span><div class="sc-t"><b>${esc(v.name)}</b><small>${esc(v.market)}</small></div><div class="sc-rt">${priceTxt}${pill}</div></div>${money}${strip(l.g)}${placed}</div>`;
+    }
+    // A parlay: title, price, pill, money, the summary line, then the legs (collapsed by default).
+    const names = s.legs.map((l, i) => V[i] ? V[i].name : l.game).filter(Boolean);
+    const groups = []; s.legs.forEach((l, i) => { const k = l.gameId || l.game || i; let gr = groups.find(x => x.k === k); if (!gr) groups.push(gr = { k, g: l.g, idx: [] }); gr.idx.push(i); });
+    const legRow = i => { const l = s.legs[i], v = V[i];
+      if (!v) return `<div class="sc-leg">${ring('sealed')}<span class="sc-mk"><span class="sc-ou">?</span></span><div class="sc-t"><b>${esc(l.game || 'Sealed leg')}</b><small>${vis ? 'Opens when you enter' : 'Sealed until kickoff' + (l.g && !started(l.g) ? ', in ' + until(l.g.date) : '')}</small></div></div>`;
+      const lv = l.g && l.g.state === 'in' && l.st === 'open';
+      return `<div class="sc-leg ${l.st}">${ring(lv ? 'live' : l.st)}<span class="sc-mk">${v.mark}</span><div class="sc-t"><b>${esc(v.name)}</b><small>${esc(v.market)}</small></div><span class="sc-p">${esc(am(l.price))}</span></div>`; };
+    const body = groups.map(gr => {
+      if (gr.idx.length < 2) return legRow(gr.idx[0]) + strip(gr.g);
+      const sealedG = gr.idx.some(i => !V[i]), gp = sealedG ? '' : ` · ${esc(am(toAm(gr.idx.reduce((a, i) => a * dec(+s.legs[i].price || -110), 1))))}`;
+      return `<div class="sc-sg">${gr.idx.length}-pick same game${gp}</div>` + gr.idx.map(legRow).join('') + strip(gr.g);
     }).join('');
-    const foot = anySealed ? `<div class="sc-f"><div><small>STAKE</small><b>Sealed</b></div><div><small>PRICE</small><b>Sealed</b></div><div><small>PAYS</small><b>Sealed</b></div></div>`
-      : `<div class="sc-f"><div><small>STAKE</small><b>${fmt(s.stake)}</b></div><div><small>${parlay ? 'PARLAY PRICE' : 'PRICE'}</small><b>${esc(am(s.price))}</b></div><div><small>${s.status === 'hit' ? 'PAID' : s.status === 'miss' ? 'PAID' : 'PAYS'}</small><b class="${s.status === 'hit' ? 'hit' : s.status === 'miss' ? 'miss' : ''}">${s.status === 'miss' ? '0' : fmt(s.status === 'hit' && s.paid != null ? s.paid : s.toPay)}</b></div></div>`;
-    return `<div class="sc ${s.status}${parlay ? ' par' : ''}"><div class="sc-h"><span class="sc-k">${esc(kind)}</span>${head}</div>${legs}${foot}</div>`;
+    const title = vis || allSealed ? `Parlay · ${n} legs` : `${n}-pick parlay`;
+    return `<div class="${cls}"><div class="sc-hd"><div class="sc-t"><b class="sc-ti">${esc(title)}${priceTxt ? ' ' + priceTxt : ''}</b><small class="sc-sum">${esc(names.join(', '))}</small></div>${pill}</div>${money}<div class="sc-body">${body}</div><button type="button" class="sc-tog" aria-expanded="${opts.open ? 'true' : 'false'}"><span class="v">View legs</span><span class="h">Hide legs</span></button>${placed}</div>`;
   }
-  const CSS = `.sc{background:#141C26;border:1px solid rgba(255,255,255,.1);border-radius:18px;margin-top:10px;overflow:hidden;font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;color:#F4F7FA}
-.sc.par{border-color:rgba(155,140,255,.4)}.sc.hit{border-color:rgba(61,214,140,.5)}.sc.miss{border-color:rgba(255,107,107,.35)}
-.sc-h{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#1B2531}
-.sc-k{font-size:13px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#A3AFBD}
-.sc-st{font-size:12px;font-weight:800;letter-spacing:.8px;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.08);color:#A3AFBD}
-.sc-st.hit{background:rgba(61,214,140,.18);color:#3DD68C}.sc-st.miss{background:rgba(255,107,107,.16);color:#FF6B6B}.sc-st.live{background:rgba(255,107,107,.16);color:#FF6B6B}.sc-st.sealed{background:rgba(242,193,78,.14);color:#F2C14E}
-.sc-leg{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06)}
-.sc-leg:first-of-type{border-top:0}
-.sc.sealedall .sc-l b{white-space:normal;font-size:15px}.sc.sealedall .sc-l small{white-space:normal}.sc-l{flex:1;min-width:0}.sc-l b{display:block;font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sc-l small{display:block;color:#A3AFBD;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sc-p{font:800 18px/1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#F4F7FA}
-.sc-leg.miss .sc-l b{color:#A3AFBD;text-decoration:line-through;text-decoration-color:rgba(255,107,107,.7)}
-.sc-i{width:22px;height:22px;flex:none;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:13px}
-.sc-i.open{box-shadow:inset 0 0 0 2px #A3AFBD}.sc-i.live{background:#FF6B6B;box-shadow:0 0 0 4px rgba(255,107,107,.2);animation:scb 1.4s infinite}.sc-i.hit{background:#3DD68C;color:#0A0F15}.sc-i.miss{background:#FF6B6B;color:#0A0F15}.sc-i.push{background:#A3AFBD;color:#0A0F15}
-.sc-vb{filter:blur(6px);user-select:none;pointer-events:none}.sc-i.sealed{background:rgba(242,193,78,.14)}.sc-i.sealed svg{width:13px;height:13px;stroke:#F2C14E;fill:none;stroke-width:2.4}
-@keyframes scb{50%{opacity:.35}}
-.sc-f{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 14px 12px;border-top:1px dashed rgba(255,255,255,.14)}
-.sc-f small{display:block;font-size:11px;font-weight:800;letter-spacing:1px;color:#A3AFBD}.sc-f b{font:800 22px/1.1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums}.sc-f div:last-child{text-align:right}.sc-f div:nth-child(2){text-align:center}
-.sc-f b.hit{color:#3DD68C}.sc-f b.miss{color:#FF6B6B}
-@media (prefers-reduced-motion:reduce){.sc-i.live{animation:none}}`;
-  const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
-  window.SlipCard = { html, norm };
+  // The Slips list filters: All, Open, Live, Settled.
+  function filter(slips, f) {
+    f = f || 'all'; return (slips || []).filter(p => { const s = norm(p); if (f === 'all') return true; if (f === 'settled') return s.status !== 'open'; const lv = isLive(s); return f === 'live' ? lv : s.status === 'open' && !lv; });
+  }
+  function chips(active, counts) {
+    active = active || 'all'; counts = counts || {};
+    return `<div class="sc-chips" role="tablist">${[['all', 'All'], ['open', 'Open'], ['live', 'Live'], ['settled', 'Settled']].map(([k, t]) => `<button type="button" role="tab" data-scf="${k}" class="${k === active ? 'on' : ''}" aria-selected="${k === active}">${t}${counts[k] != null ? ' · ' + counts[k] : ''}</button>`).join('')}</div>`;
+  }
+  // View legs / Hide legs: one listener for every card on the page.
+  if (typeof document !== 'undefined') document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.sc-tog'); if (!b) return; const c = b.closest('.sc'); if (!c) return; const o = c.classList.toggle('open'); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+  const CSS = `.sc{background:#141C26;border:1px solid rgba(255,255,255,.09);border-radius:20px;margin-top:10px;overflow:hidden;font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#F4F7FA;padding:4px 0 2px}
+.sc.hit{border-color:rgba(61,214,140,.45)}.sc.miss{border-color:rgba(255,107,107,.3)}.sc.live{border-color:rgba(255,107,107,.45)}
+.sc-hd{display:flex;align-items:center;gap:10px;padding:12px 14px 4px}
+.sc-t{flex:1;min-width:0}.sc-t b{display:block;font-size:17px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sc-t small{display:block;color:#A3AFBD;font-size:13px;margin-top:1px}
+.sc-ti{font:800 22px/1.1 "Barlow Condensed",-apple-system,sans-serif!important;letter-spacing:.2px}.sc-ti .sc-pr{color:#3DB8FF;margin-left:6px}
+.sc-sum{white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sc-rt{display:flex;flex-direction:column;align-items:flex-end;gap:5px}.sc-pr{font:800 20px/1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#3DB8FF}
+.sc-st{flex:none;font-size:13px;font-weight:800;letter-spacing:.4px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,.08);color:#A3AFBD}
+.sc-st.open{background:rgba(61,184,255,.14);color:#3DB8FF}.sc-st.hit{background:rgba(61,214,140,.18);color:#3DD68C}.sc-st.miss{background:rgba(255,107,107,.16);color:#FF6B6B}.sc-st.live{background:rgba(255,107,107,.16);color:#FF6B6B}.sc-st.sealed{background:rgba(242,193,78,.14);color:#F2C14E}
+.sc-m{padding:6px 14px 8px;color:#A3AFBD;font-size:15px}.sc-m b{font:800 20px/1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#F4F7FA;margin-left:3px}.sc-m b.hit{color:#3DD68C}.sc-m b.miss{color:#FF6B6B}
+.sc-mk{flex:none;width:40px;height:40px;display:grid;place-items:center}.sc-mk .tmk{filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}
+.sc-ou{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#1B2531;border:1px solid rgba(255,255,255,.12);font:800 17px/1 "Barlow Condensed",sans-serif;color:#C9D2DC}
+.sc-r{width:26px;height:26px;flex:none;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:14px;box-shadow:inset 0 0 0 2px #5E6A77}
+.sc-r.live{box-shadow:inset 0 0 0 2px #FF6B6B;animation:scb 1.4s infinite}.sc-r.hit{background:#3DD68C;color:#0A0F15;box-shadow:none}.sc-r.miss{background:#FF6B6B;color:#0A0F15;box-shadow:none}.sc-r.push{background:#A3AFBD;color:#0A0F15;box-shadow:none}
+.sc-r.sealed{background:rgba(242,193,78,.14);box-shadow:none}.sc-r.sealed svg{width:13px;height:13px;stroke:#F2C14E;fill:none;stroke-width:2.4}
+.sc-leg{display:flex;align-items:center;gap:10px;padding:10px 14px 6px}
+.sc-p{font:800 19px/1 "Barlow Condensed",-apple-system,sans-serif;font-variant-numeric:tabular-nums;color:#F4F7FA}
+.sc-leg.miss .sc-t b{color:#A3AFBD;text-decoration:line-through;text-decoration-color:rgba(255,107,107,.7)}
+.sc-g{display:flex;align-items:center;gap:7px;margin:4px 14px 8px 50px;padding:7px 10px;border-radius:12px;background:#1B2531;font-size:14px}
+.sc-g b{font:800 17px/1 "Barlow Condensed",sans-serif;letter-spacing:.3px}.sc-g em{font:800 19px/1 "Barlow Condensed",sans-serif;font-style:normal;font-variant-numeric:tabular-nums}
+.sc-gt,.sc-gl,.sc-gf{flex:1;text-align:center;color:#A3AFBD;font-weight:700;font-size:13px;white-space:nowrap}.sc-gl{color:#FF6B6B}
+.sc-sg{margin:10px 14px 0;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);font:800 16px/1 "Barlow Condensed",sans-serif;letter-spacing:.4px;color:#C9D2DC}
+.sc.par .sc-body{display:none;border-top:1px solid rgba(255,255,255,.07);margin-top:4px}.sc.par.open .sc-body{display:block}
+.sc-tog{display:block;margin:6px 14px 8px auto;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:none;color:#F4F7FA;font-weight:700;font-size:14px;cursor:pointer}
+.sc-tog .h{display:none}.sc.open .sc-tog .h{display:inline}.sc.open .sc-tog .v{display:none}.sc-tog .v::after{content:" \\25BE"}.sc-tog .h::after{content:" \\25B4"}
+.sc-ft{padding:0 14px 10px;color:#7F8B99;font-size:13px}
+.sc-vb{filter:blur(6px);user-select:none;pointer-events:none}
+.sc-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none;overscroll-behavior-x:contain}.sc-chips::-webkit-scrollbar{display:none}
+.sc-chips button{flex:none;min-height:38px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:none;color:#C9D2DC;font-weight:700;font-size:15px;cursor:pointer}.sc-chips button.on{background:#F4F7FA;color:#0A0F15;border-color:#F4F7FA}
+@keyframes scb{50%{opacity:.35}}@media (prefers-reduced-motion:reduce){.sc-r.live{animation:none}}`;
+  if (typeof document !== 'undefined') { const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); }
+  window.SlipCard = { html, norm, filter, chips, view };
 })();
