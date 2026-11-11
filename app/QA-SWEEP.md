@@ -99,7 +99,7 @@ The checks:
 
 | Page | Action | Result | Fixed in / open |
 |---|---|---|---|
-| All pages | Open with ?entered=0 | Signing in on load cleared the flag, so the view never held | Fixed in 32e12eb (the flag holds; Rush.entered() is false) |
+| All pages | Open with ?entered=0 | Signing in on load cleared the flag, so the view never held | Fixed in 32e12eb and 5159e28 (the flag holds on every page, live; Rush.entered() is false) |
 | Header | Visitor | The pill reads ENTER; a tap enters and the Stack counts up to 1,000 | OK (Gold, topbar t2) |
 | Tabs | Visitor | The Contest tab showed "#4" | Fixed in 32e12eb (no badge) |
 | Contest | Visitor | The week, 6 in, faces; rank, gap, Stack and the matchup blurred placeholders; the Field by name | Added in 32e12eb |
