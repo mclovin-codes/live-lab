@@ -56,6 +56,7 @@ It runs on taps, not talk. With 7 players the honest view has well over a hundre
 ## Unfinished or faked
 - The 6 other players are stand-ins with stand-in picks. In a real build they are the real entrants and their real sealed picks.
 - Reads are stored on this phone only. With a server, your opponent's reads of you would appear at kickoff; in ?field=7 that panel honestly reads 0.
+- Readability (how often the Field reads you right) is described on your profile but stays empty until other real players read you, which needs the server.
 - With the honest view off, the page fills the full stand-in Field and stand-in reads; that view is labelled in the page footer.
 - Props and anything without two clear sides are not readable yet.
 - The Slips page still groups picks under one contest heading (the week), and the Board still offers live picks from the shared app.
