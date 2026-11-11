@@ -24,7 +24,7 @@
   function homeSpread(g) {
     const L = g.line || {}, d = String(L.details || '');
     const m = d.match(/([A-Za-z]{2,5})\s*([-+]?\d+(?:\.\d+)?)/);
-    if (m) { const v = Math.abs(+m[2]); if (/^pk|even/i.test(d)) return 0; return m[1].toUpperCase() === String(g.home.abbr).toUpperCase() ? -v : v; }
+    if (m) { let v = Math.abs(+m[2]); if (/^pk|even/i.test(d)) return 0; if (v >= 50) { if (L.spread == null) return null; v = Math.abs(+L.spread); } /* hockey and baseball details carry the moneyline favourite: the line comes from spread */ return m[1].toUpperCase() === String(g.home.abbr).toUpperCase() ? -v : v; }
     return L.spread != null ? +L.spread : null;
   }
   const mark = (g, t) => window.TeamMark ? TeamMark.svg(g.league, t, 38) : `<span class="rgc-dot">${esc(t.abbr)}</span>`;
