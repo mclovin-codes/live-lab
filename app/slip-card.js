@@ -38,7 +38,7 @@
     return hit ? { num: hit.jersey, team: g[hit.side] } : null;
   }
   function selName(l) { try { if (window.Rush && Rush.selName) return Rush.selName(l) || null; } catch (e) {} return null; }
-  function mkName(l) { try { if (window.Rush && Rush.mktName) { const n = Rush.mktName(l); if (n) return n; } } catch (e) {} return null; }
+  function mkName(l) { try { if (window.Rush && Rush.mktName) { const n = String(Rush.mktName(l) || ''); if (n) return n[0].toUpperCase() + n.slice(1); } } catch (e) {} return null; }
   // Short name, market and mark for one leg.
   function view(l) {
     const g = l.g, k = kindOf(l), s = sideOf(l), line = l.line != null && l.line !== 'null' ? +l.line : null;
@@ -100,7 +100,7 @@
       : `<div class="sc-m">Stake <b>${fmt(s.stake)}</b> · ${paysWord} <b class="${s.status === 'hit' ? 'sm-hit' : s.status === 'miss' ? 'sm-miss' : ''}">${s.status === 'miss' ? '0' : fmt(s.status === 'hit' && s.paid != null ? s.paid : s.toPay)}</b></div>`;
     const placed = s.at && !opts.sealed ? `<div class="sc-ft">Placed ${esc(when(s.at))}</div>` : '';
     const priceTxt = anySealed ? '' : `<span class="sc-pr">${esc(am(s.price))}</span>`;
-    const cls = `sc rsc ${vis || anySealed ? 'sc-x-sealed' : 'sc-x-' + s.status}${!vis && !anySealed && live ? ' sc-x-live' : ''}${parlay ? ' sc-x-par' : ''}${opts.open ? ' sc-x-open' : ''}`;
+    const cls = `sc rsc ${vis || anySealed ? 'sc-x-sealed' : 'sc-x-' + s.status}${!vis && !anySealed && live ? ' sc-x-live' : ''}${parlay ? ' sc-x-par' : ''}${opts.open ? ' sc-xp' : ''}`;
     // A straight: the selection is the title, with its mark; the game strip under it.
     if (!parlay) {
       const l = s.legs[0], v = V[0];
@@ -131,7 +131,7 @@
     return `<div class="sc-chips" role="tablist">${[['all', 'All'], ['open', 'Open'], ['live', 'Live'], ['settled', 'Settled']].map(([k, t]) => `<button type="button" role="tab" data-scf="${k}" class="${k === active ? 'on' : ''}" aria-selected="${k === active}">${t}${counts[k] != null ? ' · ' + counts[k] : ''}</button>`).join('')}</div>`;
   }
   // View legs / Hide legs: one listener for every card on the page.
-  if (typeof document !== 'undefined') document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.sc-tog'); if (!b) return; const c = b.closest('.sc'); if (!c) return; const o = c.classList.toggle('sc-x-open'); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+  if (typeof document !== 'undefined') document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.sc-tog'); if (!b) return; const c = b.closest('.sc'); if (!c) return; const o = c.classList.toggle('sc-xp'); b.setAttribute('aria-expanded', o ? 'true' : 'false'); });
   const CSS = `div.sc.rsc{display:block;position:static;gap:0;text-decoration:none;background:#141C26;border:1px solid rgba(255,255,255,.09);border-radius:20px;margin-top:10px;overflow:hidden;font:400 15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#F4F7FA;padding:4px 0 2px}
 .sc.sc-x-hit{border-color:rgba(61,214,140,.45)}.sc.sc-x-miss{border-color:rgba(255,107,107,.3)}.sc.sc-x-live{border-color:rgba(255,107,107,.45)}
 .sc-hd{display:flex;align-items:center;gap:10px;padding:12px 14px 4px}
@@ -154,9 +154,9 @@
 .sc-g b{font:800 17px/1 "Barlow Condensed",sans-serif;letter-spacing:.3px}.sc-g em{font:800 19px/1 "Barlow Condensed",sans-serif;font-style:normal;font-variant-numeric:tabular-nums}
 .sc-gt,.sc-gl,.sc-gf{flex:1;text-align:center;color:#A3AFBD;font-weight:700;font-size:13px;white-space:nowrap}.sc-gl{color:#FF6B6B}
 .sc-sg{margin:10px 14px 0;padding-top:10px;border-top:1px solid rgba(255,255,255,.07);font:800 16px/1 "Barlow Condensed",sans-serif;letter-spacing:.4px;color:#C9D2DC}
-.sc.sc-x-par .sc-body{display:none;border-top:1px solid rgba(255,255,255,.07);margin-top:4px}.sc.sc-x-par.sc-x-open .sc-body{display:block}
+.sc.sc-x-par .sc-body{display:none;border-top:1px solid rgba(255,255,255,.07);margin-top:4px}.sc.sc-x-par.sc-xp .sc-body{display:block}
 .sc-tog{display:block;margin:6px 14px 8px auto;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:none;color:#F4F7FA;font-weight:700;font-size:14px;cursor:pointer}
-.sc-tog .h{display:none}.sc.sc-x-open .sc-tog .h{display:inline}.sc.sc-x-open .sc-tog .v{display:none}.sc-tog .v::after{content:" \\25BE"}.sc-tog .h::after{content:" \\25B4"}
+.sc-tog .h{display:none}.sc.sc-xp .sc-tog .h{display:inline}.sc.sc-xp .sc-tog .v{display:none}.sc-tog .v::after{content:" \\25BE"}.sc-tog .h::after{content:" \\25B4"}
 .sc-ft{padding:0 14px 10px;color:#7F8B99;font-size:13px}
 .sc-vb{filter:blur(6px);user-select:none;pointer-events:none}
 .sc-chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none;overscroll-behavior-x:contain}.sc-chips::-webkit-scrollbar{display:none}
