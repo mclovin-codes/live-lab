@@ -54,11 +54,18 @@
 
   /* ---------- events: Blue's source first, else derived ---------- */
   function events(F) {
-    if (window.Rush && typeof Rush.events === 'function') { try { const T = { sealed: 'sealed', reveal: 'revealed', settled: 'settled', rank: 'rank', lead: 'matchup', play: 'play' };
-      const ev = (Rush.events() || []).map(e => { const p0 = (e.players || [])[0] || {}, r = F.list.find(x => String(x.id) === String(p0.id)) || (p0.name ? { id: p0.id, name: p0.name } : null), g = games.find(x => String(x.id) === String(e.gameId)) || null;
-        return { type: T[e.type] || e.type, at: e.at, r, g, side: e.side || p0.side, text: e.text, p: { stake: p0.stake, label: p0.label || e.side || '', status: p0.result === 'won' || p0.result === 'lost' ? p0.result : e.result, win: p0.change, t: e.id }, from: e.from, to: e.to, lead: e.lead, src: 1 }; })
-        .filter(e => e.type === 'play' ? e.g : (e.r && (e.type === 'rank' || e.type === 'matchup' || e.g)));
-      if (ev.length) return ev.concat(BIG).sort((a, b) => b.at - a.at).slice(0, 40); } catch (e) {} }
+    if (window.Rush && typeof Rush.events === 'function') { try {
+      const SIDE = (g, sd) => !g || !sd ? null : sd === 'home' ? g.home.abbr : sd === 'away' ? g.away.abbr : sd === 'over' ? 'Over' : sd === 'under' ? 'Under' : sd;
+      const who = p => F.list.find(x => p.me ? x.me : String(x.id) === String(p.id)) || null;
+      const ev = [];
+      (Rush.events() || []).forEach(e => { const g = games.find(x => String(x.id) === String(e.gameId)) || null, ps = e.players || [];
+        if (e.type === 'sealed') ps.forEach(p => { const r = who(p); if (r && g) ev.push({ type: 'sealed', at: e.at, r, g, src: 1 }); });
+        else if (e.type === 'reveal') ps.forEach(p => { const r = who(p); if (r && g) ev.push({ type: 'revealed', at: e.at, r, g, side: SIDE(g, p.side), p: { stake: p.stake, label: p.label || '', t: e.id + p.id }, src: 1 }); });
+        else if (e.type === 'settled') ps.forEach(p => { const r = who(p); if (r && g && (p.result === 'won' || p.result === 'lost')) ev.push({ type: 'settled', at: e.at, r, g, p: { stake: p.stake, label: p.label || '', status: p.result, win: p.change, t: e.id + p.id }, src: 1 }); });
+        else if (e.type === 'rank') ps.forEach(p => { const r = who(p); if (r && !r.me && p.from && p.to) ev.push({ type: 'rank', at: e.at, r, from: p.from, to: p.to, src: 1 }); });
+        else if (e.type === 'lead' && ps.length >= 2) { const lead = ps[0], other = ps[1], rv = who(lead.me ? other : lead); if (rv) ev.push({ type: 'matchup', at: e.at, r: rv, lead: (lead.me ? -1 : 1) * Math.abs((lead.stack || 0) - (other.stack || 0)), src: 1 }); }
+        else if (e.type === 'live' && g && e.text) ev.push({ type: 'play', at: e.at, g, text: e.text, src: 1 }); });
+      if (ev.length) return ev.concat(BIG).sort((a, b) => b.at - a.at).slice(0, 60); } catch (e) {} }
     const out = [], now = Date.now();
     F.list.forEach(r => picksOf(r).forEach(p => {
       const g = p.g; if (!g) return;
@@ -76,8 +83,8 @@
   }
   /* one sealed card per player: who sealed, on which games; the matchup opponent's events lead */
   function group(list, F) {
-    const seal = {}, out = [];
-    list.forEach(e => { if (e.type === 'sealed' && e.r) { const k = e.r.id; if (!seal[k]) { seal[k] = { type: 'sealed', r: e.r, at: e.at, gs: [], g: e.g, p: e.p }; out.push(seal[k]); } const s0 = seal[k]; if (e.g && !s0.gs.some(g => g.id === e.g.id)) s0.gs.push(e.g); s0.at = Math.max(s0.at, e.at); } else out.push(e); });
+    const seal = {}, out = [], liveSeen = {};
+    list.forEach(e => { if (e.type === 'play' && e.src) { if (liveSeen[e.g.id]) return; liveSeen[e.g.id] = 1; } if (e.type === 'sealed' && e.r) { const k = e.r.id; if (!seal[k]) { seal[k] = { type: 'sealed', r: e.r, at: e.at, gs: [], g: e.g, p: e.p }; out.push(seal[k]); } const s0 = seal[k]; if (e.g && !s0.gs.some(g => g.id === e.g.id)) s0.gs.push(e.g); s0.at = Math.max(s0.at, e.at); } else out.push(e); });
     out.forEach(e => { if (e.gs) e.gs.sort((a, b) => a.date - b.date); });
     const riv = F.riv && F.riv.id, day = 864e5;
     return out.sort((a, b) => ((b.r && b.r.id === riv && Date.now() - b.at < day) - (a.r && a.r.id === riv && Date.now() - a.at < day)) || b.at - a.at).slice(0, 30);
@@ -115,7 +122,7 @@
     /* the games the Field holds tonight and tomorrow */
     const held = {}; F.list.forEach(r => picksOf(r).forEach(p => { if (p.g && now - p.g.date < 5 * 36e5 && p.g.date - now < 36 * 36e5) held[p.g.league + ':' + p.g.id] = p.g; }));
     const gs = Object.values(held).sort((a, b) => (a.state === 'in' ? -1 : 0) - (b.state === 'in' ? -1 : 0) || a.date - b.date);
-    let g0 = focus ? gs.find(g => g.league + ':' + g.id === focus) : null;
+    let g0 = focus ? gs.find(g => g.league + ':' + g.id === focus || String(g.id) === focus) || null : null;
     if (!g0) g0 = gs.filter(g => g.state === 'in').sort((a, b) => onGame(b, F).length - onGame(a, F).length)[0] || gs.find(g => !isStarted(g));
     let h = `<div class="lg-top"><h1>Lounge</h1><span>${honest() ? '7 players' : F.list.length + ' in the Field'}</span></div>`;
     /* the field in faces, ranked by Stack (1 to 7 in the honest view) */
@@ -140,7 +147,7 @@
     const next = gs.filter(g => !isStarted(g)).sort((a, b) => a.date - b.date)[0];
     if (next && next !== g0) h += `<button class="lg-next" data-g="${esc(next.league + ':' + next.id)}"><span><small>NEXT SEAL BREAKS</small><b>${esc(gname(next))}</b></span><b data-k="${+next.date}">${clock(+next.date - now)}</b></button>`;
     /* sent to you */
-    const inbox = ls('rush-lounge-inbox-v1', []);
+    const inbox = ls('rush-lounge-inbox-v1', []).filter(m => !(honest() && m.gen));
     h += `<div class="lg-sh"><h2>Sent to you</h2></div>${inbox.length ? inbox.slice(-4).reverse().map(m => `<div class="lg-ev">${av(m.who, 36)}<div><b>${esc(m.who)}: ${esc(m.text)}</b><small>${esc(m.about || '')}</small>${m.ans ? `<div class="lg-sent"><span>You: ${esc(m.ans)}</span></div>` : `<div class="lg-acts"><button data-reply="${esc(m.id)}">${esc(ANSWER[m.k] || 'Thanks')}</button></div>`}</div></div>`).join('') : `<div class="lg-empty">${honest() ? 'Nothing yet. When a player taps you, it lands here and you answer in one tap.' : 'Nothing yet.'}</div>`}`;
     /* the Field's week moving */
     const ev = group(events(F), F);
@@ -177,7 +184,7 @@
   document.addEventListener('submit', e => { const f = e.target.closest('[data-say]'); if (!f) return; e.preventDefault(); const i = f.querySelector('input'), v = (i.value || '').trim(); if (!v) return; const T = ls('rush-lounge-talk-v1', {}); (T[f.dataset.say] = T[f.dataset.say] || []).push({ who: 'You', text: v.slice(0, 120), at: Date.now() }); lsSet('rush-lounge-talk-v1', T); talkOpen = null; render(); });
 
   /* full stand-in view only: now and then a stand-in taps you, so the "Sent to you" answer loop can be tried */
-  function standIns() { if (honest()) return; const I = ls('rush-lounge-inbox-v1', []); if (I.length && Date.now() - I[I.length - 1].at < 10 * 60e3) return; const F = field(), r = F.riv || F.list.find(x => !x.me); if (!r) return; const opts = [['yourmove', 'Your move'], ['watching', 'Watching your picks'], ['coming', 'Coming for you']], o = opts[Math.floor(h01(r.id + Date.now() / 6e5) * opts.length)]; I.push({ id: String(Date.now()), who: r.name, k: o[0] === 'yourmove' ? 'yourmove' : o[0], text: o[1], about: F.riv && r.id === F.riv.id ? 'Your matchup' : '', at: Date.now() }); lsSet('rush-lounge-inbox-v1', I.slice(-20)); render(); }
+  function standIns() { if (honest()) return; const I = ls('rush-lounge-inbox-v1', []); if (I.length && Date.now() - I[I.length - 1].at < 10 * 60e3) return; const F = field(), r = F.riv || F.list.find(x => !x.me); if (!r) return; const opts = [['yourmove', 'Your move'], ['watching', 'Watching your picks'], ['coming', 'Coming for you']], o = opts[Math.floor(h01(r.id + Date.now() / 6e5) * opts.length)]; I.push({ gen: 1, id: String(Date.now()), who: r.name, k: o[0] === 'yourmove' ? 'yourmove' : o[0], text: o[1], about: F.riv && r.id === F.riv.id ? 'Your matchup' : '', at: Date.now() }); lsSet('rush-lounge-inbox-v1', I.slice(-20)); render(); }
 
   /* the clock: countdowns tick, and when a kickoff passes with the page open the seal breaks in front of you */
   setInterval(() => { const n = Date.now(); let hit = 0; document.querySelectorAll('[data-k]').forEach(el => { const k = +el.dataset.k; if (k > n) el.textContent = clock(k - n); else if (k > n - 5000) hit = k; }); if (hit && (!BROKE || BROKE.k !== hit)) { BROKE = { k: hit }; render(); scrollTo({ top: 0, behavior: 'smooth' }); } }, 1000);
