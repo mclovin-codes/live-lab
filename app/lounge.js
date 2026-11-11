@@ -25,7 +25,7 @@
   const prof = (r, inner) => `<a class="lg-p" href="player.html?u=${encodeURIComponent(r.me ? 'me' : r.id)}">${inner}</a>`;
   const ringOf = (r, F) => r.me ? 'me' : F.riv && r.id === F.riv.id ? 'riv' : '';
   const gameUrl = g => `game.html?league=${encodeURIComponent(g.league)}&id=${encodeURIComponent(g.id)}`;
-  let STICK = true;
+  let STICK = true, PINNED = null;
   let games = (window.RW && RW.cached && RW.cached()) || [], BROKE = null, EARLIER = false, OPEN = new Set(), TRAY = null, REPLY = null, firstPaint = true;
   const Q = new URLSearchParams(location.search); let focus = Q.get('g') || null;
 
@@ -99,7 +99,8 @@
     const held = {}; F.list.forEach(r => picksOf(r).forEach(p => { if (p.g && now - p.g.date < 5 * 36e5 && p.g.date - now < 30 * 36e5 && p.g.state !== 'post') held[p.g.league + ':' + p.g.id] = p.g; }));
     let gs = Object.values(held).sort((a, b) => ((b.state === 'in') - (a.state === 'in')) || (onGame(b, F).length - onGame(a, F).length) || a.date - b.date);
     if (focus) { const i = gs.findIndex(g => g.league + ':' + g.id === focus || String(g.id) === focus); if (i > 0) gs.unshift(gs.splice(i, 1)[0]); }
-    gs = gs.slice(0, 6);
+    gs = gs.slice(0, 6); PINNED = gs[0] ? gname(gs[0]) : null;
+    { const ci = document.querySelector('#lg-say input'); if (ci && !REPLY) ci.placeholder = PINNED ? 'Say something about ' + PINNED : 'Say something to the Field'; }
     const next = Object.values(held).filter(g => !isStarted(g)).sort((a, b) => a.date - b.date)[0];
     h += `<div class="lg-games" id="lg-games">${gs.map(g => { const on = onGame(g, F), started = isStarted(g), ms = mySide(g), sides = {}; on.forEach(x => { (sides[x.side || '?'] = sides[x.side || '?'] || []).push(x); });
       const face = x => prof(x.r, av(x.r.name, 24, ringOf(x.r, F)));
@@ -124,7 +125,7 @@
   }
   function row(r, F, mySide, seen) {
     const fresh = r.at > seen && Date.now() - r.at < 15 * 60e3, b = badge(r.key, F), tb = TRAY === r.key ? tray(r.key) : '';
-    if (r.t === 'talk') { const m = r.m; return `<div class="lg-msg${m.mine ? ' me' : ''}" data-row="${esc(r.key)}" data-who="${esc(m.who)}" data-txt="${esc(m.text)}">${m.mine ? '' : av(m.who, 28)}<div class="lg-bub">${m.quote ? `<q>${esc(m.quote)}</q>` : ''}${esc(m.text)}${b}</div><time>${ago(m.at)}</time>${tb}</div>`; }
+    if (r.t === 'talk') { const m = r.m; return `<div class="lg-msg${m.mine ? ' me' : ''}" data-row="${esc(r.key)}" data-who="${esc(m.who)}" data-txt="${esc(m.text)}">${m.mine ? '' : av(m.who, 28)}<div class="lg-bub">${m.quote ? `<q>${esc(m.quote)}</q>` : ''}${m.game ? `<i class="lg-on-g">on ${esc(m.game)}</i>` : ''}${esc(m.text)}${b}</div><time>${ago(m.at)}</time>${tb}</div>`; }
     if (r.t === 'sealed') { const n = r.gs.length; return `<div class="lg-sys" data-row="${esc(r.key)}" data-who="${esc(r.r.me ? 'You' : r.r.name)}" data-txt="sealed ${n === 1 ? 'a pick' : n + ' picks'}">${prof(r.r, av(r.r.name, 30, ringOf(r.r, F)))}<span><b>${esc(r.r.me ? 'You' : r.r.name.split(' ')[0])} sealed ${n === 1 ? 'a pick' : n + ' picks'}</b><small>${esc(r.gs.slice(0, 3).map(gname).join(', '))}${n > 3 ? ' +' + (n - 3) : ''}</small></span><time>${ago(r.at)}</time>${b}${tb}</div>`; }
     if (r.t === 'reveal') { const g = r.g, ms = mySide(g), ring = x => x.r.me ? 'me' : ms ? (opposite(ms, x.side, g) ? 'vs' : ms === x.side ? 'with' : '') : '';
       return `<div class="lg-sys lg-rvrow" data-row="${esc(r.key)}" data-who="${esc(gname(g))}" data-txt="seal broken">${''}<a class="lg-rvl" href="${gameUrl(g)}"><span><small>SEAL BROKEN</small><b>${esc(gname(g))}</b> ${g.state === 'in' || g.state === 'post' ? `<em>${esc(g.away.score)}-${esc(g.home.score)}</em>` : ''}</span><span class="lg-row">${r.rows.slice(0, 7).map(x => av(x.r.name, 24, ring(x))).join('')}</span></a><time>${ago(r.at)}</time>${b}${tb}</div>`; }
@@ -157,13 +158,17 @@
   /* ---------- taps ---------- */
   let lastTap = { k: null, t: 0 }, press = null;
   const rowOf = t => t.closest('[data-row]');
-  document.addEventListener('pointerdown', e => { const r = rowOf(e.target); if (!r || e.target.closest('a,button,input')) return; press = setTimeout(() => { TRAY = r.dataset.row; render(); }, 450); });
+  document.addEventListener('pointerdown', e => { const r = rowOf(e.target); if (!r || e.target.closest('a,input,.lg-tray,[data-scope],[data-x]')) return; press = setTimeout(() => { TRAY = r.dataset.row; render(); }, 450); });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => document.addEventListener(ev, () => clearTimeout(press)));
   document.addEventListener('click', e => {
     const t = e.target;
     const tp = t.closest('[data-tap]'); if (tp) { const T = ls(TK, {}); const v = TAPS[+tp.dataset.tap], r = document.querySelector(`[data-row="${CSS.escape(tp.dataset.k)}"]`); if (T[tp.dataset.k] && (T[tp.dataset.k].emoji || T[tp.dataset.k]) === v) delete T[tp.dataset.k]; else T[tp.dataset.k] = { emoji: v, to: r ? r.dataset.who : '', at: Date.now() }; lsSet(TK, T); TRAY = null; render(); return; }
     const rp = t.closest('[data-replyto]'); if (rp) { const r = document.querySelector(`[data-row="${CSS.escape(rp.dataset.replyto)}"]`); REPLY = { who: r ? r.dataset.who : '', text: r ? r.dataset.txt : '' }; TRAY = null; render(); const i = document.querySelector('#lg-say input'); if (i) i.focus(); return; }
-    const op = t.closest('[data-open]'); if (op) { const k = op.dataset.open; OPEN.has(k) ? OPEN.delete(k) : OPEN.add(k); render(); return; }
+    const op = t.closest('[data-open]'); if (op) { const r0 = rowOf(op), now0 = Date.now();
+      /* a second tap on a folded row is the double-tap: undo the open, show the tray */
+      if (r0 && lastTap.k === r0.dataset.row && now0 - lastTap.t < 350) { const k = op.dataset.open; OPEN.has(k) ? OPEN.delete(k) : OPEN.add(k); TRAY = r0.dataset.row; lastTap = { k: null, t: 0 }; render(); return; }
+      if (r0) lastTap = { k: r0.dataset.row, t: now0 };
+      const k = op.dataset.open; OPEN.has(k) ? OPEN.delete(k) : OPEN.add(k); render(); return; }
     const sc = t.closest('[data-scope]'); if (sc) { try { localStorage.setItem(SCOPE, sc.dataset.scope); } catch (z) {} render(); return; }
     const g = t.closest('[data-g]'); if (g) { focus = g.dataset.g; render(); const s = $('lg-games'); if (s) s.scrollTo({ left: 0, behavior: 'smooth' }); return; }
     const x = t.closest('[data-x]'); if (x) { const v = x.dataset.x; if (v === 'sb') BROKE = null; if (v === 'more') EARLIER = true; if (v === 'noreply') REPLY = null; render(); return; }
@@ -171,7 +176,7 @@
     const r = rowOf(t); if (r && !t.closest('a')) { const now = Date.now(); if (lastTap.k === r.dataset.row && now - lastTap.t < 350) { TRAY = r.dataset.row; render(); lastTap = { k: null, t: 0 }; return; } lastTap = { k: r.dataset.row, t: now }; }
     if (TRAY && !t.closest('.lg-tray')) { TRAY = null; render(); }
   });
-  document.addEventListener('submit', e => { if (!e.target.closest('#lg-say')) return; e.preventDefault(); const i = e.target.querySelector('input'), v = (i.value || '').trim(); if (!v) return; const L = ls(TALK, []); L.push({ id: String(Date.now()), mine: 1, who: 'You', text: v.slice(0, 160), quote: REPLY ? REPLY.who + ': ' + REPLY.text : '', at: Date.now() }); lsSet(TALK, L.slice(-60)); i.value = ''; REPLY = null; render(); STICK = true; requestAnimationFrame(() => { const R1 = $('lg-room'); if (R1) R1.scrollTop = R1.scrollHeight; }); });
+  document.addEventListener('submit', e => { if (!e.target.closest('#lg-say')) return; e.preventDefault(); const i = e.target.querySelector('input'), v = (i.value || '').trim(); if (!v) return; const L = ls(TALK, []); L.push({ id: String(Date.now()), mine: 1, who: 'You', text: v.slice(0, 160), quote: REPLY ? REPLY.who + ': ' + REPLY.text : '', game: REPLY ? '' : (PINNED || ''), at: Date.now() }); lsSet(TALK, L.slice(-60)); i.value = ''; REPLY = null; render(); STICK = true; requestAnimationFrame(() => { const R1 = $('lg-room'); if (R1) R1.scrollTop = R1.scrollHeight; }); });
   /* the swipe dots follow the game card in view */
   document.addEventListener('scroll', e => { const s = e.target; if (s && s.id === 'lg-room') STICK = s.scrollHeight - s.scrollTop - s.clientHeight < 40; if (s && s.id === 'lg-games') { const i = Math.round(s.scrollLeft / s.clientWidth); document.querySelectorAll('.lg-dots i').forEach((d, j) => d.classList.toggle('on', i === j)); } }, true);
   window.addEventListener('resize', dock);
