@@ -34,7 +34,7 @@ body{background:var(--bg);color:var(--tx)}
 .empty{color:var(--mute);text-align:center;padding:16px 8px;font-size:15px}
 .lnk{background:none;border:0;color:var(--mute);font:700 14px -apple-system,sans-serif;cursor:pointer;padding:6px}
 </style></head>
-<body data-tab="me"><script>if(/[?&]u=(?!meb)/.test(location.search))document.body.dataset.tab="contest"</script>
+<body data-tab="me"><script>(function(){var u=new URLSearchParams(location.search).get("u");if(u&&u!=="me")document.body.dataset.tab="contest"})()</script>
 <div id="app" class="p-wrap"></div>
 <script src="shared/state.js?v=r614"></script><script src="week-games.js?v=r614"></script><script src="honest.js?v=g615"></script><script src="shared/nav.js?v=r614"></script><script src="shared/events.js?v=r614"></script><script src="gold-ui.js?v=g615"></script>
 <script>
@@ -81,7 +81,7 @@ function render(){
   }else{
     // Your Slips live here and in the Stack sheet: open first, then settled.
     const all=GU.mine(),open=all.filter(p=>p.status==='open'),done=all.filter(p=>p.status!=='open');
-    h+=`<div class="p-lbl" id="slips">Your Slips <a href="board.html">Board</a></div><div class="seg"><button data-t="open" class="${tab==='open'?'on':''}">Open · ${open.length}</button><button data-t="done" class="${tab==='done'?'on':''}">Settled · ${done.length}</button></div>`;
+    h+=`<div class="p-lbl" id="slips">Your Slips <a href="slips.html">All Slips and parlays</a></div><div class="seg"><button data-t="open" class="${tab==='open'?'on':''}">Open · ${open.length}</button><button data-t="done" class="${tab==='done'?'on':''}">Settled · ${done.length}</button></div>`;
     h+=(tab==='open'?open:done).map(myLine).join('')||`<div class="empty">${tab==='open'?'No open Slips. Make a pick on the Board.':'Nothing settled yet this week.'}</div>`;
     const op=GU.opponent();
     if(op)h+=`<div class="p-lbl">Your matchup</div><a class="p-card" style="display:flex;align-items:center;gap:12px" href="${GU.prof(op)}">${GU.av(op,44,1)}<div style="flex:1;font-weight:700">${E(op.name)}<div style="color:var(--mute);font-weight:500;font-size:14px">${F(op.stack)} Stack · #${op.rank}</div></div><span style="color:var(--acc);font-weight:800">Profile ›</span></a>`;
