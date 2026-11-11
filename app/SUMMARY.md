@@ -235,28 +235,34 @@ Home opens on the weekly contest, in this order:
 ## What came from each team
 
 - **Blue:** the shell, from its Phase 4 build:
-  - the five tabs, the top bar and the Stack sheet;
+  - the five tabs, the shell that draws the top bar, and the Stack sheet;
   - one Stack figure everywhere;
-  - the Contest tab, the Board and the game page;
+  - the Contest tab (two equal panels) and the game page;
   - the event source;
   - the honest 7-player store;
   - the pinned matchup;
   - pregame lines kept after kickoff, so revealed picks stay the same picks;
   - the Phase 3 and multi-contest cleanup;
   - the one Slip and its bar;
-  - the circle in the store, and its switch on the Contest tab.
+  - the circle in the store, and its switch on the Contest tab;
+  - real Slips for every player (straights, props, parlays), the seal per leg, and grading;
+  - one rank rule (unique ranks) and one lead figure;
+  - QA-SWEEP.md and this summary.
 - **Red:** the Lounge, rebuilt as one screen:
   - the matchup and faces;
   - the live game card with you and against you;
   - Seal broken, live;
   - the room with tapbacks and replies;
-  - the circle filter.
+  - the circle filter;
+  - the Board, rebuilt after the iOS app, with the lag fixed.
 - **Gold:**
   - Home's contest card, On tonight, the matchup tug bar and The Field right now;
   - every profile, with Block and Report;
   - where Slips live;
   - the palette and type;
-  - the honest-view toggle in every footer.
+  - the honest-view toggle in every footer;
+  - the top bar with the live Stack pill, the preset faces, and the drawn team marks that replace logos and photos;
+  - the one Slip card.
 
 ## The sweep (the founder's 11:20 PM note)
 
