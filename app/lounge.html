@@ -83,6 +83,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 .lg-flip{cursor:pointer}.lg-flip small{display:block}.lg-px{font-style:normal;color:var(--lg-acc);font-weight:900;margin-left:4px}.lg-sb{position:fixed;left:12px;right:12px;top:calc(84px + env(safe-area-inset-top,0px));z-index:45;max-width:600px;margin:0 auto!important;max-height:62vh;overflow-y:auto;box-shadow:inset 0 0 0 1.5px var(--lg-warn),0 18px 48px rgba(0,0,0,.6);background:linear-gradient(160deg,#3A2A0A,#141C26 60%) #141C26;animation:lgup .25s ease}
 .lg-gside .lg-row{flex-wrap:nowrap;overflow:hidden}.lg-gside.st{flex-direction:column;align-items:flex-start!important;gap:3px!important}
 .lg-shut{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:5px 12px;border:0;border-radius:999px;background:rgba(255,255,255,.08);color:var(--lg-mut);font:800 12px var(--lg-f);cursor:pointer}.lg-shut::before{content:'';width:7px;height:7px;border-left:2px solid currentColor;border-top:2px solid currentColor;transform:translateY(2px) rotate(45deg)}.lg-shut.wide{display:flex;justify-content:center;width:100%;margin:4px 0 8px}
+/* the shared header names the page: the heading stays for screen readers, the switch takes the row */
+.lg-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.lg-top .lg-scope{flex:1;display:flex}.lg-top .lg-scope button{flex:1}
 @media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-sc strong.tick,.lg-face em.bump,.lg-face b.flash{animation:none}.lg-face{transition:none!important}}
 </style>
 </head>
@@ -92,9 +94,9 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 <script src="shared/state.js?v=f1104"></script>
 <script src="week-games.js?v=f1104"></script>
 <script src="honest.js"></script>
-<script src="shared/nav.js?v=f1104"></script>
+<script src="shared/nav.js?v=f1105"></script>
 <script src="shared/events.js?v=f1104"></script>
 <script src="slip-card.js?v=s4"></script>
-<script src="lounge.js?v=l1127"></script>
+<script src="lounge.js?v=l1128"></script>
 </body>
 </html>

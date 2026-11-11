@@ -105,7 +105,7 @@
     const FF = field(), C = circleIds(), CIRCLE = circleOn(), now = Date.now();
     const F = CIRCLE ? { list: FF.list.filter(r => r.me || C.has(String(r.id))), me: FF.me, riv: FF.riv && C.has(String(FF.riv.id)) ? FF.riv : null } : FF;
     const mine = FF.me ? picksOf(FF.me) : [], mySide = g => { for (const p of mine) { const l = legsOf(p).find(x => String(x.gameId) === String(g.id)); if (l) return sideOf(l); } return null; };
-    let h = `<div class="lg-top"><h1>Lounge</h1><div class="lg-scope"><button class="${CIRCLE ? '' : 'on'}" data-scope="field">The Field</button><button class="${CIRCLE ? 'on' : ''}" data-scope="circle">My circle</button></div></div>`;
+    let h = `<div class="lg-top"><h1 class="lg-sr">Lounge</h1><div class="lg-scope"><button class="${CIRCLE ? '' : 'on'}" data-scope="field">The Field</button><button class="${CIRCLE ? 'on' : ''}" data-scope="circle">My circle</button></div></div>`;
     /* your matchup: Blue's one lead figure */
     let M = null; try { M = (window.Rush && typeof Rush.matchup === 'function') ? Rush.matchup() : null; } catch (e) {}
     if (!M && FF.riv && FF.me) M = { me: { name: FF.me.name, stack: stk(FF.me) }, opp: { name: FF.riv.name, stack: stk(FF.riv) }, lead: stk(FF.me) - stk(FF.riv) };
