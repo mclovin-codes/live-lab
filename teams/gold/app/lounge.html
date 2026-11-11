@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Reads · Rush</title><meta name="theme-color" content="#0A0F15">
+<title>Sealbreak · Rush</title><meta name="theme-color" content="#0A0F15">
 <style>
 .rd-hero{background:linear-gradient(160deg,#2A2150 0%,#141C26 65%);border:1px solid rgba(155,140,255,.35)}
 .rd-hero .rec{display:flex;align-items:baseline;gap:10px;margin-top:8px}
@@ -42,12 +42,12 @@ function card(x,rival){
   let h=`<div class="seal${rival?' rival':''}"><div class="hd">${G.av(p,40)}<div class="nm">${G.nameLink(p)}<small>${rival?'Your matchup · ':''}#${p.rank} · ${G.fmt(p.stack)} Stack</small></div>${open?`<span class="chip">SEALED</span>`:`<span class="chip ${g.state==='in'?'live':''}">${g.state==='in'?'LIVE':g.done?'FINAL':'KICKED OFF'}</span>`}</div>
    <div class="gm"><b>${G.esc(g.away.abbr)} at ${G.esc(g.home.abbr)}</b><span>${open?'One sealed pick':G.esc(x.market||'Pick')}<br>${open?'kicks off in '+G.until(g.date):when(g.date)}</span></div>`;
   if(open){
-    h+=`<div class="face">${LOCK}<span>Side sealed until kickoff</span><em>${G.fmt(x.stake)} staked · ${Math.max(1,Math.round(x.stake/10))}% of 1,000</em></div>`;
+    h+=`<div class="face">${LOCK}<span>Sealed until kickoff</span><em>Side and stake</em></div>`;
     h+=`<div class="call">${sides.map(s=>`<button data-k="${G.esc(k)}" data-s="${s.v}" class="${rd?(rd.side===s.v?'on':'off'):''}">${G.esc(s.t)}</button>`).join('')}</div>`;
-    h+=rd?(rd.line?`<div class="face" style="background:var(--card2);color:var(--tx)">“${G.esc(rd.line)}”<em style="color:var(--mute);font-size:12px">opens at kickoff</em></div>`:`<form class="ln" data-lk="${G.esc(k)}" style="display:flex;gap:8px;margin-top:8px"><input maxlength="120" placeholder="Add a line, they see it at kickoff" style="flex:1;min-width:0;min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--tx);padding:0 12px;font:15px -apple-system,sans-serif"><button class="btn ghost" style="width:auto;min-height:44px;font-size:15px">Seal it</button></form>`):'';
+    h+=rd?(rd.line?`<div class="face" style="background:var(--card2);color:var(--tx)">“${G.esc(rd.line)}”<em style="color:var(--mute);font-size:12px">opens at kickoff</em></div>`:`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;justify-content:center">${['Gut call','I know them','Easy read','Coin flip'].map(t=>`<button class="chip" style="border:1px solid var(--line);min-height:34px;cursor:pointer" data-lk="${G.esc(k)}" data-ln="${t}">${t}</button>`).join('')}</div>`):'';
   }else{
     const ok=rd?rd.side===truth:null,lbl=sides.find(s=>s.v===truth);
-    h+=`<div class="res ${ok===null?'na':ok?'ok':'no'}"><span class="ic">${ok===null?'·':ok?'✓':'✗'}</span><span style="flex:1">${G.esc(x.label)}<div style="color:var(--mute);font-weight:600;font-size:13px">${ok===null?'You did not read this one':ok?'You read it right':'You read '+G.esc((sides.find(s=>s.v===rd.side)||{}).t)+', they took '+G.esc(lbl?lbl.t:'')}</div>${rd&&rd.line?`<div style="font-weight:600;font-size:14px;margin-top:4px">You said: “${G.esc(rd.line)}”</div>`:''}</span><span>${x.status==='won'?'<span class="up">HIT</span>':x.status==='lost'?'<span class="dn">MISS</span>':''}</span></div>`;
+    h+=`<div class="res ${ok===null?'na':ok?'ok':'no'}"><span class="ic">${ok===null?'·':ok?'✓':'✗'}</span><span style="flex:1">${G.esc(x.label)} · ${G.fmt(x.stake)} staked<div style="color:var(--mute);font-weight:600;font-size:13px">${ok===null?'You did not read this one':ok?'You read it right':'You read '+G.esc((sides.find(s=>s.v===rd.side)||{}).t)+', they took '+G.esc(lbl?lbl.t:'')}</div>${rd&&rd.line?`<div style="font-weight:600;font-size:14px;margin-top:4px">You said: “${G.esc(rd.line)}”</div>`:''}</span><span>${x.status==='won'?'<span class="up">HIT</span>':x.status==='lost'?'<span class="dn">MISS</span>':''}</span></div>`;
   }
   return h+'</div>';
 }
@@ -59,11 +59,11 @@ function render(){
   const riv=op?show.filter(x=>x.pl.id===op.id):[],rest=show.filter(x=>!op||x.pl.id!==op.id);
   const next=sealed.slice().sort((a,b)=>a.g.date-b.g.date)[0];
   const mine=G.R.mine();
-  let h=G.top('Reads')+'<main class="wrap">';
-  h+=`<section class="card rd-hero"><div style="display:flex;justify-content:space-between;align-items:center"><span class="chip" style="background:rgba(155,140,255,.2);color:#C9C0FF">THE READ</span><span class="chip">${sealed.length} sealed in the Field</span></div>
+  let h=G.top('Sealbreak')+'<main class="wrap">';
+  h+=`<section class="card rd-hero"><div style="display:flex;justify-content:space-between;align-items:center"><span class="chip" style="background:rgba(155,140,255,.2);color:#C9C0FF">SEALBREAK</span><span class="chip">${sealed.length} sealed in the Field</span></div>
    ${st.graded?`<div class="rec"><span class="big">${st.right}<span style="color:var(--mute)">/${st.graded}</span></span><span style="color:var(--mute);font-weight:700">reads right this week</span></div>`:`<div class="rec"><span class="big">${sealed.filter(x=>!G.R.get(G.R.key(x.pl.id,x))).length}</span><span style="color:var(--mute);font-weight:700">sealed picks you can read</span></div>`}
    <div class="tri"><div><div class="num">${st.pending}</div><small>WAITING</small></div><div><div class="num">${next?G.until(next.g.date):'-'}</div><small>NEXT SEAL BREAKS</small></div><div><div class="num">${mine.length}</div><small>YOURS SEALED</small></div></div>
-   ${st.graded+st.pending?'':`<div class="how" style="margin-top:14px"><b>1</b><span>Every pick in the Field is sealed until its game kicks off.</span><b>2</b><span>Call it: either team, the Over or the Under.</span><b>3</b><span>At kickoff the seal breaks and your read is graded.</span></div>`}</section>`;
+   ${st.graded+st.pending?'':`<div class="how" style="margin-top:14px"><b>1</b><span>Every pick in the Field is sealed until its game kicks off.</span><b>2</b><span>Call it: either team, the Over or the Under.</span><b>3</b><span>At kickoff the seal breaks for everyone at once and your read is graded.</span></div>`}</section>`;
   const others=f.filter(r=>!r.me);
   h+=`<div class="ppl">${others.map(p=>{const n=sealed.filter(x=>x.pl.id===p.id).length,r=G.R.of(p.id);return `<button data-who="${G.esc(p.id)}" class="${who===String(p.id)?'on':''}">${G.av(p,44,1)}<span>${G.esc(p.name.split(' ')[0])}</span><small>${n} sealed${r.graded?' · '+r.right+'/'+r.graded:''}</small></button>`}).join('')}</div>`;
   if(leagues.length>1)h+=`<div class="chips"><button data-lg="all" class="${lg==='all'?'on':''}">All</button>${leagues.map(l=>`<button data-lg="${G.esc(l)}" class="${lg===l?'on':''}">${G.esc(String(l).toUpperCase())}</button>`).join('')}</div>`;
@@ -73,7 +73,7 @@ function render(){
   h+=`<div class="lbl">Your sealed picks</div><section class="card">${mine.length?mine.slice(0,6).map(p=>{const rs=G.R.onMe(p);return `<div class="row"><div class="nm">${G.esc(p.label||p.sel||'Pick')}<small>${G.esc(p.game||'')}${p.g?' · kicks off in '+G.until(p.g.date):''}</small></div>${rs.length?`<span style="display:flex">${rs.slice(0,3).map(r=>G.av(r,26)).join('')}</span><span class="chip">${rs.length} read</span>`:`<span class="chip">${G.honest()?'NO READS YET':'UNREAD'}</span>`}</div>`}).join(''):'<div class="empty">Make a pick and the Field can read it until kickoff. <a style="color:var(--acc)" href="board.html">Board</a></div>'}</section>`;
   h+='</main>';
   document.getElementById('app').innerHTML=h;
-  document.querySelectorAll('form.ln').forEach(f=>f.onsubmit=e=>{e.preventDefault();const v=f.querySelector('input').value.trim();if(v){G.R.line(f.dataset.lk,v);f.querySelector('input').blur();render()}});
+  document.querySelectorAll('[data-ln]').forEach(b=>b.onclick=()=>{G.R.line(b.dataset.lk,b.dataset.ln);render()});
   document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{G.R.set(b.dataset.k,b.dataset.s);render()});
   document.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>{who=who===b.dataset.who?'':b.dataset.who;render()});
   document.querySelectorAll('[data-lg]').forEach(b=>b.onclick=()=>{lg=b.dataset.lg;render()});

@@ -27,7 +27,7 @@ function render(){
    <div style="margin-top:12px;font-weight:800" class="${d>=0?'up':'dn'}">${d>=0?'+':''}${G.fmt(d)} this week</div>
    ${(()=>{const rs=isMe?G.R.stats():G.R.of(who.id),sealedN=isMe?G.R.mine().length:G.R.deck().filter(x=>String(x.pl.id)===String(who.id)&&!G.R.started(x.g)).length;return `<a href="lounge.html" style="display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(155,140,255,.14);border:1px solid rgba(155,140,255,.3);text-align:left"><span class="num" style="color:#C9C0FF">${rs.right}/${rs.graded}</span><span style="flex:1;font-weight:700;font-size:14px">${isMe?'Your reads right this week':'Your reads on them'}<br><span style="color:var(--mute);font-weight:600">${sealedN} ${isMe?'of your picks sealed':'of their picks sealed, read them'}</span></span><span style="color:#C9C0FF;font-weight:800">Reads ›</span></a>`})()}
 
-   ${isMe?'':`<div style="display:flex;gap:10px;margin-top:16px"><button class="btn" id="chb" style="background:var(--vio);color:#fff">Challenge</button><a class="btn ghost" href="lounge.html">Lounge</a></div>`}</section>`;
+   ${isMe?'':`<div style="display:flex;gap:10px;margin-top:16px"><button class="btn" id="chb" style="background:var(--vio);color:#fff">Challenge</button><a class="btn ghost" href="lounge.html">Sealbreak</a></div><div style="display:flex;gap:16px;justify-content:center;margin-top:12px;font-size:14px;font-weight:700"><button id="blk" style="background:none;border:0;color:var(--mute);font:inherit">${(()=>{try{return (JSON.parse(localStorage.getItem('g5-block')||'[]')).includes(who.id)?'Unblock':'Block'}catch(e){return 'Block'}})()}</button><button id="rpt" style="background:none;border:0;color:var(--mute);font:inherit">Report</button></div>`}</section>`;
   // Season weeks: a green week or a matchup win counts as a win.
   let weeks=[];try{weeks=isMe?Rush.season().weeks:[]}catch(e){}
   if(isMe){h+=`<div class="lbl">Season 1 weeks</div><section class="card"><div class="wks">${weeks.length?weeks.map(w=>`<span class="${w.result==='W'?'w':w.result==='L'?'l':''}">${w.n}</span>`).join(''):'<span style="width:auto;padding:0 12px">Week 9 settles first</span>'}</div><div style="color:var(--mute);font-size:14px;margin-top:10px">A green week or a matchup win is a win. Most wins at the Super Bowl takes the season. 3 weeks played to qualify.</div></section>`;}
@@ -42,6 +42,8 @@ function render(){
   h+='</main>';
   document.getElementById('app').innerHTML=h;
   document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
+  const bk=document.getElementById('blk');if(bk)bk.onclick=()=>{try{let b=JSON.parse(localStorage.getItem('g5-block')||'[]');b=b.includes(who.id)?b.filter(x=>x!==who.id):b.concat(who.id);localStorage.setItem('g5-block',JSON.stringify(b))}catch(e){}render()};
+  const rp=document.getElementById('rpt');if(rp)rp.onclick=()=>{rp.textContent='Reported';rp.disabled=true};
   const c=document.getElementById('chb');if(c)c.onclick=()=>{G.challenge(who.id);location.href='matchup.html'};
 }
 G.render=render;render();

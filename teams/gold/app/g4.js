@@ -124,7 +124,8 @@ body.g4{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 -apple-s
     side: x => x.t === 'total' ? (/^over/i.test(x.label || '') ? 'over' : 'under') : (String(x.label || '').indexOf(x.g.away.abbr) === 0 ? 'away' : 'home'),
     deck() {
       const out = [];
-      field().filter(r => !r.me).forEach(pl => { let ps = []; try { ps = (window.RW && RW.playerPicks && RW.playerPicks(pl.id)) || []; } catch (e) {}
+      let blk = []; try { blk = JSON.parse(localStorage.getItem('g5-block') || '[]'); } catch (e) {}
+      field().filter(r => !r.me && !blk.includes(r.id)).forEach(pl => { let ps = []; try { ps = (window.RW && RW.playerPicks && RW.playerPicks(pl.id)) || []; } catch (e) {}
         ps = ps.filter(x => x && x.g && x.g.away && x.g.home && !x.raw); if (honest()) ps = ps.filter(x => mix('k' + pl.id + x.gameId) < .4).slice(0, 6); /* about 6 picks a week each, as Week 8 ran (211 picks, 33 entrants) */ ps.forEach(x => out.push(Object.assign({}, x, { pl }))); });
       return out.sort((a, b) => a.g.date - b.g.date);
     },
