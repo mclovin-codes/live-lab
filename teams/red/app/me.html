@@ -32,7 +32,7 @@ body{background:var(--bg);color:var(--fg);font:16px/1.4 var(--font);font-variant
  <div class="hero" id="hero"></div>
  <div class="tiles" id="tiles"></div>
  <div class="sec"><h2>Season <span id="seasonSub"></span></h2><div class="weeks" id="weeks"></div></div>
- <div class="sec"><h2>In the Lounge <span id="lgSub"></span></h2><div class="card" id="lg"></div></div>
+ <div class="sec" id="reads"><h2>Reads <span id="rdSub"></span></h2><div class="tiles" id="rdT" style="margin-top:0"></div><div class="card" id="rdL" style="margin-top:8px"></div></div>
  <div class="sec"><h2>Challenges <span id="chSub"></span></h2><div class="card" id="chl"></div></div>
  <div class="sec" id="slips"><h2>Slips <span id="slipSub"></span></h2>
   <div class="seg"><button class="on" data-s="open">Open</button><button data-s="done">Settled</button></div>
@@ -61,14 +61,18 @@ function render(){
  const L=tab==='open'?open:done;
  $('pk').innerHTML=L.length?L.map(p=>{const res=p.status==='won'?'won':p.status==='lost'?'lost':'';return `<div class="pk"><div><b>${esc(p.label)}</b><small>${esc(p.game||(p.legs?p.legs.length+'-leg parlay':''))}</small></div><span class="amt ${res}">${fmt(p.stake)}<i>${p.status==='open'?'to return '+fmt(p.stake+p.win):p.status==='won'?'+'+fmt(p.win):p.status==='lost'?'-'+fmt(p.stake):esc(p.status)}</i></span></div>`}).join(''):`<div class="empty">${tab==='open'?'No open picks yet this week.':'Nothing settled yet this week.'}</div>`;
 }
+function readsSec(){let R={};try{R=JSON.parse(localStorage.getItem('rush-reads-v1'))||{}}catch(e){}const v=Object.values(R).sort((a,b)=>b.kick-a.kick),now=Date.now(),done=v.filter(x=>x.kick<=now),right=done.filter(x=>x.side===x.truth).length;
+ $('rdSub').textContent='your read of the Field';
+ $('rdT').innerHTML=`<div><b>${done.length?Math.round(100*right/done.length)+'%':'-'}</b><small>Read right</small></div><div><b>${right}/${done.length}</b><small>Scored</small></div><div><b>${v.length-done.length}</b><small>Waiting</small></div>`;
+ $('rdL').innerHTML=v.length?v.slice(0,6).map(x=>{const st=x.kick>now?'<span style="color:var(--warn)">Sealed</span>':x.side===x.truth?'<span class="won">Read it</span>':'<span class="lost">Misread</span>';return`<a class="pk" style="color:inherit;text-decoration:none" href="player.html?u=${encodeURIComponent(x.pid)}"><div><b>${esc(x.who)}: you read ${esc(x.side)}</b><small>${esc(x.game)}</small></div><span class="amt">${st}</span></a>`}).join(''):'<a class="pk" style="color:inherit;text-decoration:none" href="lounge.html"><div><b>No reads yet</b><small>Read the Field\'s sealed picks before kickoff</small></div><span class="amt" style="color:var(--acc)">Reads</span></a>'}
 function social(){let L={},C={};try{L=JSON.parse(localStorage.getItem('rush-lounge-v1'))||{}}catch(e){}try{C=JSON.parse(localStorage.getItem('rush-challenges-v1'))||{}}catch(e){}
  const posts=[];Object.entries(L).forEach(([t,arr])=>(arr||[]).forEach(x=>{if(x&&x.who==='You')posts.push({t,txt:x.txt,at:x.at})}));posts.sort((a,b)=>b.at-a.at);
- $('lgSub').textContent=posts.length?posts.length+' posts':'';
- $('lg').innerHTML=posts.length?posts.slice(0,5).map(p=>`<a class="pk" style="color:inherit;text-decoration:none" href="lounge.html?t=${encodeURIComponent(p.t)}"><div><b>${esc(p.txt)}</b><small>${p.t==='week'?'Your matchup room':'Game room'}, ${new Date(p.at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</small></div><span class="amt" style="color:var(--acc)">Open</span></a>`).join(''):'<a class="pk" style="color:inherit;text-decoration:none" href="lounge.html"><div><b>Nothing said yet</b><small>Rooms open for every game tonight</small></div><span class="amt" style="color:var(--acc)">Lounge</span></a>';
+ if($('lgSub'))$('lgSub').textContent=posts.length?posts.length+' posts':'';
+ if($('lg'))$('lg').innerHTML=posts.length?posts.slice(0,5).map(p=>`<a class="pk" style="color:inherit;text-decoration:none" href="lounge.html?t=${encodeURIComponent(p.t)}"><div><b>${esc(p.txt)}</b><small>${p.t==='week'?'Your matchup room':'Game room'}, ${new Date(p.at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</small></div><span class="amt" style="color:var(--acc)">Open</span></a>`).join(''):'<a class="pk" style="color:inherit;text-decoration:none" href="lounge.html"><div><b>Nothing said yet</b><small>Rooms open for every game tonight</small></div><span class="amt" style="color:var(--acc)">Lounge</span></a>';
  const f=Rush.field(),ch=Object.entries(C);$('chSub').textContent=ch.length?ch.length+' sent':'';
  $('chl').innerHTML=ch.length?ch.slice(0,6).map(([id,x])=>{const r=f.find(y=>String(y.id)===id);return`<a class="pk" style="color:inherit;text-decoration:none" href="player.html?u=${encodeURIComponent(id)}"><div><b>${esc(r?r.name:'A player')}</b><small>Sent ${new Date(x.at).toLocaleDateString([],{weekday:'short'})}</small></div><span class="amt">${x.r==='-'?'Waiting':esc(x.r)}</span></a>`}).join(''):'<a class="pk" style="color:inherit;text-decoration:none" href="matchup.html"><div><b>No challenges yet</b><small>Challenge anyone in the Field</small></div><span class="amt" style="color:var(--acc)">Matchup</span></a>'}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(!b)return;tab=b.dataset.s;document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b));render()});
-render();social();if(Rush.on)Rush.on(render);if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
+render();social();readsSec();if(Rush.on)Rush.on(render);if(window.RW&&RW.load)RW.load().then(render).catch(()=>{});
 </script>
 </body>
 </html>

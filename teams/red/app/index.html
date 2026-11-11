@@ -182,6 +182,7 @@ a{color:inherit}
 .hm-v{text-align:center;font-weight:800;font-size:16px;color:#A9B6C3}.hm-v.up{color:#22C55E}.hm-v.dn{color:#F05252}
 .hm-room{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-top:1px solid rgba(255,255,255,.08);color:#fff;text-decoration:none;font-weight:800;font-size:17px}.hm-room:first-of-type{border-top:0}.hm-room em{font-style:normal;color:#00BFFF;font-size:14px}
 .hm-live{display:inline-block;width:9px;height:9px;border-radius:50%;background:#F05252;margin-right:8px;vertical-align:middle}
+.hm-rd{display:block;text-decoration:none;color:inherit;background:linear-gradient(160deg,#2A1838,#121A23 65%)!important;box-shadow:inset 0 0 0 1px rgba(232,121,249,.45)}.hm-rd .g-eyebrow{color:#E879F9}.hm-rd-b{display:flex;gap:14px;align-items:center;margin-top:8px}.hm-rd-b b{display:block;font:900 34px/1 -apple-system,BlinkMacSystemFont,sans-serif}.hm-rd-b small{color:#A9B6C3;font-size:12px}.hm-rd-b p{margin:0;font-size:15px;color:#D7DEE6}.hm-rd-c{display:block;margin-top:12px;padding:12px;border-radius:12px;text-align:center;background:#E879F9;color:#1B0820;font-weight:900}
 </style>
 </head>
 <body>
@@ -264,8 +265,8 @@ const CHEV='<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9
 function contestHero(){const riv=Rush.rival&&Rush.rival(),f=GS.field(),mr=f.find(r=>r.you),me=GS.me();let h='';
   if(riv&&mr){const a=Math.round(1000+mr.units*10),b=Math.round(1000+riv.units*10),d=a-b,tot=Math.max(1,a+b),av=n=>Rush.avatar?Rush.avatar(n,52):'';
     h+=`<a class="g-card hm-mu" href="matchup.html"><div class="g-eyebrow">YOUR MATCHUP &middot; WEEK ${GS.week().n}</div><div class="hm-row"><span class="hm-p">${av(me.name||'You')}<b>${esc(me.name||'You')}</b><strong>${a.toLocaleString('en-US')}</strong></span><span class="hm-vs">VS</span><span class="hm-p">${av(riv.name)}<b>${esc(riv.name)}</b><strong>${b.toLocaleString('en-US')}</strong></span></div><div class="hm-bar"><i style="width:${a/tot*100}%"></i><i style="width:${b/tot*100}%"></i></div><div class="hm-v ${d>0?'up':d<0?'dn':''}">${d>0?'You lead by '+d.toLocaleString('en-US'):d<0?'Down '+(-d).toLocaleString('en-US'):'All square. Make a pick to pull ahead.'}</div></a>`}
-  const live=GAMES.filter(g=>g.state==='in'),next=GAMES.filter(g=>g.state==='pre').slice(0,3),rooms=(live.length?live:next).slice(0,3);
-  if(rooms.length)h+=`<div class="g-card"><div class="g-eyebrow">${live.length?'LIVE IN THE LOUNGE':'LOUNGE ROOMS TONIGHT'}</div>${rooms.map(g=>`<a class="hm-room" href="lounge.html?t=${encodeURIComponent((g.lg||g.league)+':'+g.id)}"><span>${g.state==='in'?'<i class="hm-live"></i>':''}${esc((g.a&&g.a.ab)||g.away||'')} ${g.state==='in'?esc((g.a&&g.a.s)||''):'at'} ${esc((g.h&&g.h.ab)||g.home||'')} ${g.state==='in'?esc((g.h&&g.h.s)||''):''}</span><em>Join &#8250;</em></a>`).join('')}</div>`;
+  let R={};try{R=JSON.parse(localStorage.getItem('rush-reads-v1'))||{}}catch(e){}const rv=Object.values(R),now=Date.now(),wait=rv.filter(x=>x.kick>now),done=rv.filter(x=>x.kick<=now),right=done.filter(x=>x.side===x.truth).length,nx=wait.map(x=>x.kick).sort((a,b)=>a-b)[0];
+  h+=`<a class="g-card hm-rd" href="lounge.html"><div class="g-eyebrow">READS</div><div class="hm-rd-b"><div><b>${done.length?right+'/'+done.length:wait.length}</b><small>${done.length?'read right':'reads waiting'}</small></div><p>${nx?'Next reveal at '+new Date(nx).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+'. Read more of the Field before kickoff.':'Every pick in the Field is sealed. Read which side they took before kickoff.'}</p></div><span class="hm-rd-c">Read the Field &#8250;</span></a>`;
   return h}
 
 function doorCard(ws){const own=ws.some(w=>w.owner);
