@@ -34,7 +34,7 @@ body{background:var(--bg);color:var(--tx)}
 .empty{color:var(--mute);text-align:center;padding:16px 8px;font-size:15px}
 .lnk{background:none;border:0;color:var(--mute);font:700 14px -apple-system,sans-serif;cursor:pointer;padding:6px}
 </style></head>
-<body data-tab="me">
+<body data-tab="me"><script>if(/[?&]u=(?!meb)/.test(location.search))document.body.dataset.tab="contest"</script>
 <div id="app" class="p-wrap"></div>
 <script src="shared/state.js"></script><script src="week-games.js"></script><script src="honest.js"></script><script src="shared/nav.js"></script><script src="shared/events.js"></script><script src="gold-ui.js"></script>
 <script>
