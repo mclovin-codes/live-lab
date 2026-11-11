@@ -49,6 +49,7 @@ h1{margin:2px 0 2px;font:900 32px/1.05 var(--f);letter-spacing:-.02em}
 .sw{position:relative;width:52px;height:32px;border-radius:16px;background:#2A3644;flex:none}.sw i{position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:left .2s}.sw.on{background:var(--win)}.sw.on i{left:23px}
 .pop{animation:pop .35s ease}@keyframes pop{0%{transform:scale(.97)}60%{transform:scale(1.02)}100%{transform:none}}
 .ro{margin:14px 0 4px;padding:14px;border-radius:20px;background:linear-gradient(160deg,#2A1838,#13202C 70%);border:1px solid rgba(232,121,249,.5)}.ro-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}.ro-h span{font:900 13px var(--f);letter-spacing:.1em;color:#E879F9}.ro-h small{color:var(--mut);font-size:12px}.ro-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}.ro-row a{display:flex;flex-direction:column;align-items:center;gap:2px}.ro-row b{font:900 34px/1 var(--f)}.ro-row small{color:var(--mut);font-size:12px}.ro-vs{font:900 14px var(--f);color:var(--mut)}.ro-f{margin-top:10px;text-align:center;font-size:14px;color:#D7DEE6}
+.tags{display:flex;gap:8px;margin-top:10px}.tag{flex:1;padding:9px 6px;border-radius:12px;background:var(--card2);color:var(--mut);font:800 13px var(--f)}.tag.on{background:rgba(232,121,249,.2);color:#F0ABFC;box-shadow:inset 0 0 0 1.5px #E879F9}.back{display:inline-block;color:var(--acc);font:800 15px var(--f);margin-bottom:6px}
 </style>
 </head>
 <body data-tab="lounge">
@@ -65,6 +66,8 @@ const KEY='rush-reads-v1',load=()=>{try{return JSON.parse(localStorage.getItem(K
 /* the honest view: ?field=7 (or the footer switch) loads exactly 7 players and nothing generated */
 const Q=new URLSearchParams(location.search);
 let honest=Q.get('field')==='7'||(Q.get('field')==null&&(()=>{try{return localStorage.getItem('rush-field7')==='1'}catch(e){return false}})());
+/* a ?field link sticks, so the tab bar keeps the view the founder opened */
+try{if(Q.get('field')==='7')localStorage.setItem('rush-field7','1');else if(Q.get('field')==='all')localStorage.setItem('rush-field7','0')}catch(e){}
 const START={nfl:'kickoff',nba:'tip-off',nhl:'puck drop'};
 const LOCK='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 const when=ms=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'numeric',minute:'2-digit'}).format(new Date(ms));
@@ -79,9 +82,11 @@ function players(){const f=Rush.field(),me=f.find(r=>r.me),riv=Rush.rival&&Rush.
 function sides(p){const g=p.g;if(!g||!g.away||!g.home)return null;const L=String(p.label||''),a=g.away.abbr,h=g.home.abbr;
  if(/^over\b/i.test(L))return{opts:['Over','Under'],truth:'Over',ask:'Over or under?'};if(/^under\b/i.test(L))return{opts:['Over','Under'],truth:'Under',ask:'Over or under?'};
  if(L.startsWith(a+' '))return{opts:[a,h],truth:a,ask:'Which side?'};if(L.startsWith(h+' '))return{opts:[a,h],truth:h,ask:'Which side?'};return null}
+const TAGS=['Lock','Gut call','Trap'];
 const pkey=(pid,p)=>pid+':'+p.gameId+':'+p.market;
+const ONLY=Q.get('p');
 function cards(){const{me,riv,list}=players(),R=load(),out=[];
- list.forEach(r=>{(RW.playerPicks(r.id,games)||[]).forEach(p=>{const s=sides(p);if(!s)return;out.push({r,p,s,k:pkey(r.id,p),kick:p.g?+new Date(p.g.date):0,started:p.g&&p.g.state!=='pre',rival:riv&&r.id===riv.id,mine:R[pkey(r.id,p)]})})});
+ (ONLY?Rush.field().filter(r=>String(r.id)===ONLY&&!r.me):list).forEach(r=>{(RW.playerPicks(r.id,games)||[]).forEach(p=>{const s=sides(p);if(!s)return;out.push({r,p,s,k:pkey(r.id,p),kick:p.g?+new Date(p.g.date):0,started:p.g&&p.g.state!=='pre',rival:riv&&r.id===riv.id,mine:R[pkey(r.id,p)]})})});
  return out}
 /* stand-in reads from the rest of the Field: only in the busy view, never in ?field=7 */
 function crowd(c){if(honest)return[];const{list}=players(),n=Math.floor(h01(c.k+'n')*6);return list.filter(r=>r.id!==c.r.id).sort((a,b)=>h01(c.k+a.id)-h01(c.k+b.id)).slice(0,n).map(r=>({r,side:h01(c.k+r.id+'s')<.6?c.s.truth:c.s.opts.find(o=>o!==c.s.truth)}))}
@@ -92,10 +97,11 @@ function sealedCard(c){const g=c.p.g,cw=crowd(c),side=c.mine&&c.mine.side;
  <div class="game"><div><b>${esc(g.away.abbr)} at ${esc(g.home.abbr)}</b><small>${esc((c.p.league||'').toUpperCase())} &middot; ${esc(c.p.market)}</small></div><div class="t"><span class="lock">${LOCK}${Rush.clock(c.kick-Date.now())}</span><small>until ${START[c.p.league]||'kickoff'}</small></div></div>
  <div class="q">${esc(c.s.ask)} <i>${side?'Your read is in':'Tap to read'}</i></div>
  <div class="opts">${c.s.opts.map(o=>`<button class="opt${side?side===o?' on':' off':''}" data-read="${esc(c.k)}" data-side="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+ ${side?`<div class="tags">${TAGS.map(t=>`<button class="tag${c.mine.tag===t?' on':''}" data-tag="${esc(c.k)}" data-t="${t}">${t}</button>`).join('')}</div>`:''}
  <div class="note">${tally}<span>${side?'Change until '+(START[c.p.league]||'kickoff'):'Reveals at '+(START[c.p.league]||'kickoff')}</span></div></div>`}
 function revealCard(c){const side=c.mine&&c.mine.side,res=c.p.status==='won'?'Hit':c.p.status==='lost'?'Missed':c.p.status==='push'?'Push':'Live';
  const v=!side?'<span class="verd n">Not read</span>':side===c.s.truth?'<span class="verd r">You read it</span>':'<span class="verd m">Misread</span>';
- return`<div class="card${c.rival?' rival':''}"><div class="rev"><a href="player.html?u=${encodeURIComponent(c.r.id)}">${av(c.r.name,44)}</a><div class="meta"><b>${esc(c.r.name)} took ${esc(c.s.truth)}</b><small>${esc(c.p.g.away.abbr)} at ${esc(c.p.g.home.abbr)} &middot; ${esc(c.p.label)} &middot; pick ${res}</small></div>${v}</div></div>`}
+ return`<div class="card${c.rival?' rival':''}"><div class="rev"><a href="player.html?u=${encodeURIComponent(c.r.id)}">${av(c.r.name,44)}</a><div class="meta"><b>${esc(c.r.name)} took ${esc(c.s.truth)}</b><small>${esc(c.p.g.away.abbr)} at ${esc(c.p.g.home.abbr)} &middot; ${esc(c.p.label)} &middot; pick ${res}${c.mine&&c.mine.tag?' &middot; you said '+esc(c.mine.tag):''}</small></div>${v}</div></div>`}
 
 function render(){const all=cards(),{me,riv}=players(),now=Date.now();
  const sealed=all.filter(c=>!c.started&&c.kick>now).sort((a,b)=>(b.rival-a.rival)||(a.kick-b.kick)),revealed=all.filter(c=>c.started&&(now-c.kick)<36*36e5).sort((a,b)=>b.kick-a.kick);
@@ -103,7 +109,7 @@ function render(){const all=cards(),{me,riv}=players(),now=Date.now();
  const per={},shown=sealed.filter(c=>{per[c.r.id]=(per[c.r.id]||0)+1;return per[c.r.id]<=(c.rival?4:2)}).slice(0,honest?14:16);
  const R=load(),mineR=Object.values(R),done=mineR.filter(x=>x.kick<=now),right=done.filter(x=>x.side===x.truth).length;
  const myPicks=Rush.picks({status:'open',week:Rush.week().id}).filter(p=>p.gameId);
- let h=`<h1>Reads</h1><p class="lede">Every pick is sealed until kickoff. Read the side. Kickoff scores you.</p>`;
+ let h=ONLY?`<a class="back" href="lounge.html${honest?'?field=7':''}">&#8249; The whole Field</a>`:'';h+=`<h1>Reads</h1><p class="lede">Every pick is sealed until kickoff. Read the side. Kickoff scores you.</p>`;
  h+=`<div class="rec"><a class="hot" href="me.html#reads"><b>${done.length?right+'/'+done.length:'0'}</b><small>${done.length?'Read right':'Reads scored'}</small></a><div><b>${mineR.length-done.length}</b><small>Waiting on kickoff</small></div><div><b>${sealed.length}</b><small>Sealed to read</small></div></div>`;
  if(riv){const rc=all.filter(c=>c.rival),rs=rc.filter(c=>!c.started&&c.kick>now),myOn=mineR.filter(x=>x.pid===riv.id&&x.kick<=now),meR=myOn.filter(x=>x.side===x.truth).length;
   const mine2=Rush.picks({week:Rush.week().id}).filter(p=>p.gameId),theirOn=honest?[]:mine2.filter(p=>h01('rv'+p.id)<.5),theirR=theirOn.filter(p=>h01('rr'+p.id)<.5).length;
@@ -117,9 +123,10 @@ function render(){const all=cards(),{me,riv}=players(),now=Date.now();
  h+=`<div class="foot"><div><b>Honest view: 7 players</b><small>${honest?'Exactly 7 players. Nothing generated.':'Off: the full stand-in Field with stand-in reads.'}</small></div><button class="sw${honest?' on':''}" id="hv" aria-label="Honest view"><i></i></button></div>`;
  $('main').innerHTML=h}
 
-document.addEventListener('click',e=>{const b=e.target.closest('[data-read]');
+document.addEventListener('click',e=>{const tg=e.target.closest('[data-tag]');if(tg){const R=load(),x=R[tg.dataset.tag];if(x){x.tag=x.tag===tg.dataset.t?'':tg.dataset.t;save(R);render()}return}
+ const b=e.target.closest('[data-read]');
  if(b){const k=b.dataset.read,side=b.dataset.side,c=cards().find(x=>x.k===k);if(!c||c.started||c.kick<=Date.now())return;const R=load();
-  if(R[k]&&R[k].side===side)delete R[k];else R[k]={side,truth:c.s.truth,kick:c.kick,who:c.r.name,pid:c.r.id,game:c.p.g.away.abbr+' at '+c.p.g.home.abbr,label:c.p.label,at:Date.now()};
+  if(R[k]&&R[k].side===side)delete R[k];else R[k]={tag:R[k]&&R[k].tag||'',side,truth:c.s.truth,kick:c.kick,who:c.r.name,pid:c.r.id,game:c.p.g.away.abbr+' at '+c.p.g.home.abbr,label:c.p.label,at:Date.now()};
   save(R);render();const el=document.getElementById('c-'+k.replace(/[^a-z0-9]/gi,''));if(el)el.classList.add('pop');return}
  if(e.target.closest('#hv')){honest=!honest;try{localStorage.setItem('rush-field7',honest?'1':'0')}catch(x){}history.replaceState(null,'',honest?'?field=7':'?field=all');render();scrollTo(0,0)}});
 render();RW.load().then(g=>{games=g||[];render()}).catch(()=>{});setInterval(()=>{games=RW.cached()||games;render()},30000);
