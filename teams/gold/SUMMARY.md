@@ -45,7 +45,7 @@ Then open Home: the Sealbreak card shows how many picks are left to read, your r
 **What is new:** a group chat needs typing, a pick feed shows picks as they are made, and a reaction bar reacts to what is already public. Sealbreak is a one-tap call about a person's hidden decision, made while it is still sealed and graded by the reveal at kickoff, not by the game. The competitor scan found no app with an action on a still-sealed pick, or with the reveal staged as an event.
 
 **The playbook checklist:**
-1. Arbitrary or suggestive name: yes, suggestive. The five-minute check has not been run yet.
+1. Arbitrary or suggestive name: yes, suggestive. The five-minute check is only partly done: one web search for "Sealbreak" with app, trademark, sports and fantasy, on 2026-11-10, found no product or mark using the word. The USPTO and app store searches have not been run.
 2. Free of banned and descriptive words: yes.
 3. Written as ordered steps: yes, above.
 4. One sentence on what is new: yes, above.
