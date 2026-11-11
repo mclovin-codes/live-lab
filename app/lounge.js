@@ -25,6 +25,7 @@
   const prof = (r, inner) => `<a class="lg-p" href="player.html?u=${encodeURIComponent(r.me ? 'me' : r.id)}">${inner}</a>`;
   const ringOf = (r, F) => r.me ? 'me' : F.riv && r.id === F.riv.id ? 'riv' : '';
   const gameUrl = g => `game.html?league=${encodeURIComponent(g.league)}&id=${encodeURIComponent(g.id)}`;
+  let STICK = true;
   let games = (window.RW && RW.cached && RW.cached()) || [], BROKE = null, EARLIER = false, OPEN = new Set(), TRAY = null, REPLY = null, firstPaint = true;
   const Q = new URLSearchParams(location.search); let focus = Q.get('g') || null;
 
@@ -113,11 +114,13 @@
     let show = recent.slice(-8); const hidden = older.length + Math.max(0, recent.length - 8);
     if (EARLIER) show = rows;
     const seen = +ls(SEEN, 0) || 0; let divided = false;
-    h += `<div class="lg-room">${hidden && !EARLIER ? `<button class="lg-fold" data-x="more">Earlier today &middot; ${hidden}</button>` : ''}${show.map(r => { let div = ''; if (seen && !divided && r.at > seen) { divided = true; div = '<div class="lg-new"><span>New since you left</span></div>'; } return div + row(r, F, mySide, seen); }).join('') || '<div class="lg-mut">The week shows here as it happens: Slips sealing, seals breaking, picks settling.</div>'}</div>`;
+    h += `<div class="lg-room" id="lg-room">${hidden && !EARLIER ? `<button class="lg-fold" data-x="more">Earlier today &middot; ${hidden}</button>` : ''}${show.map(r => { let div = ''; if (seen && !divided && r.at > seen) { divided = true; div = '<div class="lg-new"><span>New since you left</span></div>'; } return div + row(r, F, mySide, seen); }).join('') || '<div class="lg-mut">The week shows here as it happens: Slips sealing, seals breaking, picks settling.</div>'}</div>`;
+    const R0 = $('lg-room'), keep = R0 ? R0.scrollTop : 0;
     $('lg-main').innerHTML = h;
     $('lg-reply').innerHTML = REPLY ? `<span>Replying to <b>${esc(REPLY.who)}</b>: ${esc(REPLY.text)}</span><button data-x="noreply" aria-label="Cancel reply">&#10005;</button>` : ''; $('lg-reply').hidden = !REPLY;
     dock(); slideFaces(); tickScores();
-    if (firstPaint) { firstPaint = false; requestAnimationFrame(() => { const n = document.querySelector('.lg-new') || [...document.querySelectorAll('.lg-room > *')].pop(); if (n) n.scrollIntoView({ block: n.classList.contains('lg-new') ? 'center' : 'end' }); }); }
+    { const R1 = $('lg-room'); if (R1 && !firstPaint) R1.scrollTop = STICK ? R1.scrollHeight : keep; }
+    if (firstPaint) { firstPaint = false; scrollTo(0, 0); requestAnimationFrame(() => { const R1 = $('lg-room'), d = document.querySelector('.lg-new'); if (!R1) return; if (d) { STICK = false; R1.scrollTop = Math.max(0, d.offsetTop - R1.offsetTop - 40); } else R1.scrollTop = R1.scrollHeight; }); }
   }
   function row(r, F, mySide, seen) {
     const fresh = r.at > seen && Date.now() - r.at < 15 * 60e3, b = badge(r.key, F), tb = TRAY === r.key ? tray(r.key) : '';
@@ -132,7 +135,9 @@
   }
   const tray = key => `<div class="lg-tray">${TAPS.map((t, i) => `<button data-tap="${i}" data-k="${esc(key)}">${t}</button>`).join('')}<button class="lg-rp" data-replyto="${esc(key)}">Reply</button></div>`;
   /* the composer sits above whatever fixed bars the shell shows */
-  function dock() { const c = $('lg-say'); if (!c) return; let b = 0; ['rnav', 'rslip'].forEach(id => { const e = document.getElementById(id); if (e) { const q = e.getBoundingClientRect(); if (q.height > 0 && getComputedStyle(e).display !== 'none') b = Math.max(b, window.innerHeight - q.top); } }); c.style.bottom = b + 'px'; $('lg-main').style.paddingBottom = (c.offsetHeight + 24) + 'px'; }
+  function dock() { const c = $('lg-say'); if (!c) return; let b = 0; ['rnav', 'rslip'].forEach(id => { const e = document.getElementById(id); if (e) { const q = e.getBoundingClientRect(); if (q.height > 0 && getComputedStyle(e).display !== 'none') b = Math.max(b, window.innerHeight - q.top); } }); c.style.bottom = b + 'px';
+    const R = $('lg-room'), M = $('lg-main'); if (!R) return; const top = R.getBoundingClientRect().top + window.scrollY, avail = window.innerHeight - b - c.offsetHeight - top - 8;
+    if (avail >= 180) { R.classList.add('pinned'); R.style.height = avail + 'px'; M.style.paddingBottom = '0px'; } else { R.classList.remove('pinned'); R.style.height = ''; M.style.paddingBottom = (c.offsetHeight + 24) + 'px'; } }
   /* a rank change is the faces row re-sorting: each face slides from where it was */
   let lastX = {};
   function slideFaces() { const wrap = $('lg-faces'); if (!wrap) return; const now = {}; wrap.querySelectorAll('[data-fid]').forEach(el => { const x = el.offsetLeft; now[el.dataset.fid] = x; const p = lastX[el.dataset.fid]; if (p != null && Math.abs(p - x) > 4) { el.style.transition = 'none'; el.style.transform = `translateX(${p - x}px)`; requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = 'transform .5s ease'; el.style.transform = ''; })); } }); lastX = now; }
@@ -159,16 +164,16 @@
     const r = rowOf(t); if (r && !t.closest('a')) { const now = Date.now(); if (lastTap.k === r.dataset.row && now - lastTap.t < 350) { TRAY = r.dataset.row; render(); lastTap = { k: null, t: 0 }; return; } lastTap = { k: r.dataset.row, t: now }; }
     if (TRAY && !t.closest('.lg-tray')) { TRAY = null; render(); }
   });
-  document.addEventListener('submit', e => { if (!e.target.closest('#lg-say')) return; e.preventDefault(); const i = e.target.querySelector('input'), v = (i.value || '').trim(); if (!v) return; const L = ls(TALK, []); L.push({ id: String(Date.now()), mine: 1, who: 'You', text: v.slice(0, 160), quote: REPLY ? REPLY.who + ': ' + REPLY.text : '', at: Date.now() }); lsSet(TALK, L.slice(-60)); i.value = ''; REPLY = null; render(); requestAnimationFrame(() => { const n = [...document.querySelectorAll('.lg-room > *')].pop(); if (n) n.scrollIntoView({ block: 'end', behavior: 'smooth' }); }); });
+  document.addEventListener('submit', e => { if (!e.target.closest('#lg-say')) return; e.preventDefault(); const i = e.target.querySelector('input'), v = (i.value || '').trim(); if (!v) return; const L = ls(TALK, []); L.push({ id: String(Date.now()), mine: 1, who: 'You', text: v.slice(0, 160), quote: REPLY ? REPLY.who + ': ' + REPLY.text : '', at: Date.now() }); lsSet(TALK, L.slice(-60)); i.value = ''; REPLY = null; render(); STICK = true; requestAnimationFrame(() => { const R1 = $('lg-room'); if (R1) R1.scrollTop = R1.scrollHeight; }); });
   /* the swipe dots follow the game card in view */
-  document.addEventListener('scroll', e => { const s = e.target; if (s && s.id === 'lg-games') { const i = Math.round(s.scrollLeft / s.clientWidth); document.querySelectorAll('.lg-dots i').forEach((d, j) => d.classList.toggle('on', i === j)); } }, true);
+  document.addEventListener('scroll', e => { const s = e.target; if (s && s.id === 'lg-room') STICK = s.scrollHeight - s.scrollTop - s.clientHeight < 40; if (s && s.id === 'lg-games') { const i = Math.round(s.scrollLeft / s.clientWidth); document.querySelectorAll('.lg-dots i').forEach((d, j) => d.classList.toggle('on', i === j)); } }, true);
   window.addEventListener('resize', dock);
   /* remember where you left off: the next visit opens at the unread divider */
   const leave = () => lsSet(SEEN, Date.now()); window.addEventListener('pagehide', leave); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') leave(); });
 
   /* the clock: countdowns tick, relative times refresh, and when a kickoff passes the seal breaks in front of you */
   const OPENED = Date.now(), BROKEN = new Set();
-  setInterval(() => { const n = Date.now(); let hit = 0; document.querySelectorAll('[data-k]').forEach(el => { const k = +el.dataset.k; if (k > n) el.textContent = clock(k - n); else if (k > OPENED && !BROKEN.has(k)) { hit = k; BROKEN.add(k); } }); if (hit) { BROKE = { k: hit }; render(); scrollTo({ top: 0, behavior: 'smooth' }); } }, 1000);
+  setInterval(() => { const n = Date.now(); let hit = 0; document.querySelectorAll('[data-k]').forEach(el => { const k = +el.dataset.k; if (k > n) el.textContent = clock(k - n); else if (k > OPENED && !BROKEN.has(k)) { hit = k; BROKEN.add(k); } }); if (hit) { BROKE = { k: hit }; render(); scrollTo(0, 0); } }, 1000);
   render(); countUp();
   const load = () => (window.RW && RW.load ? RW.load(true) : Promise.resolve(games)).then(g => { games = g || games; if (!TRAY) { render(); countUp(); } }).catch(() => {});
   load(); setInterval(load, 30000);

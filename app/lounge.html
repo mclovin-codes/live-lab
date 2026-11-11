@@ -52,6 +52,9 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 .lg-grp .lg-row,.lg-rvl .lg-row{flex-wrap:nowrap;gap:0}.lg-grp .lg-row .lg-av+.lg-av,.lg-rvl .lg-row .lg-av+.lg-av{margin-left:-6px}.lg-grp .lg-row{flex:none}
 .lg-mv{display:flex;flex-direction:column;align-items:flex-end;flex:none;margin-left:auto}.lg-mv strong{font:900 17px/1.15 var(--lg-f)!important}
 .lg-sc strong.tick{animation:lgtick .9s ease}@keyframes lgtick{0%{transform:scale(1.35);color:var(--lg-warn)}100%{transform:none}}
+/* pinned head, scrolling room: the first screen shows where you stand and the game that is on */
+.lg-room.pinned{overflow-y:auto;overscroll-behavior:contain;padding:8px 2px 6px;margin-top:8px;-webkit-overflow-scrolling:touch;mask-image:linear-gradient(to bottom,transparent 0,#000 14px)}
+.lg-faces{padding:8px 2px 4px}.lg-face b{top:27px}.lg-game{padding:10px 12px}.lg-sc img{width:28px;height:28px}.lg-sc strong{font-size:26px}.lg-sc b{font-size:14px}.lg-gsides{margin-top:8px}.lg-gside{padding:6px 8px;margin-top:8px}.lg-gside small{margin-bottom:4px;font-size:12px}.lg-nx{margin-top:8px;padding:6px 10px}.lg-dots{margin:6px 0 0}.lg-top{margin-bottom:6px}.lg-mu{padding:6px 12px}
 @media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-sc strong.tick{animation:none}.lg-face{transition:none!important}}
 </style>
 </head>
@@ -63,6 +66,6 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 <script src="honest.js"></script>
 <script src="shared/nav.js?v=f1103"></script>
 <script src="shared/events.js?v=f1103"></script>
-<script src="lounge.js?v=l1108"></script>
+<script src="lounge.js?v=l1110"></script>
 </body>
 </html>
