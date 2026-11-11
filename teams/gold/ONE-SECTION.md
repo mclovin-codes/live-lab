@@ -10,7 +10,11 @@ Home opens on the weekly contest, in this order:
 1. **The contest card:**
    - your rank and your Stack side by side as big figures, the Stack with its mark, and the move since Tuesday;
    - the Field or My circle switch;
-   - the rank strip: every player in rank order, swiped sideways. 1st stays pinned at the left edge and you at the right edge, so both are always in view, with the gap under it ("91 behind 1st"). Ranks are unique (the store breaks ties), each face carries its Stack and a rank-move arrow, and a face pulses green or red when that player's pick settles;
+   - the rank strip: every player in rank order, swiped sideways, with the gap under it ("91 behind 1st"):
+     - 1st is pinned at the left edge, always.
+     - Your tile sits in its own place in the order. While your place is off to the right, your tile waits at the right edge and the others pass by.
+     - When your place arrives, your tile falls back into line, and past you it scrolls away to the left. If you are 1st, there is one tile, pinned left.
+     - Ranks are unique (the store breaks ties). Each face carries its Stack and a rank-move arrow, and pulses green or red when that player's pick settles.
    - two doors: Make picks (Board) and The contest.
 2. **Your matchup:** one row with both Stacks and the gap as the figure ("+89, you lead"), a tug bar, and the countdown to Thursday's 7:00 PM pairing.
 3. **For you:** replies other players aimed at you in the Lounge, each with a door to reply, then your own tapbacks and replies with what came back ("You sent Fade 🔥 · Waiting on Fade"). The honest view shows only real replies, so the waiting line stays until a real person answers.
