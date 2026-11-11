@@ -84,9 +84,9 @@ function sides(p){const g=p.g;if(!g||!g.away||!g.home)return null;const L=String
  if(L.startsWith(a+' '))return{opts:[a,h],truth:a,ask:'Which side?'};if(L.startsWith(h+' '))return{opts:[a,h],truth:h,ask:'Which side?'};return null}
 const TAGS=['Lock','Gut call','Trap'];
 const pkey=(pid,p)=>pid+':'+p.gameId+':'+p.market;
-const ONLY=Q.get('p');
+const ONLY=Q.get('p'),ONLYG=Q.get('g');
 function cards(){const{me,riv,list}=players(),R=load(),out=[];
- (ONLY?Rush.field().filter(r=>String(r.id)===ONLY&&!r.me):list).forEach(r=>{(RW.playerPicks(r.id,games)||[]).forEach(p=>{const s=sides(p);if(!s)return;out.push({r,p,s,k:pkey(r.id,p),kick:p.g?+new Date(p.g.date):0,started:p.g&&p.g.state!=='pre',rival:riv&&r.id===riv.id,mine:R[pkey(r.id,p)]})})});
+ (ONLY?Rush.field().filter(r=>String(r.id)===ONLY&&!r.me):list).forEach(r=>{(RW.playerPicks(r.id,games)||[]).forEach(p=>{const s=sides(p);if(!s)return;if(ONLYG&&String(p.gameId)!==ONLYG)return;out.push({r,p,s,k:pkey(r.id,p),kick:p.g?+new Date(p.g.date):0,started:p.g&&p.g.state!=='pre',rival:riv&&r.id===riv.id,mine:R[pkey(r.id,p)]})})});
  return out}
 /* stand-in reads from the rest of the Field: only in the busy view, never in ?field=7 */
 function crowd(c){if(honest)return[];const{list}=players(),n=Math.floor(h01(c.k+'n')*6);return list.filter(r=>r.id!==c.r.id).sort((a,b)=>h01(c.k+a.id)-h01(c.k+b.id)).slice(0,n).map(r=>({r,side:h01(c.k+r.id+'s')<.6?c.s.truth:c.s.opts.find(o=>o!==c.s.truth)}))}
@@ -109,7 +109,7 @@ function render(){const all=cards(),{me,riv}=players(),now=Date.now();
  const per={},shown=sealed.filter(c=>{per[c.r.id]=(per[c.r.id]||0)+1;return per[c.r.id]<=(c.rival?4:2)}).slice(0,honest?14:16);
  const R=load(),mineR=Object.values(R),done=mineR.filter(x=>x.kick<=now),right=done.filter(x=>x.side===x.truth).length;
  const myPicks=Rush.picks({status:'open',week:Rush.week().id}).filter(p=>p.gameId);
- let h=ONLY?`<a class="back" href="lounge.html${honest?'?field=7':''}">&#8249; The whole Field</a>`:'';h+=`<h1>Reads</h1><p class="lede">Every pick is sealed until kickoff. Read the side. Kickoff scores you.</p>`;
+ let h=(ONLY||ONLYG)?`<a class="back" href="lounge.html${honest?'?field=7':''}">&#8249; The whole Field</a>`:'';h+=`<h1>Reads</h1><p class="lede">Every pick is sealed until kickoff. Read the side. Kickoff scores you.</p>`;
  h+=`<div class="rec"><a class="hot" href="me.html#reads"><b>${done.length?right+'/'+done.length:'0'}</b><small>${done.length?'Read right':'Reads scored'}</small></a><div><b>${mineR.length-done.length}</b><small>${(()=>{const nx=mineR.filter(x=>x.kick>now).map(x=>x.kick).sort((a,b)=>a-b)[0];return nx?'Reveal '+new Date(nx).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'Waiting on kickoff'})()}</small></div><div><b>${sealed.length}</b><small>Sealed to read</small></div></div>`;
  if(riv){const rc=all.filter(c=>c.rival),rs=rc.filter(c=>!c.started&&c.kick>now),myOn=mineR.filter(x=>x.pid===riv.id&&x.kick<=now),meR=myOn.filter(x=>x.side===x.truth).length;
   const mine2=Rush.picks({week:Rush.week().id}).filter(p=>p.gameId),theirOn=honest?[]:mine2.filter(p=>h01('rv'+p.id)<.5),theirR=theirOn.filter(p=>h01('rr'+p.id)<.5).length;
