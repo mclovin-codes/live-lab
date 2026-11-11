@@ -44,9 +44,9 @@ body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.3 var(--rb-font);fon
 .rb-ph2{font:700 11.5px var(--rb-font);color:var(--rb-mut);margin:4px 0 6px;letter-spacing:.4px}.rb-ph2 .td{color:var(--rb-day)}
 .rb-pr{display:flex;align-items:center;gap:6px;padding:6px 0;border-top:.5px solid var(--rb-rule)}
 .rb-pn{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
-.rb-jy{width:36px;height:36px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--rb-cell);overflow:hidden}.rb-jy img{width:24px;height:24px;object-fit:contain}
+.rb-jy{width:36px;height:36px;flex:none;display:grid;place-items:center}.rb-id svg,.rb-ph svg{flex:none}
 .rb-pn b{display:block;font:600 14px var(--rb-font);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rb-pn small{display:block;font:600 10.5px var(--rb-font);color:var(--rb-mut)}.rb-pn small em{font-style:normal;color:var(--rb-gold)}
-.rb-pr .rb-c{width:62px}
+.rb-pr .rb-c{width:62px}.rb-pn>span{min-width:0;flex:1}
 .rb-skel{height:130px;margin:10px 16px;border-radius:14px;background:linear-gradient(90deg,var(--rb-card),var(--rb-cell),var(--rb-card));background-size:200% 100%;animation:rbs 1.2s infinite}
 @keyframes rbs{to{background-position:-200% 0}}
 .rb-empty{margin:16px;padding:16px;border-radius:14px;background:var(--rb-card);color:var(--rb-mut);font-size:14px}
@@ -66,6 +66,7 @@ body{background:var(--rb-bg);color:var(--rb-fg);font:15px/1.3 var(--rb-font);fon
 <script src="shared/state.js?v=f1104"></script>
 <script src="week-games.js?v=f1104"></script>
 <script src="faces.js?v=f1"></script>
+<script src="team-mark.js?v=m1"></script>
 <script src="shared/nav.js?v=f1105"></script>
 <script src="shared/events.js?v=f1105"></script>
 <script>
@@ -101,9 +102,10 @@ const DF=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'s
 function dayName(ms){const d=RW.etDay(ms),t=RW.etDay(Date.now()),tm=RW.etDay(Date.now()+864e5);if(d===t)return'TODAY';if(d===tm)return'TOMORROW';const p=DF.formatToParts(new Date(ms)),v=k=>(p.find(x=>x.type===k)||{}).value||'';return(v('weekday')+' · '+v('month')+' '+v('day')).toUpperCase()}
 function when(g){if(g.state==='in')return`<span class="lv">${esc(g.detail||'LIVE')}</span>`;const today=RW.etDay(g.date)===RW.etDay(Date.now());return`<span class="${today?'td':''}">${esc(TF.format(new Date(g.date)).toUpperCase())}</span>`}
 const href=g=>`game.html?league=${g.league}&id=${encodeURIComponent(g.id)}`;
-const logo=t=>`<img src="${esc(t.logo)}" alt="" width="26" height="26" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">`;
+/* team marks (Gold's TeamMark): drawn in the team's colours, no logo image requests */
+const logo=(t,sz,L)=>window.TeamMark?TeamMark.svg(L||lg,t,sz||26):`<b>${esc(t.abbr)}</b>`;
 const nick=t=>{const n=String(t.name||'');return n.split(' ').pop()};
-function gameCard(g){const S=spreadOf(g),L=g.line||{},live=g.state==='in',T=(t,side)=>{const sp=S?S[side]:null;return`<div class="rb-tr"><a class="rb-id" href="${href(g)}">${logo(t)}<b>${esc(t.abbr)}</b>${live?'':`<span>${esc(nick(t))}</span>`}${live&&t.score!=null?`<em>${esc(t.score)}</em>`:''}</a>${cell(g,{k:'spread',side,line:sp},sp==null?'':ln(sp),sp==null?null:-110,t.abbr+' '+ln(sp))}${cell(g,{k:'total',side:side==='away'?'o':'u',line:L.ou},L.ou==null?'':(side==='away'?'O ':'U ')+L.ou,L.ou==null?null:-110,(side==='away'?'Over ':'Under ')+L.ou)}${cell(g,{k:'ml',side},'',side==='home'?L.hml:L.aml,t.abbr+' moneyline','ml')}</div>`};
+function gameCard(g){const S=spreadOf(g),L=g.line||{},live=g.state==='in',T=(t,side)=>{const sp=S?S[side]:null;return`<div class="rb-tr"><a class="rb-id" href="${href(g)}">${logo(t,26,g.league)}<b>${esc(t.abbr)}</b>${live?'':`<span>${esc(nick(t))}</span>`}${live&&t.score!=null?`<em>${esc(t.score)}</em>`:''}</a>${cell(g,{k:'spread',side,line:sp},sp==null?'':ln(sp),sp==null?null:-110,t.abbr+' '+ln(sp))}${cell(g,{k:'total',side:side==='away'?'o':'u',line:L.ou},L.ou==null?'':(side==='away'?'O ':'U ')+L.ou,L.ou==null?null:-110,(side==='away'?'Over ':'Under ')+L.ou)}${cell(g,{k:'ml',side},'',side==='home'?L.hml:L.aml,t.abbr+' moneyline','ml')}</div>`};
  return`<div class="rb-gm">${T(g.away,'away')}<div class="rb-at">AT</div>${T(g.home,'home')}<div class="rb-ft">${when(g)}<a href="${href(g)}">Props + More &rsaquo;</a></div></div>`}
 /* players for a team: its latest ESPN leaders (season figures before a game, the last game's otherwise) */
 let TEAMP={v:-1,m:{}};
@@ -114,7 +116,7 @@ function propRows(g,f){const P=teamPlayers(),out=[];['away','home'].forEach(s=>{
   else{mu=+x.value;if(mu<(f==='points'?10:3))return;const step=f==='points'?5:2,c=Math.max(step,step*Math.round(mu/step));rungs=[c-step,c,c+step].map(v=>Math.max(1,v));if(rungs[0]===rungs[1])rungs=[rungs[1],rungs[1]+step,rungs[1]+2*step];const sd=Math.max(1.5,mu*.35);lab=`${SHORT[f]}${T.pre?'/G':''}: <em>${mu}</em>`;out.push({x,t,rungs,pr:rungs.map(k=>am(pNorm(k,mu,sd))),lab,mu})}})});
  return out.sort((a,b)=>b.mu-a.mu).slice(0,5)}
 function propCard(g,f){const rows=propRows(g,f);if(!rows.length)return'';const word=f==='goals'?'goals':f;
- return`<div class="rb-gm"><a class="rb-ph" href="${href(g)}">${logo(g.away)}${esc(g.away.abbr)} <span style="font-weight:500;color:var(--rb-mut)">${esc(nick(g.away))}</span><i>AT</i>${logo(g.home)}${esc(g.home.abbr)} <span style="font-weight:500;color:var(--rb-mut)">${esc(nick(g.home))}</span><u>&rsaquo;</u></a><div class="rb-ph2">${when(g)}</div>${rows.map(r=>`<div class="rb-pr"><div class="rb-pn"><span class="rb-jy">${logo(r.t)}</span><span><b>${esc(r.x.name)}</b><small>${r.lab}</small></span></div>${r.rungs.map((k,i)=>cell(g,{k:'prop',aid:r.x.id,name:r.x.name,stat:f,line:k-.5,side:'o'},k+'+',r.pr[i],r.x.name+' '+k+'+ '+word)).join('')}</div>`).join('')}</div>`}
+ return`<div class="rb-gm"><a class="rb-ph" href="${href(g)}">${logo(g.away,24,g.league)}${esc(g.away.abbr)} <span style="font-weight:500;color:var(--rb-mut)">${esc(nick(g.away))}</span><i>AT</i>${logo(g.home,24,g.league)}${esc(g.home.abbr)} <span style="font-weight:500;color:var(--rb-mut)">${esc(nick(g.home))}</span><u>&rsaquo;</u></a><div class="rb-ph2">${when(g)}</div>${rows.map(r=>`<div class="rb-pr"><div class="rb-pn"><span class="rb-jy">${window.TeamMark?TeamMark.player(g.league,r.t,'',36):''}</span><span><b>${esc(r.x.name)}</b><small>${r.lab}</small></span></div>${r.rungs.map((k,i)=>cell(g,{k:'prop',aid:r.x.id,name:r.x.name,stat:f,line:k-.5,side:'o'},k+'+',r.pr[i],r.x.name+' '+k+'+ '+word)).join('')}</div>`).join('')}</div>`}
 /* ---------- a view: built once per league, market and data version; a tap swaps it in from memory ---------- */
 function list(){const now=Date.now();return games.filter(g=>C.keep(g)&&g.league===lg&&(g.state==='in'||(g.state==='pre'&&g.date>now-36e5))).sort((a,b)=>(b.state==='in')-(a.state==='in')||a.date-b.date)}
 function build(){const L=list();if(!L.length)return`<div class="rb-empty">No ${esc(LGN[lg])} games this week.</div>`;let h='',day='';const lines=fam==='lines';
@@ -139,7 +141,7 @@ document.addEventListener('click',e=>{const t=e.target;
 if(window.Rush&&Rush.slip&&Rush.slip.on)Rush.slip.on(()=>paintSel());
 if(window.Rush&&Rush.on)Rush.on(()=>{const c2=ctx();if(c2.id!==C.id){C=c2;VIEW.clear();show()}});
 /* ---------- data: fetch on a timer, redraw only when it changed ---------- */
-function sigOf(G){let s=G.length+'';for(const g of G)s+=g.id+g.state+(g.home.score??'')+(g.away.score??'')+(g.detail||'')+JSON.stringify(g.line||{})+((g.home.leaders||[]).length+(g.away.leaders||[]).length);return s}
+function sigOf(G){let s=G.length+'';for(const g of G)s+=g.id+g.state+(g.home.score??'')+(g.away.score??'')+(g.detail||'')+JSON.stringify(g.line||{})+((g.home.leaders||[]).length+(g.away.leaders||[]).length)+(g.home.color||'')+(g.away.color||'');return s}
 async function refresh(){try{const G=await RW.load(true);err='';const s=sigOf(G);games=G;if(s!==sig){sig=s;ver++;VIEW.clear();REG.clear();$('rb-main')._k=null;show()}}catch(e){err='Lines did not load. Retrying.';if(!games.length)$('rb-main').innerHTML=`<div class="rb-err">${esc(err)}</div>`}}
 function loop(){refresh().finally(()=>setTimeout(loop,games.some(g=>g.state==='in')?15000:60000))}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
