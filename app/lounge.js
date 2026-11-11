@@ -27,7 +27,7 @@
   const prof = (r, inner) => `<a class="lg-p" href="player.html?u=${encodeURIComponent(r.me ? 'me' : r.id)}">${inner}</a>`;
   const ringOf = (r, F) => r.me ? 'me' : F.riv && r.id === F.riv.id ? 'riv' : '';
   const gameUrl = g => `game.html?league=${encodeURIComponent(g.league)}&id=${encodeURIComponent(g.id)}`;
-  let STICK = true, PINNED = null;
+  let STICK = true, PINNED = null, GOPEN = false;
   let games = (window.RW && RW.cached && RW.cached()) || [], BROKE = null, EARLIER = false, OPEN = new Set(), TRAY = null, REPLY = null, firstPaint = true;
   const Q = new URLSearchParams(location.search); let focus = Q.get('g') || null;
 
@@ -128,13 +128,15 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
     gs = gs.slice(0, 6); PINNED = gs[0] ? gname(gs[0]) : null;
     { const ci = document.querySelector('#lg-say input'); if (ci && !REPLY) ci.placeholder = PINNED ? 'Say something about ' + PINNED : 'Say something to the Field'; }
     const next = Object.values(held).filter(g => !isStarted(g)).sort((a, b) => a.date - b.date)[0];
+    { const g0 = gs[0]; const bar = g0 ? `${tmk(g0.league, g0.away, 18)}<b>${esc(g0.away.abbr)}</b>${isStarted(g0) && g0.away.score != null ? `<em>${esc(g0.away.score)}</em>` : ''}<i>${isStarted(g0) ? '&ndash;' : 'at'}</i>${isStarted(g0) && g0.home.score != null ? `<em>${esc(g0.home.score)}</em>` : ''}<b>${esc(g0.home.abbr)}</b>${tmk(g0.league, g0.home, 18)}<span class="${g0.state === 'in' ? 'lg-blv' : ''}">${g0.state === 'in' ? `<i></i>${esc(det(g0))}` : isStarted(g0) ? esc(g0.detail || 'Final') : `SEALED <b data-k="${+g0.date}">${clock(+g0.date - now)}</b>`}</span><u>${GOPEN ? '&#9650;' : '&#9660;'}</u>` : '<span>No games on the Board right now.</span>';
+      h += `<div class="lg-stick" id="lg-stick"><button class="lg-gbar${g0 && g0.state === 'in' ? ' on' : ''}" data-x="gbar" aria-expanded="${GOPEN}">${bar}</button><div class="lg-gopen"${GOPEN ? '' : ' hidden'}>`; }
     h += `<div class="lg-games" id="lg-games">${gs.map(g => { const on = onGame(g, F), started = isStarted(g), ms = mySide(g), sides = {}; on.forEach(x => { const k = x.side || 'this game'; (sides[k] = sides[k] || []).push(x); });
       const face = x => prof(x.r, av(x.r, 24, ringOf(x.r, F)));
-      const body = gated() ? `<div class="lg-gside"><small>${on.length} in this game</small></div>` : !started ? `<div class="lg-gside"><small>${on.length} sealed &middot; sides open at kickoff</small><div class="lg-row">${on.slice(0, 12).map(face).join('')}${on.length > 12 ? `<span class="lg-more">+${on.length - 12}</span>` : ''}</div></div>`
+      const body = gated() ? `<div class="lg-gside"><small>${on.length} in this game</small></div>` : true ? '' : !started ? `<div class="lg-gside"><small>${on.length} sealed &middot; sides open at kickoff</small><div class="lg-row">${on.slice(0, 12).map(face).join('')}${on.length > 12 ? `<span class="lg-more">+${on.length - 12}</span>` : ''}</div></div>`
         : `<div class="lg-gsides">${Object.keys(sides).sort((a, b) => (b === ms) - (a === ms) || (a === 'this game') - (b === 'this game')).map(k => { const lbl = k === 'this game' ? 'On this game' : (ms ? (k === ms ? 'With you on' : opposite(ms, k, g) ? 'Against you on' : 'On') : 'On') + ' ' + (k === 'Over' || k === 'Under' ? 'the ' + k : k), n = sides[k].length, cap = 4, fit = lbl.length * 6.6 + Math.min(n, cap) * 28 + (n > cap ? 30 : 0) <= 140;
         /* one line per side: the label inline when it fits, else above one row of faces; never a second row of faces */
         return `<div class="lg-gside${k !== 'this game' && ms ? (k === ms ? ' with' : opposite(ms, k, g) ? ' vs' : '') : ''}${fit ? '' : ' st'}"><small>${esc(lbl)}</small><div class="lg-row">${sides[k].slice(0, cap).map(face).join('')}${n > cap ? `<span class="lg-more">+${n - cap}</span>` : ''}</div></div>`; }).join('')}</div>`;
-      return `<div class="lg-game${g.state === 'in' ? ' lg-on' : ''}">${window.GameCard && typeof GameCard.html === 'function' ? GameCard.html(g, { href: gameUrl(g) }) : `<a class="lg-sc" href="${gameUrl(g)}"><div>${tmk(g.league, g.away, 24)}<b>${esc(g.away.abbr)}</b><strong data-sc="${esc(g.id)}a">${started && g.away.score != null ? esc(g.away.score) : ''}</strong></div><div class="lg-mid">${g.state === 'in' ? `<span class="lv"><i></i>${esc(det(g))}</span>` : `<span class="lk">SEALED <b data-k="${+g.date}">${clock(+g.date - now)}</b></span>`}</div><div>${tmk(g.league, g.home, 24)}<b>${esc(g.home.abbr)}</b><strong data-sc="${esc(g.id)}h">${started && g.home.score != null ? esc(g.home.score) : ''}</strong></div></a>`}${body}${next && next !== g ? `<button class="lg-nx" data-g="${esc(next.league + ':' + next.id)}">Next seal ${esc(gname(next))} <b data-k="${+next.date}">${clock(+next.date - now)}</b></button>` : ''}</div>`; }).join('') || '<div class="lg-game"><div class="lg-mut">No games on the Board right now.</div></div>'}</div>${gs.length > 1 ? `<div class="lg-dots">${gs.map((g, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}`;
+      return `<div class="lg-game${g.state === 'in' ? ' lg-on' : ''}">${window.GameCard && typeof GameCard.html === 'function' ? GameCard.html(g, { href: gameUrl(g) }) : `<a class="lg-sc" href="${gameUrl(g)}"><div>${tmk(g.league, g.away, 24)}<b>${esc(g.away.abbr)}</b><strong data-sc="${esc(g.id)}a">${started && g.away.score != null ? esc(g.away.score) : ''}</strong></div><div class="lg-mid">${g.state === 'in' ? `<span class="lv"><i></i>${esc(det(g))}</span>` : `<span class="lk">SEALED <b data-k="${+g.date}">${clock(+g.date - now)}</b></span>`}</div><div>${tmk(g.league, g.home, 24)}<b>${esc(g.home.abbr)}</b><strong data-sc="${esc(g.id)}h">${started && g.home.score != null ? esc(g.home.score) : ''}</strong></div></a>`}${body}${next && next !== g ? `<button class="lg-nx" data-g="${esc(next.league + ':' + next.id)}">Next seal ${esc(gname(next))} <b data-k="${+next.date}">${clock(+next.date - now)}</b></button>` : ''}</div>`; }).join('') || '<div class="lg-game"><div class="lg-mut">No games on the Board right now.</div></div>'}</div>${gs.length > 1 ? `<div class="lg-dots">${gs.map((g, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}</div></div>`;
     /* the room: moments and talk as one thread, newest at the bottom */
     const talk = ls(TALK, []).filter(m => !honest() || m.mine || m.real);
     const rows = fold(moments(F)).concat(talk.map(m => ({ t: 'talk', key: 'talk:' + m.id, at: m.at, m })));
@@ -144,14 +146,14 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
     if (EARLIER) show = rows;
     const seen = +ls(SEEN, 0) || 0; let divided = false;
     h += `<div class="lg-room" id="lg-room">${hidden && !EARLIER ? `<button class="lg-fold" data-x="more">Earlier today &middot; ${hidden}</button>` : ''}${show.map(r => { let div = ''; if (seen && !divided && r.at > seen) { divided = true; div = '<div class="lg-new"><span>New since you left</span></div>'; } return div + row(r, F, mySide, seen); }).join('') || '<div class="lg-mut">The week shows here as it happens: Slips sealing, seals breaking, picks settling.</div>'}</div>`;
-    const R0 = $('lg-room'), keep = R0 ? R0.scrollTop : 0;
+    const keep = window.scrollY;
     $('lg-main').innerHTML = h; { const M0 = $('lg-main'), was = M0.classList.contains('lg-gated'); M0.classList.toggle('lg-gated', GATED); if (was && !GATED) { M0.classList.add('lg-lift'); setTimeout(() => M0.classList.remove('lg-lift'), 1400); } }
     $('lg-reply').innerHTML = REPLY ? `<span>Replying to <b>${esc(REPLY.who)}</b>: ${esc(REPLY.text)}</span><button data-x="noreply" aria-label="Cancel reply">&#10005;</button>` : ''; $('lg-reply').hidden = !REPLY;
     $('lg-main').classList.toggle('lg-reading', !!document.querySelector('.lg-room .lg-blk'));
     dock(); slideFaces(); tickScores(); bumpStacks();
-    { const R1 = $('lg-room'); if (R1 && !firstPaint) R1.scrollTop = STICK ? R1.scrollHeight : keep; }
+    if (!firstPaint) scrollTo(0, STICK ? document.documentElement.scrollHeight : keep);
     fitBlk();
-    if (firstPaint) { firstPaint = false; scrollTo(0, 0); requestAnimationFrame(() => { const R1 = $('lg-room'), d = document.querySelector('.lg-new'); if (!R1) return; if (d) { STICK = false; R1.scrollTop = Math.max(0, d.offsetTop - R1.offsetTop - 40); } else R1.scrollTop = R1.scrollHeight; }); }
+    if (firstPaint) { firstPaint = false; requestAnimationFrame(() => { const d = document.querySelector('.lg-new'); if (d) { STICK = false; scrollTo(0, Math.max(0, d.getBoundingClientRect().top + scrollY - stickBottom() - 40)); } else scrollTo(0, document.documentElement.scrollHeight); }); }
   }
   const blk = (k, head, body, n) => OPEN.has(k) ? `<div class="lg-blk" data-blk="${esc(k)}">${head}<div class="lg-blist">${body}</div><button class="lg-shut wide" data-x="shut:${esc(k)}">Hide ${n === 1 ? 'Slip' : n + ' Slips'}</button></div>` : head;
   let JUMP = null;
@@ -161,8 +163,8 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
   /* an opened block fits the room: its Slips scroll inside, Hide Slips stays in reach; opening or closing puts the block's start at the top of the room */
   function fitBlk() { const R = $('lg-room'); if (!R) return; const pinned = R.classList.contains('pinned');
     document.querySelectorAll('.lg-blk').forEach(B => { const L = B.querySelector('.lg-blist'), H = B.firstElementChild, S = B.querySelector('.lg-shut'); if (!L || !H) return;
-      const room = pinned ? R.clientHeight : window.innerHeight * .6; L.style.maxHeight = Math.max(140, room - H.offsetHeight - (S ? S.offsetHeight : 0) - 24) + 'px'; });
-    if (JUMP) { const h = document.querySelector(`[data-row="${CSS.escape(JUMP)}"]`); JUMP = null; if (h && pinned) R.scrollTop += h.getBoundingClientRect().top - R.getBoundingClientRect().top - 4; else if (h) h.scrollIntoView({ block: 'start' }); } }
+      const room = window.innerHeight - stickBottom() - 140; L.style.maxHeight = Math.max(140, room - H.offsetHeight - (S ? S.offsetHeight : 0) - 24) + 'px'; });
+    if (JUMP) { const h = document.querySelector(`[data-row="${CSS.escape(JUMP)}"]`); JUMP = null; if (h) scrollTo(0, Math.max(0, h.getBoundingClientRect().top + scrollY - stickBottom() - 6)); } }
   /* team marks (Gold's TeamMark): drawn, no logo image requests */
   const tmk = (lg, t, sz) => (window.TeamMark && typeof TeamMark.svg === 'function') ? TeamMark.svg(lg, t, sz) : `<b class="lg-tm0">${esc(t && t.abbr)}</b>`;
   /* rulings 2026-10-10, 11-04, 11-05: the Lounge is open to visitors; settlement lines and the kickoff reveal are gated to entrants; a gated bust shows no name */
@@ -181,15 +183,15 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
   }
   const tray = key => `<div class="lg-tray">${TAPS.map((t, i) => `<button data-tap="${i}" data-k="${esc(key)}">${t}</button>`).join('')}<button class="lg-rp" data-replyto="${esc(key)}">Reply</button></div>`;
   /* the composer sits above whatever fixed bars the shell shows */
+  function stickBottom() { const b = document.getElementById('lg-stick'); if (!b) return 53; return Math.max(0, Math.round(b.getBoundingClientRect().bottom)); }
   /* the phone keyboard: the composer rides on top of it (visualViewport), the room keeps its size */
   function dock() { const c = $('lg-say'); if (!c) return; const vv = window.visualViewport, kb = vv ? window.innerHeight - vv.height - vv.offsetTop : 0;
     if (vv && kb > 120 && document.activeElement && document.activeElement.closest && document.activeElement.closest('#lg-say')) { c.style.bottom = Math.max(0, kb) + 'px'; return; }
     let b = 0; ['rnav', 'rslip'].forEach(id => { const e = document.getElementById(id); if (e) { const q = e.getBoundingClientRect(); if (q.height > 0 && getComputedStyle(e).display !== 'none') b = Math.max(b, window.innerHeight - q.top); } }); c.style.bottom = b + 'px';
     const R = $('lg-room'), M = $('lg-main'); if (!R) return; const top = R.getBoundingClientRect().top + window.scrollY, avail = window.innerHeight - b - c.offsetHeight - top - 8;
     /* a short phone with a Slip in the bar: fold the card's sides line, the Next seal chip and the face names before giving up the pinned room */
-    if (avail < Math.max(150, window.innerHeight * .4) && !M.classList.contains('lg-tight')) { M.classList.add('lg-tight'); return dock(); }
-    if (avail > Math.max(340, window.innerHeight * .4 + 110) && M.classList.contains('lg-tight')) { M.classList.remove('lg-tight'); return dock(); }
-    if (avail >= 90) { R.classList.add('pinned'); R.style.height = avail + 'px'; M.style.paddingBottom = '0px'; } else { R.classList.remove('pinned'); R.style.height = ''; M.style.paddingBottom = (c.offsetHeight + 24) + 'px'; } }
+    document.documentElement.style.setProperty('--lg-stick', stickBottom() + 'px');
+    if (false) { R.classList.add('pinned'); R.style.height = avail + 'px'; M.style.paddingBottom = '0px'; } else { R.classList.remove('pinned'); R.style.height = ''; M.style.paddingBottom = (c.offsetHeight + 24) + 'px'; } }
   /* a rank change is the faces row re-sorting: each face slides from where it was */
   let lastX = {};
   function slideFaces() { const wrap = $('lg-faces'); if (!wrap) return; const now = {}; wrap.querySelectorAll('[data-fid]').forEach(el => { const x = el.offsetLeft; now[el.dataset.fid] = x; const p = lastX[el.dataset.fid]; if (p != null && Math.abs(p - x) > 4) { el.style.transition = 'none'; el.style.transform = `translateX(${p - x}px)`; requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = 'transform .5s ease'; el.style.transform = ''; })); } }); lastX = now; }
@@ -224,14 +226,14 @@ function slipHTML(p, mine) { let q = p; if (!mine) { try { q = (window.Rush && t
       const k = op.dataset.open; toggleOpen(k); render(); return; }
     const sc = t.closest('[data-scope]'); if (sc) { try { localStorage.setItem(SCOPE, sc.dataset.scope); } catch (z) {} render(); return; }
     const g = t.closest('[data-g]'); if (g) { focus = g.dataset.g; render(); const s = $('lg-games'); if (s) s.scrollTo({ left: 0, behavior: 'smooth' }); return; }
-    const x = t.closest('[data-x]'); if (x) { const v = x.dataset.x; if (v === 'sb') BROKE = null; if (v === 'more') EARLIER = true; if (v === 'noreply') REPLY = null; if (v === 'enter') { try { Rush.enter((Rush.me && Rush.me().handle) || 'You'); } catch (z) {} } if (false) { const k = v.slice(5); OPEN.delete(k); STICK = false; render(); const h = document.querySelector(`[data-row="${CSS.escape(k)}"]`), R = $('lg-room'); if (h && R) { const top = h.getBoundingClientRect().top - R.getBoundingClientRect().top; if (top < 0 || top > R.clientHeight - 40) R.scrollTop += top - 8; } return; } render(); return; }
+    const x = t.closest('[data-x]'); if (x) { const v = x.dataset.x; if (v === 'sb') BROKE = null; if (v === 'more') EARLIER = true; if (v === 'noreply') REPLY = null; if (v === 'gbar') GOPEN = !GOPEN; if (v === 'enter') { try { Rush.enter((Rush.me && Rush.me().handle) || 'You'); } catch (z) {} } if (false) { const k = v.slice(5); OPEN.delete(k); STICK = false; render(); const h = document.querySelector(`[data-row="${CSS.escape(k)}"]`), R = $('lg-room'); if (h && R) { const top = h.getBoundingClientRect().top - R.getBoundingClientRect().top; if (top < 0 || top > R.clientHeight - 40) R.scrollTop += top - 8; } return; } render(); return; }
     /* double-tap a row: the tray */
     const r = rowOf(t); if (r && !t.closest('a')) { const now = Date.now(); if (lastTap.k === r.dataset.row && now - lastTap.t < 350) { TRAY = r.dataset.row; render(); lastTap = { k: null, t: 0 }; return; } lastTap = { k: r.dataset.row, t: now }; }
     if (TRAY && !t.closest('.lg-tray')) { TRAY = null; render(); }
   });
   document.addEventListener('submit', e => { if (!e.target.closest('#lg-say')) return; e.preventDefault(); const i = e.target.querySelector('input'), v = (i.value || '').trim(); if (!v) return; const L = ls(TALK, []); L.push({ id: String(Date.now()), mine: 1, who: 'You', text: v.slice(0, 160), quote: REPLY ? REPLY.who + ': ' + REPLY.text : '', to: REPLY && !REPLY.game ? REPLY.who : '', game: REPLY ? (REPLY.game ? REPLY.who : '') : (PINNED || ''), at: Date.now() }); lsSet(TALK, L.slice(-60)); i.value = ''; REPLY = null; render(); STICK = true; requestAnimationFrame(() => { const R1 = $('lg-room'); if (R1) R1.scrollTop = R1.scrollHeight; }); });
   /* the swipe dots follow the game card in view */
-  document.addEventListener('scroll', e => { const s = e.target; if (s && s.id === 'lg-room') STICK = s.scrollHeight - s.scrollTop - s.clientHeight < 40; if (s && s.id === 'lg-games') { const i = Math.round(s.scrollLeft / s.clientWidth); document.querySelectorAll('.lg-dots i').forEach((d, j) => d.classList.toggle('on', i === j)); } }, true);
+  document.addEventListener('scroll', e => { const s = e.target; if (s === document || s === document.documentElement) STICK = document.documentElement.scrollHeight - scrollY - innerHeight < 60; if (s && s.id === 'lg-games') { const i = Math.round(s.scrollLeft / s.clientWidth); document.querySelectorAll('.lg-dots i').forEach((d, j) => d.classList.toggle('on', i === j)); } }, true);
   window.addEventListener('resize', dock); if (window.Rush && Rush.slip && Rush.slip.on) Rush.slip.on(() => setTimeout(dock, 60)); if (window.visualViewport) { visualViewport.addEventListener('resize', dock); visualViewport.addEventListener('scroll', dock); } document.addEventListener('focusout', () => setTimeout(dock, 60));
   /* remember where you left off: the next visit opens at the unread divider */
   const leave = () => lsSet(SEEN, Date.now()); window.addEventListener('pagehide', leave); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') leave(); });
