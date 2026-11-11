@@ -47,6 +47,7 @@ Home opens on the weekly contest, in this order:
 - **An empty circle** shows three faces to add and the invite door, never a blank page.
 
 ## One game card, and no logos (game-card.js, team-mark.js)
+- **At the team's scale (founder 12:10):** 46 px team marks, 30 px team codes, 40 px scores, 62 by 54 px price cells, and no text under 13 px.
 - **One card for Home and the Lounge's pinned game,** in the team's own look (founder 11:40: the team's sizing, type and contrast: #141C26 card, 20px corners, a chip header, Barlow Condensed 800 figures, #3DB8FF price cells). The Board draws its own rows with the same team marks and three-column cells. It takes only the mechanics from the Rush app's board cards:
   - a header with the league and the clock or kickoff;
   - two team rows, each with the team mark, its code, name and record, and the score;
@@ -58,6 +59,9 @@ Home opens on the weekly contest, in this order:
   - hockey: a sweater;
   - baseball: a cap.
   - All four share one light, from the top left, so they read as one set.
+  - **Both team colours on every mark (founder 12:10):** the helmet's facemask and centre stripe, the trim on jerseys and sweaters, and the cap's brim and button are in the secondary colour. Codes and numbers use the secondary when it reads on the primary (3:1), else white or dark ink. A secondary missing or too close to the primary falls back to a readable pair, and a dark primary gets a light edge and a lighter highlight, so a mark is never one flat colour.
+  - **Player marks for prop rows** (TeamMark.player, also TeamMark.playerMark): one per sport, distinct from the team mark. Football is a jersey with pads and sleeve stripes, basketball a tank, hockey a sweater, baseball a button-front. The body is in the primary and the number and trim in the secondary, with the short code when the feed gives no number. No headshots.
+  - **Sizes:** 46 px on a game card, at least 44 on a Board row, 64 or more in the game page header, 40 for a player mark on a prop row, and 28 minimum anywhere else.
   - A player gets a jersey with their number. A missing or too-close colour pair falls back to a readable one.
 - **Logo requests:** Blue's store hands every page the mark in place of the logo, so no logo image request leaves Home, profiles or Slips.
 
