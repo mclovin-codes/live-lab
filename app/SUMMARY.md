@@ -47,6 +47,7 @@
   - Spread and total prices on the Board are a stand-in -110, because the scoreboard feed gives none; prop rungs are priced from the pregame leader figures.
 - **Game page** (Blue):
   - market tabs (Popular, Game Lines, Alt Lines, Team Totals, Halves or Periods, Player Props) redraw from memory in 2 to 6 ms with no fetch; each market section folds by its header, and the choice is kept;
+  - alternate spreads and totals on a track, as in the app: seven lines around the main one, one tap picks a line, and its two prices sit under it;
   - no logos and no player photos: teams are Gold's drawn team marks in their two colours, players a plain jersey;
   - picks lock at kickoff;
   - "The Field on this game" shows each player as sealed until kickoff. At kickoff it becomes "Seal broken: who took what": the side, price and stake for each player, tagged With you or Against you. This is the full table the Lounge's seal-break rows open;
