@@ -33,6 +33,11 @@ The checks:
 | Game page | Tap a market section's header | The section folds and opens; the choice is kept on the phone | Added in 3e82c1d |
 | Game page | The bar under the tabs ("Week 10 · Stack 200") and the entry copy | A second Stack figure under the header, and the old unit word in the entry copy | Fixed in 3e82c1d (bar gone; Stack only) |
 | Game page | Team logos and player photos | Logos and photos loaded from the provider | Fixed in 228ec10 (drawn team marks and plain jerseys, no images fetched) |
+| Contest | Open Your matchup in the full view; read the opponent's 22 Slips | 29 legs before kickoff, none shows a side, line, market or stake ("Slip" or "Parlay · N legs", the games, "stake sealed") | OK (sealView, 9402583) |
+| Contest | ?entered=0 (visitor) | No rank, no matchup, the Join card; the header pill reads ENTER | Added in 3c9b0be |
+| Contest | Season tab, honest view | Showed players outside the 7, SIM tags and a paragraph | Fixed in 3c9b0be (the 7, faces, one line) |
+| Game page | Player Props before the lines post | Said "Loading player lines" forever | Fixed in da37cc9 (says none yet, points to the Board) |
+| Game page | Tap a price, open the bar, Place (live link) | The receipt shows the pick, stake, pays and time; the Slip is on Me as open | OK |
 | Game page | Sideways, sticky bars | No sideways scroll; the score header scrolls away with the page, so nothing floats over the markets | OK |
 
 ## Gold: Home, the top bar, profiles, Slips
