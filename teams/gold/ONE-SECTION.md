@@ -53,6 +53,7 @@ Home opens on the weekly contest, in this order:
   - two team rows, each with the team mark, its code, name and record, and the score;
   - while the game is open, the price cells: Spread, Total and ML, tapping into the one Slip exactly as on the Board.
 - **Home adds only one quiet line:** small faces beside the side each player took (a count when more than four), totals as one small group at the bottom, and a single "N sealed" chip before kickoff. The old four boxes are gone.
+- **The info line at the foot of the card** (Blue's feed, plain text): where to watch ("Watch Prime Video"), then Dome for an indoor NFL or MLB game, or for an outdoor NFL game the temperature, sky and weather impact ("52° Cloudy, no weather impact").
 - **No official logos or player photos:** a drawn, shaded object per sport, tinted with the team's two colours from the feed, with the team's code on it:
   - football: a speed-style helmet in side profile (founder's 11:50 style note, our own drawing): a shaded shell with a crown highlight, dark vents, ear hole, jaw pad, chin strap and a multi-bar mask with clips;
   - basketball: a jersey;
