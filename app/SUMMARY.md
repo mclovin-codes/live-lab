@@ -78,6 +78,7 @@
 - **Seal broken:** one row per game (score, faces ringed green with you and red against you). It opens to each player's Slip.
 - **Slips settling:** a Stack move shows as a big green or red figure that counts up on arrival, only on the game that decided the Slip; other legs show Blue's line ("Needs WSH +4.5 and 1 more"). Several on one game fold into one row of one line ("12 Slips settled on MIA at UTAH", about 57 px) with three faces side by side and the two biggest moves, and a tap anywhere on the row opens the rest.
 - **Opening a row** (a settlement, a seal broken): one block open at a time. Its header sticks under the game bar, it grows in the page (no window inside the page), and it ends in "Hide 17 Slips", so it closes from where the thumb is; closing returns the page to where the block started.
+- **Your live picks:** a pick placed during its game has no seal; its row reads "You placed a live pick on ORL at SAC" with the market and "Live pick at 73-81, placed during the game".
 - **Earlier today** holds everything older.
 
 **Every pick is a Slip,** drawn with Gold's one Slip card:

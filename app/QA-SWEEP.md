@@ -171,3 +171,7 @@ The checks:
 | Game page | A live NBA game (OKC at POR, 3rd quarter) | Kickoff no longer locks it; in play the cells read "Ball in play. Lines open at the next stoppage"; a stoppage opens them; the lagging feed shows many stoppages already ending | Added in 02d61d4 |
 | Slip | A live pick after the score changes | Refused at Place ("the score changed since you tapped") | Added in 02d61d4 |
 | Slip | A live pick placed from another page | Refused, with a line to open its game | Added in 02d61d4 |
+| Lounge | A live pick placed on a game in progress (a local copy) | Its own row, "placed during the game" with the score at the tap, a red edge, no seal row | Fixed in f1eadd7 (Red) |
+| Lounge | Slip card s10, live | Cards draw, parlays start collapsed, View legs opens in place | Fixed in 6492a64 (Red) |
+| Board, Lounge | nav f1114 live | Load the new Slip; the room is 72% of the screen at 375x812; no errors | Fixed in f1eadd7 (Red) |
+| Board | Live section | View-only tonight; started games' cells are disabled | Open (by plan) |
