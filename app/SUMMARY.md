@@ -81,6 +81,32 @@
   - something to tap on every one of them.
 - At 30 players every game has more faces and more taps come back.
 
+## Making a pick: the Slip (Blue, after the founder's 10:00 PM note)
+
+**How it works now:**
+- A tap on a price fills the cell and adds the pick to one Slip, minimized as a bar above the tabs on every page. A second tap on the same cell removes it.
+- Each further tap adds to the same Slip, from any game, and the bar updates in place: count, combined price, and "25 stake pays 91".
+- The Slip never opens by itself. Tapping the bar opens it with two tabs:
+  - **Parlay:** the legs, remove per leg, and Add picks, which drops you back with the bar minimized.
+  - **Straights:** a stake box per pick, plus Stake all.
+- Under both tabs: quick-add chips (+10, +25, +50, +100, no Max) and a number pad. One button reads the stake and what it pays, or "Enter stake" (disabled) when there is none. The stake starts at your last stake.
+- After placing: a receipt with the picks, stake, pays and time, plus Keep picks in Slip and Done.
+- Featured parlays fill the same Slip.
+
+**Bugs found before the fix (walked at 375 px):**
+1. Every price tap opened a full Slip sheet over the game.
+2. A parlay needed "Add to parlay" in a sheet for every leg.
+3. Parlay legs lived on one game page only. Leaving the game lost them, so a parlay across games was impossible.
+4. One pick at a time: a second straight meant a second sheet.
+5. A Max chip, which the rulings removed.
+6. A leftover "Place in" contest row.
+7. Placing ended in a toast only, with no receipt.
+
+**Tap counts, before and after:**
+- **One straight:** 2 before (price, Lock in a sheet over the game). 3 after (price, bar, Place), and the game stays in view until you choose to open the Slip.
+- **Two-leg parlay across games:** not possible before (6 taps for two legs inside one game). 4 after (price, price on the other game, bar, Place), plus the taps to move between games.
+- **Two picks from one game:** 4 before (price, Lock, price, Lock). 4 after (price, price, bar, Place), as two straights or a parlay with one tab tap.
+
 ## Profile and Slips (Gold)
 
 - **Every profile:** a big face, the Stack, the rank, the season record and the move this week. One player has one face everywhere.
