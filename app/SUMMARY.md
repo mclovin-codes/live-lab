@@ -347,6 +347,10 @@ Every team swept its own pages on the live link, in both views, at 375x812 and 3
 
 ## Unfinished or faked
 
+- **Live picking:** game pages only; the Board's Live section is view-only tonight, and timed markets (next score, this drive) are not in. The feed runs 15 to 49 seconds behind, so many stoppage windows have already closed by the time the page sees them.
+- **Slip cards** show the score and FINAL on each leg's game strip, but no period-by-period scores, because the scoreboard feed carries none.
+- **The Lounge composer riding the iPhone keyboard** needs a check on a real iPhone.
+
 - **Sample data, stated plainly:** where the feed has no player lines yet, the NFL game page shows Touchdowns, Passing, Rushing and Receiving with sample lines marked "Sample lines until the week's lines post". Sample cells take no picks. The Board's NFL Touchdowns, Passing, Receiving and Rushing tabs show sample player rows under the same note, because the feed carries no NFL player leaders this week. Spread and total prices on the Board are a stand-in -110 because the scoreboard feed gives none.
 
 - **The other players are stand-ins.** Their picks are real games and lines, but not real people. They never tap back or reply, so in the honest view only your own tapbacks and talk appear.
