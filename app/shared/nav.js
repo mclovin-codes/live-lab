@@ -34,6 +34,12 @@
   window.Rush.circleSuggest = function (n) { let f = []; try { f = window.Rush.field().filter(r => !r.me); } catch (e) {} const mine = new Set(window.Rush.circle().map(c => c.id)); const h = x => { let k = 2166136261; for (let i = 0; i < x.length; i++) { k ^= x.charCodeAt(i); k = Math.imul(k, 16777619); } return (k >>> 0) / 4294967296; };
     return f.filter(r => !mine.has(String(r.id))).sort((p, q) => h('fof' + p.id) - h('fof' + q.id)).slice(0, n || 3).map(r => ({ id: String(r.id), name: r.name })); };
   const RIVK = 'rush-rival-v1';
+  /* Viewing as not entered (the founder's 11:35 PM note): ?entered=0 shows every page as a visitor who has not entered,
+     ?entered=1 (or entering) returns to the real state. Kept in localStorage 'rush-entered' ('0' = not entered). */
+  const ENK = 'rush-entered';
+  try { const q = new URLSearchParams(location.search).get('entered'); if (q === '0') localStorage.setItem(ENK, '0'); else if (q === '1') { localStorage.removeItem(ENK); const R0 = window.Rush; if (R0 && R0.me && R0.enter && !R0.me().entered) R0.enter(); } } catch (e) {}
+  function NOTIN() { try { return localStorage.getItem(ENK) === '0'; } catch (e) { return false; } }
+  (function () { const R0 = window.Rush || {}; const oe = R0.enter; if (oe && !oe._view) { R0.enter = function () { try { localStorage.removeItem(ENK); } catch (e) {} const ok = oe.apply(R0, arguments); try { refresh(); } catch (e) {} return ok; }; R0.enter._view = true; } R0.entered = () => { try { return !NOTIN() && !!(R0.me && R0.me().entered); } catch (e) { return false; } }; })();
   /* ONE rank rule for every page (founder, 11:00 PM): ranks are unique. Equal Stacks are ordered by more Slips won, then
      fewer Slips lost, then name, so no two players ever share a number. Sorts the rows in place and sets r.rank. */
   function rankRows(rows) { try { rows.sort((a, b) => ((+b.units || 0) - (+a.units || 0)) || ((+b.w || 0) - (+a.w || 0)) || ((+a.l || 0) - (+b.l || 0)) || String(a.name || '').localeCompare(String(b.name || ''))); rows.forEach((r, i) => { r.rank = i + 1; }); } catch (e) {} return rows; }
@@ -49,7 +55,7 @@
   (function shareRanks() { const R = window.Rush; if (!R || !R.field || R.field._shared) return; const orig = R.field;
     R.field = function () { const f = seven(orig.apply(R, arguments)); rankRows(f); return f; };
     R.field._shared = true;
-    if (R.me && !R.me._shared) { const om = R.me; R.me = function () { const m = om.apply(R, arguments); try { const f = R.field(), r = f.find(x => x.me); if (r && m) { m.rank = r.rank; m.of = f.length; } } catch (e) {} return m; }; R.me._shared = true; } })();
+    if (R.me && !R.me._shared) { const om = R.me; R.me = function () { const m = om.apply(R, arguments); if (m && NOTIN()) m.entered = false; try { const f = R.field(), r = f.find(x => x.me); if (r && m) { m.rank = r.rank; m.of = f.length; } } catch (e) {} return m; }; R.me._shared = true; } })();
   /* One opponent per week: the first pairing computed is pinned, so every page shows the same matchup. */
   (function pinRival() { const R = window.Rush; if (!R || !R.rival || R.rival._pinned) return; const orig = R.rival; const K = 'rush-rival-v1';
     R.rival = function () { let wk = ''; try { wk = R.week().id; } catch (e) {} let pin = null; try { pin = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) {}
@@ -116,7 +122,7 @@ html:has(#rsx){overflow:hidden}body.has-slip #rhonest{margin-bottom:calc(146px +
     if (nav._h !== h) { nav.innerHTML = h; nav._h = h; }
   }
   function drawTop() {
-    if (window.RushTopbar && typeof window.RushTopbar.draw === 'function') { let t = document.getElementById('rtop'); if (!t) { t = document.createElement('header'); t.id = 'rtop'; document.body.insertBefore(t, document.body.firstChild); } const d = mine(), s = (d.m.entered ? (Rush.units ? 1000 + Math.round(Rush.units() * 10) : d.m.stack) : 1000); let o = null; try { const mu = Rush.matchup(); o = mu.opp; } catch (e) {} try { window.RushTopbar.draw(t, { handle: d.m.handle || ME, stack: s, delta: s - 1000, rank: d.rank, of: d.of, opponent: o, honest: HONEST, openStack }); return; } catch (e) {} }
+    if (window.RushTopbar && typeof window.RushTopbar.draw === 'function') { let t = document.getElementById('rtop'); if (!t) { t = document.createElement('header'); t.id = 'rtop'; document.body.insertBefore(t, document.body.firstChild); } const d = mine(), s = (d.m.entered ? (Rush.units ? 1000 + Math.round(Rush.units() * 10) : d.m.stack) : 1000); let o = null; try { const mu = Rush.matchup(); o = mu.opp; } catch (e) {} try { window.RushTopbar.draw(t, { handle: d.m.handle || ME, stack: s, delta: s - 1000, rank: d.rank, of: d.of, opponent: o, honest: HONEST, openStack, entered: !!(window.Rush.entered && window.Rush.entered()), enter: () => window.Rush.enter() }); return; } catch (e) {} }
     let t = document.getElementById('rtop'); if (!t) { t = document.createElement('header'); t.id = 'rtop'; document.body.insertBefore(t, document.body.firstChild); t.addEventListener('click', e => { if (e.target.closest('.stk')) openStack(); }); }
     const d = mine(), s = (d.m.entered ? (Rush.units ? 1000 + Math.round(Rush.units() * 10) : d.m.stack) : 1000), dl = s - 1000;
     const h = `<a class="av" href="player.html?u=me" aria-label="Your profile">${avatar(d.m.handle || ME)}<span class="who"><span class="nm">${esc(d.m.handle || ME)}</span><span class="sub">${HONEST ? 'Honest view, 7 players' : d.rank ? 'Rank ' + d.rank + ' of ' + d.of : 'The Field'}${d.rival ? ' · vs ' + esc(d.rival.name) : ''}</span></span></a><button type="button" class="stk" aria-label="Your Stack, ${stk(s)}. Open"><small>STACK</small><b>${stk(s)}</b><span class="d ${dl > 0 ? 'up' : dl < 0 ? 'dn' : ''}">${dl > 0 ? '+' : ''}${dl ? stk(dl) : 'even'}</span></button>`;
