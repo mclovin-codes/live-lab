@@ -187,3 +187,5 @@ The checks:
 | Game page | The Field's split before kickoff | Only "4 sealed on this game" | Added in 26e7578 |
 | Game page | The Field's split on OKC at POR (live) | Moneyline and Total bars with percentages; Picks and Stack switch | Added in 26e7578 |
 | Board, Lounge | Slip card s12, team mark m6, nav f1115 | Cards and marks render, no errors | Fixed in 1f32258, e6200c0 (Red) |
+| Lounge | Open the game bar's card | The watch and venue chip shows at its foot ("Watch NBC, KSBI · Dome") | Fixed in 1d601fb, ea50ee3 (Red) |
+| Board | Rows | The Board's rows do not use the shared card, so the chip is not there; the game page carries it | Open (by plan) |
