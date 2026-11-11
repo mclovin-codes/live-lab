@@ -45,29 +45,37 @@
 
 ## The one social space: the Lounge (Red, rebuilt after the council's 4-0 verdict)
 
-- **One screen for the whole Field.** The matchup, the faces and the live game card stay pinned, and only the room scrolls, opening at its newest row. There are no rooms per game and no fixed lines. From the top:
-  1. **The Field / My circle** switch.
-  2. **Your matchup:** "You 1,000, them 817, lead 183". It is one figure from one source (`Rush.matchup()`), the same number Contest and Home show.
-  3. **The faces:** every player with rank and Stack, you and your opponent ringed. A rank change re-sorts the row, each face sliding to its new place. Every face opens a profile.
-  4. **The game that is on:** one card, swipe for the others.
-     - The live score and period.
-     - Before kickoff, who picked it and a countdown. After kickoff, "With you" and "Against you" by face.
-     - A "Next seal" chip with its countdown.
-     - The card opens the game page.
-  5. **The room:** one thread, newest at the bottom, with a "New since you left" divider:
-     - Slips sealing (games only);
-     - each seal break as one row (game, score, faces with you and against you), which opens the full who-took-what table on the game page;
-     - picks settling, with the Stack move counting up, and several on one game folded into one row;
-     - older moments behind "Earlier today".
-  6. **The seal breaking, live:** at kickoff, with the page open, a "Seal broken" panel flips every pick on that game face up. It fired on the real 10:00 PM kickoffs. Nothing is scored.
-- **It moves:**
-  - when a pick settles, that player's Stack on the faces row counts to its new figure, green up or red down;
-  - when ranks change, the faces slide into their new order and the moved rank badges flash;
-  - new Stack moves in the room count up, and the live score ticks.
-- **One tap, and talk on top:**
-  - Hold or double-tap any row for the tapback tray (heart, thumbs up, thumbs down, laugh, exclamation, question) or Reply. One tapback per player per row, and your face shows as a badge on it.
-  - Reply quotes the row into the one composer, docked above the tabs and the Slip bar. Talk is tagged with the pinned game.
-- **The Field or My circle:** the same screen, filtered (see My circle below).
+**One screen for the whole Field.** The Lounge fits one phone screen. At the top, always in view: your matchup, the faces of the Field and the game that is on. Below them only the room scrolls, and it opens at its newest row. There are no rooms per game and no fixed lines.
+
+**At the top (pinned):**
+1. **The Field / My circle** switch.
+2. **Your matchup:** "You 1,000, them 1,091, down 91". It is one figure from one source (`Rush.matchup()`), the same number Contest and Home show.
+3. **The faces:** every player with rank and Stack (1 to 7 in the honest view), you and your opponent ringed. Every face opens a profile.
+4. **The game that is on:** one card, swipe for the others.
+   - The live score and period.
+   - Before kickoff: who holds a Slip on it, and a countdown.
+   - After kickoff: "With you on NY", "Against you on MIL", "On the Over", or "On this game" for props, which have no opponent.
+   - A "Next seal" chip counts down to the next kickoff.
+
+**The room (scrolls):** one thread, newest at the bottom, with a "New since you left" divider.
+- **Slips sealing:** one row per player, naming only the games.
+- **Seal broken:** one row per game (score, faces with you and against you), opening to each player's Slip and to the full who-took-what table on the game page.
+- **Slips settling:**
+  - the Stack move counts up, only on the game that decided the Slip;
+  - other legs show what the Slip still needs;
+  - several on one game fold into one row.
+- **Earlier today** holds everything older.
+
+**The seal breaking, live:** at kickoff, with the page open, a sheet floats up: "Seal broken: OKC at POR", one line per player (the leg on this game and its price, with you or against you), each opening the whole Slip. It fired on the real 10:00 and 11:00 PM kickoffs. At 11:00 it opened the third leg of a live 3-leg parlay.
+
+**It moves:**
+- when a pick settles, that player's Stack counts to its new figure;
+- when ranks change, the faces slide into their new order and the moved rank badges flash;
+- the live score ticks.
+
+**One tap, and talk on top:**
+- Hold or double-tap any row for the tapback tray (heart, thumbs up, thumbs down, laugh, exclamation, question) or Reply. There is one tapback per player per row, and your face shows as a badge on it.
+- Reply quotes the row into the one composer, docked above the tabs and the Slip bar. A line you send is tagged with the game on the pinned card.
 
 ## My circle (the founder's 9:50 PM note): a filter, not a second space
 
