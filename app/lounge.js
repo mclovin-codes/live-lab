@@ -211,7 +211,8 @@
   function standIns() { if (honest()) return; const I = ls('rush-lounge-inbox-v1', []); if (I.length && Date.now() - I[I.length - 1].at < 10 * 60e3) return; const F = field(), r = F.riv || F.list.find(x => !x.me); if (!r) return; const opts = [['yourmove', 'Your move'], ['watching', 'Watching your picks'], ['coming', 'Coming for you']], o = opts[Math.floor(h01(r.id + Date.now() / 6e5) * opts.length)]; I.push({ gen: 1, id: String(Date.now()), fromId: String(r.id), who: r.name, k: o[0] === 'yourmove' ? 'yourmove' : o[0], text: o[1], about: F.riv && r.id === F.riv.id ? 'Your matchup' : '', at: Date.now() }); lsSet('rush-lounge-inbox-v1', I.slice(-20)); render(); }
 
   /* the clock: countdowns tick, and when a kickoff passes with the page open the seal breaks in front of you */
-  setInterval(() => { const n = Date.now(); let hit = 0; document.querySelectorAll('[data-k]').forEach(el => { const k = +el.dataset.k; if (k > n) el.textContent = clock(k - n); else if (k > n - 5000) hit = k; }); if (hit && (!BROKE || BROKE.k !== hit)) { BROKE = { k: hit }; render(); scrollTo({ top: 0, behavior: 'smooth' }); } }, 1000);
+  const OPENED = Date.now(), BROKEN = new Set();
+  setInterval(() => { const n = Date.now(); let hit = 0; document.querySelectorAll('[data-k]').forEach(el => { const k = +el.dataset.k; if (k > n) el.textContent = clock(k - n); else if (k > OPENED && !BROKEN.has(k)) { hit = k; BROKEN.add(k); } }); if (hit && (!BROKE || BROKE.k !== hit)) { BROKE = { k: hit }; render(); scrollTo({ top: 0, behavior: 'smooth' }); } }, 1000);
   render();
   const load = () => (window.RW && RW.load ? RW.load(true) : Promise.resolve(games)).then(g => { games = g || games; watchScores(); render(); }).catch(() => {});
   load(); setInterval(load, 30000); setTimeout(standIns, 4000);
