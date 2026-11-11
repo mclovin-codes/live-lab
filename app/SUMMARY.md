@@ -34,6 +34,9 @@
   - The contest, opened: The Field / My circle, the Field by Stack, and the line under 3rd: "Top 3 take the week's prizes".
   - Your matchup, opened: both Slip records (won-lost, open), your Slips, then your opponent's Slips, each leg sealed until its own kickoff.
   - Gone: "The week, moving" (the Lounge is the only home for the stream), the "Your week" tiles, and the floating pinned row that covered the list.
+  - **Season:** Season 1 as weeks won and lost, one line of copy ("A week above 1,000 Stack is a win."), the same 7 players in the honest view, and the preset faces.
+  - **For a visitor who has not entered:** no rank and no matchup, only the Join card.
+- **Viewing as not entered** (Blue in the store, Gold's footer toggle, after the founder's 11:35 PM note): ?entered=0 shows every page as a visitor who has not entered. ?entered=1, the footer toggle, or entering returns to the real state. Rush.entered() is the one answer every page reads.
 - **Board** (Red, rebuilt after the Rush iOS app on the founder's 11:20 PM note):
   - league pills NFL, NBA, NHL, landing on NFL, and one row of market tabs, Game Lines first (NBA Points, Rebounds, Assists; NHL Goals, Points, Assists; NFL has no player data yet, so Game Lines only);
   - day headers (TODAY, TOMORROW, THU · NOV 12) over SPREAD, TOTAL and ML columns;
