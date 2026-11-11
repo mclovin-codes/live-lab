@@ -10,6 +10,7 @@
  *   type 'settled' the game went final. players: [{id, name, side, label, stake, result, change, me}], change in Stack.
  *   type 'rank'    a settle moved players in the Ranks. players: [{id, name, from, to, me}]
  *   type 'lead'    the lead in your matchup changed hands. players: [{id, name, stack, me}] (leader first)
+ *   type 'play'    a scoring play in a live NFL or NHL game the Field holds. players: [{id, name, side, team, me}] (team: the pick is on the scoring team)
  *   type 'live'    a game with picks on it is under way. players: [{id, name, side, me}] text: score and clock
  * Rush.onEvent(fn) calls fn(event) for each event that appears after the page opened (checked every 20 seconds).
  * Rush.eventsFor(gameId) -> the events on one game.
@@ -52,6 +53,11 @@
         if (done.length) ev.push({ id: 'f|' + g.league + g.id, type: 'settled', at: Math.min(now, g.date + 3 * 36e5), league: g.league, gameId: String(g.id), game: gname(g), players: done.map(x => Object.assign(full(x), { result: x.p.status, change: Math.round((x.p.units || 0) * 10) })), text: gname(g) + ' is final', honest: H });
       }
     });
+    /* big plays: scoring plays in live or final NFL and NHL games the Field holds picks on (fetched below) */
+    let PL = {}; try { PL = JSON.parse(localStorage.getItem('rush-plays-v1') || '{}'); } catch (e) {}
+    Object.values(byGame).forEach(({ g, picks }) => { if (!started(g)) return; (PL[g.league + '|' + g.id] || []).forEach(pl => {
+      const tm = pl.team, on = picks.map(x => ({ id: x.who.id, name: x.who.name, me: x.who.me, side: sideOf(x.p), team: x.p.label && tm && String(x.p.label).startsWith(tm) }));
+      ev.push({ id: 'p|' + g.league + g.id + '|' + pl.id, type: 'play', at: pl.at, league: g.league, gameId: String(g.id), game: gname(g), team: tm, players: on, text: (tm ? tm + ': ' : '') + pl.text, honest: H }); }); });
     /* rank moves and matchup lead changes: replay the settles in order */
     const settles = ev.filter(e => e.type === 'settled').sort((a, b) => a.at - b.at);
     if (settles.length) {
@@ -83,5 +89,16 @@
   R.events = events;
   R.eventsFor = gameId => events().filter(e => String(e.gameId) === String(gameId));
   R.onEvent = fn => { subs.push(fn); if (!seen) tick(); };
+  /* fetch scoring plays for games under way (or just final) that someone in the Field holds */
+  async function fetchPlays() { const W = window.RW; if (!W || !W.cached) return; const games = (W.cached() || []).filter(g => (g.league === 'nfl' || g.league === 'nhl') && (g.state === 'in' || (g.state === 'post' && Date.now() - g.date < 6 * 36e5)));
+    if (!games.length) return; let PL = {}; try { PL = JSON.parse(localStorage.getItem('rush-plays-v1') || '{}'); } catch (e) {}
+    const path = { nfl: 'football/nfl', nhl: 'hockey/nhl' };
+    await Promise.all(games.slice(0, 6).map(async g => { try { const d = await (await fetch('https://site.api.espn.com/apis/site/v2/sports/' + path[g.league] + '/summary?event=' + g.id)).json();
+      let list = []; if (g.league === 'nfl') list = (d.scoringPlays || []).map(p => ({ id: String(p.id), text: p.text || p.type && p.type.text || 'Score', team: p.team && p.team.abbreviation }));
+      else { const TM = {}; (((d.header || {}).competitions || [])[0] || { competitors: [] }).competitors.forEach(c => { if (c.team) TM[String(c.team.id || c.id)] = c.team.abbreviation; if (c.id) TM[String(c.id)] = c.team && c.team.abbreviation; }); list = (d.plays || []).filter(p => p.scoringPlay).map(p => ({ id: String(p.id), text: p.text || 'Goal', team: p.team && (p.team.abbreviation || TM[String(p.team.id)] || '') })); }
+      const k = g.league + '|' + g.id, old = PL[k] || [];
+      PL[k] = list.slice(-12).map(p => { const o = old.find(x => x.id === p.id); return Object.assign(p, { at: o ? o.at : Date.now() }); }); } catch (e) {} }));
+    try { localStorage.setItem('rush-plays-v1', JSON.stringify(PL)); } catch (e) {} memo.k = ''; tick(); }
+  setTimeout(fetchPlays, 1500); setInterval(fetchPlays, 60000);
   setInterval(tick, 20000);
 })();

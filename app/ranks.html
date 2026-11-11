@@ -55,10 +55,10 @@ a.rk-row{text-decoration:none;color:inherit}a.rk-row:active{background:var(--rb-
 </div>
 <div class="rk-pin" id="rk-pin" hidden></div>
 <nav id="rb-tabs" hidden></nav>
-<script src="shared/state.js"></script>
-<script src="week-games.js"></script>
-<script src="shared/nav.js"></script>
-<script src="shared/events.js"></script>
+<script src="shared/state.js?v=r614"></script>
+<script src="week-games.js?v=r614"></script>
+<script src="shared/nav.js?v=r614"></script>
+<script src="shared/events.js?v=r614"></script>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
@@ -80,8 +80,9 @@ function pulse(){if(!R||!R.events)return'';let ev=[];try{ev=R.events()}catch(e){
   else if(e.type==='reveal')t=`Seal broken on <b>${esc(e.game)}</b>: ${P.length} pick${P.length>1?'s':''} open`;
   else if(e.type==='settled'){const w=P.filter(p=>p.result==='won').length,l=P.filter(p=>p.result==='lost').length;t=`<b>${esc(e.game)}</b> final: ${w} hit, ${l} missed`}
   else if(e.type==='rank')t=P.map(p=>`<b>${nm(p)}</b> ${p.to<p.from?'up':'down'} to #${p.to}`).join(', ');
+  else if(e.type==='play'){const on=P.filter(p=>p.team);t=`<b>${esc(e.team||'')}</b> scored in ${esc(e.game)}${on.length?': good for '+on.slice(0,2).map(nm).join(', ')+(on.length>2?' +'+(on.length-2):''):''}`}
   else if(e.type==='lead')t=`<b>${nm(first)}</b> ${first.me?'lead':'leads'} your matchup`;
-  const faces=P.slice(0,2).map(p=>p.me?AVf((R.me().handle||'You'),1):`<a href="player.html?u=${encodeURIComponent(p.id)}">${AVf(p.name,1)}</a>`).join('');
+  const faces=(e.type==='play'?P.filter(p=>p.team):P).slice(0,2).map(p=>p.me?AVf((R.me().handle||'You'),1):`<a href="player.html?u=${encodeURIComponent(p.id)}">${AVf(p.name,1)}</a>`).join('');
   const gh=e.gameId?'game.html?league='+e.league+'&id='+encodeURIComponent(e.gameId):'ranks.html';return`<div class="rk-pl" style="display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px"><span class="rk-pf" style="display:flex;align-items:center">${faces}</span><a class="rk-pt" href="${gh}" style="color:inherit;text-decoration:none">${t}</a><small>${ago(e.at)}</small></div>`};
  return`<div class="rk-card"><h2>The week, moving <span><a href="lounge.html" style="color:inherit">Lounge</a></span></h2>${ev.map(line).join('')}</div>`}
 function vWeek(){const rows=fieldRows(),mine=rows.find(r=>r.me),opp=(o=>rows.find(r=>o&&(String(r.id)===String(o.id)||r.name===o.name))||o)(R?(R.rival()||RW.opponent(rows)):RW.opponent(rows)),done=games.filter(g=>g.state==='post').length,live=games.filter(g=>g.state==='in').length;
