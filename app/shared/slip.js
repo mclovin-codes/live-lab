@@ -3,7 +3,7 @@
  * tab bar shows the count and, when the picks combine, the parlay price. Tap the bar: Parlay and Straights tabs,
  * quick-add chips and a number pad, one button that reads the stake and what it pays, then a receipt.
  * A pick: { key, league, gameId, game, start, spec, label, odds, market }. Stored on this phone under 'rush-slip-v1'.
- * Rules kept: no Max chip; picks from one game do not combine (they go as straights); nothing places without a stake.
+ * Rules kept: no Max chip; the other side of a market you already hold replaces it; nothing places without a stake.
  */
 (function () {
   const R = window.Rush = window.Rush || {}, K = 'rush-slip-v1';
@@ -17,7 +17,7 @@
   const stk = n => Math.round(+n || 0).toLocaleString('en-US');
   const esc = x => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const live = l => l.filter(p => !p.start || p.start > Date.now());
-  function combines(l) { if (l.length < 2) return false; const g = new Set(l.map(p => p.league + p.gameId)); return g.size === l.length; }
+  function combines(l) { return l.length >= 2; }
   function parlayOdds(l) { return amer(l.reduce((d, p) => d * dec(p.odds), 1)); }
   /* the same market on the same game replaces the other side; the same pick twice removes it */
   function toggle(p) { let l = load(); if (l.some(x => x.key === p.key)) { l = l.filter(x => x.key !== p.key); save(l); return false; } l = l.filter(x => !(x.league === p.league && String(x.gameId) === String(p.gameId) && x.mkt && x.mkt === p.mkt)); l.push(p); save(l); return true; }
@@ -53,8 +53,7 @@
     if (receipt) { sh.innerHTML = `<div class="grab"></div><h3>Placed</h3>${receipt.rows.map(r => `<div class="leg"><span><b>${esc(r.label)}</b><small>${esc(r.game)}</small></span><span class="od">${fo(r.odds)}</span><span></span></div>`).join('')}<div class="stakeall"><span>Stake ${stk(receipt.stake)}</span><span>Pays ${stk(receipt.pays)}</span></div><div class="note">${new Date(receipt.at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' })} ET · sealed until each kickoff</div><button class="more" data-r="keep">Keep picks in Slip</button><button class="go" data-r="done" style="margin-top:8px">Done</button>`; return; }
     if (!l.length) { close(); return; }
     let h = `<div class="grab"></div><h3>Your Slip</h3><div class="tabs"><button data-t="parlay" class="${tab === 'parlay' ? 'on' : ''}"${c ? '' : ' disabled'}>Parlay</button><button data-t="straight" class="${tab === 'straight' ? 'on' : ''}">Straights</button></div>`;
-    if (l.length === 1) h += `<div class="note">Add another pick from a different game and this becomes a parlay.</div>`;
-    else if (!c) h += `<div class="note">Picks from one game do not combine, so these go as straights.</div>`;
+    if (l.length === 1) h += `<div class="note">Add another pick and this becomes a parlay.</div>`;
     if (tab === 'parlay' && c) { const o = parlayOdds(l); h += l.map(p => `<div class="leg"><span><b>${esc(p.label)}</b><small>${esc(p.game)}</small></span><span class="od">${fo(p.odds)}</span><button class="x" data-x="${esc(p.key)}" aria-label="Remove">&#215;</button></div>`).join('') + `<div class="stakeall"><span>${l.length}-pick parlay</span><span>${fo(o)}</span></div>` + keypad() + `<button class="go" data-go="parlay"${stake > 0 && stake <= cash() ? '' : ' disabled'}>${stake > 0 ? 'Place parlay · ' + stk(stake) + ' pays ' + stk(pays(stake, o)) : 'Enter stake'}</button>`; }
     else { const tot = l.reduce((t, p) => t + (+stakes[p.key] || 0), 0), win = l.reduce((t, p) => t + (stakes[p.key] ? pays(stakes[p.key], p.odds) : 0), 0);
       h += l.map(p => `<div class="leg"><span><b>${esc(p.label)} <span class="od">${fo(p.odds)}</span></b><small>${esc(p.game)}${stakes[p.key] ? ' · pays ' + stk(pays(stakes[p.key], p.odds)) : ''}</small></span><span class="sb"><input inputmode="numeric" data-s="${esc(p.key)}" class="${keyTarget === p.key ? 'on' : ''}" value="${stakes[p.key] || ''}" placeholder="Stake" aria-label="Stake for ${esc(p.label)}"></span><button class="x" data-x="${esc(p.key)}" aria-label="Remove">&#215;</button></div>`).join('');
