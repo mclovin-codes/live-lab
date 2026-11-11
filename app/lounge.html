@@ -70,6 +70,15 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 .lg-more{font:800 12px var(--lg-f);color:var(--lg-mut);padding:0 4px}
 /* type floor matches Home and profiles */
 .lg-face small,.lg-face em,.lg-scope button,.lg-mu em,.lg-mu{font-size:13px}.lg-face b{font-size:11px}.lg-face small{color:#A3AFBD}.lg-face.me small{color:var(--lg-acc)}.lg-face.riv small{color:var(--lg-riv)}.lg-face{width:48px}
+/* the Slip: a straight is one line, a parlay one card with its legs; a sealed leg shows the game only */
+.lg-slip{margin-top:6px;padding:8px 10px;border-radius:12px;background:#0F1720;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.lg-slh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}.lg-slh b{font:900 13px var(--lg-f)}.lg-slh span{font:900 13px var(--lg-f);color:var(--lg-acc)}
+.lg-leg{display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:baseline;padding:4px 0;border-top:1px solid var(--lg-line)}.lg-leg:first-of-type{border-top:0}.lg-leg b{font:800 14px var(--lg-f)!important;display:block}.lg-leg small{grid-column:2;color:var(--lg-mut);font-size:12px!important}
+.lg-lk{font:900 11px var(--lg-f);padding:2px 6px;border-radius:6px;background:#2A3644;color:#fff}.lg-lk.up{background:rgba(34,197,94,.2);color:var(--lg-win)}.lg-lk.dn{background:rgba(240,82,82,.2);color:var(--lg-loss)}
+.lg-leg.sealed span{font:900 11px var(--lg-f);padding:2px 6px;border-radius:6px;background:rgba(245,165,36,.18);color:var(--lg-warn)}
+.lg-slf{display:flex;justify-content:space-between;margin-top:4px;font:800 12px var(--lg-f);color:var(--lg-mut)}.lg-slf em{font-style:normal}.lg-slf em.up{color:var(--lg-win)}.lg-slf em.dn{color:var(--lg-loss)}
+.lg-rvl{text-align:left}.lg-open{margin:-2px 0 6px 10px;padding:8px 10px;border-left:2px solid rgba(245,165,36,.4)}.lg-who{display:flex;gap:8px;align-items:flex-start;padding:6px 0}.lg-who>span{flex:1;min-width:0}.lg-who b{font:800 14px var(--lg-f)}.lg-gl{display:block;margin-top:6px;color:var(--lg-acc);font:800 13px var(--lg-f)}
+.lg-flip>span{flex:1;min-width:0}
 @media (prefers-reduced-motion:reduce){.lg-flip,.lg-tray,.lv i,.lg-sc strong.tick,.lg-face em.bump,.lg-face b.flash{animation:none}.lg-face{transition:none!important}}
 </style>
 </head>
@@ -81,6 +90,6 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}a{colo
 <script src="honest.js"></script>
 <script src="shared/nav.js?v=f1103"></script>
 <script src="shared/events.js?v=f1103"></script>
-<script src="lounge.js?v=l1116"></script>
+<script src="lounge.js?v=l1118"></script>
 </body>
 </html>
