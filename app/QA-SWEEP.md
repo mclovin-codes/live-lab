@@ -197,3 +197,17 @@ The checks:
 | Views | Pages | Result | Fixed in / open |
 |---|---|---|---|
 | Honest 375x812; full Field 375x667; visitor 375x667 | Home, Board, Contest, Lounge, Profile, Slips, a game page | No errors, no sideways scroll, no inner scrollers, no banned words, no logo or photo images; rank the same on every page (4 of 7; 7 of 31); the visitor flag holds on every page | OK |
+
+## The founder's 2 AM note: "very slow and laggy"
+
+Measured on a desktop in the 7-player view, with saved box scores in rw.box (2 games). "Worst stall" is the longest single block of work in the first 9 seconds of a load.
+
+| Page | Action | Result | Fixed in / open |
+|---|---|---|---|
+| Home | Load with rw.box holding saved box scores | Froze for 39 s: rw.box was read and parsed on every call (573,002 reads) | Fixed in fd7c72a (chief: the box scores are parsed once and kept) |
+| Home | Load, then redraw (every 30 s) | Worst stall 485 to 663 ms; one redraw 412 ms; 4,600 Field builds in 10 s. Each card asked for you, the Field and whether you entered, and each of those rebuilt the whole Field twice | Fixed in a9f82bb: worst stall 79 to 82 ms, redraw 28 to 48 ms, 117 Field builds |
+| Lounge | Load | Worst stall 414 to 483 ms | Fixed in a9f82bb: 66 to 68 ms |
+| Contest, Me, Slips, Board, game page | Load | Worst stall 88, 101, 49, 39 and 81 ms | a9f82bb: 27, 64, 33, 45 and 38 ms |
+| All seven pages | Page text before and after a9f82bb, loaded back to back, also as a visitor who has not entered | Same text (only the live game clocks move) | Checked |
+| All seven pages (live, a9f82bb) | Load each page with 2 saved box scores in rw.box | Home 0.30 s, Board 0.36 s, Lounge 0.52 s, Contest 0.28 s, Me 0.31 s, Slips 0.31 s, game page 0.50 s; no errors | Checked, all under a second |
+| Home, Lounge on a phone | The same loads on a real iPhone | Not measured; desktop figures only | Open |
