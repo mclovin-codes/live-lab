@@ -557,5 +557,6 @@ function loop(fn,msLive,msPre){let on=false,first=true;const run=async()=>{if((f
 try{if(window.RW&&RW.mountStrip)RW.mountStrip($('rw-strip'),LG,ID)}catch(e){}
 if(SPORT){render();loop(pollSum,4000,30000);loop(pollProbs,3000,30000);loop(pollPlays,2000,30000);pollProps();setInterval(pollProps,300000);setInterval(render,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){pollSum().catch(()=>{});pollPlays().catch(()=>{})}})}else render();
 </script>
+<script type="module" src="live-test.js?v=f1117"></script>
 </body>
 </html>
