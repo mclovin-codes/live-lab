@@ -210,4 +210,6 @@ Measured on a desktop in the 7-player view, with saved box scores in rw.box (2 g
 | Contest, Me, Slips, Board, game page | Load | Worst stall 88, 101, 49, 39 and 81 ms | a9f82bb: 27, 64, 33, 45 and 38 ms |
 | All seven pages | Page text before and after a9f82bb, loaded back to back, also as a visitor who has not entered | Same text (only the live game clocks move) | Checked |
 | All seven pages (live, a9f82bb) | Load each page with 2 saved box scores in rw.box | Home 0.30 s, Board 0.36 s, Lounge 0.52 s, Contest 0.28 s, Me 0.31 s, Slips 0.31 s, game page 0.50 s; no errors | Checked, all under a second |
+| Lounge (Red) | Load at 375x812 | nav f1116, week-games f1116 and lounge l1143 load; matchup, faces and 6 game bars draw; no sideways scroll; no console errors | Checked on a9f82bb |
+| Board (Red) | Load at 375x812, tap the Touchdowns chip | nav f1116 and week-games f1116 load; the chip switches in 4 ms, 14 rows; no sideways scroll; no console errors | Checked on a9f82bb |
 | Home, Lounge on a phone | The same loads on a real iPhone | Not measured; desktop figures only | Open |
