@@ -24,11 +24,13 @@ body { font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; 
 .banner { margin: 8px 16px 0; padding: 10px 12px; border-radius: 8px; background: var(--chip); border: 1px solid var(--warn); color: var(--ink); }
 main { padding: 12px 16px 40px; max-width: 1280px; margin: 0 auto; display: grid; gap: 12px; }
 .hero { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.lockbox, .big, .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; min-width: 0; }
+.lockbox, .big, .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
 .lbl { font-size: 12px; color: var(--mute); text-transform: uppercase; letter-spacing: .04em; }
 .lockstate { font-size: 40px; font-weight: 900; line-height: 1.1; margin: 4px 0; }
 .lockstate.open { color: var(--ok); }
 .lockstate.locked { color: var(--bad); }
+.lockstate.pre { color: var(--mute); font-size: 28px; }
+.num.empty { font-size: 14px; font-weight: 500; color: var(--mute); margin: 8px 0 2px; }
 .lockwhy { color: var(--mute); font-size: 14px; }
 .num { font-size: 40px; font-weight: 800; line-height: 1.1; margin: 4px 0; }
 .sub { color: var(--mute); font-size: 13px; }
@@ -50,6 +52,11 @@ button:active { transform: translateY(1px); }
 .picks button { width: 100%; text-align: left; display: flex; justify-content: space-between; gap: 8px; }
 .picks button[disabled] { opacity: .45; cursor: not-allowed; }
 .pickstats { margin-top: 8px; font-weight: 600; }
+.list.short { max-height: 112px; }
+.row2 { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); gap: 12px; }
+.row2 .taps { flex-direction: column; }
+.verdict { margin: 0 0 10px; padding: 8px 10px; border-left: 3px solid var(--gold); background: var(--chip); border-radius: 6px; }
+.verdict div { margin-top: 3px; }
 .list { margin-top: 6px; max-height: 260px; overflow-y: auto; font-size: 13px; }
 .list div { padding: 3px 0; border-bottom: 1px dashed var(--line); }
 .controls { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 8px; }
@@ -58,7 +65,7 @@ input[type=range] { width: 140px; height: 32px; }
 .note { color: var(--mute); font-size: 13px; margin: 6px 0 0; }
 .meter { font-size: 15px; }
 .meter b { font-size: 22px; }
-@media (max-width: 900px) { .hero { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) { .hero { grid-template-columns: repeat(2, minmax(0, 1fr)); } .row2 { grid-template-columns: 1fr; } .row2 .taps { flex-direction: row; } }
 @media (max-width: 520px) {
   .hero { grid-template-columns: 1fr 1fr; gap: 8px; }
   .lockbox { grid-column: 1 / -1; }

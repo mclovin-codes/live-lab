@@ -76,6 +76,8 @@ function ingest(ev) {
   const t = eventTime(ev);
   const d = t - Date.now();
   if (Math.abs(d - skew) > 3000) skew = d;
+  // newest event time; a jump back over a minute means a new timeline (replay restart)
+  if (t > lastEvT || lastEvT - t > 60000) lastEvT = t;
   lastEventAt = Date.now();
   model.ingest(ev);
   if (ev.lane === 'sgo' && ev.data && !ev.data.error) {
@@ -85,10 +87,12 @@ function ingest(ev) {
   }
   if (ev.lane === 'mark' && ev.data && ev.data.kind === 'pick') notePickFromLog(ev);
 }
-const nowMs = () => Date.now() + skew;
+// Page clock: the event clock, never behind the newest event, so no age reads negative (replay or live).
+let lastEvT = 0;
+const nowMs = () => Math.max(Date.now() + skew, lastEvT);
 
 // ---------- relay transport: SSE first, /log polling fallback ----------
-let es = null; let pollTimer = null; let silentTimer = null; let retryTimer = null;
+let es = null; let pollTimer = null; let silentTimer = null; let retryTimer = null; let streamRetry = null;
 function setMode(m) { mode = m; }
 async function refill() {
   const r = await fetch(rurl('/log', { since: lastSeq, limit: 5000 }), { cache: 'no-store' });
@@ -102,6 +106,9 @@ function startPolling() {
   if (pollTimer) return;
   if (es) { es.close(); es = null; }
   setMode('Polling every 0.5 s');
+  // Step back up to the stream after 60 s of polling; if the stream fails again we land back here.
+  clearTimeout(streamRetry);
+  streamRetry = setTimeout(() => { if (pollTimer) { stopPolling(); connect(); } }, 60000);
   pollTimer = setInterval(async () => {
     try { await refill(); relayUp = true; } catch (e) { console.warn("poll failed", e && e.message); relayUp = false; stopPolling(); scheduleRetry(); }
   }, 500);
@@ -202,20 +209,22 @@ async function postMark(body, localEcho) {
   if (localEcho) ingest({ t: new Date().toISOString(), lane: 'mark', data: body });
 }
 
+// Team labels: tonight's names live, neutral names over a replay of another game.
+const TEAMS = () => (relayMode === 'replay' ? { a: 'Away', h: 'Home' } : { a: 'WSH', h: 'NYG' });
+
 // ---------- pick test ----------
 const picks = []; // {id, clientT, tMs, market, side, shownLine, shownOdds, accepted, reason, lockState, grade}
 const PICK_BUTTONS = [
-  ['spread', 'away', 'spreadAway', 'WSH spread'], ['spread', 'home', 'spreadHome', 'NYG spread'],
-  ['total', 'over', 'totalOver', 'Over'], ['total', 'under', 'totalUnder', 'Under'],
-  ['ml', 'away', 'mlAway', 'WSH to win'], ['ml', 'home', 'mlHome', 'NYG to win'],
+  ['spread', 'away', 'spreadAway', 'a', ' spread'], ['total', 'over', 'totalOver', '', 'Over'], ['ml', 'away', 'mlAway', 'a', ' to win'],
+  ['spread', 'home', 'spreadHome', 'h', ' spread'], ['total', 'under', 'totalUnder', '', 'Under'], ['ml', 'home', 'mlHome', 'h', ' to win'],
 ];
 function renderPickButtons(status) {
   const box = $('picks');
   if (!box.childElementCount) {
-    for (const [market, side, key, label] of PICK_BUTTONS) {
+    for (const [market, side, key, team, label] of PICK_BUTTONS) {
       const b = document.createElement('button');
-      b.dataset.key = key; b.dataset.market = market; b.dataset.side = side;
-      b.innerHTML = '<span class="small">' + label + '</span><b>-</b>';
+      b.dataset.key = key; b.dataset.market = market; b.dataset.side = side; b.dataset.team = team; b.dataset.label = label;
+      b.innerHTML = '<span class="small"></span><b>-</b>';
       b.onclick = () => tapPick(b);
       box.appendChild(b);
     }
@@ -224,6 +233,7 @@ function renderPickButtons(status) {
     const m = status.markets[b.dataset.key];
     const txt = m ? [m.line, m.odds].filter(Boolean).join('  ') || 'shown' : 'not on the Board';
     b.querySelector('b').textContent = txt;
+    b.querySelector('span').textContent = (b.dataset.team ? TEAMS()[b.dataset.team] : '') + b.dataset.label;
     b.dataset.line = m && m.line ? m.line : '';
     b.dataset.odds = m && m.odds ? m.odds : '';
     b.disabled = !m;
@@ -235,7 +245,7 @@ function tapPick(b) {
   const st = model.lock.status(now);
   const res = model.lock.tryPick(pick, now);
   const clientT = new Date().toISOString();
-  const rec = { id: clientT + Math.random(), clientT, tMs: now, ...pick, team: pick.side === 'home' ? 'NYG' : pick.side === 'away' ? 'WSH' : null, accepted: res.accepted, reason: res.reason, lockState: st.open ? 'OPEN' : 'LOCKED', grade: null, mine: true };
+  const rec = { id: clientT + Math.random(), clientT, tMs: now, ...pick, team: pick.side === 'home' ? TEAMS().h : pick.side === 'away' ? TEAMS().a : null, accepted: res.accepted, reason: res.reason, lockState: st.open ? 'OPEN' : 'LOCKED', grade: null, mine: true };
   picks.unshift(rec);
   if (picks.length > 200) picks.pop();
   $('pickmsg').innerHTML = (res.accepted ? '<b class="ok">Accepted</b> ' : '<b class="bad">Refused</b> ') + esc(res.reason);
@@ -277,7 +287,7 @@ function gradePicks(now) {
 }
 
 // ---------- rendering ----------
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const f1 = (x) => (x === null || x === undefined || !Number.isFinite(x) ? '-' : x < 10 ? x.toFixed(1) : String(Math.round(x)));
 const css = (lane) => 'var(--' + lane + ')';
 const dot = (lane) => '<span class="dot" style="background:' + css(lane) + '"></span>';
@@ -293,7 +303,9 @@ function render() {
   pill.className = 'pill ' + (relayUp ? (mode.startsWith('Live') ? 'ok' : '') : 'bad');
   $('norelay').hidden = relayUp;
   const g = s.lanes.sgo?.r || s.lanes.espn?.r || s.lanes.fastcast?.r;
-  $('game').textContent = g && g.home !== null ? 'WSH ' + g.away + '  NYG ' + g.home + (g.period ? '  Q' + g.period + ' ' + (fmtClock(g.clockSec) || '') : '') : 'WSH at NYG  No game data yet';
+  const T = TEAMS();
+  const replayTag = relayMode === 'replay' ? 'Replay of a recorded game: ' : '';
+  $('game').textContent = replayTag + (g && g.home !== null ? T.a + ' ' + g.away + '  ' + T.h + ' ' + g.home + (g.period ? '  Q' + g.period + ' ' + (fmtClock(g.clockSec) || '') : '') : (relayMode === 'replay' ? 'waiting for data' : 'WSH at NYG  ' + (s.lanes.sgo || s.lanes.espn ? 'Pregame' : 'No game data yet')));
 
   // hero: lock first, then clock lag now per lane, then stale meter
   const lk = s.lock;
@@ -303,7 +315,7 @@ function render() {
   for (const lane of ['sgo', 'rush', 'espn', 'fastcast']) {
     const L = s.lanes[lane]; const c = s.lag[lane].clock;
     const has = L && L.r && L.r.elapsed !== null;
-    hero += '<div class="big"><div class="k">' + dot(lane) + esc(LANE_NAMES[lane]) + ' clock behind</div><div class="v num">' + (has ? f1(c.now) + '<span class="small"> s</span>' : '<span class="small">no data yet</span>') + '</div><div class="s num">' + (c.n ? 'median ' + f1(c.median) + '  90th ' + f1(c.p90) + '  worst ' + f1(c.worst) : 'no samples yet') + '</div></div>';
+    hero += '<div class="big"><div class="k">' + dot(lane) + esc(LANE_NAMES[lane]) + ' clock behind</div><div class="v num">' + (has ? f1(c.now) + '<span class="small"> s</span>' : '<span class="small">' + (L && L.r && !s.live ? 'pregame, no clock yet' : 'no data yet') + '</span>') + '</div><div class="s num">' + (c.n ? 'median ' + f1(c.median) + '  90th ' + f1(c.p90) + '  worst ' + f1(c.worst) : 'no samples yet') + '</div></div>';
   }
   hero += '<div class="big ' + (s.stale.on ? 'locked' : '') + '"><div class="k">Rush stale line</div><div class="v num">' + (s.lanes.rush ? Math.round(s.stale.seconds) + '<span class="small"> s</span>' : '<span class="small">no data yet</span>') + '</div><div class="s num">' + s.stale.windows + ' windows' + (s.stale.on ? '  now: ' + esc(s.stale.reason.join(', ')) : '') + '</div></div>';
   $('hero').innerHTML = hero;
@@ -313,20 +325,20 @@ function render() {
   for (const lane of LANE_ORDER) {
     const L = s.lanes[lane];
     if (lane === 'tv') {
-      lh += '<div class="lane' + (s.marks.length ? '' : ' empty') + '"><div class="name">' + dot('tv') + 'TV</div><div class="row"><span>Taps</span><span class="num">' + s.tv.taps + '</span></div>' + (s.marks.length ? '<div class="row"><span>Last</span><span class="num">' + esc(s.marks[s.marks.length - 1].kind) + ' ' + f1((now - s.marks[s.marks.length - 1].t) / 1000) + ' s ago</span></div>' : '<div class="play">No taps yet</div>') + '</div>';
+      lh += '<div class="lane' + (s.marks.length ? '' : ' empty') + '"><div class="name">' + dot('tv') + 'TV</div><div class="row"><span>Taps</span><span class="num">' + s.tv.taps + '</span></div>' + (s.marks.length ? '<div class="row"><span>Last</span><span class="num">' + esc(s.marks[s.marks.length - 1].kind) + ' ' + f1(Math.max(0, (now - s.marks[s.marks.length - 1].t) / 1000)) + ' s ago</span></div>' : '<div class="play">No taps yet</div>') + '</div>';
       continue;
     }
     if (!L || !L.r) { lh += '<div class="lane empty"><div class="name">' + dot(lane) + esc(LANE_NAMES[lane]) + '</div><div class="play">No data yet' + (L && L.lastErr ? ': error ' + esc(L.lastErr.error) : '') + '</div></div>'; continue; }
     const r = L.r; const p = r.prices || r.displayPrices || {};
     const run = L.clock.running === true ? '<span class="run on">RUN</span>' : L.clock.running === false ? '<span class="run off">STOP</span>' : '<span class="run unk">?</span>';
-    const ageClock = r.since ? f1((now - r.since.clock) / 1000) : '-';
+    const ageClock = r.since ? f1(Math.max(0, (now - r.since.clock) / 1000)) : '-';
     const ml = [p.mlAway && p.mlAway.odds, p.mlHome && p.mlHome.odds].map((x) => x || '-').join(' / ');
     lh += '<div class="lane"><div class="name">' + dot(lane) + esc(LANE_NAMES[lane]) + (lane === 'rush' && r.pickable === false ? ' <span class="run on">not pickable</span>' : '') + (lane === 'sgo' && r.available === false ? ' <span class="run on">line off</span>' : '') + '</div>'
       + '<div class="clock num">' + (r.period ? 'Q' + r.period + ' ' : '') + (fmtClock(r.clockSec) || '-') + run + '</div>'
-      + '<div class="row"><span>Score</span><span class="num">' + (r.home !== null ? 'WSH ' + r.away + ' NYG ' + r.home : '-') + '</span></div>'
-      + '<div class="row"><span>NYG spread</span><span class="num">' + esc([p.spread && p.spread.line, p.spread && p.spread.odds].filter(Boolean).join(' ') || '-') + '</span></div>'
+      + '<div class="row"><span>Score</span><span class="num">' + (r.home !== null ? esc(T.a + ' ' + r.away + ' ' + T.h + ' ' + r.home) : '-') + '</span></div>'
+      + '<div class="row"><span>' + esc(T.h) + ' spread</span><span class="num">' + esc([p.spread && p.spread.line, p.spread && p.spread.odds].filter(Boolean).join(' ') || '-') + '</span></div>'
       + '<div class="row"><span>Total</span><span class="num">' + esc([p.total && p.total.line, p.total && p.total.odds].filter(Boolean).join(' ') || '-') + '</span></div>'
-      + '<div class="row"><span>Win WSH / NYG</span><span class="num">' + esc(ml) + '</span></div>'
+      + '<div class="row"><span>Win ' + esc(T.a + ' / ' + T.h) + '</span><span class="num">' + esc(ml) + '</span></div>'
       + '<div class="row"><span>Reading age</span><span class="num">' + f1(L.age) + ' s</span></div>'
       + '<div class="row"><span>Clock held</span><span class="num">' + ageClock + ' s</span></div>'
       + (lane === 'espn' ? '<div class="small">No in-play price on this lane; lines shown are its own slow copy.</div>' : '')
@@ -397,6 +409,7 @@ function render() {
   $('plays').innerHTML = s.plays.slice().reverse().map((p) => '<li class="num">' + (p.wall ? new Date(p.wall).toLocaleTimeString('en-US', { timeZone: 'America/New_York' }) : '-') + '  known +' + (p.wall ? f1((p.firstKnown - p.wall) / 1000) + ' s' : '-') + (p.stop ? '  <b>' + esc(p.stop.kind) + '</b>' : '') + '  ' + esc((p.text || '').slice(0, 120)) + '</li>').join('');
 
   renderLimits(s);
+  renderVerdict(s);
 }
 
 function drawTrace(s, now) {
@@ -428,6 +441,19 @@ function drawTrace(s, now) {
 }
 
 // Limits list: each limit, the fix, the in-game test, the result so far (live numbers fill in).
+function renderVerdict(s) {
+  const lines = [];
+  const rc = s.lag.rush.clock; const rp = s.lag.rush.price; const rs = s.lag.rush.score;
+  if (rc.n || rp.n) lines.push('Rush shows the game late: clock ' + f1(rc.median) + ' s at the median (worst ' + f1(rc.worst) + ' s), price ' + f1(rp.median) + ' s, score ' + f1(rs.median) + ' s behind the fastest lane; it held a stale pickable line ' + Math.round(s.stale.seconds) + ' s over ' + s.stale.windows + ' windows.');
+  else lines.push('Rush lag: no in-play Rush readings yet.');
+  const ls = s.lockScore; const lk = s.lock;
+  if (lk.inPlaySec > 0) lines.push('The Blue lock would let players pick ' + (100 * lk.openSec / lk.inPlaySec).toFixed(1) + '% of live time, open ' + ls.badOpenSec + ' s while the ball was live (' + ls.badOpenPlays + ' of ' + ls.unsafeWindows + ' snaps); the 30 s starting rule would allow ' + (100 * s.baseline.openSec / lk.inPlaySec).toFixed(1) + '%.');
+  else lines.push('Lock: the game is not live yet, nothing to grade.');
+  const pl = s.plays.filter((p) => p.wall).map((p) => (p.firstKnown - p.wall) / 1000).sort((a, b) => a - b);
+  const plMed = pl.length ? pl[Math.floor(pl.length / 2)] : null;
+  lines.push('Still unsolved: no lane shows the snap itself' + (plMed !== null ? ', plays arrive ' + f1(plMed) + ' s after their stamp at the median' : '') + (s.tv.taps ? '' : ', and no TV taps yet to rank the TV') + '.');
+  $('verdict').innerHTML = lines.map((l) => '<li>' + esc(l) + '</li>').join('');
+}
 function renderLimits(s) {
   const L = [
     ['Score feed (poll) publishes a play 30 to 80 s after its stamp (2026-11-05 replay)', 'Lock from the odds feed clock jump, not from plays', 'Compare play known-lag below against the odds feed clock lag', 'Score feed clock median ' + f1(s.lag.espn.clock.median) + ' s behind'],

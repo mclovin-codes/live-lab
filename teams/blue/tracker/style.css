@@ -65,7 +65,7 @@ th { font-size: 12px; color: var(--muted); font-weight: 600; }
 td .n { font-size: 20px; font-weight: 700; display: block; }
 td .d { font-size: 11px; color: var(--muted); display: block; }
 .lead { outline: 2px solid var(--open); outline-offset: -2px; border-radius: 6px; }
-canvas { width: 100%; height: 180px; display: block; }
+canvas { width: 100%; height: 170px; display: block; }
 .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); margin-top: 6px; }
 .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
 .picks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -84,4 +84,23 @@ ul.log li { border-top: 1px solid var(--line); padding: 6px 0; font-size: 13px; 
   .big .v { font-size: 32px; }
   td .n { font-size: 16px; }
   th, td { padding: 5px 2px; }
+}
+
+/* v2 desktop first: the founder's view is 1280 by 800 */
+section { padding: 10px 12px; margin-top: 10px; }
+header { padding: 8px 0; }
+.hero { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.big { padding: 8px 10px; }
+.big .v { font-size: 36px; }
+.big.lock .v { font-size: 30px; }
+.big .s { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.toprow { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 14px; }
+.toprow .picks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.toprow .picks button { padding: 4px 8px; }
+.verdict { margin: 0; padding-left: 20px; font-size: 14px; }
+.verdict li { margin: 2px 0; }
+@media (max-width: 900px) {
+  .hero { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .toprow { grid-template-columns: 1fr; }
+  .toprow .picks { grid-template-columns: 1fr 1fr; }
 }

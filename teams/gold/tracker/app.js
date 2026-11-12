@@ -2,7 +2,7 @@
 import { createLock, plainReason } from './lock.js';
 import { LANE_NAME, MARKETS, KINDS, lagTable, scoreRuns, cadence, baselineVsBest, gradePick, quantiles, DEFAULTS } from './core.js';
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const $ = (id) => document.getElementById(id);
 $('ver').textContent = VERSION;
 document.title = `Gold Live Tracker ${VERSION}`;
@@ -45,7 +45,8 @@ function rurl(path, params = {}) {
 
 // ---------- settings ----------
 const cfg = { tap: +(ls.get('gold.tap') || DEFAULTS.tap), holdConf: +(ls.get('gold.hold') || DEFAULTS.holdConf) };
-$('tap').value = cfg.tap; $('hold').value = cfg.holdConf;
+cfg.forecast = ls.get('gold.fc') !== 'off';
+$('tap').value = cfg.tap; $('hold').value = cfg.holdConf; $('fc').checked = cfg.forecast;
 
 // ---------- state ----------
 const EV_CAP = 90000;
@@ -87,6 +88,7 @@ function rebuild() {
   scoreAt = 0;
 }
 $('tap').oninput = () => { cfg.tap = +$('tap').value; ls.set('gold.tap', cfg.tap); rebuild(); };
+$('fc').onchange = () => { cfg.forecast = $('fc').checked; ls.set('gold.fc', cfg.forecast ? 'on' : 'off'); lock.setForecast(cfg.forecast); };
 $('hold').oninput = () => { cfg.holdConf = +$('hold').value; ls.set('gold.hold', cfg.holdConf); rebuild(); };
 
 // ---------- relay connection: SSE first, /log polling fallback ----------
@@ -99,9 +101,10 @@ async function getConfig() {
 async function connect() {
   try {
     const c = await getConfig();
-    if (c.home) game.home = c.home;
-    if (c.away) game.away = c.away;
-    if (c.ids?.espn) game.espn = c.ids.espn;
+    // Relay text never reaches the page raw: team codes and the event id are whitelisted shapes.
+    if (/^[A-Z]{2,4}$/.test(c.home || '')) game.home = c.home;
+    if (/^[A-Z]{2,4}$/.test(c.away || '')) game.away = c.away;
+    if (/^\d{6,12}$/.test(String(c.ids?.espn || ''))) game.espn = String(c.ids.espn);
     if (relayStart && c.startedAt !== relayStart) { // relay restarted: start clean
       EV = []; lastSeq = 0; lock = createLock(cfg); scoreAt = 0;
     }
@@ -192,6 +195,69 @@ function startBrowserLanes() {
   browserTimer = setInterval(tickOnce, 2000);
 }
 function stopBrowserLanes() { if (browserTimer) { clearInterval(browserTimer); browserTimer = null; } }
+
+// ---------- Score feed (push) lane: shared helper, posts patches to the relay ----------
+// The page keeps the game package (checkpoint plus patches) and ingests a small snapshot
+// (clock, score, last play, the book's prices) as a push-lane reading whenever it changes.
+const FC = { doc: null, last: null, ok: false, msgs: 0 };
+function patchDoc(doc, p) {
+  const seg = String(p.path).split('/').slice(1).map((x) => x.replace(/~1/g, '/').replace(/~0/g, '~'));
+  if (!seg.length || seg.some((k) => k === '__proto__' || k === 'constructor' || k === 'prototype')) return;
+  let n = doc;
+  for (let i = 0; i < seg.length - 1; i++) {
+    const k = seg[i];
+    if (n[k] == null) { if (p.op === 'remove') return; n[k] = /^\d+$/.test(seg[i + 1]) || seg[i + 1] === '-' ? [] : {}; }
+    n = n[k];
+    if (typeof n !== 'object') return;
+  }
+  const k = seg[seg.length - 1];
+  if (Array.isArray(n)) {
+    if (k === '-') n.push(p.value); else if (p.op === 'add') n.splice(+k, 0, p.value); else if (p.op === 'remove') n.splice(+k, 1); else n[+k] = p.value;
+  } else if (p.op === 'remove') delete n[k]; else n[k] = p.value;
+}
+const numOrNull = (v) => (v === null || v === undefined || v === '' || !Number.isFinite(+v) ? null : +v);
+function fcSnapshot(doc) {
+  const comp = doc.header?.competitions?.[0] || {};
+  const stt = comp.status || {};
+  const home = (comp.competitors || []).find((c) => c.homeAway === 'home') || {};
+  const away = (comp.competitors || []).find((c) => c.homeAway === 'away') || {};
+  const plays = doc.drives?.current?.plays || [];
+  const last = plays[plays.length - 1] || null;
+  const pcs = Array.isArray(doc.pickcenter) ? doc.pickcenter : [];
+  const pc = pcs.find((x) => String(x?.provider?.id) === '100') || pcs[0] || null;
+  const state = stt.type?.state ?? null;
+  return {
+    state, started: state ? state !== 'pre' : null, ended: stt.type?.completed ?? null,
+    period: numOrNull(stt.period), clock: typeof stt.displayClock === 'string' ? stt.displayClock : null,
+    homeScore: numOrNull(home.score), awayScore: numOrNull(away.score),
+    lastPlayId: last?.id ? String(last.id) : null, lastPlayText: typeof last?.text === 'string' ? last.text : null, lastPlayWallclock: last?.wallclock ?? null,
+    spreadHome: pc && numOrNull(pc.spread) !== null ? { line: numOrNull(pc.spread), odds: numOrNull(pc.homeTeamOdds?.spreadOdds) } : null,
+    total: pc && numOrNull(pc.overUnder) !== null ? { line: numOrNull(pc.overUnder), odds: numOrNull(pc.overOdds) } : null,
+    mlHome: pc ? numOrNull(pc.homeTeamOdds?.moneyLine) : null, mlAway: pc ? numOrNull(pc.awayTeamOdds?.moneyLine) : null,
+  };
+}
+function fcIngest() {
+  if (!FC.doc || replayMode) return;
+  const snap = fcSnapshot(FC.doc);
+  const key = JSON.stringify(snap);
+  if (key === FC.last) return;
+  FC.last = key;
+  ingest({ seq: null, t: new Date(Date.now() - (skew ?? 0)).toISOString(), lane: 'fastcast', ms: null, data: { topic: 'gold-local', ...snap } });
+}
+async function startFastcast() {
+  try {
+    const mod = await import('../../../tracker/shared/fastcast.js');
+    mod.connectFastcast({
+      eventId: game.espn, league: 'NFL', post: true, source: 'gold',
+      onMessage: (m) => {
+        FC.msgs++;
+        if (m.op === 'CP' && m.doc) { FC.doc = m.doc; FC.ok = true; fcIngest(); }
+        else if (m.op === 'P' && FC.doc && Array.isArray(m.list)) { for (const p of m.list) { try { patchDoc(FC.doc, p); } catch { /* keep going */ } } fcIngest(); }
+        else if (m.op === 'close') FC.ok = false;
+      },
+    });
+  } catch (e) { console.warn('push helper not loaded', e); }
+}
 
 // ---------- posting marks ----------
 async function postMark(body) {
@@ -285,35 +351,38 @@ function render() {
   const S = lock.engine.S;
   const t = nowMs();
   $('wall').textContent = hms(Date.now()) + ' ET';
-  $('conn').textContent = relayOk ? `Relay ${mode} · seq ${lastSeq} · ${EV.length} events kept${isReplay() ? ' · replay time ' + hms(S.tNow) : ''}` : 'Relay not connected, browser lanes only';
+  const push = FC.ok ? ` · push lane on (${FC.msgs} msgs)` : ' · push lane connecting';
+  $('conn').textContent = (relayOk ? `Relay ${mode} · seq ${lastSeq} · ${EV.length} events kept${isReplay() ? ' · replay time ' + hms(S.tNow) : ''}` : 'Relay not connected, browser lanes only') + push;
   const ban = $('banner');
   if (!relayOk && mode === 'browser only') { ban.hidden = false; ban.textContent = 'Laptop relay not connected: licensed feed and Rush lanes are off'; } else ban.hidden = true;
 
   // lock (never tick the engine before the first event, so the replay clock is not polluted)
   const st = EV.length ? lock.status(t) : { open: false, reason: '', sinceMs: 0, markets: {} };
   const hasFeed = !!(S.latest.sgo || S.latest.fastcast);
-  $('lockstate').textContent = hasFeed ? (st.open ? 'OPEN' : 'LOCKED') : 'NO DATA YET';
-  $('lockstate').className = 'lockstate ' + (hasFeed ? (st.open ? 'open' : 'locked') : '');
-  $('lockwhy').textContent = hasFeed ? `${st.open ? 'Prices shown, likely to hold through a ' + cfg.tap + ' s tap' : st.reason} · ${Math.round(st.sinceMs / 1000)} s` : 'Waiting for the odds feed';
+  const pre = st.code === 'pregame';
+  $('lockstate').textContent = !hasFeed ? 'WAITING' : pre ? 'PREGAME' : st.open ? 'OPEN' : 'LOCKED';
+  $('lockstate').className = 'lockstate ' + (!hasFeed || pre ? 'pre' : st.open ? 'open' : 'locked');
+  $('lockwhy').textContent = hasFeed ? `${st.open ? 'Prices shown, likely to hold through a ' + cfg.tap + ' s tap' : st.reason}${pre ? '' : ` · ${Math.round(st.sinceMs / 1000)} s`}${cfg.forecast ? '' : ' · forecast off'}` : 'No odds feed yet';
 
   // pick buttons
   for (const p of PICK_DEFS) {
     const b = $('pk_' + p.key), m = st.markets[p.key];
     b.disabled = !m;
-    b.innerHTML = `<span>${esc(p.label())} ${m ? (p.grp === 'Total' ? (m.line ?? '') : fmtLine(p.grp === 'Moneyline' ? null : m.line)) : ''}</span><span>${m ? fmtOdds(m.odds) || 'line only' : 'paused'}</span>`;
+    b.innerHTML = `<span>${esc(p.label())} ${m ? esc(p.grp === 'Total' ? (m.line ?? '') : fmtLine(p.grp === 'Moneyline' ? null : m.line)) : ''}</span><span>${m ? esc(fmtOdds(m.odds) || 'line only') : 'paused'}</span>`;
   }
 
-  // big numbers
+  // big numbers (empty states small and quiet)
+  const big = (id, val) => { const e = $(id); const empty = val === null; e.textContent = empty ? 'no data yet' : val; e.className = 'num' + (empty ? ' empty' : ''); };
   const lt = lagTable(S, t);
   const rp = lt.price.rush;
   const feedOn = !!(S.latest.sgo || S.latest.fastcast);
-  $('bigRushPrice').textContent = S.latest.rush && feedOn ? (rp.now === null ? 'no data yet' : `${rp.now.toFixed(0)} s`) : 'no data yet';
+  big('bigRushPrice', S.latest.rush && feedOn && rp.now !== null ? `${rp.now.toFixed(0)} s` : null);
   $('bigRushPriceSub').textContent = !feedOn ? 'odds feed lane is off' : rp.q ? `median ${s1(rp.q.med)} · p90 ${s1(rp.q.p90)} · worst ${s1(rp.q.worst)}` : 'Rush lane has not matched a price yet';
   const rs = lt.score.rush.q;
-  $('bigRushScore').textContent = rs ? `${rs.med.toFixed(1)} s` : 'no data yet';
+  big('bigRushScore', rs ? `${rs.med.toFixed(1)} s` : null);
   $('bigRushScoreSub').textContent = rs ? `p90 ${s1(rs.p90)} · worst ${s1(rs.worst)} · n ${rs.n}` : 'no score change seen on two lanes yet';
-  $('bigStale').textContent = S.latest.rush ? `${S.stale.secs.toFixed(0)} s` : 'no data yet';
-  $('bigStaleSub').textContent = S.latest.rush ? `${S.stale.windows} windows · ${S.stale.on ? 'stale NOW' : 'matching now'} · edge-seconds ${S.stale.edgeSecs.toFixed(0)}` : '';
+  big('bigStale', S.latest.rush && feedOn ? `${S.stale.secs.toFixed(0)} s` : null);
+  $('bigStaleSub').textContent = S.latest.rush && feedOn ? `${S.stale.windows} windows · ${S.stale.on ? 'stale NOW' : 'matching now'} · edge-seconds ${S.stale.edgeSecs.toFixed(0)}` : '';
 
   renderLanes(S, t);
   renderLag(lt, feedOn);
@@ -321,7 +390,7 @@ function render() {
   renderChanges(S, t);
   renderBvb(S);
   renderCadence(S);
-  if (Date.now() - scoreAt > 10000) { scoreAt = Date.now(); scoreCache = ['gold', 'start', 'rush'].map((n) => [n, scoreRuns(S, n, (S.tNow || 0) - 10000)]); }
+  if (Date.now() - scoreAt > 10000) { scoreAt = Date.now(); scoreCache = ['gold', 'goldnf', 'start', 'rush'].map((n) => [n, scoreRuns(S, n, (S.tNow || 0) - 10000)]); }
   renderScores();
   renderLimits(S, lt);
   renderPicks();
@@ -340,7 +409,7 @@ function renderLanes(S, t) {
     const sp = p.spread ? `${game.home} ${fmtLine(p.spread.line)} ${fmtOdds(p.spread.odds)}` : '';
     const to = p.total ? `${p.total.line ?? ''} ${fmtOdds(p.total.odds)}` : '';
     const ml = p.mlHome || p.mlAway ? `${fmtOdds(p.mlHome?.odds) || ''} / ${fmtOdds(p.mlAway?.odds) || ''}` : '';
-    rows.push(`<tr><td>${LANE_NAME[lane]}${lane === 'rush' && r.pickable !== null ? (r.pickable ? ' <span class="good">pickable</span>' : ' <span class="mute">closed</span>') : ''}</td><td>${esc(clock)}</td><td>${sc ? `${game.away} ${sc[1]} : ${game.home} ${sc[0]}` : ''}</td><td title="${esc(r.playText)}">${esc((r.playText || '').slice(0, 48))}</td><td>${esc(sp)}</td><td>${esc(to)}</td><td>${esc(ml)}</td><td class="r ${age > 10 ? 'bad' : ''}">${age.toFixed(1)}</td><td class="r">${S.counts[lane] || 0}${S.errors[lane] ? ` <span class="bad">${S.errors[lane]} err</span>` : ''}</td></tr>`);
+    rows.push(`<tr><td>${LANE_NAME[lane]}${lane === 'rush' && r.pickable !== null ? (r.pickable ? ' <span class="good">pickable</span>' : ' <span class="mute">closed</span>') : ''}</td><td>${esc(clock)}</td><td>${sc ? esc(`${game.away} ${sc[1]} : ${game.home} ${sc[0]}`) : ''}</td><td title="${esc(r.playText)}">${esc((r.playText || '').slice(0, 48))}</td><td>${esc(sp)}</td><td>${esc(to)}</td><td>${esc(ml)}</td><td class="r ${age > Math.max(12, 3 * (S.gap[lane] || 1)) ? 'bad' : ''}" title="reads about every ${(S.gap[lane] || 0).toFixed(1)} s">${age.toFixed(1)}</td><td class="r">${S.counts[lane] || 0}${S.errors[lane] ? ` <span class="bad">${S.errors[lane]} err</span>` : ''}</td></tr>`);
   }
   const tv = S.tv[S.tv.length - 1];
   rows.push(`<tr><td>TV</td><td colspan="8" class="${tv ? '' : 'mute'}">${tv ? `last tap ${tv.kind} at ${hms(tv.t)}, ${S.tv.length} taps` : 'no taps yet'}</td></tr>`);
@@ -400,7 +469,7 @@ function renderCadence(S) {
 }
 function renderScores() {
   if (!scoreCache) return;
-  const names = { gold: 'Gold lock (hold or hide)', start: 'Starting rule (30 s quiet, market on)', rush: 'Rush today (pickable flag)' };
+  const names = { gold: 'Gold lock, forecast on', goldnf: 'Gold lock, forecast off', start: 'Starting rule (30 s quiet, market on)', rush: 'Rush today (pickable flag)' };
   const rows = ['<tr><th>Rule</th><th class="r">Open share</th><th class="r">Bad opens s</th><th class="r">Bad windows</th><th class="r">Bad share of open</th><th class="r">Taps clean</th><th class="r">Refused at tap</th><th class="r">Bad accepts</th></tr>'];
   for (const [n, s] of scoreCache) {
     if (!s.seconds) { rows.push(`<tr><td>${names[n]}</td><td colspan="7" class="mute">no data yet</td></tr>`); continue; }
@@ -413,6 +482,12 @@ function renderScores() {
 function renderLimits(S, lt) {
   const c = cadence(S);
   const sc = scoreCache ? Object.fromEntries(scoreCache) : {};
+  const rq = lt.price.rush.q, rsq = lt.score.rush.q;
+  const v1 = rq || rsq ? `Rush shows prices ${rq ? rq.med.toFixed(0) + ' s late (p90 ' + rq.p90.toFixed(0) + ' s)' : 'with no price lag measured yet'} and scores ${rsq ? rsq.med.toFixed(0) + ' s late' : 'with no score lag measured yet'}; it stayed pickable on an old price ${S.stale.secs.toFixed(0)} s in ${S.stale.windows} windows.` : 'Rush lag: no data yet (needs the Rush lane and the odds feed to show the same change).';
+  const g = cfg.forecast ? sc.gold : sc.goldnf, st0 = sc.start;
+  const v2 = g && g.seconds ? `Gold lock would open ${pct(g.openShare)} of play with ${pct(g.badShare)} of that time bad; the starting rule opens ${pct(st0?.openShare)} with ${pct(st0?.badShare)} bad.` : 'Lock: no in-play seconds scored yet.';
+  const v3 = `Unsolved: no lane signals a snap in time${g && g.seconds ? ` (${g.liveOpen} s open with the ball live)` : ''}; odds stamp age ${c.stampAge ? c.stampAge.med.toFixed(1) + ' s median' : 'not measured yet'}.`;
+  $('verdict').innerHTML = '<b>Verdict so far</b>' + [v1, v2, v3].map((x) => `<div>${esc(x)}</div>`).join('');
   const L = [
     ['Rush shows prices 5 to 15 s late', 'Read the odds feed directly for the lock and hide prices while Rush lags', 'Rush price lag median vs Odds feed', lt.price.rush.q ? `${lt.price.rush.q.med.toFixed(1)} s median, ${lt.price.rush.q.p90.toFixed(1)} s p90` : 'no data yet'],
     ['Rush stays pickable on an old price', 'Gold lock hides every price that is not the newest', 'Stale meter while pickable', S.latest.rush ? `${S.stale.secs.toFixed(0)} s in ${S.stale.windows} windows` : 'no data yet'],
@@ -431,3 +506,4 @@ function renderFeed(S) {
 setInterval(() => { try { render(); } catch (e) { console.error(e); } }, 1000);
 render();
 connect();
+setTimeout(startFastcast, 1500); // after /config so the event id is known

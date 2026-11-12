@@ -39,7 +39,7 @@ console.log('cadence', JSON.stringify(cadence(S)));
 const bvb = baselineVsBest(S);
 for (const k of KINDS) console.log('baseline vs best', k, bvb[k].bestLane, 'saved med', bvb[k].saved?.toFixed(1), 'p90', bvb[k].savedP90?.toFixed(1));
 const tMax = tEnd - 10000;
-for (const name of ['gold', 'start', 'rush']) {
+for (const name of ['gold', 'goldnf', 'start', 'rush']) {
   const s = scoreRuns(S, name, tMax);
   console.log('lock', name.padEnd(5), `open ${(100 * (s.openShare || 0)).toFixed(1)}% (${s.openS}/${s.seconds}s) badOpen ${s.badOpenS}s in ${s.badWindows} windows (live ${s.liveOpen}, stale ${s.staleOpen}) taps ${s.taps} clean ${s.clean} refused ${s.refused} badAccept ${s.badAccept}`);
 }

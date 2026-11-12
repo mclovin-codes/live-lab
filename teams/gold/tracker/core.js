@@ -188,7 +188,8 @@ export function createEngine(cfgIn = {}) {
     evStale: { on: false, since: null, windows: 0, secs: 0, sigT: null },
     rushPriceSince: null,
     // lock timelines as runs
-    runs: { gold: [], start: [], rush: [] },
+    runs: { gold: [], goldnf: [], start: [], rush: [] },
+    gap: {},                // lane -> smoothed seconds between readings
     gridT: null,
     // truth
     wallclocks: new Set(),
@@ -250,11 +251,16 @@ export function createEngine(cfgIn = {}) {
     return sCount(q + tap) / a;
   }
   function since(x, t) { return x === null ? Infinity : (t - x) / 1000; }
-  function goldLock(t) {
+  // over.holdConf lets the page score the rule with the hold forecast off (holdConf 0) side by side.
+  function goldLock(t, over = {}) {
+    const holdConf = over.holdConf ?? cfg.holdConf;
     const f = S.latest.sgo || S.latest.fastcast;
-    const lastFeed = Math.max(S.lastAny.sgo ?? -Infinity, S.lastAny.fastcast ?? -Infinity);
-    if (!f || (t - lastFeed) / 1000 > cfg.feedMaxAge) return { open: false, why: 'feed silent' };
-    if (S.latest.sgo && S.latest.sgo.ended) return { open: false, why: 'final' };
+    if (f && f.ended) return { open: false, why: 'final' };
+    if (!inPlayNow()) return { open: false, why: f ? 'pregame' : 'feed silent' };
+    // freshness from the odds feed when it runs, else from the push lane's own prices
+    const lastFeed = S.latest.sgo ? (S.lastAny.sgo ?? -Infinity) : (S.latest.fastcast?.t ?? -Infinity);
+    const maxAge = S.latest.sgo ? cfg.feedMaxAge : Math.max(cfg.feedMaxAge, 30);
+    if (!f || (t - lastFeed) / 1000 > maxAge) return { open: false, why: 'feed silent' };
     if (S.sig.unavailable) return { open: false, why: 'book off' };
     if (since(S.sig.score, t) < cfg.quietScore) return { open: false, why: 'score' };
     const playT = Math.max(S.sig.play ?? -Infinity, S.sig.snap ?? -Infinity, S.sig.whistle ?? -Infinity);
@@ -263,7 +269,7 @@ export function createEngine(cfgIn = {}) {
     if (q < cfg.quietPrice) return { open: false, why: 'price moved' };
     if (since(S.sig.clock, t) < cfg.quietClock) return { open: false, why: 'clock running' };
     const hold = survival(q === Infinity ? 600 : q, cfg.tap);
-    if (hold < cfg.holdConf) return { open: false, why: `hold ${Math.round(hold * 100)}%` };
+    if (hold < holdConf) return { open: false, why: `hold ${Math.round(hold * 100)}%` };
     return { open: true, why: `hold ${Math.round(hold * 100)}%` };
   }
   function startLock(t) { // the 2026-11-05 starting rule: 30 s quiet on price, line or score, and available
@@ -293,13 +299,14 @@ export function createEngine(cfgIn = {}) {
       S.gridT += 1000;
       if (inPlayNow()) {
         addRun('gold', S.gridT, goldLock(S.gridT));
+        addRun('goldnf', S.gridT, goldLock(S.gridT, { holdConf: 0 }));
         addRun('start', S.gridT, startLock(S.gridT));
         addRun('rush', S.gridT, rushLock());
       }
     }
   }
   function inPlayNow() {
-    const f = S.latest.sgo || S.latest.espn || S.latest.rush;
+    const f = S.latest.sgo || S.latest.fastcast || S.latest.espn || S.latest.rush;
     if (!f) return false;
     if (f.ended) return false;
     return f.started === true || f.state === 'in';
@@ -349,6 +356,7 @@ export function createEngine(cfgIn = {}) {
   }
 
   function ingest(ev) {
+    if (!ev || !LANES.includes(ev.lane)) return null; // unknown lanes never become object keys
     const r = normalize(ev);
     if (!Number.isFinite(r.t)) return null;
     if (S.t0 === null) S.t0 = r.t;
@@ -377,6 +385,12 @@ export function createEngine(cfgIn = {}) {
       return r;
     }
 
+    const g = S.lastAny[lane + '_prev'];
+    if (g !== undefined) { const d = (t - g) / 1000; if (d > 0 && d < 120) S.gap[lane] = S.gap[lane] ? S.gap[lane] * 0.8 + d * 0.2 : d; }
+    S.lastAny[lane + '_prev'] = t;
+    // A posted push patch the page cannot read (no clock, score, play or price) is a heartbeat only.
+    const empty = r.clock === null && r.score === null && !r.play && !MARKETS.some((m) => r.prices[m]) && r.state === null;
+    if (empty) return r;
     const prevLatest = S.latest[lane];
     S.latest[lane] = r;
     if (r.started && !r.ended && lane !== 'rush') { S.inPlay.first ??= t; S.inPlay.last = t; }
@@ -405,7 +419,9 @@ export function createEngine(cfgIn = {}) {
     }
 
     // price heads (odds feed lanes only)
-    if (PRICE_LANES.includes(lane)) {
+    // The push lane carries another book's numbers: it drives the price head only when the odds feed is absent.
+    const sgoLive = S.latest.sgo && t - S.latest.sgo.t < 30000;
+    if (PRICE_LANES.includes(lane) && !(lane === 'fastcast' && sgoLive)) {
       let anyChange = false;
       for (const m of MARKETS) {
         const p = r.prices[m];

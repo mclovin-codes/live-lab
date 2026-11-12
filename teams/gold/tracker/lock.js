@@ -4,11 +4,12 @@
 // at the tap with the reason. Never pending, never voided later.
 import { createEngine, priceKey, num } from './core.js';
 
-export const LOCK_VERSION = 'gold-lock-1';
+export const LOCK_VERSION = 'gold-lock-2';
 
 const WHY = {
   'feed silent': 'Prices paused: the odds feed has gone quiet',
   'final': 'Game over',
+  'pregame': 'Pregame: the live lock starts at kickoff',
   'book off': 'Prices paused: the market is off',
   'score': 'Prices paused: a score just happened',
   'play': 'Prices paused: a play is on',
@@ -26,6 +27,9 @@ export function createLock(options = {}) {
   const eng = options.engine || createEngine(options);
   const S = eng.S;
   let lastState = null, lastChange = null;
+  // options.forecast false: the rule runs without the hold forecast (holdConf 0).
+  let forecast = options.forecast !== false;
+  const over = () => (forecast ? {} : { holdConf: 0 });
 
   function marketsOpen() { return markets({ open: true }); }
   function markets(st) {
@@ -44,7 +48,7 @@ export function createLock(options = {}) {
 
   function status(nowMs = Date.now()) {
     eng.tick(nowMs);
-    const st = eng.goldLock(nowMs);
+    const st = eng.goldLock(nowMs, over());
     if (!lastState || lastState.open !== st.open) lastChange = nowMs;
     if (st.open) lastOpenAt = nowMs;
     lastState = st;
@@ -68,5 +72,5 @@ export function createLock(options = {}) {
     return { accepted: true, reason: 'Accepted at the price shown' };
   }
 
-  return { ingest: (ev) => eng.ingest(ev), status, tryPick, engine: eng };
+  return { ingest: (ev) => eng.ingest(ev), status, tryPick, engine: eng, setForecast: (on) => { forecast = !!on; }, get forecast() { return forecast; } };
 }

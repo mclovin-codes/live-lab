@@ -7,7 +7,7 @@ import { createLock, stopRule, fastcastReduce, eventTime } from './lock.js';
 export { eventTime };
 export { stopRule };
 
-export const VERSION = 'v1';
+export const VERSION = 'v2';
 
 export const LANE_NAMES = {
   sgo: 'Odds feed',
@@ -161,6 +161,8 @@ export function normalize(lane, d) {
     r.playId = d.lastPlayId || null; r.playText = d.lastPlayText || null; r.playType = d.lastPlayType || null;
     r.playWall = d.lastPlayWallclock ? toMs(d.lastPlayWallclock) : null;
   }
+  // a total is a plain number, never signed
+  for (const pr of [r.prices, r.displayPrices]) if (pr && pr.total && pr.total.line) pr.total.line = String(pr.total.line).replace(/^\+/, '');
   r.elapsed = elapsedOf(r.period, r.clockSec);
   r.scoreKey = r.home !== null && r.away !== null ? r.away + '-' + r.home : null;
   r.priceKey = priceKey(r.prices);
@@ -257,7 +259,7 @@ export function createModel(opts = {}) {
     if (ev.lane === 'mark') return onMark(ev, t);
     const lane = ev.lane;
     const L = laneState(lane);
-    if (L.t !== null) pushCap(L.gaps, (t - L.t) / 1000);
+    if (L.t !== null && inPlay()) pushCap(L.gaps, (t - L.t) / 1000);
     L.t = t; L.n++;
     if (L.firstT === null) L.firstT = t;
     let data = ev.data;
@@ -460,11 +462,11 @@ export function createModel(opts = {}) {
     for (const lane of LANES) {
       const L = m.lanes[lane];
       if (!L) { lanes[lane] = null; continue; }
-      lanes[lane] = { r: L.r, t: L.t, age: L.t ? (now - L.t) / 1000 : null, n: L.n, errors: L.errors, lastErr: L.lastErr, clock: L.clock, gaps: stats(L.gaps), changeGaps: stats(L.changeGaps), gapsOver8: L.gaps.filter((g) => g > 8).length };
+      lanes[lane] = { r: L.r, t: L.t, age: L.t ? Math.max(0, (now - L.t) / 1000) : null, n: L.n, errors: L.errors, lastErr: L.lastErr, clock: L.clock, gaps: stats(L.gaps), changeGaps: stats(L.changeGaps), gapsOver8: L.gaps.filter((g) => g > 8).length };
     }
     const tv = tvRanking();
     return {
-      now, lanes, lag, leader, lock: m.lock, baseline: m.baseline,
+      now, live: inPlay(), lanes, lag, leader, lock: m.lock, baseline: m.baseline,
       stale: m.stale, rushGaps: Object.assign(stats(m.rushGaps), { over9: m.rushGaps.filter((g) => g >= 9).length }),
       trace: m.trace, marks: m.marks.slice(-20), plays: [...m.plays.values()].slice(-12), lastSeq: m.lastSeq, tv,
       saved: savedVsBaseline(lag),
