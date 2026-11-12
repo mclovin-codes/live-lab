@@ -57,6 +57,17 @@
     R.field._shared = true;
     if (R.me && !R.me._shared) { const om = R.me; R.me = function () { const m = om.apply(R, arguments); if (m && NOTIN()) m.entered = false; try { const f = R.field(), r = f.find(x => x.me); if (r && m) { m.rank = r.rank; m.of = f.length; } } catch (e) {} return m; }; R.me._shared = true; } })();
   /* One opponent per week: the first pairing computed is pinned, so every page shows the same matchup. */
+  /* One answer per moment (the founder's 2 AM "slow and laggy" note): Rush.me, Rush.field, Rush.entered and RW.field
+     each rebuilt the whole Field, twice over through each other, and a page asks them once per card. The outermost call
+     is kept and handed out as a copy until the saved state, the games, the visitor flag or the pinned rival changes, or
+     one second passes. Calls made while one is being built run as before, so every answer is the same as without it. */
+  const MZ = { d: 0, ids: new WeakMap(), n: 0 };
+  function mzId(o) { if (!o || typeof o !== 'object') return 0; let i = MZ.ids.get(o); if (!i) { i = ++MZ.n; MZ.ids.set(o, i); } return i; }
+  function mzKey(a) { let raw = ''; try { raw = [localStorage.getItem('rush-app-v1'), localStorage.getItem(ENK), localStorage.getItem(RIVK)].join(''); } catch (e) {} let g = null; try { g = window.RW && RW.cached ? RW.cached() : null; } catch (e) {} return raw + '' + mzId(a && a[0]) + '' + mzId(g); }
+  function mzWrap(fn, copy) { let c = null; const w = function () { if (MZ.d) { MZ.d++; try { return fn.apply(this, arguments); } finally { MZ.d--; } } const k = mzKey(arguments), t = Date.now(); if (c && c.k === k && t - c.t < 1000 && t >= c.t) return copy(c.v); MZ.d++; let v; try { v = fn.apply(this, arguments); } finally { MZ.d--; } c = { k, v, t }; return copy(v); }; w._memo = true; return w; }
+  const mzRows = v => Array.isArray(v) ? v.map(r => (r && typeof r === 'object') ? Object.assign({}, r) : r) : v, mzObj = v => (v && typeof v === 'object') ? Object.assign({}, v) : v, mzSame = v => v;
+  function memoChain() { const R = window.Rush, W = window.RW; if (R) { if (R.field && R.field._shared && !R.field._memo) { R.field = mzWrap(R.field, mzRows); R.field._shared = true; } if (R.me && R.me._shared && !R.me._memo) { R.me = mzWrap(R.me, mzObj); R.me._shared = true; } if (R.entered && !R.entered._memo) R.entered = mzWrap(R.entered, mzSame); }
+    if (W && W.field && W.field._seven && !W.field._memo) { W.field = mzWrap(W.field, mzRows); W.field._seven = true; } }
   (function pinRival() { const R = window.Rush; if (!R || !R.rival || R.rival._pinned) return; const orig = R.rival; const K = 'rush-rival-v1';
     R.rival = function () { let wk = ''; try { wk = R.week().id; } catch (e) {} let pin = null; try { pin = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) {}
       let f = []; try { f = R.field(); } catch (e) {}
@@ -66,7 +77,7 @@
       let row = match(orig.apply(R, arguments));
       if (!row) row = others.slice().sort((x, y) => String(x.id).localeCompare(String(y.id), undefined, { numeric: true }))[0] || null;
       if (row) { try { localStorage.setItem(K, JSON.stringify({ wk, id: row.id, name: row.name })); } catch (e) {} } return row; };
-    R.rival._pinned = true; })();
+    R.rival._pinned = true; })(); memoChain();
   const TABS = [
     ['home', 'Home', 'index.html', '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],
     ['board', 'Board', 'board.html', '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 10h18M3 15h18M12 10v10"/>'],
@@ -144,7 +155,7 @@ html:has(#rsx){overflow:hidden}body.has-slip #rhonest{margin-bottom:calc(146px +
     document.body.appendChild(sc); document.body.appendChild(sh);
   }
   function refresh() { draw(); drawTop(); }
-  function init() { honestField(); if (!document.querySelector('script[src^="topbar.js"]')) { const tb = document.createElement('script'); tb.src = 'topbar.js?v=t2'; tb.onload = () => { try { drawTop(); } catch (e) {} }; document.body.appendChild(tb); } if (!document.querySelector('script[src^="shared/slip.js"]')) { const ss = document.createElement('script'); ss.src = 'shared/slip.js?v=f1111'; document.body.appendChild(ss); } if (!document.querySelector('script[src^="shared/events.js"]')) { const es = document.createElement('script'); es.src = 'shared/events.js?v=f1107'; document.body.appendChild(es); } if (!document.querySelector('script[src^="honest.js"]')) { const hs = document.createElement('script'); hs.src = 'honest.js?v=g621'; document.body.appendChild(hs); }
+  function init() { honestField(); memoChain(); if (!document.querySelector('script[src^="topbar.js"]')) { const tb = document.createElement('script'); tb.src = 'topbar.js?v=t2'; tb.onload = () => { try { drawTop(); } catch (e) {} }; document.body.appendChild(tb); } if (!document.querySelector('script[src^="shared/slip.js"]')) { const ss = document.createElement('script'); ss.src = 'shared/slip.js?v=f1111'; document.body.appendChild(ss); } if (!document.querySelector('script[src^="shared/events.js"]')) { const es = document.createElement('script'); es.src = 'shared/events.js?v=f1107'; document.body.appendChild(es); } if (!document.querySelector('script[src^="honest.js"]')) { const hs = document.createElement('script'); hs.src = 'honest.js?v=g621'; document.body.appendChild(hs); }
     const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st); signIn(); ['rpill-band'].forEach(id => { const n = document.getElementById(id); if (n) n.remove(); }); refresh(); if (window.Rush && Rush.on) Rush.on(refresh); setInterval(refresh, 30000); [800, 2000, 4000, 8000].forEach(t => setTimeout(refresh, t)); window.addEventListener('storage', e => { if (e.key === 'rw.games') refresh(); }); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   window.Rush = window.Rush || {}; window.Rush.nav = { refresh, openStack, openSwitch: openStack, avatar, hue, ini };
