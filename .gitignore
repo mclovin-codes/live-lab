@@ -1,3 +1,12 @@
 RUSH-CONTEXT.md
 reference/
 COHORT*
+DECISION-SHEET.md
+tracker/relay.mjs
+tracker/CONTRACT.md
+tracker/README.md
+tracker/*.jsonl
+**/tracker/NOTES.md
+**/tracker/*.jsonl
+tracker/test/
+**/tracker/test/

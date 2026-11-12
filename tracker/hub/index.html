@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Live Lab hub</title>
+<style>
+:root{--bg:#f6f7f9;--panel:#fff;--ink:#14181f;--dim:#5b6573;--line:#dde1e7;--ok:#1a7f45;--warn:#a86400;--bad:#b42318;--btn:#14181f;--btnInk:#fff;--snap:#1f5fd1;--whistle:#a86400;--score:#1a7f45}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0e1116;--panel:#171b22;--ink:#e8ebf0;--dim:#97a1ae;--line:#2a313b;--ok:#3ccf7a;--warn:#f0a73a;--bad:#ff6b5e;--btn:#e8ebf0;--btnInk:#0e1116;--snap:#4d8bff;--whistle:#f0a73a;--score:#3ccf7a}}
+:root[data-theme="dark"]{--bg:#0e1116;--panel:#171b22;--ink:#e8ebf0;--dim:#97a1ae;--line:#2a313b;--ok:#3ccf7a;--warn:#f0a73a;--bad:#ff6b5e;--btn:#e8ebf0;--btnInk:#0e1116;--snap:#4d8bff;--whistle:#f0a73a;--score:#3ccf7a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+main{max-width:900px;margin:0 auto;display:grid;gap:16px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+h1{font-size:20px;margin:0}
+h2{font-size:15px;margin:0 0 8px;color:var(--dim);font-weight:600}
+.tag{font-size:12px;color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+nav a{display:flex;align-items:center;justify-content:center;min-height:44px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-weight:600}
+nav a:hover{border-color:var(--ink)}
+#status{font-size:14px;padding:10px;border-radius:8px;border:1px solid var(--line)}
+#status.ok{color:var(--ok)}#status.off{color:var(--warn)}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--dim);font-weight:600;font-size:12px}
+td.err{color:var(--bad)}
+.stale{color:var(--warn)}
+.taps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.taps button{min-height:72px;border:0;border-radius:12px;font:700 18px/1 system-ui,sans-serif;color:#fff;cursor:pointer;touch-action:manipulation}
+.taps button:active{transform:scale(.97)}
+#snap{background:var(--snap)}#whistle{background:var(--whistle)}#score{background:var(--score)}
+.taps button:disabled{opacity:.4}
+#tapNote{font-size:13px;color:var(--dim);margin-top:8px;min-height:18px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row button{min-height:44px;min-width:44px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:600 14px system-ui,sans-serif}
+small{color:var(--dim)}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Live Lab hub</h1>
+    <div class="row"><span class="tag" id="ver">v1</span><button id="theme" type="button" aria-label="Switch theme">Theme</button></div>
+  </header>
+
+  <section>
+    <h2>Trackers</h2>
+    <nav>
+      <a data-href="../../teams/red/tracker/">Red</a>
+      <a data-href="../../teams/blue/tracker/">Blue</a>
+      <a data-href="../../teams/gold/tracker/">Gold</a>
+      <a data-href="../final/">Final</a>
+    </nav>
+  </section>
+
+  <section>
+    <h2>Lanes</h2>
+    <div id="status" class="off">Looking for the laptop relay</div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Lane</th><th>Last reading</th><th>Age</th><th>Clock</th><th>Score</th><th>Errors</th></tr></thead>
+        <tbody id="lanes"></tbody>
+      </table>
+    </div>
+    <small id="meta"></small>
+  </section>
+
+  <section>
+    <h2>TV taps</h2>
+    <div class="taps">
+      <button id="snap" type="button">Snap</button>
+      <button id="whistle" type="button">Whistle</button>
+      <button id="score" type="button">Score</button>
+    </div>
+    <div id="tapNote">Tap the moment you see it on TV.</div>
+  </section>
+</main>
+
+<script type="module">
+import { relayUrl, relayBase, relayKey } from '../shared/fastcast.js'
+
+// Carry ?relay= and ?k= onto the tracker links so a phone keeps its link.
+relayBase(); relayKey()
+const q = new URLSearchParams(location.search)
+const keep = new URLSearchParams()
+for (const k of ['relay', 'k']) if (q.get(k)) keep.set(k, q.get(k))
+for (const a of document.querySelectorAll('nav a')) a.href = a.dataset.href + (keep.toString() ? '?' + keep : '')
+
+// Theme toggle, remembered on this device only.
+const root = document.documentElement
+try { const t = localStorage.getItem('liveLab.theme'); if (t) root.dataset.theme = t } catch {}
+document.getElementById('theme').onclick = () => {
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+  root.dataset.theme = dark ? 'light' : 'dark'
+  try { localStorage.setItem('liveLab.theme', root.dataset.theme) } catch {}
+}
+
+const NAMES = { sgo: 'Odds feed', rush: 'Rush', espn: 'Score feed (poll)', fastcast: 'Score feed (push)', mark: 'TV' }
+const ORDER = ['sgo', 'rush', 'espn', 'fastcast', 'mark']
+const $lanes = document.getElementById('lanes')
+const $status = document.getElementById('status')
+const $meta = document.getElementById('meta')
+let connected = false
+let skew = 0
+
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+function clockOf(lane, d) {
+  if (!d) return ''
+  if (lane === 'espn') return d.detail || [d.period, d.clock].filter(Boolean).join(' ')
+  if (lane === 'sgo' || lane === 'rush') return [d.period || d.display, d.clock].filter(Boolean).join(' ')
+  if (lane === 'mark') return d.kind || ''
+  if (lane === 'fastcast') return d.payload && d.payload.mid != null ? 'message ' + d.payload.mid : ''
+  return ''
+}
+function scoreOf(d) {
+  if (!d || (d.awayScore == null && d.homeScore == null)) return ''
+  return `${d.awayScore ?? '-'} to ${d.homeScore ?? '-'}`
+}
+function render(st) {
+  const now = Date.now() + skew
+  const rows = []
+  for (const lane of ORDER) {
+    const ev = st.lanes && st.lanes[lane]
+    const c = (st.counts && st.counts[lane]) || { events: 0, errors: 0 }
+    const cfg = st.config && st.config.lanes && st.config.lanes[lane]
+    if (!ev && cfg && !cfg.on) continue
+    const d = ev ? ev.data || {} : null
+    const age = ev ? (now - Date.parse(ev.t)) / 1000 : null
+    const ageTxt = age == null ? '' : age < 60 ? age.toFixed(1) + ' s' : Math.round(age / 60) + ' min'
+    const errNow = d && d.error != null
+    rows.push(`<tr><td>${esc(NAMES[lane] || lane)}</td><td>${ev ? esc(new Date(ev.t).toLocaleTimeString()) : 'none yet'}</td><td class="${age != null && age > 10 ? 'stale' : ''}">${ageTxt}</td><td>${esc(errNow ? 'error' : clockOf(lane, d))}</td><td>${esc(errNow ? '' : scoreOf(d))}</td><td class="${c.errors ? 'err' : ''}">${c.errors}${errNow ? ' (now)' : ''}</td></tr>`)
+  }
+  $lanes.innerHTML = rows.join('') || '<tr><td colspan="6">No lanes yet</td></tr>'
+  const cfg = st.config || {}
+  $meta.textContent = `Mode ${cfg.mode || '?'}${cfg.replay ? ' at ' + cfg.replay.speed + 'x' : ''}. ${cfg.away || ''}${cfg.away ? ' at ' : ''}${cfg.home || ''}. Event ${st.seq ?? ''}.`
+}
+function offline(why) {
+  connected = false
+  $status.className = 'off'
+  $status.textContent = 'Laptop relay not connected: licensed feed and Rush lanes are off' + (why ? ` (${why})` : '')
+  for (const b of document.querySelectorAll('.taps button')) b.disabled = true
+}
+async function poll() {
+  try {
+    const ctl = new AbortController()
+    const t = setTimeout(() => ctl.abort(), 4000)
+    const r = await fetch(relayUrl('/state'), { cache: 'no-store', signal: ctl.signal })
+    clearTimeout(t)
+    if (r.status === 401) { offline('access key needed: open this page with ?k=') ; return }
+    if (!r.ok) { offline('relay answered ' + r.status); return }
+    const st = await r.json()
+    if (st.now) skew = Date.parse(st.now) - Date.now()
+    if (!connected) {
+      connected = true
+      $status.className = 'ok'
+      $status.textContent = 'Laptop relay connected'
+      for (const b of document.querySelectorAll('.taps button')) b.disabled = false
+    }
+    render(st)
+  } catch {
+    offline()
+  }
+}
+offline()
+poll()
+setInterval(poll, 1000)
+
+const $tap = document.getElementById('tapNote')
+for (const kind of ['snap', 'whistle', 'score']) {
+  document.getElementById(kind).addEventListener('click', async () => {
+    const clientT = new Date().toISOString()
+    if (navigator.vibrate) try { navigator.vibrate(15) } catch {}
+    try {
+      const r = await fetch(relayUrl('/mark'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ kind, source: 'hub', clientT, note: null }) })
+      const j = await r.json()
+      $tap.textContent = j.ok ? `${kind[0].toUpperCase() + kind.slice(1)} logged at ${new Date(clientT).toLocaleTimeString()}` : 'Not logged: ' + (j.error || r.status)
+    } catch {
+      $tap.textContent = 'Not logged: laptop relay not connected'
+    }
+  })
+}
+</script>
+</body>
+</html>

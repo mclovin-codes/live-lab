@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red Live Tracker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">Red tracker <span class="ver" id="ver">v1</span></div>
+  <div class="game" id="game">No game data yet</div>
+  <div class="conn" id="conn">Connecting</div>
+  <button class="theme" id="theme" aria-label="Switch theme">Theme</button>
+</header>
+<div class="banner" id="banner" hidden></div>
+
+<main>
+  <section class="hero">
+    <div class="lockcard" id="lockcard">
+      <div class="label">Red lock</div>
+      <div class="lockstate" id="lockstate">No data yet</div>
+      <div class="lockwhy" id="lockwhy"></div>
+      <div class="locknums" id="locknums"></div>
+    </div>
+    <div class="bignums" id="bignums"></div>
+  </section>
+
+  <section class="panel actions">
+    <div class="half">
+      <h2>Pick test</h2>
+      <div class="pickgrid" id="pickgrid"></div>
+      <div class="pickresult" id="pickresult">Tap a side at the price shown. The lock answers at the tap.</div>
+      <div class="pickstats" id="pickstats"></div>
+    </div>
+    <div class="half">
+      <h2>TV taps</h2>
+      <div class="tvgrid">
+        <button class="tv" data-k="snap">Snap</button>
+        <button class="tv" data-k="whistle">Whistle</button>
+        <button class="tv" data-k="score">Score</button>
+      </div>
+      <div class="tvresult" id="tvresult">Tap when the TV shows it. TV rank appears once taps match events.</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Lanes on one wall clock</h2>
+    <div class="scroll"><table id="lanes"></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>Lag behind the fastest lane, matched events (seconds)</h2>
+    <div class="scroll"><table id="lags"></table></div>
+    <p class="hint" id="laghint"></p>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2>Rush stale-line meter</h2>
+      <div id="stale"></div>
+    </div>
+    <div class="panel">
+      <h2>Rush today against the best raw lane</h2>
+      <div id="baseline"></div>
+    </div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2>Lock rules side by side</h2>
+      <div class="scroll"><table id="rules"></table></div>
+      <p class="hint">Bad open: open while the ball was live (play stamp minus 8 s to plus 2 s, or a TV snap) or inside the 10 s before the line moved or the score changed. Open share: open time over in-game time.</p>
+    </div>
+    <div class="panel">
+      <h2>Ranking (median lag, all kinds)</h2>
+      <div id="ranking"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Limits</h2>
+    <div class="scroll"><table id="limits"></table></div>
+  </section>
+
+  <section class="panel">
+    <h2>Events</h2>
+    <ol class="feed" id="feed"></ol>
+  </section>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blue Clock Ruler</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Blue clock ruler <span class="tag" id="ver">v1</span></h1>
+  <span class="pill" id="mode">Starting</span>
+  <span class="small num" id="game">No game data yet</span>
+  <span class="grow"></span>
+  <span class="small num" id="wall"></span>
+  <button id="theme" aria-label="Switch theme">Theme</button>
+</header>
+<div class="banner" id="norelay" hidden>Laptop relay not connected: licensed feed and Rush lanes are off. Showing the score feed from this browser. Retrying the relay quietly.</div>
+
+<section aria-label="Headline">
+  <div class="hero" id="hero"></div>
+</section>
+
+<section aria-label="Lanes">
+  <h2>Lanes on one wall clock</h2>
+  <div class="lanes" id="lanes"></div>
+</section>
+
+<section aria-label="Lag">
+  <h2>Seconds behind the fastest lane (big: now, small: median, 90th, worst, count)</h2>
+  <div style="overflow-x:auto"><table id="lagtable"></table></div>
+  <h2 style="margin-top:14px">Clock ruler trace, last 10 minutes (seconds behind the lane furthest into the game)</h2>
+  <canvas id="trace" width="900" height="180"></canvas>
+  <div class="legend" id="legend"></div>
+</section>
+
+<section aria-label="Lock and stale">
+  <div class="two">
+    <div>
+      <h2>Shadow lock (Blue clock rule)</h2>
+      <div id="lockbox"></div>
+    </div>
+    <div>
+      <h2>Rush stale line meter</h2>
+      <div id="stalebox"></div>
+    </div>
+  </div>
+</section>
+
+<section aria-label="Pick test">
+  <h2>Pick test: try to beat the lock from the TV</h2>
+  <div class="picks" id="picks"></div>
+  <div class="small" id="pickmsg" style="margin-top:8px">Tap a side at the price shown. The lock answers at the tap.</div>
+  <div class="small num" id="picktally" style="margin-top:6px"></div>
+  <ul class="log" id="picklog"></ul>
+</section>
+
+<section aria-label="Baseline and gaps">
+  <div class="two">
+    <div>
+      <h2>Rush today against the best raw lane</h2>
+      <table id="saved"></table>
+    </div>
+    <div>
+      <h2>Poll gaps the ruler exposes</h2>
+      <table id="gaps"></table>
+    </div>
+  </div>
+</section>
+
+<section aria-label="TV">
+  <h2>TV ranking</h2>
+  <div id="tvbox" class="small">No TV taps yet. Tap SNAP when the ball is snapped, WHISTLE when the play is blown dead, SCORE when a score shows on TV.</div>
+</section>
+
+<section aria-label="Limits">
+  <h2>Limits, fixes and in-game tests</h2>
+  <table class="limits" id="limits"></table>
+</section>
+
+<section aria-label="Plays">
+  <h2>Newest plays (stamp, first known, feed lag)</h2>
+  <ul class="log" id="plays"></ul>
+</section>
+
+<div class="tvbar">
+  <span class="lbl">TV</span>
+  <button data-tap="snap">SNAP</button>
+  <button data-tap="whistle">WHISTLE</button>
+  <button data-tap="score">SCORE</button>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
