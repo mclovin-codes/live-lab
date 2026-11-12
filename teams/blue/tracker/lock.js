@@ -8,7 +8,7 @@
 // stop was known, no TV snap tap came after it, the odds feed is fresh and says available, and no
 // price, line or score moved in the last few seconds. A TV whistle tap opens a short window too.
 
-export const LOCK_VERSION = 'blue-lock v1';
+export const LOCK_VERSION = 'blue-lock v2';
 
 const DEFAULTS = {
   settle: 10, // seconds a price, line or score change keeps the lock shut
@@ -17,6 +17,11 @@ const DEFAULTS = {
   whistleWindow: 15, // seconds a TV whistle tap opens for
   unknownLag: 45, // assumed feed lag when a play carries no wallclock stamp
   durations: null, // override window lengths by stop kind
+  league: 'NFL', // NFL, NBA or NHL: period lengths for the clock
+  // 'auto': status(nowMs) and tryPick(pick, nowMs) take real time; during a replay the lock learns the gap between
+  // the recorded time (data.origT) and the relay's stamp and moves nowMs onto the recorded clock.
+  // 'event': the caller already passes recorded event time (the Blue tracker does).
+  clock: 'auto',
   rulerFrom: 0, // seconds after an odds feed clock change when the ruler window opens
   rulerTo: 8, // seconds after an odds feed clock change when it closes (next snap seen at 12 s or more on 2026-11-05)
   ruler: true,
@@ -113,17 +118,24 @@ function clockSec(c) {
   const m = String(c).match(/(\d+):(\d{1,2})/);
   return m ? +m[1] * 60 + +m[2] : null;
 }
-function periodNum(p) {
+// Period length, regulation periods and overtime length per league (regular season).
+export const LEAGUES = { NFL: { per: 900, reg: 4, ot: 600 }, NBA: { per: 720, reg: 4, ot: 300 }, NHL: { per: 1200, reg: 3, ot: 300 } };
+export function periodNum(p, league = 'NFL') {
   if (p === null || p === undefined || p === '') return null;
   if (typeof p === 'number') return p;
+  const L = LEAGUES[league] || LEAGUES.NFL;
   const s = String(p).toLowerCase();
-  if (s.includes('ot')) return 5;
-  const m = s.match(/(\d)/);
+  const m = s.match(/(\d+)/);
+  if (s.includes('ot')) return L.reg + (m ? +m[1] : 1);
+  if (s.includes('half') || s === 'ht') return null;
+  if (/^\d+h$/.test(s) && league === 'NFL') return null; // a half label carries no quarter
   return m ? +m[1] : null;
 }
-function elapsed(period, c) {
-  if (period === null || c === null) return null;
-  return period <= 4 ? (period - 1) * 900 + (900 - c) : 3600 + (period - 5) * 600 + (600 - c);
+export function elapsedFor(period, c, league = 'NFL') {
+  if (period === null || period === undefined || c === null || c === undefined) return null;
+  const L = LEAGUES[league] || LEAGUES.NFL;
+  if (period <= L.reg) return (period - 1) * L.per + (L.per - c);
+  return L.reg * L.per + (period - L.reg - 1) * L.ot + (L.ot - c);
 }
 function mk(o) {
   if (!o || typeof o !== 'object') return null;
@@ -146,12 +158,14 @@ export function createLock(options = {}) {
     live: { sgo: null, espn: null, fastcast: null }, // 'pre' | 'in' | 'post'
     openSince: null,
     lastOpen: null,
+    offset: 0, // recorded time minus relay time, from the newest replayed event
   };
+  const toLockTime = (now) => (cfg.clock === 'event' ? now : now + st.offset);
 
   function noteChange(t) { st.lastRawChangeT = t; }
 
   function onClock(lane, period, clock, t) {
-    const e = elapsed(periodNum(period), clockSec(clock));
+    const e = elapsedFor(periodNum(period, cfg.league), clockSec(clock), cfg.league);
     if (e === null) return;
     const c = st.clocks[lane] || (st.clocks[lane] = { e: null, since: null, prevE: null });
     if (c.e === e) return;
@@ -176,6 +190,7 @@ export function createLock(options = {}) {
     const t = eventTime(ev);
     if (!Number.isFinite(t)) return;
     const d = ev.data;
+    st.offset = d.origT ? t - toMs(ev.t) : 0;
     if (d.error) return;
     if (ev.lane === 'sgo') {
       const markets = { spread: mk(d.spreadHome), total: mk(d.total), mlHome: mk(d.mlHome), mlAway: mk(d.mlAway) };
@@ -248,6 +263,7 @@ export function createLock(options = {}) {
 
   function status(now) {
     if (now === undefined) now = Date.now();
+    now = toLockTime(now);
     const o = st.odds;
     const markets = { spreadHome: null, spreadAway: null, totalOver: null, totalUnder: null, mlHome: null, mlAway: null };
     if (o && o.available !== false) {
@@ -282,7 +298,7 @@ export function createLock(options = {}) {
 
   function tryPick(pick, now) {
     if (now === undefined) now = Date.now();
-    const s = status(now);
+    const s = status(now); // status applies the clock offset
     if (!s.open) return { accepted: false, reason: s.reason };
     const key = { spread: pick.side === 'away' ? 'spreadAway' : 'spreadHome', total: pick.side === 'under' ? 'totalUnder' : 'totalOver', ml: pick.side === 'away' ? 'mlAway' : 'mlHome', moneyline: pick.side === 'away' ? 'mlAway' : 'mlHome' }[pick.market];
     const cur = key ? s.markets[key] : null;

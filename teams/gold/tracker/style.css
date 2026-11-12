@@ -74,3 +74,4 @@ input[type=range] { width: 140px; height: 32px; }
   main { padding: 8px 16px 40px; }
   table { font-size: 13px; }
 }
+.plan div { padding: 2px 0; font-size: 14px; }

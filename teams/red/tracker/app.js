@@ -1,5 +1,6 @@
 // Red tracker page. Renders the core's matched-event metrics once a second.
 import { createLock } from './lock.js';
+import { PLAN } from './plan.js';
 import { Tracker, VERSION, LABEL, DATA_LANES, KINDS, fmtClock, fmtPrice, fmtOdds, marketName } from './core.js';
 
 const $ = (id) => document.getElementById(id);
@@ -9,6 +10,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 const f1 = (v) => (v === null || v === undefined || !Number.isFinite(v)) ? '-' : v.toFixed(1);
 const NO = '<span class="muted">no data yet</span>';
 $('ver').textContent = VERSION;
+for (const p of PLAN.slice(0, 5)) { const li = document.createElement('li'); li.textContent = p; $('plan').appendChild(li); }
 
 // ---------- theme ----------
 const store = {

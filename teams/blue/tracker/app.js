@@ -48,7 +48,8 @@ function rurl(route, params = {}) {
 }
 
 // ---------- model ----------
-let model = createModel();
+let leagueNow = 'NFL';
+let model = createModel({ league: leagueNow });
 let lastSeq = 0;
 let skew = 0; // event clock minus browser clock, learned from events
 let relayUp = false;
@@ -72,7 +73,7 @@ function ingest(ev) {
     ev = { ...ev, data: { ...ev.data, origT: new Date(nowMs()).toISOString() } };
   }
   // A replay restart begins again from the top; a fresh model keeps the ruler honest.
-  if (ev.data && ev.data.replayPass && ev.data.replayPass !== model._pass) { model = createModel(); model._pass = ev.data.replayPass; }
+  if (ev.data && ev.data.replayPass && ev.data.replayPass !== model._pass) { model = createModel({ league: leagueNow }); model._pass = ev.data.replayPass; }
   const t = eventTime(ev);
   const d = t - Date.now();
   if (Math.abs(d - skew) > 3000) skew = d;
@@ -125,9 +126,11 @@ async function connect() {
   try {
     // A relay restart without a log file starts seq again at 1: start a fresh model so nothing is dropped as seen.
     const cfg = await (await fetch(rurl('/config'), { cache: 'no-store' })).json();
-    if (relayStartedAt && cfg.startedAt !== relayStartedAt && (cfg.seq || 0) < lastSeq) { lastSeq = 0; seen.clear(); model = createModel(); }
+    if (relayStartedAt && cfg.startedAt !== relayStartedAt && (cfg.seq || 0) < lastSeq) { lastSeq = 0; seen.clear(); model = createModel({ league: leagueNow }); }
     relayStartedAt = cfg.startedAt;
     relayMode = cfg.mode || null;
+    const lg = String(cfg.league || 'NFL').toUpperCase();
+    if (lg !== leagueNow && ['NFL', 'NBA', 'NHL'].includes(lg)) { leagueNow = lg; model = createModel({ league: leagueNow }); }
     if (relayMode !== 'replay') startFastcast();
     await refill();
     relayUp = true;
@@ -410,6 +413,7 @@ function render() {
 
   renderLimits(s);
   renderVerdict(s);
+  renderPlan(s);
 }
 
 function drawTrace(s, now) {
@@ -441,6 +445,26 @@ function drawTrace(s, now) {
 }
 
 // Limits list: each limit, the fix, the in-game test, the result so far (live numbers fill in).
+// Plan for tonight: what this period tests, and the newest test mark with what moved.
+const PLAN = {
+  0: 'Pregame: check every lane reads right (clock, score, lines, ages).',
+  1: 'Q1: does the next snap come 12 s or more after an Odds feed clock jump? TV snap taps answer it.',
+  2: 'Q2: does Score feed (push) run ahead of the Odds feed clock? If so the ruler window can start from it.',
+  3: 'Q3: ruler window retuned from the first half, one change only.',
+  4: 'Q4: hold the rule; compare it with the 30 s starting rule on the same plays.',
+};
+function renderPlan(s) {
+  const g = s.lanes.sgo?.r || s.lanes.espn?.r || s.lanes.fastcast?.r;
+  const per = s.live && g && g.period ? Math.min(4, g.period) : 0;
+  const tests = (model.model.marks || []).filter((m) => m.kind === 'test');
+  const last = tests[tests.length - 1];
+  const items = [PLAN[per]];
+  if (last) items.push('Last test (' + new Date(last.t).toLocaleTimeString('en-US', { timeZone: 'America/New_York' }) + '): ' + (last.note || 'no note'));
+  else items.push('No test logged yet.');
+  const lk = s.lock;
+  if (lk.inPlaySec) items.push('Lock so far: open ' + (100 * lk.openSec / lk.inPlaySec).toFixed(1) + '% of live time, ' + s.lockScore.badOpenSec + ' s open while the ball was live.');
+  $('plan').innerHTML = items.slice(0, 5).map((l) => '<li>' + esc(l) + '</li>').join('');
+}
 function renderVerdict(s) {
   const lines = [];
   const rc = s.lag.rush.clock; const rp = s.lag.rush.price; const rs = s.lag.rush.score;

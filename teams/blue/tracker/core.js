@@ -3,11 +3,13 @@
 // Event shape: { seq, t (ISO or ms), lane, ms, data }.
 // Lanes: sgo (Odds feed), rush (Rush), espn (Score feed poll), fastcast (Score feed push), mark (TV and notes).
 
-import { createLock, stopRule, fastcastReduce, eventTime } from './lock.js';
+import { createLock, stopRule, fastcastReduce, eventTime, periodNum, elapsedFor, LEAGUES } from './lock.js';
+export { LEAGUES };
+let LEAGUE = 'NFL'; // set by createModel({ league })
 export { eventTime };
 export { stopRule };
 
-export const VERSION = 'v2';
+export const VERSION = 'v3';
 
 export const LANE_NAMES = {
   sgo: 'Odds feed',
@@ -49,25 +51,14 @@ export function parseClock(c) {
   if (!m) return null;
   return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
 }
-export function parsePeriod(p) {
-  if (p === null || p === undefined || p === '') return null;
-  if (typeof p === 'number') return p;
-  const s = String(p).toLowerCase();
-  if (s.includes('ot')) return 5;
-  const m = s.match(/(\d)/);
-  return m ? parseInt(m[1], 10) : null;
-}
+export function parsePeriod(p, league = LEAGUE) { return periodNum(p, league); }
 export function fmtClock(sec) {
   if (sec === null || sec === undefined) return null;
   const s = Math.max(0, Math.round(sec));
   return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
 }
-// Elapsed game seconds since kickoff. Regulation quarters 900 s, regular season OT 600 s.
-export function elapsedOf(period, clockSec) {
-  if (period === null || clockSec === null) return null;
-  if (period <= 4) return (period - 1) * 900 + (900 - clockSec);
-  return 3600 + (period - 5) * 600 + (600 - clockSec);
-}
+// Elapsed game seconds since the start, by the league's period lengths.
+export function elapsedOf(period, clockSec, league = LEAGUE) { return elapsedFor(period, clockSec, league); }
 export function quantile(arr, q) {
   if (!arr.length) return null;
   const a = [...arr].sort((x, y) => x - y);
@@ -172,7 +163,8 @@ export function normalize(lane, d) {
 
 // ---------- the model ----------
 export function createModel(opts = {}) {
-  const lock = createLock(opts.lock || {});
+  if (opts.league && LEAGUES[opts.league]) LEAGUE = opts.league;
+  const lock = createLock(Object.assign({ clock: 'event', league: LEAGUE }, opts.lock || {}));
   const m = {
     lanes: {}, // lane -> { r, t, firstT, n, lastChangeT, gaps[], changeGaps[], clock: {...} }
     frontier: [], // [{t, e, lane}] clock frontier steps, e strictly rising

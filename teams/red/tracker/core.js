@@ -5,7 +5,7 @@
 // two lanes is one matched event; each lane's lag is its first-seen wall time
 // minus the earliest data lane's first-seen wall time for that event.
 
-export const VERSION = 'v2';
+export const VERSION = 'v3';
 
 export const LABEL = {
   sgo: 'Odds feed',
@@ -57,7 +57,11 @@ export function parseClock(c) {
   if (c === null || c === undefined || c === '') return null;
   if (typeof c === 'number') return c;
   const m = String(c).match(/(\d+):(\d{1,2})(?:\.(\d))?/);
-  if (!m) return null;
+  if (!m) {
+    // under a minute some leagues show "45.3"
+    const u = String(c).trim().match(/^(\d{1,2})(?:\.\d+)?$/);
+    return u ? Number(u[1]) : null;
+  }
   return Number(m[1]) * 60 + Number(m[2]);
 }
 export function fmtClock(s) {
@@ -131,6 +135,8 @@ export function normalize(ev) {
     const plays = Array.isArray(d.plays) && d.plays.length ? d.plays
       : (d.lastPlayId ? [{ id: d.lastPlayId, text: d.lastPlayText, wallclock: d.lastPlayWallclock, type: d.lastPlayType }] : []);
     out.plays = plays.filter(p => p && p.id).map(p => ({ id: String(p.id), text: p.text || '', type: p.type || '', wallclock: toMs(p.wallclock) }));
+    // the relay lists plays newest first: process oldest first so a later snap closes an earlier break
+    out.plays.sort((x, y) => (x.wallclock ?? 0) - (y.wallclock ?? 0));
   } else if (lane === 'fastcast') {
     const f = extractFastcast(d.payload ?? d);
     Object.assign(out, f);
@@ -230,7 +236,7 @@ export class Tracker {
       today: { name: 'Rush today', fn: (now) => this.todayOpen(now) },
     };
     this.timeline = { red: [], settle30: [], today: [] };
-    this.stale = { windows: 0, seconds: 0, on: false, since: null, reason: null, lastT: null, byReason: { price: 0, incident: 0 } };
+    this.stale = { windows: 0, seconds: 0, on: false, since: null, reason: null, lastT: null, byReason: { price: 0, incident: 0 }, byPeriod: {} };
     this.lastIncident = null; // {t, what}
     this.lastTick = null;
   }
@@ -522,7 +528,7 @@ export class Tracker {
   tickStale(now) {
     const st = this.stale;
     const why = this.staleNow(now);
-    if (st.on && st.lastT !== null) { const dt = (now - st.lastT) / 1000; st.seconds += dt; st.byReason[st.reason] = (st.byReason[st.reason] || 0) + dt; }
+    if (st.on && st.lastT !== null) { const dt = (now - st.lastT) / 1000; st.seconds += dt; st.byReason[st.reason] = (st.byReason[st.reason] || 0) + dt; const g = this.snap.sgo || this.snap.espn; const q = g && g.period ? 'Q' + g.period : 'Q?'; st.byPeriod[q] = (st.byPeriod[q] || 0) + dt; }
     if (why && !st.on) { st.windows++; st.since = now; }
     st.on = !!why; st.reason = why || st.reason; st.lastT = now;
   }

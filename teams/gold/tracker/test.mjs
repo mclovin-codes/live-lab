@@ -32,6 +32,7 @@ console.log('events', events.length, 'lanes', S.counts, 'seq', events[0].seq, '-
 const lt = lagTable(S, tEnd);
 for (const k of KINDS) for (const lane of Object.keys(lt[k])) if (lt[k][lane].q) console.log('lag', k.padEnd(6), LANE_NAME[lane].padEnd(18), fmt(lt[k][lane].q));
 console.log('stale meter', JSON.stringify({ windows: S.stale.windows, secs: +S.stale.secs.toFixed(1), edgeSecs: +S.stale.edgeSecs.toFixed(1), maxEdge: +S.stale.maxEdge.toFixed(1) }));
+console.log('behind (timing)', JSON.stringify({ windows: S.behind.windows, secs: +S.behind.secs.toFixed(1) }), 'rush match', JSON.stringify(S.rushMatch), JSON.stringify(S.rushSeen));
 console.log('event stale', JSON.stringify({ windows: S.evStale.windows, secs: +S.evStale.secs.toFixed(1) }));
 console.log('price changes', S.records.length);
 for (const r of S.records) console.log('  ', new Date(r.t).toISOString().slice(11, 19), r.market.padEnd(6), `${r.from} -> ${r.to}`, 'dLine', r.dLine, 'dProb', r.dProb?.toFixed(1), 'edge', r.edge?.toFixed(1), 'rushOld', r.rushLeftOld ? ((r.rushLeftOld - r.t) / 1000).toFixed(1) : (r.superseded ? 'superseded' : 'open'));

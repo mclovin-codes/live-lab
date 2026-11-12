@@ -186,6 +186,11 @@ export function createEngine(cfgIn = {}) {
     // rush staleness
     stale: { on: false, since: null, windows: 0, secs: 0, edgeSecs: 0, maxEdge: 0, curEdge: 0 },
     evStale: { on: false, since: null, windows: 0, secs: 0, sigT: null },
+    // Timing-based staleness: the odds feed moved a market and Rush has not moved that market since
+    // (works even when Rush shows a different book's number). Capped at 60 s per move.
+    behind: { on: false, windows: 0, secs: 0 },
+    rushChangeT: {}, rushKey: {}, rushMatch: {}, rushSeen: {},
+    tests: [],
     rushPriceSince: null,
     // lock timelines as runs
     runs: { gold: [], goldnf: [], start: [], rush: [] },
@@ -195,7 +200,7 @@ export function createEngine(cfgIn = {}) {
     wallclocks: new Set(),
     playsSeen: new Map(),
     // cadence
-    cad: { sgoT: [], hashT: [], stampAge: [], lastHash: null, lastT: null, perMarketAge: [] },
+    cad: { sgoT: [], hashT: [], stampAge: [], stampLag: [], lastStamp: null, lastHash: null, lastT: null, perMarketAge: [] },
     tv: [],                  // {kind, t, lagVsFirst}
     inPlay: { first: null, last: null },
     feed: [],                // recent rows for the event feed (capped)
@@ -259,7 +264,8 @@ export function createEngine(cfgIn = {}) {
     if (!inPlayNow()) return { open: false, why: f ? 'pregame' : 'feed silent' };
     // freshness from the odds feed when it runs, else from the push lane's own prices
     const lastFeed = S.latest.sgo ? (S.lastAny.sgo ?? -Infinity) : (S.latest.fastcast?.t ?? -Infinity);
-    const maxAge = S.latest.sgo ? cfg.feedMaxAge : Math.max(cfg.feedMaxAge, 30);
+    // adapts to a feed that backs off: never tighter than 2.5 read gaps
+    const maxAge = S.latest.sgo ? Math.max(cfg.feedMaxAge, 2.5 * (S.gap.sgo || 1)) : Math.max(cfg.feedMaxAge, 30);
     if (!f || (t - lastFeed) / 1000 > maxAge) return { open: false, why: 'feed silent' };
     if (S.sig.unavailable) return { open: false, why: 'book off' };
     if (since(S.sig.score, t) < cfg.quietScore) return { open: false, why: 'score' };
@@ -318,6 +324,7 @@ export function createEngine(cfgIn = {}) {
     if (dt <= 0) return;
     if (S.stale.on) { S.stale.secs += dt; S.stale.edgeSecs += dt * S.stale.curEdge; }
     if (S.evStale.on) S.evStale.secs += dt;
+    if (S.behind.on) S.behind.secs += dt;
   }
   function updateStale(t) {
     const r = S.latest.rush;
@@ -334,6 +341,15 @@ export function createEngine(cfgIn = {}) {
     if (pick && sigT > -Infinity && S.rushPriceSince !== null && S.rushPriceSince < sigT && (t - sigT) < 60e3) eon = true;
     if (eon && !S.evStale.on) { S.evStale.windows++; S.evStale.since = t; S.evStale.sigT = sigT; }
     S.evStale.on = eon;
+    let bon = false;
+    if (pick) for (const m of MARKETS) {
+      const h = S.pHead[m];
+      if (!h || !r.prices?.[m]) continue;
+      const ch = S.rushChangeT[m] ?? -Infinity;
+      if (h.t > ch && t - h.t < 60000 && S.records.some((x) => x.market === m && x.t === h.t)) { bon = true; break; }
+    }
+    if (bon && !S.behind.on) S.behind.windows++;
+    S.behind.on = bon;
   }
 
   function addRecord(m, prev, cur, t, lane) {
@@ -344,7 +360,7 @@ export function createEngine(cfgIn = {}) {
       dLine: prev && prev.p.line !== null && cur.p.line !== null ? cur.p.line - prev.p.line : null,
       dProb: prev && implied(prev.p.odds) !== null && implied(cur.p.odds) !== null ? (implied(cur.p.odds) - implied(prev.p.odds)) * 100 : null,
       edge: prev ? edgePP(m, prev.p, cur.p, sl) : null,
-      rushLeftOld: null, rushShowedNew: null, superseded: null,
+      rushLeftOld: null, rushShowedNew: null, superseded: null, rushAt: S.rushKey[m] ?? null,
     };
     // the previous record for this market is superseded now
     for (let i = S.records.length - 1; i >= 0; i--) {
@@ -372,6 +388,7 @@ export function createEngine(cfgIn = {}) {
     if (lane === 'mark') {
       const k = r.mark;
       if (k === 'snap') S.sig.snap = t;
+      if (k === 'test') { S.tests.push({ t, note: r.note || '', source: r.raw?.source || null }); if (S.tests.length > 200) S.tests.shift(); }
       if (k === 'whistle') S.sig.whistle = t;
       if (k === 'score' || k === 'snap' || k === 'whistle') {
         // TV place: lag of the tap against the first lane that showed the matching thing
@@ -454,19 +471,27 @@ export function createEngine(cfgIn = {}) {
       if (c.lastHash !== null && h !== c.lastHash) { c.hashT.push(t); if (c.hashT.length > 5000) c.hashT.shift(); }
       c.lastHash = h;
       if (r.stamp) { c.stampAge.push((t - r.stamp) / 1000); if (c.stampAge.length > 5000) c.stampAge.shift(); }
+      // stamp to seen: when the book's newest stamp changes, how long after that stamp did we first read it
+      if (r.stamp && r.stamp !== c.lastStamp) { if (c.lastStamp !== null) { c.stampLag.push((t - r.stamp) / 1000); if (c.stampLag.length > 5000) c.stampLag.shift(); } c.lastStamp = r.stamp; }
       for (const m of MARKETS) {
         const u = r.prices[m]?.updatedAt;
         if (u) { c.perMarketAge.push((t - Date.parse(u)) / 1000); if (c.perMarketAge.length > 5000) c.perMarketAge.shift(); }
       }
     }
     if (lane === 'rush') {
+      for (const m of MARKETS) {
+        const k = priceKey(r.prices[m]);
+        if (k !== null && S.rushKey[m] !== undefined && k !== S.rushKey[m]) S.rushChangeT[m] = t;
+        if (k !== null) { S.rushKey[m] = k; S.rushSeen[m] = (S.rushSeen[m] || 0) + 1; if (S.pHead[m] && S.pHead[m].key === k) S.rushMatch[m] = (S.rushMatch[m] || 0) + 1; }
+      }
       const prevKey = prevLatest ? MARKETS.map((m) => priceKey(prevLatest.prices?.[m])).join('/') : null;
       const key = MARKETS.map((m) => priceKey(r.prices[m])).join('/');
       if (key !== prevKey) S.rushPriceSince = t;
       for (const rec of S.records) {
         const rp = priceKey(r.prices[rec.market]);
         if (rp === null) continue;
-        if (rec.rushLeftOld === null && rp !== rec.from) rec.rushLeftOld = t;
+        // Rush left the old number: it moved off what it showed when the odds feed moved (or off the old value if unknown)
+        if (rec.rushLeftOld === null && t > rec.t && rp !== (rec.rushAt ?? rec.from)) rec.rushLeftOld = t;
         if (rec.rushShowedNew === null && rp === rec.to) rec.rushShowedNew = t;
       }
     }
@@ -570,6 +595,7 @@ export function cadence(S) {
     change: quantiles(diffs(c.hashT)),
     changes: c.hashT.length,
     stampAge: quantiles(c.stampAge),
+    stampLag: quantiles(c.stampLag),
     marketAge: quantiles(c.perMarketAge),
     perMin: c.sgoT.length > 1 ? c.hashT.length / ((c.sgoT[c.sgoT.length - 1] - c.sgoT[0]) / 60000) : null,
   };
@@ -603,4 +629,15 @@ export function gradePick(S, pick) {
   const moved10 = hist.some((h) => h.t > pick.t && h.t <= pick.t + 10000 && h.key !== atTap?.key);
   const live = truthAt(S, pick.t).live;
   return { ready: true, fresher, live, moved10, pastPosted: !!(pick.accepted && (fresher || live)), clean: !!(pick.accepted && !fresher && !live) };
+}
+
+// Which stale reading to headline: by value when Rush shows the odds feed's own numbers, by timing when it does not.
+export function staleView(S) {
+  let seen = 0, match = 0;
+  for (const m of MARKETS) { seen += S.rushSeen[m] || 0; match += S.rushMatch[m] || 0; }
+  const matchRate = seen ? match / seen : null;
+  const byValue = matchRate === null || seen < 10 || matchRate >= 0.2;
+  return byValue
+    ? { basis: 'value', secs: S.stale.secs, windows: S.stale.windows, on: S.stale.on, matchRate }
+    : { basis: 'timing', secs: S.behind.secs, windows: S.behind.windows, on: S.behind.on, matchRate };
 }

@@ -1,8 +1,8 @@
 // Gold tracker page. Uses lock.js (the same module the lab app loads) and core.js.
 import { createLock, plainReason } from './lock.js';
-import { LANE_NAME, MARKETS, KINDS, lagTable, scoreRuns, cadence, baselineVsBest, gradePick, quantiles, DEFAULTS } from './core.js';
+import { LANE_NAME, MARKETS, KINDS, lagTable, scoreRuns, cadence, baselineVsBest, gradePick, quantiles, DEFAULTS, staleView } from './core.js';
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 const $ = (id) => document.getElementById(id);
 $('ver').textContent = VERSION;
 document.title = `Gold Live Tracker ${VERSION}`;
@@ -113,6 +113,7 @@ async function connect() {
     stopBrowserLanes();
     await refill();
     startSSE();
+    if (!replayMode) logVersionTest();
   } catch {
     relayOk = false;
     mode = 'browser only';
@@ -130,6 +131,14 @@ async function refill() {
   }
 }
 // A relay restart resets seq; compare startedAt and rebuild from the whole log when it changed.
+// Each version names the one change it tests. The first load of a new version on the relay logs it
+// as a /mark with kind "test", so the log carries when each change went live.
+const TEST_NOTE = 'gold v3: baseline lock (forecast on, tap 6 s, quiet price 8 s, play 10 s, score 30 s, clock 20 s)';
+async function logVersionTest() {
+  const k = 'gold.tested.' + (relayStart || '');
+  if (ls.get(k) === VERSION) return;
+  if (await postMark({ kind: 'test', note: TEST_NOTE, source: 'gold', clientT: new Date().toISOString() })) ls.set(k, VERSION);
+}
 async function checkRestart() {
   try { const c = await getConfig(); if (c.startedAt !== relayStart) { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } connect(); } } catch { /* next tick */ }
 }
@@ -381,8 +390,9 @@ function render() {
   const rs = lt.score.rush.q;
   big('bigRushScore', rs ? `${rs.med.toFixed(1)} s` : null);
   $('bigRushScoreSub').textContent = rs ? `p90 ${s1(rs.p90)} · worst ${s1(rs.worst)} · n ${rs.n}` : 'no score change seen on two lanes yet';
-  big('bigStale', S.latest.rush && feedOn ? `${S.stale.secs.toFixed(0)} s` : null);
-  $('bigStaleSub').textContent = S.latest.rush && feedOn ? `${S.stale.windows} windows · ${S.stale.on ? 'stale NOW' : 'matching now'} · edge-seconds ${S.stale.edgeSecs.toFixed(0)}` : '';
+  const sv = staleView(S);
+  big('bigStale', S.latest.rush && feedOn ? `${sv.secs.toFixed(0)} s` : null);
+  $('bigStaleSub').textContent = S.latest.rush && feedOn ? `${sv.windows} windows · ${sv.on ? 'stale NOW' : 'current now'} · ${sv.basis === 'value' ? 'by price' : 'by timing (Rush shows its own numbers)'}` : '';
 
   renderLanes(S, t);
   renderLag(lt, feedOn);
@@ -394,6 +404,7 @@ function render() {
   renderScores();
   renderLimits(S, lt);
   renderPicks();
+  renderPlan(S);
   renderFeed(S);
 }
 
@@ -434,6 +445,7 @@ function renderLag(lt, feedOn) {
 function renderMeter(S) {
   if (!S.latest.rush) { $('meter').textContent = 'no data yet: the Rush lane has not reported'; return; }
   $('meter').innerHTML = `Price mismatch while pickable: <b>${S.stale.secs.toFixed(0)} s</b> in <b>${S.stale.windows}</b> windows, edge-seconds <b>${S.stale.edgeSecs.toFixed(0)}</b>, worst edge <b>${S.stale.maxEdge.toFixed(1)}%</b> ${S.stale.on ? '<span class="bad">STALE NOW</span>' : '<span class="good">matching now</span>'}<br>`
+    + `Pickable after the odds feed moved and before Rush moved (timing, 60 s cap per move): <b>${S.behind.secs.toFixed(0)} s</b> in <b>${S.behind.windows}</b> windows${(() => { const v = staleView(S); return v.matchRate === null ? '' : `, Rush shows the odds feed's own price ${Math.round(v.matchRate * 100)}% of reads`; })()}<br>`
     + `Pickable after a score, snap, play or whistle was known elsewhere, before Rush refreshed: <b>${S.evStale.secs.toFixed(0)} s</b> in <b>${S.evStale.windows}</b> windows ${S.evStale.on ? '<span class="bad">NOW</span>' : ''}<br>`
     + '<span class="mute">Edge = how far the old price sits from the new one in win chance, in percent. Edge-seconds = edge times seconds Rush held it.</span>';
 }
@@ -497,6 +509,19 @@ function renderLimits(S, lt) {
     ['Score feed posts plays late', 'Use it as truth after the fact only, never to open', 'Play lag of the poll lane', lt.play.espn.q ? `${lt.play.espn.q.med.toFixed(1)} s median vs fastest` : 'no data yet'],
   ];
   $('limits').innerHTML = '<tr><th>Limit</th><th>Proposed fix</th><th>In-game test</th><th>Result</th></tr>' + L.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+}
+// Plan for tonight: edit PLAN each quarter (lane names only). The last line is the newest test mark from this page.
+const PLAN = [
+  'Pregame: confirm every lane reads, the 10 s pregame reads look normal, lock shows PREGAME.',
+  'Q1: baseline. Lock as shipped (forecast on, tap 6 s). Measure Rush lag and odds feed stamp delay.',
+  'Q2: one change from the tuning rules, chosen at the end of Q1 from the numbers.',
+];
+function renderPlan(S) {
+  const mine = S.tests.filter((x) => x.source === 'gold');
+  const last = mine[mine.length - 1];
+  const lines = PLAN.slice(0, 4).map((x) => `<div>${esc(x)}</div>`);
+  lines.push(`<div class="mute">${last ? `Last test ${hms(last.t)}: ${esc(last.note)}` : 'No test logged yet'}</div>`);
+  $('plan').innerHTML = lines.join('');
 }
 function renderFeed(S) {
   const rows = S.feed.slice(-60).reverse().map((f) => `<div>${hms(f.t)} <b>${LANE_NAME[f.lane]}</b> ${esc(f.text)}</div>`);
