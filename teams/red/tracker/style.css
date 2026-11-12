@@ -36,18 +36,18 @@ h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: v
 .lockcard.open { background: var(--openbg); border-color: var(--open); }
 .lockcard.locked { background: var(--lockbg); border-color: var(--lock); }
 .lockcard .label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
-.lockstate { font-size: 44px; font-weight: 900; line-height: 1.1; }
+.lockstate { font-size: 52px; font-weight: 900; line-height: 1.1; }
 .lockcard.open .lockstate { color: var(--open); }
 .lockcard.locked .lockstate { color: var(--lock); }
 .lockwhy { font-weight: 600; margin-top: 4px; }
 .locknums { margin-top: 8px; font-size: 14px; color: var(--muted); }
-.bignums { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
-.big { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.bignums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.big { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
 .big .k { font-size: 13px; color: var(--muted); }
-.big .v { font-size: 40px; font-weight: 800; line-height: 1.1; }
+.big .v { font-size: 36px; font-weight: 800; line-height: 1.1; }
 .big .s { font-size: 13px; color: var(--muted); }
 .actions { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
-.pickgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.pickgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .pickgrid button, .tv { min-height: 52px; border-radius: 10px; border: 1px solid var(--line); background: var(--btn); color: var(--btnink); font: inherit; font-weight: 700; cursor: pointer; padding: 6px 8px; }
 .pickgrid button[disabled] { opacity: .45; cursor: not-allowed; }
 .pickgrid button .p { display: block; font-weight: 600; font-size: 13px; color: var(--muted); }
@@ -76,3 +76,8 @@ td.wrap { white-space: normal; min-width: 180px; }
   .big .v { font-size: 32px; }
   main { padding: 10px 12px 40px; }
 }
+.small { font-size: 11px; }
+.verdict { margin: 0 0 12px; padding-left: 20px; font-size: 15px; font-weight: 600; }
+.verdict li { margin-bottom: 4px; }
+td.no { color: var(--lock); }
+@media (max-width: 820px) { .bignums, .pickgrid { grid-template-columns: repeat(2, 1fr); } }

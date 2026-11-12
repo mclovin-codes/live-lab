@@ -3,7 +3,9 @@ import { createLock } from './lock.js';
 import { Tracker, VERSION, LABEL, DATA_LANES, KINDS, fmtClock, fmtPrice, fmtOdds, marketName } from './core.js';
 
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// Every lane string (play text, team names, reasons, notes, mark payloads) goes
+// through esc() or textContent before it reaches the page.
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const f1 = (v) => (v === null || v === undefined || !Number.isFinite(v)) ? '-' : v.toFixed(1);
 const NO = '<span class="muted">no data yet</span>';
 $('ver').textContent = VERSION;
@@ -55,7 +57,10 @@ function handle(ev) {
   if (!ev || typeof ev !== 'object') return;
   if (ev.seq && ev.seq <= lastSeq) return;
   if (ev.seq) lastSeq = ev.seq;
-  const t = Date.parse((ev.data && ev.data.origT) || ev.t);
+  // In a replay only replayed lanes (origT) move the clock; live posts such as
+  // taps and picks carry today's time and are shifted by the core instead.
+  const replaying = cfg && cfg.mode === 'replay';
+  const t = replaying && !(ev.data && ev.data.origT) ? NaN : Date.parse((ev.data && ev.data.origT) || ev.t);
   // a replay that loops jumps back in time: start the tracker over
   if (Number.isFinite(t) && tr.lastTick !== null && t < tr.lastTick - 60000) reset();
   lock.ingest(ev);
@@ -232,11 +237,26 @@ async function tapPick(b) {
   await postMark({ kind: 'pick', note: 'pick test', payload: { team, ...pick, accepted: r.accepted, reason: r.reason, lockState: st.open ? 'open' : 'locked', clientT: new Date().toISOString() } });
 }
 
+// Team names: /config first, then the Rush lane's game object, else a plain label.
+function teamNames() {
+  if (cfg && cfg.home && cfg.away) return String(cfg.away) + ' at ' + String(cfg.home);
+  const rr = tr.snap.rush && tr.snap.rush.raw && tr.snap.rush.raw.raw;
+  const h = rr && rr.home_team && rr.home_team.abbreviation, a = rr && rr.away_team && rr.away_team.abbreviation;
+  if (h && a) return String(a) + ' at ' + String(h);
+  return cfg && cfg.mode === 'replay' ? 'Replay (no team names in this log)' : 'Away at Home';
+}
+// Refresh /config so lane read gaps and team names follow the relay.
+setInterval(async () => { if (relayUp) await probeRelay(); }, 15000);
+
 // ---------- render ----------
 function laneRow(l) {
   const s = tr.snap[l];
   if (!s || (!s.t && s.error)) return '<tr><th>' + esc(LABEL[l]) + '</th><td colspan="7">' + (s && s.error ? 'error ' + esc(s.error) : NO) + '</td></tr>';
   const age = (nowMs() - s.t) / 1000;
+  // expected read gap from /config (the relay reads every 10 s before 8 PM ET, then 1 s)
+  const lc = cfg && cfg.lanes && cfg.lanes[l];
+  const every = lc ? (lc.currentSeconds || lc.seconds || 1) : (l === 'fastcast' ? 30 : 2);
+  const late = age > Math.max(5, every * 3);
   const clock = s.period !== null && s.period !== undefined ? 'Q' + s.period + ' ' + (fmtClock(s.clockS) ?? '') : '-';
   const score = s.home !== null && s.away !== null && s.home !== undefined ? s.away + ' to ' + s.home : '-';
   const pl = s.plays && s.plays.length ? s.plays : (s.lastPlays || []);
@@ -244,7 +264,7 @@ function laneRow(l) {
   const p = s.prices || {};
   const pc = (k) => p[k] ? esc(fmtPrice(k, p[k])) : '-';
   const err = s.error ? ' <span class="no">error ' + esc(s.error) + '</span>' : '';
-  return '<tr><th>' + esc(LABEL[l]) + err + '</th><td>' + esc(clock) + '</td><td>' + esc(score) + '</td><td class="wrap">' + esc((lp || '-').slice(0, 110)) + '</td><td>' + pc('S') + '</td><td>' + pc('T') + '</td><td>' + pc('M') + '</td><td class="num">' + f1(age) + ' s</td></tr>';
+  return '<tr><th>' + esc(LABEL[l]) + err + '</th><td>' + esc(clock) + '</td><td>' + esc(score) + '</td><td class="wrap">' + esc((lp || '-').slice(0, 110)) + '</td><td>' + pc('S') + '</td><td>' + pc('T') + '</td><td>' + pc('M') + '</td><td class="num' + (late ? ' no' : '') + '">' + f1(age) + ' s<br><span class="muted small">reads every ' + f1(every) + ' s</span></td></tr>';
 }
 function render() {
   const now = nowMs();
@@ -252,7 +272,7 @@ function render() {
   const st = lock.status(now);
   // header
   const g = tr.snap.sgo || tr.snap.espn;
-  const names = cfg && cfg.home ? cfg.away + ' at ' + cfg.home : 'Away at Home';
+  const names = teamNames();
   $('game').textContent = g && g.home !== null && g.home !== undefined ? names + '  ' + g.away + ' to ' + g.home + (g.period ? '  Q' + g.period + ' ' + (fmtClock(g.clockS) ?? '') : '') : names + (Object.keys(tr.snap).length ? ': no score yet' : ': no game data yet');
   const modeText = { stream: 'Live stream', poll: 'Polling the log every 0.5 s', browser: 'Browser lanes only', connecting: 'Connecting' }[mode];
   $('conn').textContent = modeText + (cfg && cfg.mode === 'replay' ? ' (replay x' + ((cfg.replay && cfg.replay.speed) || 1) + ')' : '') + ' . push lane: ' + pushState;
@@ -289,7 +309,7 @@ function render() {
   renderPickButtons(st);
   const gp = tr.gradePicks(truth);
   $('pickstats').innerHTML = 'Attempts <b>' + gp.attempts + '</b> . accepted <b>' + gp.accepted + '</b> . clean <b>' + gp.clean + '</b> . past-posted <b>' + gp.pastPosted + '</b>' + (gp.pending ? ' . grading ' + gp.pending : '') +
-    (gp.rows.length ? '<br>' + gp.rows.slice(-4).reverse().map((r) => esc(new Date(r.t).toLocaleTimeString() + ' ' + r.market + ' ' + r.side + ': ' + r.grade)).join('<br>') : '');
+    (gp.rows.length ? '<br>' + gp.rows.slice(-2).reverse().map((r) => esc(new Date(r.t).toLocaleTimeString() + ' ' + r.market + ' ' + r.side + ': ' + r.grade)).join('<br>') : '');
 
   // lanes
   $('lanes').innerHTML = '<tr><th>Lane</th><th>Clock</th><th>Score (away to home)</th><th>Last play</th><th>Spread (home)</th><th>Total</th><th>Moneyline (home)</th><th class="num">Age</th></tr>' + DATA_LANES.map(laneRow).join('');
@@ -336,6 +356,17 @@ function render() {
 
 function renderLimits(lt, base, red, gp) {
   const pf = lt.espn.field;
+  // Verdict so far: three plain lines from the page's own numbers (textContent only)
+  const settle = tr.score('settle30');
+  const v1 = base.price.n || base.clock.n || base.score.n
+    ? 'Rush shows prices ' + f1(base.price.med) + ' s late, the clock ' + f1(base.clock.med) + ' s late and the score ' + f1(base.score.med) + ' s late (medians against the fastest raw lane).'
+    : 'Rush lateness: no matched Rush events yet.';
+  const v2 = red.openShare === null
+    ? 'Lock: measured from kickoff. Before then the pregame line is open.'
+    : 'The Red lock would allow picks ' + (100 * red.openShare).toFixed(1) + '% of game time with ' + red.badWindows + ' bad opens (' + f1(red.badSec) + ' s); the 30 s starting rule allows ' + (100 * (settle.openShare || 0)).toFixed(1) + '% with ' + settle.badWindows + ' bad opens.';
+  const v3 = 'Unsolved: plays reach the free feeds ' + (pf.n ? f1(pf.med) + ' s' : 'an unmeasured time') + ' after the field, so picks between plays stay locked' + (tr.snap.rush ? '; Rush held a stale price for ' + Math.round(tr.stale.seconds) + ' s over ' + tr.stale.windows + ' windows.' : '.');
+  const vd = $('verdict');
+  if (vd && vd.children && vd.children.length === 3) { vd.children[0].textContent = v1; vd.children[1].textContent = v2; vd.children[2].textContent = v3; }
   const rows = [
     ['Plays reach every free feed late', pf.n ? 'Score feed (poll) median ' + f1(pf.med) + ' s behind the field stamp' : 'no data yet', 'Lock is built from break windows anchored on the play stamp, not on arrival, so lag shortens the window instead of stretching it', 'Watch bad opens on timeouts and quarter breaks', red.openShare === null ? 'pending kickoff' : red.badWindows + ' bad opens, ' + (100 * red.openShare).toFixed(1) + '% open'],
     ['Rush shows prices late', base.price.n ? 'median ' + f1(base.price.med) + ' s behind the best raw lane' : 'no data yet', 'Read prices from the fastest lane, not the 5 s app read', 'Rush lane against Odds feed on every price event', base.price.n ? 'would save ' + f1(base.price.med) + ' s median' : 'pending'],
