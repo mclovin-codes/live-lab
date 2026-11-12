@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gold Live Tracker</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">Gold <span class="ver" id="ver">v1</span></div>
+  <div class="wall" id="wall">--:--:--</div>
+  <div class="conn" id="conn">Connecting</div>
+  <button class="theme" id="theme" type="button" aria-label="Switch theme">Theme</button>
+</header>
+<div class="banner" id="banner" hidden></div>
+
+<main>
+  <!-- Big numbers first -->
+  <section class="hero">
+    <div class="lockbox" id="lockbox">
+      <div class="lbl">Gold lock</div>
+      <div class="lockstate" id="lockstate">NO DATA YET</div>
+      <div class="lockwhy" id="lockwhy">Waiting for the odds feed</div>
+    </div>
+    <div class="big"><div class="lbl">Rush behind on price, now</div><div class="num" id="bigRushPrice">no data yet</div><div class="sub" id="bigRushPriceSub"></div></div>
+    <div class="big"><div class="lbl">Rush behind on score, median</div><div class="num" id="bigRushScore">no data yet</div><div class="sub" id="bigRushScoreSub"></div></div>
+    <div class="big"><div class="lbl">Rush stale and pickable</div><div class="num" id="bigStale">no data yet</div><div class="sub" id="bigStaleSub"></div></div>
+  </section>
+
+  <section class="card">
+    <h2>8. Pick test <span class="hint">tap a side at the price shown; the lock answers now, never later</span></h2>
+    <div class="picks" id="picks"></div>
+    <div class="pickstats" id="pickstats">No attempts yet</div>
+    <div class="list" id="picklog"></div>
+  </section>
+
+  <section class="card">
+    <h2>6. TV taps <span class="hint" id="tvplace">no taps yet</span></h2>
+    <div class="taps">
+      <button type="button" data-mark="snap">Snap</button>
+      <button type="button" data-mark="whistle">Whistle</button>
+      <button type="button" data-mark="score">Score</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>1. Lanes on one wall clock</h2>
+    <div class="scroll"><table class="lanes" id="lanes"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>4. Shadow lock scores <span class="hint">graded from the log, truth known 10 s late</span></h2>
+    <div class="scroll"><table id="lockscore"></table></div>
+    <div class="controls">
+      <label>Tap time <input id="tap" type="range" min="3" max="8" step="1" value="6"> <b id="tapv">6 s</b></label>
+      <label>Hold confidence <input id="hold" type="range" min="0" max="0.95" step="0.05" value="0.8"> <b id="holdv">80%</b></label>
+    </div>
+    <p class="note" id="lockrule"></p>
+  </section>
+
+  <section class="card">
+    <h2>3. Stale-line meter for Rush</h2>
+    <div class="meter" id="meter">no data yet</div>
+  </section>
+
+  <section class="card">
+    <h2>Price changes <span class="hint">who showed it first, how long Rush kept the old number, what it was worth</span></h2>
+    <div class="scroll"><table id="changes"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Lag against the fastest lane <span class="hint">seconds: now / median / 90th / worst</span></h2>
+    <div class="scroll"><table id="lag"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>5. Rush today against the best fast lane</h2>
+    <div class="scroll"><table id="bvb"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Odds feed cadence <span class="hint">tests the 1.5 s refresh claim</span></h2>
+    <div id="cadence" class="meter">no data yet</div>
+  </section>
+
+  <section class="card">
+    <h2>7. Limits</h2>
+    <div class="scroll"><table id="limits"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Event feed <span class="hint">newest first, last 60</span></h2>
+    <div class="list" id="feed"></div>
+  </section>
+</main>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -24,10 +24,14 @@ $('theme').onclick = () => {
 // ---------- relay base and key ----------
 const qs = new URLSearchParams(location.search);
 // same storage keys as the shared push helper, so both reach the same relay
-if (qs.get('relay')) store.set('liveLab.relay', qs.get('relay').replace(/\/+$/, ''));
+// Relay only on this computer (security review 2026-11-12): any other host in ?relay= or in storage is ignored.
+const isLocalRelay = (b) => { try { const u = new URL(b); return (u.protocol === 'http:' || u.protocol === 'https:') && ['localhost', '127.0.0.1', '[::1]'].includes(u.hostname); } catch { return false; } };
+const qRelay = (qs.get('relay') || '').replace(/\/+$/, '');
+if (qRelay && isLocalRelay(qRelay)) store.set('liveLab.relay', qRelay);
 if (qs.get('k')) store.set('liveLab.relayKey', qs.get('k'));
 const KEY = qs.get('k') || store.get('liveLab.relayKey') || '';
-const RELAY = (qs.get('relay') || ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? location.origin : null) || store.get('liveLab.relay') || 'http://localhost:4477').replace(/\/$/, '');
+const savedRelay = store.get('liveLab.relay');
+const RELAY = ((qRelay && isLocalRelay(qRelay) ? qRelay : null) || ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? location.origin : null) || (savedRelay && isLocalRelay(savedRelay) ? savedRelay : null) || 'http://localhost:4477').replace(/\/$/, '');
 const rurl = (p, params = {}) => {
   const u = new URL(RELAY + p);
   for (const [k, v] of Object.entries(params)) if (v !== null && v !== undefined) u.searchParams.set(k, v);

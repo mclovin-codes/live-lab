@@ -1,0 +1,69 @@
+:root {
+  --bg: #f6f5f1; --panel: #ffffff; --ink: #15161a; --mute: #5d6070; --line: #dcdbd4;
+  --gold: #a87400; --ok: #0f7a3d; --bad: #b3261e; --warn: #9a5b00; --chip: #efede6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1013; --panel: #181a1f; --ink: #eceae4; --mute: #9a9cab; --line: #2a2d35;
+    --gold: #f2b84b; --ok: #4cd18a; --bad: #ff6b5e; --warn: #f0a640; --chip: #23262d;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1013; --panel: #181a1f; --ink: #eceae4; --mute: #9a9cab; --line: #2a2d35;
+  --gold: #f2b84b; --ok: #4cd18a; --bad: #ff6b5e; --warn: #f0a640; --chip: #23262d;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-variant-numeric: tabular-nums; }
+.top { position: sticky; top: 0; z-index: 5; display: flex; gap: 12px; align-items: center; padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.brand { font-weight: 800; color: var(--gold); letter-spacing: .02em; }
+.ver { font-size: 12px; padding: 2px 6px; border-radius: 6px; background: var(--chip); color: var(--ink); }
+.wall { font-size: 20px; font-weight: 700; }
+.conn { color: var(--mute); font-size: 13px; flex: 1; min-width: 160px; }
+.theme { min-height: 44px; min-width: 44px; }
+.banner { margin: 8px 16px 0; padding: 10px 12px; border-radius: 8px; background: var(--chip); border: 1px solid var(--warn); color: var(--ink); }
+main { padding: 12px 16px 40px; max-width: 1280px; margin: 0 auto; display: grid; gap: 12px; }
+.hero { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.lockbox, .big, .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; min-width: 0; }
+.lbl { font-size: 12px; color: var(--mute); text-transform: uppercase; letter-spacing: .04em; }
+.lockstate { font-size: 40px; font-weight: 900; line-height: 1.1; margin: 4px 0; }
+.lockstate.open { color: var(--ok); }
+.lockstate.locked { color: var(--bad); }
+.lockwhy { color: var(--mute); font-size: 14px; }
+.num { font-size: 40px; font-weight: 800; line-height: 1.1; margin: 4px 0; }
+.sub { color: var(--mute); font-size: 13px; }
+h2 { font-size: 16px; margin: 0 0 8px; }
+.hint { font-weight: 400; font-size: 12px; color: var(--mute); margin-left: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--mute); font-weight: 600; font-size: 12px; }
+td.r, th.r { text-align: right; }
+.scroll { overflow-x: auto; }
+.good { color: var(--ok); } .bad { color: var(--bad); } .warn { color: var(--warn); } .mute { color: var(--mute); }
+.taps { display: flex; gap: 8px; flex-wrap: wrap; }
+button { font: inherit; font-weight: 700; min-height: 44px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--chip); color: var(--ink); cursor: pointer; }
+button:active { transform: translateY(1px); }
+.taps button { flex: 1; min-width: 90px; font-size: 17px; }
+.picks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.pickgrp { display: grid; gap: 6px; }
+.pickgrp .lbl { margin-bottom: 2px; }
+.picks button { width: 100%; text-align: left; display: flex; justify-content: space-between; gap: 8px; }
+.picks button[disabled] { opacity: .45; cursor: not-allowed; }
+.pickstats { margin-top: 8px; font-weight: 600; }
+.list { margin-top: 6px; max-height: 260px; overflow-y: auto; font-size: 13px; }
+.list div { padding: 3px 0; border-bottom: 1px dashed var(--line); }
+.controls { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 8px; }
+.controls label { display: flex; gap: 8px; align-items: center; min-height: 44px; }
+input[type=range] { width: 140px; height: 32px; }
+.note { color: var(--mute); font-size: 13px; margin: 6px 0 0; }
+.meter { font-size: 15px; }
+.meter b { font-size: 22px; }
+@media (max-width: 900px) { .hero { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) {
+  .hero { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .lockbox { grid-column: 1 / -1; }
+  .num { font-size: 28px; } .lockstate { font-size: 34px; }
+  .picks { grid-template-columns: 1fr; }
+  main { padding: 8px 16px 40px; }
+  table { font-size: 13px; }
+}

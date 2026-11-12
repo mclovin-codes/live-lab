@@ -85,7 +85,7 @@ import { relayUrl, relayBase, relayKey } from '../shared/fastcast.js'
 relayBase(); relayKey()
 const q = new URLSearchParams(location.search)
 const keep = new URLSearchParams()
-for (const k of ['relay', 'k']) if (q.get(k)) keep.set(k, q.get(k))
+for (const k of ['k']) if (q.get(k)) keep.set(k, q.get(k))
 for (const a of document.querySelectorAll('nav a')) a.href = a.dataset.href + (keep.toString() ? '?' + keep : '')
 
 // Theme toggle, remembered on this device only.
@@ -130,7 +130,7 @@ function render(st) {
     const age = ev ? (now - Date.parse(ev.t)) / 1000 : null
     const ageTxt = age == null ? '' : age < 60 ? age.toFixed(1) + ' s' : Math.round(age / 60) + ' min'
     const errNow = d && d.error != null
-    rows.push(`<tr><td>${esc(NAMES[lane] || lane)}</td><td>${ev ? esc(new Date(ev.t).toLocaleTimeString()) : 'none yet'}</td><td class="${age != null && age > 10 ? 'stale' : ''}">${ageTxt}</td><td>${esc(errNow ? 'error' : clockOf(lane, d))}</td><td>${esc(errNow ? '' : scoreOf(d))}</td><td class="${c.errors ? 'err' : ''}">${c.errors}${errNow ? ' (now)' : ''}</td></tr>`)
+    rows.push(`<tr><td>${esc(NAMES[lane] || lane)}</td><td>${ev ? esc(new Date(ev.t).toLocaleTimeString()) : 'none yet'}</td><td class="${age != null && age > 10 ? 'stale' : ''}">${ageTxt}</td><td>${esc(errNow ? 'error' : clockOf(lane, d))}</td><td>${esc(errNow ? '' : scoreOf(d))}</td><td class="${c.errors ? 'err' : ''}">${Number(c.errors) || 0}${errNow ? ' (now)' : ''}</td></tr>`)
   }
   $lanes.innerHTML = rows.join('') || '<tr><td colspan="6">No lanes yet</td></tr>'
   const cfg = st.config || {}

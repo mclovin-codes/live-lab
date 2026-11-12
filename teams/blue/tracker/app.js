@@ -23,12 +23,14 @@ $('theme').onclick = () => {
 
 // ---------- relay base and key ----------
 const q = new URLSearchParams(location.search);
+// Relay only on this computer (security review 2026-11-12): any other host in ?relay= or in storage is ignored.
+const isLocalRelay = (b) => { try { const u = new URL(b); return (u.protocol === 'http:' || u.protocol === 'https:') && ['localhost', '127.0.0.1', '[::1]'].includes(u.hostname); } catch { return false; } };
 function resolveBase() {
-  const fromQ = q.get('relay');
-  if (fromQ) { const b = fromQ.replace(/\/+$/, ''); lsSet('liveLab.relay', b); return b; }
-  const saved = lsGet('liveLab.relay');
-  if (saved) return saved;
+  const fromQ = (q.get('relay') || '').replace(/\/+$/, '');
+  if (fromQ && isLocalRelay(fromQ)) { lsSet('liveLab.relay', fromQ); return fromQ; }
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return location.origin;
+  const saved = lsGet('liveLab.relay');
+  if (saved && isLocalRelay(saved)) return saved;
   return 'http://localhost:4477';
 }
 function resolveKey() {

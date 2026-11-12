@@ -31,19 +31,28 @@ function ls(get, k, v) {
   return null
 }
 
-// Relay base: ?relay= (saved), else saved, else same origin on localhost or
-// 127.0.0.1, else http://localhost:4477.
+// Relay base. The relay only ever runs on this computer, so the only bases
+// accepted are localhost, 127.0.0.1 and [::1] (security review 2026-11-12: a
+// link must never point the page, or a saved key, at another host). ?relay=
+// may change the port. Anything else is ignored and forgotten.
+export function isLocalRelay(base) {
+  try {
+    const u = new URL(base)
+    return (u.protocol === 'http:' || u.protocol === 'https:') && ['localhost', '127.0.0.1', '[::1]'].includes(u.hostname)
+  } catch {
+    return false
+  }
+}
 export function relayBase() {
   const q = new URLSearchParams(location.search)
-  const fromQ = q.get('relay')
-  if (fromQ) {
-    const clean = fromQ.replace(/\/+$/, '')
-    ls(false, LS_RELAY, clean)
-    return clean
+  const fromQ = (q.get('relay') || '').replace(/\/+$/, '')
+  if (fromQ && isLocalRelay(fromQ)) {
+    ls(false, LS_RELAY, fromQ)
+    return fromQ
   }
-  const saved = ls(true, LS_RELAY)
-  if (saved) return saved
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return location.origin
+  const saved = ls(true, LS_RELAY)
+  if (saved && isLocalRelay(saved)) return saved
   return 'http://localhost:4477'
 }
 
