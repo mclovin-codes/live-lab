@@ -10,7 +10,10 @@ import { createLock as createRed } from '../../teams/red/tracker/lock.js'
 import { createLock as createBlue, fastcastReduce } from '../../teams/blue/tracker/lock.js'
 import { createLock as createGold } from '../../teams/gold/tracker/lock.js'
 
-export const VERSION = 'v1'
+export const VERSION = 'v2'
+// Long breaks only (variant): TV timeout, quarter break, two-minute warning, halftime, after a score.
+export const LONG_KINDS = /quarter break|halftime|two-minute|after field goal|after score|end/i
+const TEAM_TIMEOUT = /timeout #\d|timeout .*by [A-Z]{2,3}\b|by [A-Z]{2,3} at \d/i
 export const KEYS = ['spreadAway', 'spreadHome', 'totalOver', 'totalUnder', 'mlAway', 'mlHome']
 const QUIET_MS = 10000
 const FRESH_MS = 20000
@@ -79,6 +82,22 @@ export function createLock(options = {}) {
   const changedAt = {} // market key -> last time any live price lane changed it
   const last = {} // lane:key -> 'line|odds'
   let lastNow = null
+  let longOnly = options.longOnly === true
+  let lastTimeout = { team: false, t: 0 }
+  function notePlayText(p, t) {
+    if (!p) return
+    const type = String((p.type && typeof p.type === 'object' ? p.type.text : p.type) || '')
+    const text = String(p.text || '')
+    if (/timeout/i.test(type) || /timeout/i.test(text.slice(0, 40))) {
+      const w = p.wallclock ? Date.parse(p.wallclock) : t
+      if (w >= lastTimeout.t) lastTimeout = { team: TEAM_TIMEOUT.test(text) && !/tv|official|media/i.test(text), t: w }
+    }
+  }
+  function breakKind() {
+    const tr = red.tracker
+    const b = tr && tr.state && tr.state.brk
+    return b ? String(b.kind || '') : ''
+  }
 
   function notePrices(lane, m, t) {
     if (!m) return
@@ -99,8 +118,10 @@ export function createLock(options = {}) {
     const t = tOf(ev)
     if (t === null || !ev.data || ev.data.error != null) return
     lastNow = Math.max(lastNow || 0, t)
+    if (ev.lane === 'espn') for (const p of ev.data.plays || []) notePlayText(p, t)
     if (ev.lane === 'fastcast') {
       fc = safe(() => fastcastReduce(fc, ev.data.payload || ev.data), fc)
+      if (fc && fc.lastPlayType) notePlayText({ type: fc.lastPlayType, text: fc.lastPlayText, wallclock: fc.lastPlayWallclock }, t)
       if (fc) notePrices('fastcast', pushMarkets(fc.pc), t)
     } else if (ev.lane === 'sgo') {
       notePrices('sgo', oddsFeedMarkets(ev.data), t)
@@ -132,12 +153,16 @@ export function createLock(options = {}) {
     if (!tm.red.open) held.push('Red: ' + tm.red.reason)
     if (!tm.blue.open) held.push('Blue: ' + tm.blue.reason)
     if (!src) held.push('No live prices yet')
+    const kind = breakKind()
+    if (longOnly && tm.red.open && !(LONG_KINDS.test(kind) || (/timeout/i.test(kind) && !lastTimeout.team))) held.push('Long breaks only: ' + (/timeout/i.test(kind) ? 'a team timeout is too short' : 'this break is too short'))
     const open = held.length === 0
     const markets = {}
     for (const k of KEYS) markets[k] = open && src && src.m[k] && src.m[k].odds !== null ? { line: src.m[k].line, odds: src.m[k].odds } : null
     return {
       open,
-      reason: open ? 'Open: Red has a known break and Blue is open' : held.join('. '),
+      reason: open ? 'Open: Red has a known break (' + (kind || 'break') + ') and Blue is open' : held.join('. '),
+      breakKind: kind,
+      longOnly,
       priceSource: src ? src.name : null,
       noOddsFeed: !(lanes.sgo.m && now - lanes.sgo.t < FRESH_MS),
       sinceMs: null,
@@ -165,7 +190,7 @@ export function createLock(options = {}) {
     return { accepted: true, reason: 'Accepted at the price shown' }
   }
 
-  return { ingest, status, tryPick, teams, lanes, changedAt, version: VERSION }
+  return { ingest, status, tryPick, teams, lanes, changedAt, version: VERSION, setLongOnly: (v) => { longOnly = !!v }, get longOnly() { return longOnly } }
 }
 
 // ---------- scoring: open share and bad opens ----------

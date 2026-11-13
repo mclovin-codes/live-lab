@@ -1,6 +1,6 @@
 // Final tracker page, v1. Reads the laptop relay only (localhost), never writes
 // anything but /mark kind "pick" from the pick test.
-import { createLock, createScorer, num } from './lock.js'
+import { createLock, createScorer, num, pushMarkets } from './lock.js'
 import { fastcastReduce } from '../../teams/blue/tracker/lock.js'
 import { relayBase, relayUrl, isLocalRelay } from '../shared/fastcast.js'
 
@@ -39,8 +39,30 @@ function priceSee(key, lane, t) {
   if (lane !== 'rush') return
   let best = null
   for (const [l, ts] of Object.entries(o)) if (l !== 'rush') for (const x of ts) if (x <= t && (best === null || x > best)) best = x
-  if (best !== null && t - best <= 300000) lags.price.push(t - best)
+  void best
 }
+// Price timing (Gold's method): when the book price on the push lane moves a market,
+// how long until Rush's price for that market next changes. Capped at 60 s; a move
+// Rush has not followed inside 60 s counts as never followed.
+const FOLLOW_CAP = 60000
+const moves = [] // {m, t, done}
+let neverFollowed = 0
+const pushKey = {}, rushKey = {}
+function pushMove(m, key, t) {
+  if (pushKey[m] !== undefined && pushKey[m] !== key) moves.push({ m, t, done: false })
+  pushKey[m] = key
+}
+function rushMove(m, key, t) {
+  const changed = rushKey[m] !== undefined && rushKey[m] !== key
+  rushKey[m] = key
+  for (const mv of moves) {
+    if (mv.done) continue
+    if (t - mv.t > FOLLOW_CAP) { mv.done = true; neverFollowed++; continue }
+    if (changed && mv.m === m && t > mv.t) { mv.done = true; lags.price.push(t - mv.t) }
+  }
+  if (moves.length > 2000) moves.splice(0, moves.length - 2000)
+}
+function expireMoves(t) { for (const mv of moves) if (!mv.done && t - mv.t > FOLLOW_CAP) { mv.done = true; neverFollowed++ } }
 const cur = {} // lane -> {clock: {p, c, key, el}, score}
 function clockKey(period, clock) {
   const p = num(period)
@@ -95,20 +117,21 @@ function take(ev) {
     cur.fastcast = { ck: ck || (cur.fastcast && cur.fastcast.ck) || null, sc: fc.homeScore != null ? fc.awayScore + '-' + fc.homeScore : null, t }
     see('clock', ck && ck.key, 'fastcast', t)
     see('score', cur.fastcast.sc, 'fastcast', t)
-    for (const k of pushPriceKeys(fc.pc)) priceSee(k, 'fastcast', t)
+    const pm = pushMarkets(fc.pc)
+    if (pm) for (const m of ['spreadHome', 'totalOver', 'mlHome']) if (pm[m]) pushMove(m, pm[m].line + '|' + pm[m].odds, t)
     if (fc.lastPlayWallclock) score.notePlay({ wallclock: fc.lastPlayWallclock, type: fc.lastPlayType, text: fc.lastPlayText })
   } else if (ev.lane === 'sgo') {
     const ck = clockKey(String(d.period || '').replace(/\D/g, ''), d.clock)
     cur.sgo = { ck: ck || (cur.sgo && cur.sgo.ck) || null, sc: d.awayScore != null ? d.awayScore + '-' + d.homeScore : null, t }
     see('clock', ck && ck.key, 'sgo', t)
     see('score', cur.sgo.sc, 'sgo', t)
-    if (d.spreadHome) priceSee('spreadHome|' + num(d.spreadHome.line) + '|' + num(d.spreadHome.odds), 'sgo', t)
+    if (d.spreadHome) pushMove('spreadHome', num(d.spreadHome.line) + '|' + num(d.spreadHome.odds), t)
   } else if (ev.lane === 'rush') {
     const ck = clockKey(String(d.period || '').replace(/\D/g, ''), d.clock)
     cur.rush = { ck: ck || (cur.rush && cur.rush.ck) || null, sc: d.awayScore != null ? d.awayScore + '-' + d.homeScore : null, t }
     see('clock', ck && ck.key, 'rush', t)
     see('score', cur.rush.sc, 'rush', t)
-    for (const k of rushPriceKeys(d)) priceSee(k, 'rush', t)
+    for (const k of rushPriceKeys(d)) { const [m, l, o] = k.split('|'); rushMove(m, l + '|' + o, t) }
   } else if (ev.lane === 'mark' && d.kind === 'snap') {
     score.noteSnap(t)
   }
@@ -192,7 +215,7 @@ function fastest() {
   for (const lane of ['fastcast', 'sgo', 'espn']) {
     const c = cur[lane]
     if (!c || !c.ck) continue
-    if (!best || c.ck.el > best.ck.el) best = { lane, ...c }
+    if (!best || c.ck.el > best.ck.el || (c.ck.el === best.ck.el && c.ck.p > best.ck.p)) best = { lane, ...c }
   }
   return best
 }
@@ -206,9 +229,11 @@ function paint() {
   txt('rushClock', r && r.ck ? r.ck.label : '-')
   const lc = stats(lags.clock)
   txt('behind', lc.n ? (lc.now / 1000).toFixed(1) + ' s behind' : 'No shared clock yet')
+  expireMoves(now())
   const rows = ['clock', 'score', 'price'].map((k) => {
     const s = stats(lags[k])
-    return `<tr><td>${esc(k[0].toUpperCase() + k.slice(1))}</td><td>${esc(sec(s.now))}</td><td>${esc(sec(s.med))}</td><td>${esc(sec(s.worst))}</td><td>${esc(s.n)}</td></tr>`
+    const label = k === 'price' ? 'Price (time to follow a push price move, cap 60 s; never followed ' + neverFollowed + ')' : k[0].toUpperCase() + k.slice(1)
+    return `<tr><td>${esc(label)}</td><td>${esc(sec(s.now))}</td><td>${esc(sec(s.med))}</td><td>${esc(sec(s.worst))}</td><td>${esc(s.n)}</td></tr>`
   })
   $('lagRows').innerHTML = rows.join('')
 
@@ -222,6 +247,7 @@ function paint() {
   txt('openShare', (res.openShare * 100).toFixed(1) + '%')
   txt('badOpens', res.bad + ' of ' + res.opens)
   txt('snapsHit', res.snapsHit + ' of ' + res.snaps)
+  txt('variant', 'Default rule: every break Red knows (all breaks and long breaks only both scored 2 bad opens on the first half; all breaks keeps more open time)')
   txt('priceNote', st.noOddsFeed ? 'No Odds feed lane tonight: prices come from the Score feed (push)' : 'Prices from the Odds feed')
 
   const B = [['spread', 'away', 'spreadAway', away], ['spread', 'home', 'spreadHome', home], ['total', 'over', 'totalOver', 'Over'], ['total', 'under', 'totalUnder', 'Under'], ['ml', 'away', 'mlAway', away + ' to win'], ['ml', 'home', 'mlHome', home + ' to win']]

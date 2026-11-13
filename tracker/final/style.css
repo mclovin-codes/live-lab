@@ -36,3 +36,4 @@ th{color:var(--dim);font-size:12px}
 .picks button b{font:800 18px system-ui,sans-serif}
 .picks button:disabled{opacity:.4;cursor:default}
 #pickMsg{min-height:20px;margin:8px 0 0;font-size:14px}
+.dim{color:var(--dim);font-size:12px}
