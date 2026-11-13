@@ -9,7 +9,7 @@ let LEAGUE = 'NFL'; // set by createModel({ league })
 export { eventTime };
 export { stopRule };
 
-export const VERSION = 'v7';
+export const VERSION = 'v8';
 
 export const LANE_NAMES = {
   sgo: 'Odds feed',
@@ -184,6 +184,7 @@ export function createModel(opts = {}) {
     plays: new Map(), // playId -> { wall, firstKnown, type, text, stop }
     lastSeq: 0,
     oddsLineChanges: [], // odds feed line change times
+    clockChanges: [], // any raw lane clock change times (ground truth for when a play's result is known)
     rushLineChangeT: null, // newest Rush line change time
     rushPriceLag: [], // Rush line change minus the odds feed change it follows
   };
@@ -232,6 +233,7 @@ export function createModel(opts = {}) {
       c.ratio = dw > 0 ? dg / dw : null;
     }
     c.prevE = c.e; c.prevSince = c.since; c.e = r.elapsed; c.since = t;
+    if (lane !== 'rush') { m.clockChanges.push(t); if (m.clockChanges.length > 20000) m.clockChanges.splice(0, 5000); }
     // ruler sample: how long after the frontier first reached this place did this lane show it
     const ft = frontierTimeAtLeast(r.elapsed);
     // Period edges (0:00 and the full period clock) are the same game instant held across a break, so they say
@@ -505,7 +507,9 @@ export function createModel(opts = {}) {
   // clock or score change after it on any raw lane) and seconds open with a price move inside the next 10 s.
   function liveLockScore() {
     const plays = [...m.plays.values()].filter((p) => !(p.stop && ['twomin', 'timeout', 'quarter', 'half'].includes(p.stop.kind)));
-    const after = (w) => { for (const f of m.frontier) if (f.t > w && f.lane !== 'rush') return f.t; return null; };
+    // Result known = first clock change on any raw lane after the snap stamp. The frontier maximum is not used:
+    // one stray high reading froze it and marked clean opens bad (2026-11-12 Q3, 10:12 PM).
+    const after = (w) => { for (const t of m.clockChanges) if (t > w) return t; return null; };
     const moves = [...m.tokens.price.values()].filter((r) => r.lane !== 'rush').map((r) => r.first).sort((a, b) => a - b);
     return scoreLock(m.trace, plays, after, moves);
   }

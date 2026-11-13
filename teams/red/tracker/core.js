@@ -5,7 +5,7 @@
 // two lanes is one matched event; each lane's lag is its first-seen wall time
 // minus the earliest data lane's first-seen wall time for that event.
 
-export const VERSION = 'v7';
+export const VERSION = 'v8';
 
 export const LABEL = {
   sgo: 'Odds feed',
@@ -22,7 +22,8 @@ export const KINDS = ['clock', 'score', 'play', 'price'];
 // Tunables for the lock rule (seconds). Documented in NOTES.md.
 export const PARAMS = {
   settle: 30,          // founder starting rule: no open within 30 s of a price, line or score change
-  timeoutWin: 75,      // team or TV timeout: open until play stamp + 75 s
+  timeoutWin: 75,      // TV timeout: open until play stamp + 75 s
+  teamTimeoutWin: 25,  // v8: team timeout: play stamp + 25 s (measured 52 s median, 34 s min to the next snap)
   twoMinWin: 100,      // two-minute warning
   quarterWin: 100,     // end of 1st or 3rd quarter
   halfWin: 12 * 60,    // end of 2nd quarter
@@ -454,7 +455,12 @@ export class Tracker {
     const P = this.P;
     this.pushFeed(t, lane, 'play', clsLabel(cls) + ': ' + (p.text || '').slice(0, 90), W);
     const set = (kind, end) => { this.state.brk = { kind, startT: t, anchor: W, endT: end }; };
-    if (cls === 'timeout') set('timeout', W + P.timeoutWin * 1000);
+    // v8 (tuning rule T1): a team timeout lasted 52 s median, 34 s min, to the next snap in the first half
+    // (n 5); TV timeouts 143 to 194 s (n 9). Team window = 10th percentile minus 10 s.
+    if (cls === 'timeout') {
+      if (/official/i.test((p.text || '') + ' ' + (p.type || ''))) set('TV timeout', W + P.timeoutWin * 1000);
+      else set('team timeout', W + P.teamTimeoutWin * 1000);
+    }
     else if (cls === 'twomin') set('two-minute warning', W + P.twoMinWin * 1000);
     else if (cls === 'endq') {
       this.state.lastEndQ = t;

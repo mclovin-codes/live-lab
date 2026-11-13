@@ -1,8 +1,8 @@
 // "Plan for tonight" panel text. Edited at each break; lane names only.
 export const PLAN = [
-  'Second half test (v7): small odds wiggles no longer reset the 30 s settle; the quarter break now opens.',
-  'First half: Red lock open 18% of the game; the 30 s rule 49%, with four times the live-ball seconds.',
-  'Breaks: TV timeouts about 143 s whistle to snap; team timeouts only about 52 s.',
-  'Next: shorten the team-timeout window, where the late second-quarter live-ball opens came from.',
+  'Q4 test (v8): team timeouts open for 25 s after the whistle stamp; TV timeouts keep 75 s.',
+  'Q3 result: the Red lock had 0 s open on a live ball; the 30 s rule had 127 s.',
+  'Q3 result: four TV timeouts, 151 to 194 s whistle to snap; the Q3 to Q4 break opened for 37 s.',
+  'Watching in Q4: two-minute drill team timeouts, the case the 25 s window was cut for.',
   'Rush live picks are off in production: Rush pickable numbers here are hypothetical.',
 ];

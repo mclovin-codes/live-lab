@@ -2,7 +2,7 @@
 import { createLock, plainReason } from './lock.js';
 import { LANE_NAME, MARKETS, KINDS, lagTable, scoreRuns, cadence, baselineVsBest, gradePick, quantiles, DEFAULTS, staleView } from './core.js';
 
-const VERSION = 'v6';
+const VERSION = 'v7';
 const $ = (id) => document.getElementById(id);
 $('ver').textContent = VERSION;
 document.title = `Gold Live Tracker ${VERSION}`;
@@ -133,7 +133,7 @@ async function refill() {
 // A relay restart resets seq; compare startedAt and rebuild from the whole log when it changed.
 // Each version names the one change it tests. The first load of a new version on the relay logs it
 // as a /mark with kind "test", so the log carries when each change went live.
-const TEST_NOTE = 'gold v6: lock can be scored on the push lane book price (pushPrices option, off live); survival table by tap and quiet';
+const TEST_NOTE = 'gold v7: live-check windows (Q3 only) and push gap exclusion; page unchanged except the plan';
 async function logVersionTest() {
   const k = 'gold.tested.' + (relayStart || '');
   if (ls.get(k) === VERSION) return;
@@ -523,7 +523,7 @@ function renderLimits(S, lt) {
 const PLAN = [
   'Tonight the relay runs without the odds feed: the live lock stays locked and says why.',
   'First half: Rush trails the book price by about half a minute and never shows the same number.',
-  'Second half: score the lock on the book price from the push lane, and measure how long a price holds for a tap.',
+  'Q3: check the first-half survival numbers on fresh data, push gap 9:45 to 9:51 PM left out.',
 ];
 function renderPlan(S) {
   const mine = S.tests.filter((x) => x.source === 'gold');
