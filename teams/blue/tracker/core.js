@@ -9,7 +9,7 @@ let LEAGUE = 'NFL'; // set by createModel({ league })
 export { eventTime };
 export { stopRule };
 
-export const VERSION = 'v6';
+export const VERSION = 'v7';
 
 export const LANE_NAMES = {
   sgo: 'Odds feed',
@@ -234,7 +234,12 @@ export function createModel(opts = {}) {
     c.prevE = c.e; c.prevSince = c.since; c.e = r.elapsed; c.since = t;
     // ruler sample: how long after the frontier first reached this place did this lane show it
     const ft = frontierTimeAtLeast(r.elapsed);
-    if (ft !== null && r.elapsed > (c.prevE ?? -1)) {
+    // Period edges (0:00 and the full period clock) are the same game instant held across a break, so they say
+    // nothing about lag (a held 15:00 after the quarter break read as 263 s behind, 2026-11-12). No sample there.
+    const L0 = LEAGUES[LEAGUE] || LEAGUES.NFL;
+    const edge = r.clockSec === 0 || r.clockSec === (r.period > L0.reg ? L0.ot : L0.per);
+    // Over 120 s is a held or corrected clock across a stoppage (2026-11-12 halftime check: 2:40 read 128 to 146 s late), not feed lag.
+    if (ft !== null && !edge && r.elapsed > (c.prevE ?? -1) && t - ft <= 120000) {
       if (!m.clockSamples[lane]) m.clockSamples[lane] = [];
       pushCap(m.clockSamples[lane], Math.max(0, (t - ft) / 1000));
     }
@@ -452,7 +457,7 @@ export function createModel(opts = {}) {
         const lags = {};
         for (const lane of ['sgo', 'rush', 'espn', 'fastcast']) lags[lane] = clockLagNow(lane, t);
         m.trace.push({ t, lags, lock: lk.state });
-        if (m.trace.length > 1800) m.trace.splice(0, m.trace.length - 1800);
+        if (m.trace.length > 16000) m.trace.splice(0, m.trace.length - 16000); // a full game at 1 s, so the lock score covers it all
       }
     }
     lastAdvance = now;

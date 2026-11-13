@@ -8,7 +8,7 @@
 // stop was known, no TV snap tap came after it, the odds feed is fresh and says available, and no
 // price, line or score moved in the last few seconds. A TV whistle tap opens a short window too.
 
-export const LOCK_VERSION = 'blue-lock v4';
+export const LOCK_VERSION = 'blue-lock v5';
 
 const DEFAULTS = {
   settle: 10, // seconds a price, line or score change keeps the lock shut
@@ -35,7 +35,8 @@ const STOP_RULES = [
   { re: /end (of )?(quarter|period|1st|3rd)/i, kind: 'quarter', dur: 100 },
   // 2026-11-05: the warning's stamp came 35 s before the next snap, so the stamp marks the end of the break
   { re: /two.minute warning/i, kind: 'twomin', dur: 25 },
-  { re: /timeout/i, kind: 'timeout', dur: 60 },
+  // 2026-11-12 first half: team timeout stamp to next snap 34 to 82 s, official 39 to 158 s; the 60 s window opened over a snap 39 s after a stamp
+  { re: /timeout/i, kind: 'timeout', dur: 34 },
   { re: /official review|challenge|replay|injur/i, kind: 'review', dur: 60 },
   { re: /touchdown/i, kind: 'td', dur: 45 },
   { re: /field goal (is )?good|extra point|kick is good|safety/i, kind: 'score', dur: 45 },

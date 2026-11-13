@@ -5,7 +5,7 @@
 // two lanes is one matched event; each lane's lag is its first-seen wall time
 // minus the earliest data lane's first-seen wall time for that event.
 
-export const VERSION = 'v6';
+export const VERSION = 'v7';
 
 export const LABEL = {
   sgo: 'Odds feed',
@@ -32,6 +32,7 @@ export const PARAMS = {
   staleLead: 10,       // truth: price was already stale 10 s before the book moved it
   incidentCap: 30,     // stale meter: an incident makes Rush stale for at most 30 s
   priceCap: 60,        // stale meter: a raw-lane price move makes Rush stale for at most 60 s
+  minProbMove: 0.02,   // v7: a price move counts for the settle when implied probability moves 2 points or the line changes
   matchWindow: 180,    // same signature on two lanes within 180 s is one event
 };
 
@@ -211,6 +212,11 @@ function playOf(q) {
   return { id: String(q.id), text: q.text || '', type: (q.type && q.type.text) || (typeof q.type === 'string' ? q.type : ''), wallclock: toMs(q.wallclock) };
 }
 
+export function impliedProb(o) {
+  if (o === null || o === undefined || !Number.isFinite(o)) return 0.5;
+  return o < 0 ? -o / (-o + 100) : 100 / (o + 100);
+}
+
 // ---------- stats ----------
 export function quantile(arr, q) {
   if (!arr.length) return null;
@@ -303,7 +309,15 @@ export class Tracker {
         const before = ps.cS;
         ps.c = cs; ps.cS = { period: n.period, clockS: n.clockS };
         const e = this.match(cs, 'clock', lane, n.t);
-        if (before && before.period === n.period && n.clockS < before.clockS && lane !== 'rush' && e.firstLane === lane) {
+        // v7: a lagging lane catching up (the poll running its clock to 0:00
+        // after the period-end play) closed the Q1 to Q2 break. Only a reading
+        // below the lowest clock any raw lane has shown for the period, and
+        // not 0:00, counts as the clock running now.
+        const mins = (this.state.minClock ||= {});
+        const low = mins[n.period];
+        const fresh = low === undefined || n.clockS < low;
+        if (lane !== 'rush') mins[n.period] = low === undefined ? n.clockS : Math.min(low, n.clockS);
+        if (before && before.period === n.period && n.clockS < before.clockS && n.clockS > 0 && fresh && n.period > (this.state.endedPeriod ?? 0) && lane !== 'rush' && e.firstLane === lane) {
           this.onSnapSignal(n.t, 'clock ran on ' + LABEL[lane]);
         }
       }
@@ -349,7 +363,13 @@ export class Tracker {
             this.lastPriceChange[lane] = n.t;
             const e = this.match(sig, 'price', lane, n.t);
             if (lane !== 'rush' && e.firstLane === lane && e.lanes[lane] === n.t) {
-              this.state.lastPriceT = n.t;
+              // v7: settle on material moves only (line change, or implied
+              // probability moved P.minProbMove or more); odds wiggles in dead
+              // time no longer reset the 30 s settle. Truth still counts every move.
+              const pm = ps['m' + k];
+              const material = !pm || pm.line !== pr.line || Math.abs(impliedProb(pm.odds) - impliedProb(pr.odds)) >= this.P.minProbMove;
+              if (material) { this.state.lastPriceT = n.t; ps['m' + k] = { line: pr.line, odds: pr.odds }; }
+              this.state.lastAnyPriceT = n.t;
               const h = this.priceHist[k]; h.push([n.t, pr.line, pr.odds]); if (h.length > 3000) h.splice(0, 500);
               this.pushFeed(n.t, lane, 'price', marketName(k) + ' ' + fmtPrice(k, pr));
             }
@@ -438,6 +458,7 @@ export class Tracker {
     else if (cls === 'twomin') set('two-minute warning', W + P.twoMinWin * 1000);
     else if (cls === 'endq') {
       this.state.lastEndQ = t;
+      this.state.endedPeriod = Math.max(this.state.endedPeriod ?? 0, this.state.maxPeriod ?? 0); // clock readings from an ended period are catch-up, not a snap
       const per = (this.snap.espn && this.snap.espn.period) || (this.snap.sgo && this.snap.sgo.period);
       if (/half/i.test(p.text || '') || per === 2) set('halftime', W + P.halfWin * 1000);
       else if (/game|regulation/i.test(p.text || '')) set('end', W + P.halfWin * 1000);
