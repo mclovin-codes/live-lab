@@ -5,7 +5,7 @@
 // two lanes is one matched event; each lane's lag is its first-seen wall time
 // minus the earliest data lane's first-seen wall time for that event.
 
-export const VERSION = 'v3';
+export const VERSION = 'v4';
 
 export const LABEL = {
   sgo: 'Odds feed',
@@ -31,6 +31,7 @@ export const PARAMS = {
   liveAfter: 2,        // truth: to play stamp + 2 s
   staleLead: 10,       // truth: price was already stale 10 s before the book moved it
   incidentCap: 30,     // stale meter: an incident makes Rush stale for at most 30 s
+  priceCap: 60,        // stale meter: a raw-lane price move makes Rush stale for at most 60 s
   matchWindow: 180,    // same signature on two lanes within 180 s is one event
 };
 
@@ -221,7 +222,8 @@ export class Tracker {
     this.bySig = new Map();     // sig -> entries (recent)
     this.snap = {};             // lane -> newest normalized snapshot
     this.prevSig = {};          // lane -> kind/market -> last sig
-    this.lastChange = {};       // lane -> t of the last price or score change on that lane
+    this.lastChange = {};
+    this.lastPriceChange = {};  // lane -> t of its last price change       // lane -> t of the last price or score change on that lane
     this.feed = [];             // discrete event list for the page, capped
     this.playsSeen = new Map(); // play id -> {firstT, wallclock, cls, text}
     this.marks = [];            // TV taps
@@ -329,6 +331,7 @@ export class Tracker {
           ps['x' + k] = sig;
           if (hadPrev) {
             this.lastChange[lane] = n.t;
+            this.lastPriceChange[lane] = n.t;
             const e = this.match(sig, 'price', lane, n.t);
             if (lane !== 'rush' && e.firstLane === lane && e.lanes[lane] === n.t) {
               this.state.lastPriceT = n.t;
@@ -513,14 +516,14 @@ export class Tracker {
   }
 
   staleNow(now) {
-    const r = this.snap.rush, g = this.snap.sgo;
+    const r = this.snap.rush;
     if (!r || !this.inGame() || r.pickable === false) return null;
-    if (g && now - g.t < 20000) {
-      for (const k of ['S', 'T', 'M']) {
-        const a = r.prices[k], b = g.prices[k];
-        if (a && b && (a.line !== b.line || a.odds !== b.odds)) return 'price';
-      }
-    }
+    // By timing, not value (v4): Rush and the odds feed can post different
+    // numbers for the same market, so equality reads Rush stale all game.
+    // Rush is stale from a raw-lane price move until Rush next changes its own
+    // price, capped at P.priceCap seconds per move.
+    const gp = this.state.lastPriceT, rp = this.lastPriceChange.rush ?? 0;
+    if (gp !== null && gp > rp && now - gp < this.P.priceCap * 1000) return 'price';
     const inc = this.lastIncident;
     if (inc && now - inc.t < this.P.incidentCap * 1000 && (this.lastChange.rush ?? 0) < inc.t) return 'incident';
     return null;

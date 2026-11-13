@@ -129,6 +129,7 @@ async function connect() {
     if (relayStartedAt && cfg.startedAt !== relayStartedAt && (cfg.seq || 0) < lastSeq) { lastSeq = 0; seen.clear(); model = createModel({ league: leagueNow }); }
     relayStartedAt = cfg.startedAt;
     relayMode = cfg.mode || null;
+    cfgTeams = cfg.home && cfg.away ? { a: String(cfg.away).slice(0, 4), h: String(cfg.home).slice(0, 4) } : null;
     const lg = String(cfg.league || 'NFL').toUpperCase();
     if (lg !== leagueNow && ['NFL', 'NBA', 'NHL'].includes(lg)) { leagueNow = lg; model = createModel({ league: leagueNow }); }
     if (relayMode !== 'replay') startFastcast();
@@ -213,7 +214,8 @@ async function postMark(body, localEcho) {
 }
 
 // Team labels: tonight's names live, neutral names over a replay of another game.
-const TEAMS = () => (relayMode === 'replay' ? { a: 'Away', h: 'Home' } : { a: 'WSH', h: 'NYG' });
+let cfgTeams = null; // home and away from the relay /config
+const TEAMS = () => (relayMode === 'replay' ? { a: 'Away', h: 'Home' } : cfgTeams || { a: 'WSH', h: 'NYG' });
 
 // ---------- pick test ----------
 const picks = []; // {id, clientT, tMs, market, side, shownLine, shownOdds, accepted, reason, lockState, grade}
@@ -308,7 +310,7 @@ function render() {
   const g = s.lanes.sgo?.r || s.lanes.espn?.r || s.lanes.fastcast?.r;
   const T = TEAMS();
   const replayTag = relayMode === 'replay' ? 'Replay of a recorded game: ' : '';
-  $('game').textContent = replayTag + (g && g.home !== null ? T.a + ' ' + g.away + '  ' + T.h + ' ' + g.home + (g.period ? '  Q' + g.period + ' ' + (fmtClock(g.clockSec) || '') : '') : (relayMode === 'replay' ? 'waiting for data' : 'WSH at NYG  ' + (s.lanes.sgo || s.lanes.espn ? 'Pregame' : 'No game data yet')));
+  $('game').textContent = replayTag + (g && g.home !== null ? T.a + ' ' + g.away + '  ' + T.h + ' ' + g.home + (g.period ? '  Q' + g.period + ' ' + (fmtClock(g.clockSec) || '') : '') : (relayMode === 'replay' ? 'waiting for data' : T.a + ' at ' + T.h + '  ' + (s.lanes.sgo || s.lanes.espn ? 'Pregame' : 'No game data yet')));
 
   // hero: lock first, then clock lag now per lane, then stale meter
   const lk = s.lock;

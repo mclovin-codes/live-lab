@@ -9,7 +9,7 @@ let LEAGUE = 'NFL'; // set by createModel({ league })
 export { eventTime };
 export { stopRule };
 
-export const VERSION = 'v3';
+export const VERSION = 'v4';
 
 export const LANE_NAMES = {
   sgo: 'Odds feed',
@@ -181,6 +181,9 @@ export function createModel(opts = {}) {
     lastRawChangeT: null, // newest price, line or score change on a raw lane
     plays: new Map(), // playId -> { wall, firstKnown, type, text, stop }
     lastSeq: 0,
+    oddsLineChanges: [], // odds feed line change times
+    rushLineChangeT: null, // newest Rush line change time
+    rushPriceLag: [], // Rush line change minus the odds feed change it follows
   };
 
   function laneState(lane) {
@@ -288,7 +291,20 @@ export function createModel(opts = {}) {
         }
       }
     }
-    if (lane !== 'espn') recordToken('price', lane === 'rush' ? r.lineKey : r.lineKey, lane, t);
+    // Rush shows its own rounding of the line (2026-11-12: Rush -2 and 41 against the odds feed -2.5 and 40.5),
+    // so Rush price lag and staleness go by timing: when each lane last changed its line, never by equal values.
+    if (lane === 'sgo' || lane === 'fastcast') recordToken('price', r.lineKey, lane, t);
+    if (r.lineKey && prev && prev.lineKey && prev.lineKey !== r.lineKey) {
+      if (lane === 'sgo') { m.oddsLineChanges.push(t); if (m.oddsLineChanges.length > 2000) m.oddsLineChanges.shift(); }
+      if (lane === 'rush') {
+        // lag = this Rush change minus the earliest odds feed change since Rush's previous change (within 120 s)
+        const from = m.rushLineChangeT ?? -Infinity;
+        const src = m.oddsLineChanges.find((x) => x > from && x <= t && t - x <= 120000);
+        if (src !== undefined) pushCap(m.rushPriceLag, (t - src) / 1000);
+        m.rushLineChangeT = t;
+      }
+    }
+    if (lane === 'rush' && r.lineKey && m.rushLineChangeT === null) m.rushLineChangeT = t;
     if (lane !== 'rush' && prev) {
       if (prev.scoreKey !== r.scoreKey || (r.lineKey && prev.lineKey !== r.lineKey) || (r.priceKey && prev.priceKey !== r.priceKey)) m.lastRawChangeT = t;
     }
@@ -335,7 +351,15 @@ export function createModel(opts = {}) {
     }
     return out;
   }
+  // Seconds since the odds feed changed its line while Rush has not changed since; null when Rush is level.
+  function rushPriceBehind(now) {
+    const last = m.oddsLineChanges.length ? m.oddsLineChanges[m.oddsLineChanges.length - 1] : null;
+    if (last === null || m.rushLineChangeT === null || m.rushLineChangeT >= last) return null;
+    const first = m.oddsLineChanges.find((x) => x > m.rushLineChangeT);
+    return Math.max(0, (now - first) / 1000);
+  }
   function tokenLagNow(kind, lane, now) {
+    if (kind === 'price' && lane === 'rush') return m.lanes.rush ? rushPriceBehind(now) ?? 0 : null;
     const L = m.lanes[lane];
     if (!L || !L.r) return null;
     const cur = kind === 'score' ? L.r.scoreKey : kind === 'play' ? L.r.playId : L.r.lineKey;
@@ -378,7 +402,7 @@ export function createModel(opts = {}) {
     if (!inPlay()) return null;
     const reasons = [];
     const S = m.lanes.sgo;
-    if (S && S.r && S.r.lineKey && R.r.lineKey && S.r.lineKey !== R.r.lineKey) reasons.push('price');
+    if (rushPriceBehind(now) !== null) reasons.push('price');
     const cl = clockLagNow('rush', now);
     if (cl !== null && cl > 0) reasons.push('clock');
     const sl = tokenLagNow('score', 'rush', now);
@@ -432,7 +456,7 @@ export function createModel(opts = {}) {
   function snapshot(now) {
     if (now === undefined) now = m.lastT ?? Date.now();
     advance(now);
-    const kinds = { clock: {}, score: tokenLags('score'), play: tokenLags('play'), price: tokenLags('price') };
+    const kinds = { clock: {}, score: tokenLags('score'), play: tokenLags('play'), price: Object.assign(tokenLags('price'), { rush: m.rushPriceLag }) };
     for (const [lane, arr] of Object.entries(m.clockSamples)) kinds.clock[lane] = arr;
     const lag = {};
     for (const lane of LANES) {
