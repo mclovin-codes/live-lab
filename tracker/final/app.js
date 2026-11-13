@@ -1,6 +1,6 @@
 // Final tracker page, v1. Reads the laptop relay only (localhost), never writes
 // anything but /mark kind "pick" from the pick test.
-import { createLock, createScorer, num, pushMarkets } from './lock.js'
+import { createRun, num, pushMarkets, excluded } from './lock.js'
 import { fastcastReduce } from '../../teams/blue/tracker/lock.js'
 import { relayBase, relayUrl, isLocalRelay, connectFastcast } from '../shared/fastcast.js'
 
@@ -14,12 +14,15 @@ const LANE = { sgo: 'Odds feed', rush: 'Rush', espn: 'Score feed (poll)', fastca
 
 const base = relayBase()
 const local = isLocalRelay(base)
-const lock = createLock()
-const score = createScorer()
-// FINAL B (v4) runs beside FINAL A and is scored the same way.
-const lockB = createLock({ variant: 'B' })
-const scoreB = createScorer()
-for (const fn of ['notePlay', 'noteSnap', 'noteMove']) { const a = score[fn].bind(score); score[fn] = (x) => { a(x); scoreB[fn](x) } }
+// FINAL A and FINAL B, each a scored run over the same events (lock.js createRun, shared with the offline scorer).
+const runA = createRun()
+const runB = createRun({ variant: 'B' })
+const lock = runA.lock
+const lockB = runB.lock
+const noop = () => {}
+const score = { notePlay: noop, noteSnap: noop, noteMove: noop, result: (n) => runA.result(n) }
+const scoreB = { result: (n) => runB.result(n) }
+let frozenAt = null
 let seq = 0
 let skew = 0
 let connected = false
@@ -115,7 +118,9 @@ function pushPriceKeys(pc) {
 function take(ev) {
   if (!ev || typeof ev.seq !== 'number' || ev.seq <= seq) return
   seq = ev.seq
-  lock.ingest(ev)
+  if (excluded(ev)) return
+  runA.ingest(ev)
+  runB.ingest(ev)
   lockB.ingest(ev)
   const t = Date.parse(ev.t)
   const d = ev.data || {}
@@ -156,11 +161,10 @@ function take(ev) {
 
 const moveSeen = new Set()
 function stepScore() {
-  for (const v of Object.values(lock.changedAt)) if (!moveSeen.has(v)) { moveSeen.add(v); score.noteMove(v) }
-  const st = lock.status(now())
-  score.step(now(), st.open, live)
-  scoreB.step(now(), lockB.status(now()).open, live)
-  return st
+  if (frozenAt !== null) return
+  if (runA.done) { frozenAt = now(); return }
+  runA.step(now())
+  runB.step(now())
 }
 
 // ---------- relay reads ----------
@@ -213,10 +217,8 @@ async function start() {
     const t0 = Date.parse(all[0].t), t1 = Date.parse(all[all.length - 1].t)
     for (let t = t0; t <= t1; t += 1000) {
       while (i < all.length && Date.parse(all[i].t) <= t) keep(all[i++])
-      for (const v of Object.values(lock.changedAt)) if (!moveSeen.has(v)) { moveSeen.add(v); score.noteMove(v) }
-      const s = lock.status(t)
-      score.step(t, s.open, live)
-      scoreB.step(t, lockB.status(t).open, live)
+      if (frozenAt === null && runA.done) frozenAt = t
+      if (frozenAt === null) { runA.step(t); runB.step(t) }
     }
     while (i < all.length) keep(all[i++])
   }
@@ -241,6 +243,7 @@ function fastest() {
   return best
 }
 function paint() {
+  const fin = frozenAt !== null
   txt('conn', !local ? 'Laptop relay not connected: only a relay on this computer is accepted' : connected ? 'Laptop relay connected' : 'Laptop relay not connected: licensed feed and Rush lanes are off')
   $('conn').className = connected && local ? 'ok' : 'off'
   txt('push', 'push lane: listening, ' + pushMsgs + ' messages')
@@ -262,19 +265,20 @@ function paint() {
   $('lagRows').innerHTML = rows.join('')
 
   const st = lock.status(now())
-  const team = (name, s) => `<div class="lk ${s.open ? 'open' : 'shut'}"><b>${esc(name)}</b><span class="badge">${s.open ? 'OPEN' : 'LOCKED'}</span><small>${esc(s.reason)}</small></div>`
+  const team = (name, s) => fin ? `<div class="lk shut"><b>${esc(name)}</b><span class="badge">GAME FINAL</span><small>Numbers frozen</small></div>` : `<div class="lk ${s.open ? 'open' : 'shut'}"><b>${esc(name)}</b><span class="badge">${s.open ? 'OPEN' : 'LOCKED'}</span><small>${esc(s.reason)}</small></div>`
   $('teams').innerHTML = team('Red', st.teams.red) + team('Blue', st.teams.blue) + team('Gold', st.teams.gold)
-  const res = score.result(now())
+  const res = score.result(frozenAt ?? now())
   $('final').className = 'final ' + (st.open ? 'open' : 'shut')
-  txt('finalBadge', st.open ? 'OPEN' : 'LOCKED')
-  txt('finalReason', st.reason)
+  txt('finalBadge', fin ? 'GAME FINAL' : st.open ? 'OPEN' : 'LOCKED')
+  txt('finalReason', fin ? 'Game final: numbers frozen at the final whistle' : st.reason)
+  if (fin) $('final').className = 'final shut'
   txt('openShare', (res.openShare * 100).toFixed(1) + '%')
   txt('badOpens', res.bad + ' of ' + res.opens)
   txt('snapsHit', res.snapsHit + ' of ' + res.snaps)
-  const sB = lockB.status(now()), rB = scoreB.result(now())
-  const row = (name, s2, r2) => `<tr><td>${esc(name)}</td><td>${s2.open ? 'OPEN' : 'LOCKED'}</td><td>${esc((r2.openShare * 100).toFixed(1) + '%')}</td><td>${esc(r2.opens)}</td><td>${esc(r2.bad)}</td><td>${esc(r2.snapsHit + ' of ' + r2.snaps)}</td><td>${esc(r2.ballLiveSec.toFixed(0) + ' s')}</td></tr>`
+  const sB = lockB.status(now()), rB = scoreB.result(frozenAt ?? now())
+  const row = (name, s2, r2) => `<tr><td>${esc(name)}</td><td>${fin ? 'FINAL' : s2.open ? 'OPEN' : 'LOCKED'}</td><td>${esc((r2.openShare * 100).toFixed(1) + '%')}</td><td>${esc(r2.opens)}</td><td>${esc(r2.badLive + ' live ball, ' + r2.badPrice + ' price only (guard refused ' + r2.guardRefusedPrice + ' of ' + r2.tapsPrice + ' taps)')}</td><td>${esc(r2.snapsHit + ' of ' + r2.snaps)}</td><td>${esc(r2.ballLiveSec.toFixed(0) + ' s')}</td></tr>`
   $('abRows').innerHTML = row('FINAL A: Red break and Blue open', st, res) + row('FINAL B: long break, 10 s quiet, clock stopped', sB, rB)
-  txt('reasonB', 'FINAL B: ' + sB.reason)
+  txt('reasonB', fin ? 'Game final' : 'FINAL B: ' + sB.reason)
   txt('variant', 'Default rule: every break Red knows (all breaks and long breaks only both scored 2 bad opens on the first half; all breaks keeps more open time)')
   txt('priceNote', st.noOddsFeed ? 'No Odds feed lane tonight: prices come from the Score feed (push)' : 'Prices from the Odds feed')
 

@@ -10,7 +10,10 @@ import { createLock as createRed } from '../../teams/red/tracker/lock.js'
 import { createLock as createBlue, fastcastReduce } from '../../teams/blue/tracker/lock.js'
 import { createLock as createGold } from '../../teams/gold/tracker/lock.js'
 
-export const VERSION = 'v4'
+export const VERSION = 'v5'
+// Seq range excluded from every score (test events posted before the game).
+export const EXCLUDE_SEQ = [219, 272]
+export const excluded = (ev) => !!ev && typeof ev.seq === 'number' && ev.seq >= EXCLUDE_SEQ[0] && ev.seq <= EXCLUDE_SEQ[1]
 // Known push lane outages: no page held the push connection. The scorer skips them.
 export const OUTAGES = [[Date.parse('2026-11-13T02:45:37Z'), Date.parse('2026-11-13T02:51:00Z')]]
 const inOutage = (t) => OUTAGES.some(([a, b]) => t >= a && t < b)
@@ -228,7 +231,10 @@ export function createScorer() {
   const snaps = new Set()
   const moves = []
   let inGameMs = 0, lastT = null, wasOpen = false, live = false
+  let taps = { tried: 0, refused: 0, refusedPriceOnly: 0 }
   return {
+    // One test tap per open second: tapped at the price shown a second earlier; the guard's answer is recorded.
+    noteTap(t, refused) { taps.tried++; if (refused) taps.refused++; const w = opens[opens.length - 1]; if (w) (w.taps ||= []).push([t, refused]) },
     noteSnap(ms) { if (Number.isFinite(ms)) snaps.add(ms) },
     notePlay(p) {
       if (!p || !p.wallclock) return
@@ -252,11 +258,57 @@ export function createScorer() {
       const openMs = iv.reduce((s, [a, b]) => s + (b - a), 0)
       const sn = [...snaps]
       let bad = 0, hit = 0
-      for (const [a, b] of iv) if (sn.some((x) => x >= a && x < b) || moves.some((x) => x >= a && x < b)) bad++
+      let badLive = 0, badPrice = 0, guardRefusedPrice = 0, tapsPrice = 0
+      iv.forEach(([a, b], i) => {
+        const s = sn.some((x) => x >= a && x < b), m = moves.some((x) => x >= a && x < b)
+        if (s || m) bad++
+        if (s) badLive++
+        else if (m) { badPrice++; for (const [, r] of opens[i].taps || []) { tapsPrice++; if (r) guardRefusedPrice++ } }
+      })
       for (const x of sn) if (iv.some(([a, b]) => x >= a && x < b)) hit++
       let ballMs = 0
       for (const [a, b] of iv) { const f = sn.filter((x) => x >= a && x < b).sort((x, y) => x - y)[0]; if (f !== undefined) ballMs += b - f }
-      return { ballLiveSec: ballMs / 1000, opens: iv.length, bad, openShare: inGameMs > 0 ? openMs / inGameMs : 0, openSec: openMs / 1000, snaps: sn.length, snapsHit: hit }
+      return { ballLiveSec: ballMs / 1000, opens: iv.length, bad, badLive, badPrice, tapsPrice, guardRefusedPrice, taps: { ...taps }, openShare: inGameMs > 0 ? openMs / inGameMs : 0, openSec: openMs / 1000, snaps: sn.length, snapsHit: hit }
     },
+  }
+}
+
+// One scored run of a rule over relay events: the page and the offline scorer both use it, so their numbers match.
+export function createRun(options = {}) {
+  const lock = createLock(options)
+  const sc = createScorer()
+  const seenMoves = new Set()
+  let fcs = null, live = false, done = false, prev = null
+  return {
+    lock,
+    get live() { return live },
+    get done() { return done },
+    ingest(ev) {
+      if (!ev || excluded(ev)) return
+      lock.ingest(ev)
+      const t = Date.parse(ev.t)
+      const d = ev.data || {}
+      if (!Number.isFinite(t) || d.error != null) return
+      if (ev.lane === 'espn') {
+        live = d.state === 'in'
+        if (d.completed === true || d.state === 'post') done = true
+        for (const p of d.plays || []) sc.notePlay(p)
+      } else if (ev.lane === 'fastcast') {
+        try { fcs = fastcastReduce(fcs, d.payload || d) } catch (e) {}
+        if (fcs && fcs.lastPlayWallclock) sc.notePlay({ wallclock: fcs.lastPlayWallclock, type: fcs.lastPlayType, text: fcs.lastPlayText })
+      } else if (ev.lane === 'mark' && d.kind === 'snap') {
+        sc.noteSnap(t)
+      }
+    },
+    step(t) {
+      for (const v of Object.values(lock.changedAt)) if (!seenMoves.has(v)) { seenMoves.add(v); sc.noteMove(v) }
+      const st = lock.status(t)
+      sc.step(t, st.open, live)
+      if (st.open && live && prev) sc.noteTap(t, !lock.tryPick(prev, t).accepted)
+      prev = null
+      if (st.open) for (const k of KEYS) { const x = st.markets[k]; if (x) { prev = { market: k.startsWith('spread') ? 'spread' : k.startsWith('total') ? 'total' : 'ml', side: /Away/.test(k) ? 'away' : /Under/.test(k) ? 'under' : /Over/.test(k) ? 'over' : 'home', shownLine: x.line, shownOdds: x.odds }; break } }
+      return st
+    },
+    result(now) { return sc.result(now) },
   }
 }

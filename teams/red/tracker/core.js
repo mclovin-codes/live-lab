@@ -5,7 +5,7 @@
 // two lanes is one matched event; each lane's lag is its first-seen wall time
 // minus the earliest data lane's first-seen wall time for that event.
 
-export const VERSION = 'v8';
+export const VERSION = 'v9';
 
 export const LABEL = {
   sgo: 'Odds feed',
