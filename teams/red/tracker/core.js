@@ -5,7 +5,7 @@
 // two lanes is one matched event; each lane's lag is its first-seen wall time
 // minus the earliest data lane's first-seen wall time for that event.
 
-export const VERSION = 'v4';
+export const VERSION = 'v5';
 
 export const LABEL = {
   sgo: 'Odds feed',
@@ -179,7 +179,7 @@ export function extractFastcast(p) {
       if (Array.isArray(cur)) for (const q of cur.slice(-5)) if (q && q.id) out.plays.push(playOf(q));
     }
     const ops = p.list || p.ops || p.patch || p.pl;
-    if (Array.isArray(ops)) { const x = extractFastcast(ops); for (const k of ['period', 'clockS', 'home', 'away']) if (x[k] !== null) out[k] = x[k]; out.plays = out.plays.concat(x.plays); }
+    if (Array.isArray(ops)) { const x = extractFastcast(ops); for (const k of ['period', 'clockS', 'home', 'away']) if (x[k] !== null) out[k] = x[k]; out.plays = out.plays.concat(x.plays); Object.assign(out.prices, x.prices); }
     return out;
   }
   // JSON patch operations on the game package. Assumption: competitors/0 is
@@ -191,6 +191,14 @@ export function extractFastcast(p) {
     else if (/status\/period$/i.test(path)) out.period = num(v);
     else if (/header\/competitions\/0\/competitors\/0\/score$/i.test(path)) out.home = num(v);
     else if (/header\/competitions\/0\/competitors\/1\/score$/i.test(path)) out.away = num(v);
+    // v5: the push lane carries live prices, e.g. /pickcenter/0/pointSpread/home/live/odds
+    const pm = path.match(/^\/pickcenter\/0\/(pointSpread|spread|total|moneyline)\/(home|over)\/live\/(odds|line|point|total)$/i);
+    if (pm) {
+      const K = /total/i.test(pm[1]) ? 'T' : /moneyline/i.test(pm[1]) ? 'M' : 'S';
+      const x = (out.prices[K] ||= { line: null, odds: null, available: null });
+      const val = num(String(v ?? '').replace(/^[ou]/i, ''));
+      if (/odds/i.test(pm[3])) x.odds = val; else x.line = val;
+    }
     if (v && typeof v === 'object') {
       if (v.id && (v.text || v.wallclock)) out.plays.push(playOf(v));
       else if (Array.isArray(v.plays)) for (const q of v.plays.slice(-5)) if (q && q.id) out.plays.push(playOf(q));
@@ -260,6 +268,12 @@ export class Tracker {
       // patches are partial: carry forward what this one did not say
       for (const k of ['period', 'clockS', 'home', 'away']) if (n[k] === null && prev[k] !== null && prev[k] !== undefined) n[k] = prev[k];
       if (!n.plays.length && prev.plays) n.lastPlays = prev.plays;
+      for (const K of ['S', 'T', 'M']) {
+        const a = n.prices[K], b = prev.prices && prev.prices[K];
+        if (!b) continue;
+        if (!a) n.prices[K] = { ...b };
+        else { if (a.line === null) a.line = b.line; if (a.odds === null) a.odds = b.odds; }
+      }
     }
     this.snap[lane] = n;
     const ps = (this.prevSig[lane] ||= {});
@@ -459,8 +473,16 @@ export class Tracker {
 
   // ----- lock rules -----
   inGame() { return this.state.started && !this.state.ended; }
+  // v5: which raw lane can show a live price move right now (null: none)
+  livePriceSource(now) {
+    const g = this.snap.sgo, f = this.snap.fastcast;
+    if (g && g.prices && Object.keys(g.prices).length && now - g.t < 30000) return 'sgo';
+    if (f && f.prices && Object.keys(f.prices).length && now - f.t < 120000) return 'fastcast';
+    return null;
+  }
   settleOpen(now) {
     if (!this.inGame()) return null;
+    if (!this.livePriceSource(now)) return false; // blind to price moves: never open
     if (this.state.available === false) return false;
     const s = this.P.settle * 1000;
     if (this.state.lastPriceT !== null && now - this.state.lastPriceT < s) return false;
@@ -486,6 +508,7 @@ export class Tracker {
   lockReason(now) {
     if (!this.state.started) return 'Pregame: not measured';
     if (this.state.ended) return 'Final';
+    if (!this.livePriceSource(now)) return 'No live price feed: locked until one reports';
     if (this.state.available === false) return 'Book shows the line off';
     const s = this.P.settle * 1000;
     if (this.state.lastPriceT !== null && now - this.state.lastPriceT < s) return 'Price moved ' + Math.round((now - this.state.lastPriceT) / 1000) + ' s ago';

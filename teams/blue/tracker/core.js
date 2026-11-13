@@ -9,7 +9,7 @@ let LEAGUE = 'NFL'; // set by createModel({ league })
 export { eventTime };
 export { stopRule };
 
-export const VERSION = 'v4';
+export const VERSION = 'v5';
 
 export const LANE_NAMES = {
   sgo: 'Odds feed',
@@ -151,6 +151,8 @@ export function normalize(lane, d) {
     r.ended = d.state === 'post';
     r.playId = d.lastPlayId || null; r.playText = d.lastPlayText || null; r.playType = d.lastPlayType || null;
     r.playWall = d.lastPlayWallclock ? toMs(d.lastPlayWallclock) : null;
+    const pc = d.pc || {};
+    if (Object.keys(pc).length) r.prices = { spread: { line: lineStr(pc['pointSpread.home.line']), odds: oddsStr(pc['pointSpread.home.odds']) }, total: { line: pc['total.over.line'] ?? null, odds: oddsStr(pc['total.over.odds']) }, mlHome: { odds: oddsStr(pc['moneyline.home.odds']) }, mlAway: { odds: oddsStr(pc['moneyline.away.odds']) } };
   }
   // a total is a plain number, never signed
   for (const pr of [r.prices, r.displayPrices]) if (pr && pr.total && pr.total.line) pr.total.line = String(pr.total.line).replace(/^\+/, '');
@@ -258,7 +260,11 @@ export function createModel(opts = {}) {
     L.t = t; L.n++;
     if (L.firstT === null) L.firstT = t;
     let data = ev.data;
-    if (lane === 'fastcast' && data && !data.error) { m.fc = fastcastReduce(m.fc, data.payload || data); data = m.fc; }
+    if (lane === 'fastcast' && data && !data.error) {
+      m.fc = fastcastReduce(m.fc, data.payload || data);
+      // patches carry the period only when it changes: borrow the poll feed's period until one arrives
+      data = m.fc.period === null && m.lanes.espn && m.lanes.espn.r ? Object.assign({}, m.fc, { period: m.lanes.espn.r.period }) : m.fc;
+    }
     const r = normalize(lane, data);
     if (r.error) { L.errors++; L.lastErr = { t, error: r.error }; return; }
     if (ev.data && ev.data.hopMs !== undefined) r.hopMs = ev.data.hopMs;

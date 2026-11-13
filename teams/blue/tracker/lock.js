@@ -8,7 +8,7 @@
 // stop was known, no TV snap tap came after it, the odds feed is fresh and says available, and no
 // price, line or score moved in the last few seconds. A TV whistle tap opens a short window too.
 
-export const LOCK_VERSION = 'blue-lock v2';
+export const LOCK_VERSION = 'blue-lock v3';
 
 const DEFAULTS = {
   settle: 10, // seconds a price, line or score change keeps the lock shut
@@ -54,7 +54,11 @@ export function stopRule(type, text) {
 // Paths follow the game package (header.competitions[0]...). The home side index is learned from a
 // full package when one is seen, else assumed to be 0. Unknown paths are ignored.
 export function fastcastReduce(prev, payload) {
-  const st = Object.assign({ period: null, clock: null, homeScore: null, awayScore: null, state: null, lastPlayId: null, lastPlayText: null, lastPlayType: null, lastPlayWallclock: null, homeIdx: 0 }, prev || {});
+  const st = Object.assign({ period: null, clock: null, homeScore: null, awayScore: null, state: null, lastPlayId: null, lastPlayText: null, lastPlayType: null, lastPlayWallclock: null, homeIdx: 0, pc: {}, pcChanged: false }, prev || {});
+  st.pc = Object.assign({}, st.pc); st.pcChanged = false;
+  // Live prices ride the push feed as pickcenter patches (seen 2026-11-12: /pickcenter/0/total/over/live/odds).
+  const pcSet = (k, v) => { if (v === null || v === undefined || typeof v === 'object') return; if (st.pc[k] !== String(v)) { st.pc[k] = String(v); st.pcChanged = true; } };
+  const pcWalk = (prefix, o) => { if (!o || typeof o !== 'object') return; for (const [k, v] of Object.entries(o)) { if (v && typeof v === 'object') pcWalk(prefix + k + '.', v); else if (/\.live\./.test(prefix + '.') || prefix.includes('.live.')) pcSet((prefix + k).replace('.live.', '.'), v); } };
   if (!payload) return st;
   const doc = payload.doc || (payload.header ? payload : null);
   const takePlay = (pl) => {
@@ -78,6 +82,7 @@ export function fastcastReduce(prev, payload) {
         if (cp.homeAway === 'away') st.awayScore = Number(cp.score);
       });
     }
+    if (Array.isArray(doc.pickcenter) && doc.pickcenter[0]) pcWalk('', doc.pickcenter[0]);
     const plays = doc.drives && doc.drives.current && doc.drives.current.plays;
     if (Array.isArray(plays)) plays.forEach(takePlay);
   }
@@ -87,6 +92,12 @@ export function fastcastReduce(prev, payload) {
       if (!op || typeof op.path !== 'string') continue;
       const p = op.path; const v = op.value;
       let m;
+      const pcm = p.match(/^\/pickcenter\/0\/(.+)$/);
+      if (pcm) {
+        const k = pcm[1].split('/').join('.');
+        if (v && typeof v === 'object') pcWalk(k + '.', v); else if (k.includes('.live.')) pcSet(k.replace('.live.', '.'), v);
+        continue;
+      }
       if (/status\/displayClock$/.test(p)) st.clock = v;
       else if (/status\/period$/.test(p)) st.period = v;
       else if (/status\/type\/state$/.test(p)) st.state = v;
@@ -210,11 +221,13 @@ export function createLock(options = {}) {
         if (st.espnScore && st.espnScore !== sk) noteChange(t);
         st.espnScore = sk;
         onClock('espn', d.period, d.clock, t);
+        st.espnPeriod = d.period;
         const list = Array.isArray(d.plays) && d.plays.length ? d.plays : d.lastPlayId ? [{ id: d.lastPlayId, text: d.lastPlayText, type: d.lastPlayType, wallclock: d.lastPlayWallclock }] : [];
         for (const pl of list) onPlay(pl, t);
       } else {
         const f = (st.fc = fastcastReduce(st.fc, p));
-        onClock('fastcast', f.period, f.clock, t);
+        if (f.pcChanged) noteChange(t);
+        onClock('fastcast', f.period ?? st.espnPeriod ?? null, f.clock, t);
         if (f.lastPlayId) onPlay({ id: f.lastPlayId, text: f.lastPlayText, type: f.lastPlayType, wallclock: f.lastPlayWallclock }, t);
         if (f.state) st.live.fastcast = f.state;
         const sk = f.awayScore + '-' + f.homeScore;

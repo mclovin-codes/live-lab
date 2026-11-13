@@ -10,6 +10,7 @@ const WHY = {
   'feed silent': 'Prices paused: the odds feed has gone quiet',
   'final': 'Game over',
   'pregame': 'Pregame: the live lock starts at kickoff',
+  'no odds feed': 'Locked: no odds feed, so no price can be vouched for',
   'book off': 'Prices paused: the market is off',
   'score': 'Prices paused: a score just happened',
   'play': 'Prices paused: a play is on',

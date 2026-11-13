@@ -2,7 +2,7 @@
 import { createLock, plainReason } from './lock.js';
 import { LANE_NAME, MARKETS, KINDS, lagTable, scoreRuns, cadence, baselineVsBest, gradePick, quantiles, DEFAULTS, staleView } from './core.js';
 
-const VERSION = 'v3';
+const VERSION = 'v4';
 const $ = (id) => document.getElementById(id);
 $('ver').textContent = VERSION;
 document.title = `Gold Live Tracker ${VERSION}`;
@@ -133,7 +133,7 @@ async function refill() {
 // A relay restart resets seq; compare startedAt and rebuild from the whole log when it changed.
 // Each version names the one change it tests. The first load of a new version on the relay logs it
 // as a /mark with kind "test", so the log carries when each change went live.
-const TEST_NOTE = 'gold v3: baseline lock (forecast on, tap 6 s, quiet price 8 s, play 10 s, score 30 s, clock 20 s)';
+const TEST_NOTE = 'gold v4: lock stays LOCKED with reason "no odds feed" when the odds feed lane is absent (push-lane prices no longer open it)';
 async function logVersionTest() {
   const k = 'gold.tested.' + (relayStart || '');
   if (ls.get(k) === VERSION) return;
@@ -367,7 +367,7 @@ function render() {
 
   // lock (never tick the engine before the first event, so the replay clock is not polluted)
   const st = EV.length ? lock.status(t) : { open: false, reason: '', sinceMs: 0, markets: {} };
-  const hasFeed = !!(S.latest.sgo || S.latest.fastcast);
+  const hasFeed = !!(S.latest.sgo || S.latest.fastcast) || st.code === 'no odds feed';
   const pre = st.code === 'pregame';
   $('lockstate').textContent = !hasFeed ? 'WAITING' : pre ? 'PREGAME' : st.open ? 'OPEN' : 'LOCKED';
   $('lockstate').className = 'lockstate ' + (!hasFeed || pre ? 'pre' : st.open ? 'open' : 'locked');
@@ -512,9 +512,9 @@ function renderLimits(S, lt) {
 }
 // Plan for tonight: edit PLAN each quarter (lane names only). The last line is the newest test mark from this page.
 const PLAN = [
-  'Pregame: confirm every lane reads, the 10 s pregame reads look normal, lock shows PREGAME.',
-  'Q1: baseline. Lock as shipped (forecast on, tap 6 s). Measure Rush lag and odds feed stamp delay.',
-  'Q2: one change from the tuning rules, chosen at the end of Q1 from the numbers.',
+  'Tonight the relay runs without the odds feed: the lock stays locked and says why.',
+  'Q1: measure Rush itself: how often its price moves, how long after a score, and whether it stays pickable through one.',
+  'End of Q1: compare Rush lag on clock and score with the predictions; pick one change from the numbers.',
 ];
 function renderPlan(S) {
   const mine = S.tests.filter((x) => x.source === 'gold');

@@ -262,6 +262,8 @@ export function createEngine(cfgIn = {}) {
     const f = S.latest.sgo || S.latest.fastcast;
     if (f && f.ended) return { open: false, why: 'final' };
     if (!inPlayNow()) return { open: false, why: f ? 'pregame' : 'feed silent' };
+    // v4: without the licensed odds feed the lock will not vouch for any price (push-lane book prices update too rarely to trust)
+    if (!S.latest.sgo) return { open: false, why: 'no odds feed' };
     // freshness from the odds feed when it runs, else from the push lane's own prices
     const lastFeed = S.latest.sgo ? (S.lastAny.sgo ?? -Infinity) : (S.latest.fastcast?.t ?? -Infinity);
     // adapts to a feed that backs off: never tighter than 2.5 read gaps
