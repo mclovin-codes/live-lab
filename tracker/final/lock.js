@@ -10,7 +10,10 @@ import { createLock as createRed } from '../../teams/red/tracker/lock.js'
 import { createLock as createBlue, fastcastReduce } from '../../teams/blue/tracker/lock.js'
 import { createLock as createGold } from '../../teams/gold/tracker/lock.js'
 
-export const VERSION = 'v2'
+export const VERSION = 'v3'
+// Known push lane outages: no page held the push connection. The scorer skips them.
+export const OUTAGES = [[Date.parse('2026-11-13T02:45:37Z'), Date.parse('2026-11-13T02:51:00Z')]]
+const inOutage = (t) => OUTAGES.some(([a, b]) => t >= a && t < b)
 // Long breaks only (variant): TV timeout, quarter break, two-minute warning, halftime, after a score.
 export const LONG_KINDS = /quarter break|halftime|two-minute|after field goal|after score|end/i
 const TEAM_TIMEOUT = /timeout #\d|timeout .*by [A-Z]{2,3}\b|by [A-Z]{2,3} at \d/i
@@ -212,6 +215,7 @@ export function createScorer() {
     },
     noteMove(ms) { if (Number.isFinite(ms)) moves.push(ms) },
     step(t, isOpen, isLive) {
+      if (inOutage(t)) isLive = false
       if (lastT !== null && live) inGameMs += t - lastT
       live = isLive
       const o = isOpen && isLive

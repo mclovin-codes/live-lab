@@ -2,7 +2,7 @@
 // anything but /mark kind "pick" from the pick test.
 import { createLock, createScorer, num, pushMarkets } from './lock.js'
 import { fastcastReduce } from '../../teams/blue/tracker/lock.js'
-import { relayBase, relayUrl, isLocalRelay } from '../shared/fastcast.js'
+import { relayBase, relayUrl, isLocalRelay, connectFastcast } from '../shared/fastcast.js'
 
 const $ = (id) => document.getElementById(id)
 const esc = (v) => String(v === null || v === undefined || (typeof v === 'number' && !Number.isFinite(v)) ? '-' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -21,6 +21,17 @@ let skew = 0
 let connected = false
 let live = false
 let fc = null
+let pushMsgs = 0
+let pushLaneT = null
+let espnId = '401873052'
+let pushStarted = false
+function startPush() {
+  if (pushStarted) return
+  pushStarted = true
+  try {
+    connectFastcast({ eventId: espnId, league: 'NFL', post: true, source: 'final', onMessage: (m) => { if (m && m.op === 'P') pushMsgs++ } })
+  } catch (e) { pushStarted = false }
+}
 let home = 'Home', away = 'Away'
 const now = () => Date.now() + skew
 
@@ -112,6 +123,7 @@ function take(ev) {
     see('clock', ck && ck.key, 'espn', t)
     see('score', cur.espn.sc, 'espn', t)
   } else if (ev.lane === 'fastcast') {
+    pushLaneT = t
     fc = fastcastReduce(fc, d.payload || d)
     const ck = clockKey(fc.period, fc.clock)
     cur.fastcast = { ck: ck || (cur.fastcast && cur.fastcast.ck) || null, sc: fc.homeScore != null ? fc.awayScore + '-' + fc.homeScore : null, t }
@@ -177,6 +189,8 @@ async function start() {
   connected = true
   if (st.now) skew = Date.parse(st.now) - Date.now()
   const c = st.config || {}
+  if (c.ids && /^\d+$/.test(String(c.ids.espn || ''))) espnId = String(c.ids.espn)
+  startPush()
   home = String(c.home || 'Home').replace(/[^A-Za-z0-9 ]/g, '').slice(0, 8) || 'Home'
   away = String(c.away || 'Away').replace(/[^A-Za-z0-9 ]/g, '').slice(0, 8) || 'Away'
   // replay the whole log through the lock and the scorer, one second at a time
@@ -222,6 +236,9 @@ function fastest() {
 function paint() {
   txt('conn', !local ? 'Laptop relay not connected: only a relay on this computer is accepted' : connected ? 'Laptop relay connected' : 'Laptop relay not connected: licensed feed and Rush lanes are off')
   $('conn').className = connected && local ? 'ok' : 'off'
+  txt('push', 'push lane: listening, ' + pushMsgs + ' messages')
+  const quiet = pushLaneT === null ? null : (now() - pushLaneT) / 1000
+  txt('pushWarn', live && quiet !== null && quiet > 60 ? 'Warning: the push lane has been silent for ' + Math.round(quiet) + ' s during live play' : '')
   const f = fastest()
   txt('fastClock', f ? f.ck.label : '-')
   txt('fastLane', f ? LANE[f.lane] : 'No clock yet')
