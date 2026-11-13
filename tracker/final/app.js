@@ -16,6 +16,10 @@ const base = relayBase()
 const local = isLocalRelay(base)
 const lock = createLock()
 const score = createScorer()
+// FINAL B (v4) runs beside FINAL A and is scored the same way.
+const lockB = createLock({ variant: 'B' })
+const scoreB = createScorer()
+for (const fn of ['notePlay', 'noteSnap', 'noteMove']) { const a = score[fn].bind(score); score[fn] = (x) => { a(x); scoreB[fn](x) } }
 let seq = 0
 let skew = 0
 let connected = false
@@ -112,6 +116,7 @@ function take(ev) {
   if (!ev || typeof ev.seq !== 'number' || ev.seq <= seq) return
   seq = ev.seq
   lock.ingest(ev)
+  lockB.ingest(ev)
   const t = Date.parse(ev.t)
   const d = ev.data || {}
   if (!Number.isFinite(t) || d.error != null) return
@@ -154,6 +159,7 @@ function stepScore() {
   for (const v of Object.values(lock.changedAt)) if (!moveSeen.has(v)) { moveSeen.add(v); score.noteMove(v) }
   const st = lock.status(now())
   score.step(now(), st.open, live)
+  scoreB.step(now(), lockB.status(now()).open, live)
   return st
 }
 
@@ -210,6 +216,7 @@ async function start() {
       for (const v of Object.values(lock.changedAt)) if (!moveSeen.has(v)) { moveSeen.add(v); score.noteMove(v) }
       const s = lock.status(t)
       score.step(t, s.open, live)
+      scoreB.step(t, lockB.status(t).open, live)
     }
     while (i < all.length) keep(all[i++])
   }
@@ -264,6 +271,10 @@ function paint() {
   txt('openShare', (res.openShare * 100).toFixed(1) + '%')
   txt('badOpens', res.bad + ' of ' + res.opens)
   txt('snapsHit', res.snapsHit + ' of ' + res.snaps)
+  const sB = lockB.status(now()), rB = scoreB.result(now())
+  const row = (name, s2, r2) => `<tr><td>${esc(name)}</td><td>${s2.open ? 'OPEN' : 'LOCKED'}</td><td>${esc((r2.openShare * 100).toFixed(1) + '%')}</td><td>${esc(r2.opens)}</td><td>${esc(r2.bad)}</td><td>${esc(r2.snapsHit + ' of ' + r2.snaps)}</td><td>${esc(r2.ballLiveSec.toFixed(0) + ' s')}</td></tr>`
+  $('abRows').innerHTML = row('FINAL A: Red break and Blue open', st, res) + row('FINAL B: long break, 10 s quiet, clock stopped', sB, rB)
+  txt('reasonB', 'FINAL B: ' + sB.reason)
   txt('variant', 'Default rule: every break Red knows (all breaks and long breaks only both scored 2 bad opens on the first half; all breaks keeps more open time)')
   txt('priceNote', st.noOddsFeed ? 'No Odds feed lane tonight: prices come from the Score feed (push)' : 'Prices from the Odds feed')
 

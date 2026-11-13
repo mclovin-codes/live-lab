@@ -10,12 +10,12 @@ import { createLock as createRed } from '../../teams/red/tracker/lock.js'
 import { createLock as createBlue, fastcastReduce } from '../../teams/blue/tracker/lock.js'
 import { createLock as createGold } from '../../teams/gold/tracker/lock.js'
 
-export const VERSION = 'v3'
+export const VERSION = 'v4'
 // Known push lane outages: no page held the push connection. The scorer skips them.
 export const OUTAGES = [[Date.parse('2026-11-13T02:45:37Z'), Date.parse('2026-11-13T02:51:00Z')]]
 const inOutage = (t) => OUTAGES.some(([a, b]) => t >= a && t < b)
 // Long breaks only (variant): TV timeout, quarter break, two-minute warning, halftime, after a score.
-export const LONG_KINDS = /quarter break|halftime|two-minute|after field goal|after score|end/i
+export const LONG_KINDS = /tv timeout|quarter break|halftime|two-minute|after field goal|after score/i
 const TEAM_TIMEOUT = /timeout #\d|timeout .*by [A-Z]{2,3}\b|by [A-Z]{2,3} at \d/i
 export const KEYS = ['spreadAway', 'spreadHome', 'totalOver', 'totalUnder', 'mlAway', 'mlHome']
 const QUIET_MS = 10000
@@ -86,6 +86,16 @@ export function createLock(options = {}) {
   const last = {} // lane:key -> 'line|odds'
   let lastNow = null
   let longOnly = options.longOnly === true
+  // FINAL B (v4): Red long break, 10 s of quiet on price, line and score, shut on the first clock movement.
+  const variant = options.variant === 'B' ? 'B' : 'A'
+  let quietAt = 0 // last price, line or score change on any lane
+  let clockAt = 0 // last game clock change on any lane
+  const lastClock = {}, lastScore = {}
+  function noteClockScore(lane, clock, period, a, h, t) {
+    const ck = clock == null ? null : String(period) + '|' + String(clock)
+    if (ck !== null) { if (lastClock[lane] !== undefined && lastClock[lane] !== ck) clockAt = Math.max(clockAt, t); lastClock[lane] = ck }
+    if (a != null && h != null) { const sk = a + '-' + h; if (lastScore[lane] !== undefined && lastScore[lane] !== sk) quietAt = Math.max(quietAt, t); lastScore[lane] = sk }
+  }
   let lastTimeout = { team: false, t: 0 }
   function notePlayText(p, t) {
     if (!p) return
@@ -108,7 +118,7 @@ export function createLock(options = {}) {
     for (const k of KEYS) {
       const v = m[k] ? m[k].line + '|' + m[k].odds : 'none'
       const id = lane + ':' + k
-      if (last[id] !== undefined && last[id] !== v) changedAt[k] = Math.max(changedAt[k] || 0, t)
+      if (last[id] !== undefined && last[id] !== v) { changedAt[k] = Math.max(changedAt[k] || 0, t); quietAt = Math.max(quietAt, t) }
       last[id] = v
     }
   }
@@ -121,11 +131,14 @@ export function createLock(options = {}) {
     const t = tOf(ev)
     if (t === null || !ev.data || ev.data.error != null) return
     lastNow = Math.max(lastNow || 0, t)
-    if (ev.lane === 'espn') for (const p of ev.data.plays || []) notePlayText(p, t)
+    const d0 = ev.data
+    if (ev.lane === 'espn') { for (const p of d0.plays || []) notePlayText(p, t); noteClockScore('espn', d0.clock, d0.period, d0.awayScore, d0.homeScore, t) }
+    if (ev.lane === 'sgo') noteClockScore('sgo', d0.clock, d0.period, d0.awayScore, d0.homeScore, t)
     if (ev.lane === 'fastcast') {
       fc = safe(() => fastcastReduce(fc, ev.data.payload || ev.data), fc)
       if (fc && fc.lastPlayType) notePlayText({ type: fc.lastPlayType, text: fc.lastPlayText, wallclock: fc.lastPlayWallclock }, t)
       if (fc) notePrices('fastcast', pushMarkets(fc.pc), t)
+      if (fc) noteClockScore('fastcast', fc.clock, fc.period, fc.awayScore, fc.homeScore, t)
     } else if (ev.lane === 'sgo') {
       notePrices('sgo', oddsFeedMarkets(ev.data), t)
     }
@@ -153,17 +166,27 @@ export function createLock(options = {}) {
     const tm = teams(now)
     const src = source(now)
     const held = []
+    const kind = breakKind()
+    if (variant === 'B') {
+      const b = red.tracker && red.tracker.state && red.tracker.state.brk
+      if (!tm.red.open) held.push('Red: ' + tm.red.reason)
+      else if (!LONG_KINDS.test(kind)) held.push('Not a long break (' + (kind || 'none') + ')')
+      if (now - quietAt < QUIET_MS) held.push('Price, line or score moved ' + Math.round((now - quietAt) / 1000) + ' s ago')
+      if (b && clockAt > b.startT) held.push('The game clock moved after the break began')
+      if (!src) held.push('No live prices yet')
+    } else {
     if (!tm.red.open) held.push('Red: ' + tm.red.reason)
     if (!tm.blue.open) held.push('Blue: ' + tm.blue.reason)
     if (!src) held.push('No live prices yet')
-    const kind = breakKind()
-    if (longOnly && tm.red.open && !(LONG_KINDS.test(kind) || (/timeout/i.test(kind) && !lastTimeout.team))) held.push('Long breaks only: ' + (/timeout/i.test(kind) ? 'a team timeout is too short' : 'this break is too short'))
+    }
+    if (variant === 'A' && longOnly && tm.red.open && !(LONG_KINDS.test(kind) || (/timeout/i.test(kind) && !lastTimeout.team))) held.push('Long breaks only: ' + (/timeout/i.test(kind) ? 'a team timeout is too short' : 'this break is too short'))
     const open = held.length === 0
     const markets = {}
     for (const k of KEYS) markets[k] = open && src && src.m[k] && src.m[k].odds !== null ? { line: src.m[k].line, odds: src.m[k].odds } : null
     return {
       open,
-      reason: open ? 'Open: Red has a known break (' + (kind || 'break') + ') and Blue is open' : held.join('. '),
+      reason: open ? (variant === 'B' ? 'Open: long break (' + kind + '), prices quiet, clock stopped' : 'Open: Red has a known break (' + (kind || 'break') + ') and Blue is open') : held.join('. '),
+      variant,
       breakKind: kind,
       longOnly,
       priceSource: src ? src.name : null,
@@ -231,7 +254,9 @@ export function createScorer() {
       let bad = 0, hit = 0
       for (const [a, b] of iv) if (sn.some((x) => x >= a && x < b) || moves.some((x) => x >= a && x < b)) bad++
       for (const x of sn) if (iv.some(([a, b]) => x >= a && x < b)) hit++
-      return { opens: iv.length, bad, openShare: inGameMs > 0 ? openMs / inGameMs : 0, openSec: openMs / 1000, snaps: sn.length, snapsHit: hit }
+      let ballMs = 0
+      for (const [a, b] of iv) { const f = sn.filter((x) => x >= a && x < b).sort((x, y) => x - y)[0]; if (f !== undefined) ballMs += b - f }
+      return { ballLiveSec: ballMs / 1000, opens: iv.length, bad, openShare: inGameMs > 0 ? openMs / inGameMs : 0, openSec: openMs / 1000, snaps: sn.length, snapsHit: hit }
     },
   }
 }
