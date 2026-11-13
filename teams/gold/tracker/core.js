@@ -129,7 +129,10 @@ export function normalize(ev) {
     r.prices.mlHome = priceObj(src.mlHome);
     r.prices.mlAway = priceObj(src.mlAway);
   }
-  r.pickable = ev.lane === 'rush' ? (src.pickable ?? null) : null;
+  // Rush: a live pick is accepted only when the route says livePickable true (founder hold 2026-11-05: false tonight).
+  // shown = a price is on the card; the stale meter counts what a player could pick IF live picks were on.
+  r.pickable = ev.lane === 'rush' ? src.livePickable === true : null;
+  r.shown = ev.lane === 'rush' ? !!(src.spreadHome || src.total || (src.mlHome !== null && src.mlHome !== undefined)) && src.ended !== true : null;
   const st = src.oddsStampMax ?? src.oddsUpdatedAt ?? null;
   r.stamp = st ? Date.parse(st) : null;
   r.hopMs = src.hopMs ?? null;
@@ -291,7 +294,7 @@ export function createEngine(cfgIn = {}) {
   function rushLock() {
     const r = S.latest.rush;
     if (!r) return { open: false, why: 'no Rush data' };
-    return { open: r.pickable === true, why: r.pickable ? 'pickable' : 'not pickable' };
+    return { open: r.shown === true, why: r.shown ? 'shown' : 'not shown' };
   }
   function addRun(name, t, st) {
     const a = S.runs[name], last = a[a.length - 1];
@@ -314,7 +317,8 @@ export function createEngine(cfgIn = {}) {
     }
   }
   function inPlayNow() {
-    const f = S.latest.sgo || S.latest.fastcast || S.latest.espn || S.latest.rush;
+    // first lane that carries a game state (push price-only readings carry none)
+    const f = [S.latest.sgo, S.latest.fastcast, S.latest.espn, S.latest.rush].find((x) => x && (x.started !== null && x.started !== undefined || x.state));
     if (!f) return false;
     if (f.ended) return false;
     return f.started === true || f.state === 'in';
@@ -330,7 +334,7 @@ export function createEngine(cfgIn = {}) {
   }
   function updateStale(t) {
     const r = S.latest.rush;
-    const pick = r && r.pickable === true;
+    const pick = r && r.shown === true; // shown, as if live picks were on
     const mm = rushMismatch();
     const on = !!(pick && mm.stale);
     if (on && !S.stale.on) { S.stale.windows++; S.stale.since = t; }

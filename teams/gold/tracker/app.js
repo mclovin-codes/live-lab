@@ -2,7 +2,7 @@
 import { createLock, plainReason } from './lock.js';
 import { LANE_NAME, MARKETS, KINDS, lagTable, scoreRuns, cadence, baselineVsBest, gradePick, quantiles, DEFAULTS, staleView } from './core.js';
 
-const VERSION = 'v4';
+const VERSION = 'v5';
 const $ = (id) => document.getElementById(id);
 $('ver').textContent = VERSION;
 document.title = `Gold Live Tracker ${VERSION}`;
@@ -133,7 +133,7 @@ async function refill() {
 // A relay restart resets seq; compare startedAt and rebuild from the whole log when it changed.
 // Each version names the one change it tests. The first load of a new version on the relay logs it
 // as a /mark with kind "test", so the log carries when each change went live.
-const TEST_NOTE = 'gold v4: lock stays LOCKED with reason "no odds feed" when the odds feed lane is absent (push-lane prices no longer open it)';
+const TEST_NOTE = 'gold v5: Rush counted as shown, not pickable (livePickable false tonight); push lane reads the live book prices';
 async function logVersionTest() {
   const k = 'gold.tested.' + (relayStart || '');
   if (ls.get(k) === VERSION) return;
@@ -225,6 +225,13 @@ function patchDoc(doc, p) {
   } else if (p.op === 'remove') delete n[k]; else n[k] = p.value;
 }
 const numOrNull = (v) => (v === null || v === undefined || v === '' || !Number.isFinite(+v) ? null : +v);
+const strNum = (v) => { if (v === null || v === undefined) return null; const n = parseFloat(String(v).replace(/^[ou]/i, '').replace(/^\+/, '')); return Number.isFinite(n) ? n : null; };
+function pcLive(pc, mk, side) {
+  const l = pc?.[mk]?.[side]?.live;
+  if (!l) return null;
+  const line = strNum(l.line), odds = strNum(l.odds);
+  return line === null && odds === null ? null : { line, odds };
+}
 function fcSnapshot(doc) {
   const comp = doc.header?.competitions?.[0] || {};
   const stt = comp.status || {};
@@ -240,9 +247,11 @@ function fcSnapshot(doc) {
     period: numOrNull(stt.period), clock: typeof stt.displayClock === 'string' ? stt.displayClock : null,
     homeScore: numOrNull(home.score), awayScore: numOrNull(away.score),
     lastPlayId: last?.id ? String(last.id) : null, lastPlayText: typeof last?.text === 'string' ? last.text : null, lastPlayWallclock: last?.wallclock ?? null,
-    spreadHome: pc && numOrNull(pc.spread) !== null ? { line: numOrNull(pc.spread), odds: numOrNull(pc.homeTeamOdds?.spreadOdds) } : null,
-    total: pc && numOrNull(pc.overUnder) !== null ? { line: numOrNull(pc.overUnder), odds: numOrNull(pc.overOdds) } : null,
-    mlHome: pc ? numOrNull(pc.homeTeamOdds?.moneyLine) : null, mlAway: pc ? numOrNull(pc.awayTeamOdds?.moneyLine) : null,
+    // live book prices sit under pointSpread/total/moneyline .{side}.live {line, odds} as strings ("+2.5", "o33.5", "-118")
+    spreadHome: pcLive(pc, 'pointSpread', 'home') ?? (pc && numOrNull(pc.spread) !== null ? { line: numOrNull(pc.spread), odds: numOrNull(pc.homeTeamOdds?.spreadOdds) } : null),
+    total: pcLive(pc, 'total', 'over') ?? (pc && numOrNull(pc.overUnder) !== null ? { line: numOrNull(pc.overUnder), odds: numOrNull(pc.overOdds) } : null),
+    mlHome: pcLive(pc, 'moneyline', 'home')?.odds ?? (pc ? numOrNull(pc.homeTeamOdds?.moneyLine) : null),
+    mlAway: pcLive(pc, 'moneyline', 'away')?.odds ?? (pc ? numOrNull(pc.awayTeamOdds?.moneyLine) : null),
   };
 }
 function fcIngest() {
@@ -420,7 +429,7 @@ function renderLanes(S, t) {
     const sp = p.spread ? `${game.home} ${fmtLine(p.spread.line)} ${fmtOdds(p.spread.odds)}` : '';
     const to = p.total ? `${p.total.line ?? ''} ${fmtOdds(p.total.odds)}` : '';
     const ml = p.mlHome || p.mlAway ? `${fmtOdds(p.mlHome?.odds) || ''} / ${fmtOdds(p.mlAway?.odds) || ''}` : '';
-    rows.push(`<tr><td>${LANE_NAME[lane]}${lane === 'rush' && r.pickable !== null ? (r.pickable ? ' <span class="good">pickable</span>' : ' <span class="mute">closed</span>') : ''}</td><td>${esc(clock)}</td><td>${sc ? esc(`${game.away} ${sc[1]} : ${game.home} ${sc[0]}`) : ''}</td><td title="${esc(r.playText)}">${esc((r.playText || '').slice(0, 48))}</td><td>${esc(sp)}</td><td>${esc(to)}</td><td>${esc(ml)}</td><td class="r ${age > Math.max(12, 3 * (S.gap[lane] || 1)) ? 'bad' : ''}" title="reads about every ${(S.gap[lane] || 0).toFixed(1)} s">${age.toFixed(1)}</td><td class="r">${S.counts[lane] || 0}${S.errors[lane] ? ` <span class="bad">${S.errors[lane]} err</span>` : ''}</td></tr>`);
+    rows.push(`<tr><td>${LANE_NAME[lane]}${lane === 'rush' ? (r.pickable ? ' <span class="good">live picks on</span>' : r.shown ? ' <span class="mute">shown, live picks off</span>' : ' <span class="mute">not shown</span>') : ''}</td><td>${esc(clock)}</td><td>${sc ? esc(`${game.away} ${sc[1]} : ${game.home} ${sc[0]}`) : ''}</td><td title="${esc(r.playText)}">${esc((r.playText || '').slice(0, 48))}</td><td>${esc(sp)}</td><td>${esc(to)}</td><td>${esc(ml)}</td><td class="r ${age > Math.max(12, 3 * (S.gap[lane] || 1)) ? 'bad' : ''}" title="reads about every ${(S.gap[lane] || 0).toFixed(1)} s">${age.toFixed(1)}</td><td class="r">${S.counts[lane] || 0}${S.errors[lane] ? ` <span class="bad">${S.errors[lane]} err</span>` : ''}</td></tr>`);
   }
   const tv = S.tv[S.tv.length - 1];
   rows.push(`<tr><td>TV</td><td colspan="8" class="${tv ? '' : 'mute'}">${tv ? `last tap ${tv.kind} at ${hms(tv.t)}, ${S.tv.length} taps` : 'no taps yet'}</td></tr>`);
@@ -444,9 +453,9 @@ function renderLag(lt, feedOn) {
 }
 function renderMeter(S) {
   if (!S.latest.rush) { $('meter').textContent = 'no data yet: the Rush lane has not reported'; return; }
-  $('meter').innerHTML = `Price mismatch while pickable: <b>${S.stale.secs.toFixed(0)} s</b> in <b>${S.stale.windows}</b> windows, edge-seconds <b>${S.stale.edgeSecs.toFixed(0)}</b>, worst edge <b>${S.stale.maxEdge.toFixed(1)}%</b> ${S.stale.on ? '<span class="bad">STALE NOW</span>' : '<span class="good">matching now</span>'}<br>`
-    + `Pickable after the odds feed moved and before Rush moved (timing, 60 s cap per move): <b>${S.behind.secs.toFixed(0)} s</b> in <b>${S.behind.windows}</b> windows${(() => { const v = staleView(S); return v.matchRate === null ? '' : `, Rush shows the odds feed's own price ${Math.round(v.matchRate * 100)}% of reads`; })()}<br>`
-    + `Pickable after a score, snap, play or whistle was known elsewhere, before Rush refreshed: <b>${S.evStale.secs.toFixed(0)} s</b> in <b>${S.evStale.windows}</b> windows ${S.evStale.on ? '<span class="bad">NOW</span>' : ''}<br>`
+  $('meter').innerHTML = `Price mismatch while shown (as if live picks were on): <b>${S.stale.secs.toFixed(0)} s</b> in <b>${S.stale.windows}</b> windows, edge-seconds <b>${S.stale.edgeSecs.toFixed(0)}</b>, worst edge <b>${S.stale.maxEdge.toFixed(1)}%</b> ${S.stale.on ? '<span class="bad">STALE NOW</span>' : '<span class="good">matching now</span>'}<br>`
+    + `Shown after the odds feed moved and before Rush moved (timing, 60 s cap per move): <b>${S.behind.secs.toFixed(0)} s</b> in <b>${S.behind.windows}</b> windows${(() => { const v = staleView(S); return v.matchRate === null ? '' : `, Rush shows the odds feed's own price ${Math.round(v.matchRate * 100)}% of reads`; })()}<br>`
+    + `Shown after a score, snap, play or whistle was known elsewhere, before Rush refreshed: <b>${S.evStale.secs.toFixed(0)} s</b> in <b>${S.evStale.windows}</b> windows ${S.evStale.on ? '<span class="bad">NOW</span>' : ''}<br>`
     + '<span class="mute">Edge = how far the old price sits from the new one in win chance, in percent. Edge-seconds = edge times seconds Rush held it.</span>';
 }
 function renderChanges(S, t) {
@@ -481,7 +490,7 @@ function renderCadence(S) {
 }
 function renderScores() {
   if (!scoreCache) return;
-  const names = { gold: 'Gold lock, forecast on', goldnf: 'Gold lock, forecast off', start: 'Starting rule (30 s quiet, market on)', rush: 'Rush today (pickable flag)' };
+  const names = { gold: 'Gold lock, forecast on', goldnf: 'Gold lock, forecast off', start: 'Starting rule (30 s quiet, market on)', rush: 'Rush today if live picks were on (price shown)' };
   const rows = ['<tr><th>Rule</th><th class="r">Open share</th><th class="r">Bad opens s</th><th class="r">Bad windows</th><th class="r">Bad share of open</th><th class="r">Taps clean</th><th class="r">Refused at tap</th><th class="r">Bad accepts</th></tr>'];
   for (const [n, s] of scoreCache) {
     if (!s.seconds) { rows.push(`<tr><td>${names[n]}</td><td colspan="7" class="mute">no data yet</td></tr>`); continue; }
@@ -495,14 +504,14 @@ function renderLimits(S, lt) {
   const c = cadence(S);
   const sc = scoreCache ? Object.fromEntries(scoreCache) : {};
   const rq = lt.price.rush.q, rsq = lt.score.rush.q;
-  const v1 = rq || rsq ? `Rush shows prices ${rq ? rq.med.toFixed(0) + ' s late (p90 ' + rq.p90.toFixed(0) + ' s)' : 'with no price lag measured yet'} and scores ${rsq ? rsq.med.toFixed(0) + ' s late' : 'with no score lag measured yet'}; it stayed pickable on an old price ${S.stale.secs.toFixed(0)} s in ${S.stale.windows} windows.` : 'Rush lag: no data yet (needs the Rush lane and the odds feed to show the same change).';
+  const v1 = rq || rsq ? `Rush shows prices ${rq ? rq.med.toFixed(0) + ' s late (p90 ' + rq.p90.toFixed(0) + ' s)' : 'with no price lag measured yet'} and scores ${rsq ? rsq.med.toFixed(0) + ' s late' : 'with no score lag measured yet'}; it showed an old price ${S.stale.secs.toFixed(0)} s in ${S.stale.windows} windows.` : 'Rush lag: no data yet (needs the Rush lane and the odds feed to show the same change).';
   const g = cfg.forecast ? sc.gold : sc.goldnf, st0 = sc.start;
   const v2 = g && g.seconds ? `Gold lock would open ${pct(g.openShare)} of play with ${pct(g.badShare)} of that time bad; the starting rule opens ${pct(st0?.openShare)} with ${pct(st0?.badShare)} bad.` : 'Lock: no in-play seconds scored yet.';
   const v3 = `Unsolved: no lane signals a snap in time${g && g.seconds ? ` (${g.liveOpen} s open with the ball live)` : ''}; odds stamp age ${c.stampAge ? c.stampAge.med.toFixed(1) + ' s median' : 'not measured yet'}.`;
   $('verdict').innerHTML = '<b>Verdict so far</b>' + [v1, v2, v3].map((x) => `<div>${esc(x)}</div>`).join('');
   const L = [
     ['Rush shows prices 5 to 15 s late', 'Read the odds feed directly for the lock and hide prices while Rush lags', 'Rush price lag median vs Odds feed', lt.price.rush.q ? `${lt.price.rush.q.med.toFixed(1)} s median, ${lt.price.rush.q.p90.toFixed(1)} s p90` : 'no data yet'],
-    ['Rush stays pickable on an old price', 'Gold lock hides every price that is not the newest', 'Stale meter while pickable', S.latest.rush ? `${S.stale.secs.toFixed(0)} s in ${S.stale.windows} windows` : 'no data yet'],
+    ['Rush shows an old price (live picks off tonight)', 'Gold lock hides every price that is not the newest', 'Stale meter while shown', S.latest.rush ? `${S.stale.secs.toFixed(0)} s in ${S.stale.windows} windows` : 'no data yet'],
     ['No lane signals a snap in time', 'TV taps and the push score feed; lock on clock movement', 'Bad opens with the ball live', sc.gold ? `${sc.gold.liveOpen} s live while open` : 'no data yet'],
     ['Price can move inside the tap time', 'Check the price at the tap, refuse if it moved (never void later)', `Refused at a ${cfg.tap} s tap`, sc.gold ? `${sc.gold.refused} of ${sc.gold.taps}` : 'no data yet'],
     ['1.5 s refresh claim', 'Measure stamp age at each read', 'Stamp age median', c.stampAge ? `${c.stampAge.med.toFixed(1)} s` : 'no stamp yet'],

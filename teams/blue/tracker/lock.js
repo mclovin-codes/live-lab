@@ -8,7 +8,7 @@
 // stop was known, no TV snap tap came after it, the odds feed is fresh and says available, and no
 // price, line or score moved in the last few seconds. A TV whistle tap opens a short window too.
 
-export const LOCK_VERSION = 'blue-lock v3';
+export const LOCK_VERSION = 'blue-lock v4';
 
 const DEFAULTS = {
   settle: 10, // seconds a price, line or score change keeps the lock shut
@@ -26,6 +26,7 @@ const DEFAULTS = {
   rulerTo: 8, // seconds after an odds feed clock change when it closes (next snap seen at 12 s or more on 2026-11-05)
   ruler: true,
   rulerMinDrop: 3, // game seconds
+  pushFresh: 30, // seconds of push feed silence before push prices count as stale (push sends only on change)
 };
 
 // Window length in wall seconds from the stop play's wallclock stamp to the earliest likely next snap.
@@ -227,6 +228,13 @@ export function createLock(options = {}) {
       } else {
         const f = (st.fc = fastcastReduce(st.fc, p));
         if (f.pcChanged) noteChange(t);
+        st.pushLastT = t;
+        // Push feed prices stand in for the odds feed when no odds feed lane exists (2026-11-12 the relay ran without it).
+        const pc = f.pc || {};
+        if (Object.keys(pc).length) {
+          const mkp = (line, odds) => { const l = num(line); const o2 = num(odds); return l === null && o2 === null ? null : { line: signed(l), odds: signed(o2) }; };
+          st.pushOdds = { markets: { spread: mkp(pc['pointSpread.home.line'], pc['pointSpread.home.odds']), total: mkp(pc['total.over.line'], pc['total.over.odds']), mlHome: mkp(null, pc['moneyline.home.odds']), mlAway: mkp(null, pc['moneyline.away.odds']) }, available: null };
+        }
         onClock('fastcast', f.period ?? st.espnPeriod ?? null, f.clock, t);
         if (f.lastPlayId) onPlay({ id: f.lastPlayId, text: f.lastPlayText, type: f.lastPlayType, wallclock: f.lastPlayWallclock }, t);
         if (f.state) st.live.fastcast = f.state;
@@ -264,7 +272,7 @@ export function createLock(options = {}) {
     }
     // The ruler window: the odds feed clock just changed, so a play just ended; the next snap is at least
     // about 12 s away (2026-11-05: 12 to 36 s after the update). Open a short slice right after it.
-    const oc = st.clocks.sgo;
+    const oc = st.clocks.sgo || (st.odds ? null : st.clocks.fastcast);
     // A drop under rulerMinDrop game seconds means the clock just started on a ready signal: ball about to be live.
     if (cfg.ruler && oc && oc.since !== null && oc.prevE !== null && oc.e - oc.prevE >= cfg.rulerMinDrop) {
       const a = oc.since + cfg.rulerFrom * 1000; const b = oc.since + cfg.rulerTo * 1000;
@@ -277,7 +285,8 @@ export function createLock(options = {}) {
   function status(now) {
     if (now === undefined) now = Date.now();
     now = toLockTime(now);
-    const o = st.odds;
+    const usingPush = !st.odds && !!st.pushOdds;
+    const o = st.odds || (st.pushOdds ? { t: st.pushLastT, available: null, markets: st.pushOdds.markets } : null);
     const markets = { spreadHome: null, spreadAway: null, totalOver: null, totalUnder: null, mlHome: null, mlAway: null };
     if (o && o.available !== false) {
       const m = o.markets;
@@ -289,9 +298,10 @@ export function createLock(options = {}) {
     let reason = null;
     const w = windowNow(now);
     if (!inPlay()) reason = st.odds || st.live.espn ? 'Game is not live' : 'No data yet';
-    else if (!o) reason = 'No odds feed reading yet';
+    else if (!o) reason = 'No odds feed or push feed prices yet';
+    else if (usingPush && (now - st.pushLastT) / 1000 > cfg.pushFresh) reason = 'Push feed silent for ' + Math.round((now - st.pushLastT) / 1000) + ' s';
     else if (o.available === false) reason = 'The odds feed has the line off';
-    else if ((now - o.t) / 1000 > cfg.feedFresh) reason = 'Odds feed reading is ' + Math.round((now - o.t) / 1000) + ' s old';
+    else if (!usingPush && (now - o.t) / 1000 > cfg.feedFresh) reason = 'Odds feed reading is ' + Math.round((now - o.t) / 1000) + ' s old';
     else if (st.lastRawChangeT !== null && (now - st.lastRawChangeT) / 1000 < cfg.settle) reason = 'Price, line or score moved ' + Math.round((now - st.lastRawChangeT) / 1000) + ' s ago';
     else if (w.blocked) reason = 'Locked: ' + w.blocked;
     else if (w.end === null) reason = 'Ball live or about to be: no known stop';

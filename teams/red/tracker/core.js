@@ -5,7 +5,7 @@
 // two lanes is one matched event; each lane's lag is its first-seen wall time
 // minus the earliest data lane's first-seen wall time for that event.
 
-export const VERSION = 'v5';
+export const VERSION = 'v6';
 
 export const LABEL = {
   sgo: 'Odds feed',
@@ -94,7 +94,8 @@ export function classifyPlay(p) {
   if (/end (of )?(the )?(quarter|1st|2nd|3rd|4th|half|game|regulation)|end period|end of half|halftime/i.test(s)) return 'endq';
   if (/timeout/i.test(s) && !/reported in/i.test(s.split('|')[0])) {
     // "Timeout" as a play type, or text that is only a timeout call
-    if (/^\s*timeout/i.test(p.type || '') || /^\s*timeout/i.test(p.text || '') || /timeout #\d.*$/i.test(p.text || '') && (p.text || '').length < 60) return 'timeout';
+    // v6: "Official Timeout at 07:33." (a TV timeout) was read as a snap
+    if (/timeout/i.test(p.type || '') || /^\s*(official\s+)?timeout/i.test(p.text || '') || /timeout #\d.*$/i.test(p.text || '') && (p.text || '').length < 60) return 'timeout';
   }
   if (/extra point|two-point|2pt|conversion/i.test(s)) return 'pat';
   if (/field goal (is )?good/i.test(s)) return 'fg';
@@ -356,6 +357,7 @@ export class Tracker {
         }
       }
     }
+    if (n.period !== null && lane !== 'rush') this.state.maxPeriod = Math.max(this.state.maxPeriod ?? 0, n.period);
     this.tick(n.t);
   }
 
@@ -435,6 +437,7 @@ export class Tracker {
     if (cls === 'timeout') set('timeout', W + P.timeoutWin * 1000);
     else if (cls === 'twomin') set('two-minute warning', W + P.twoMinWin * 1000);
     else if (cls === 'endq') {
+      this.state.lastEndQ = t;
       const per = (this.snap.espn && this.snap.espn.period) || (this.snap.sgo && this.snap.sgo.period);
       if (/half/i.test(p.text || '') || per === 2) set('halftime', W + P.halfWin * 1000);
       else if (/game|regulation/i.test(p.text || '')) set('end', W + P.halfWin * 1000);
@@ -465,6 +468,11 @@ export class Tracker {
   }
   onPeriod(n, e) {
     this.pushFeed(n.t, n.lane, 'period', 'Period ' + n.period + (n.half ? ' half' : ''));
+    // v6: only a period that goes up opens a break, and not when the period-end
+    // play already anchored one (a late period patch opened a window on a live ball in Q2)
+    const prevMax = this.state.maxPeriod ?? 0; // updated after each event in ingest
+    if (!(n.period > prevMax) || prevMax === 0) return;
+    if (this.state.lastEndQ && n.t - this.state.lastEndQ < 300000) return;
     if (!this.state.brk || this.state.brk.endT < n.t) {
       const half = n.half || n.period === 3;
       this.state.brk = { kind: half ? 'halftime' : 'quarter break', startT: n.t, anchor: n.t, endT: n.t + (half ? this.P.halfWin : this.P.quarterWin) * 1000 };

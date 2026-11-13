@@ -9,7 +9,7 @@ let LEAGUE = 'NFL'; // set by createModel({ league })
 export { eventTime };
 export { stopRule };
 
-export const VERSION = 'v5';
+export const VERSION = 'v6';
 
 export const LANE_NAMES = {
   sgo: 'Odds feed',
