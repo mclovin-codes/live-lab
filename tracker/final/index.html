@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Lab final tracker</title>
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<header>
+  <h1>Final tracker <span class="tag">v1</span></h1>
+  <span id="conn" class="off">Looking for the laptop relay</span>
+</header>
+<main>
+  <section class="clocks">
+    <div class="clk"><small id="fastLane">Fastest lane</small><b id="fastClock">-</b></div>
+    <div class="clk rush"><small>Rush card</small><b id="rushClock">-</b></div>
+    <div class="behind" id="behind">-</div>
+  </section>
+  <section class="lag">
+    <h2>Rush behind the fastest lane</h2>
+    <table>
+      <thead><tr><th>Kind</th><th>Now</th><th>Median</th><th>Worst</th><th>n</th></tr></thead>
+      <tbody id="lagRows"></tbody>
+    </table>
+  </section>
+  <section class="locks">
+    <h2>Locks</h2>
+    <div id="teams" class="teams"></div>
+    <div id="final" class="final shut">
+      <div class="fh"><b>FINAL lock</b><span class="badge" id="finalBadge">LOCKED</span></div>
+      <p id="finalReason">-</p>
+      <div class="nums">
+        <div><small>Open share</small><b id="openShare">-</b></div>
+        <div><small>Bad opens</small><b id="badOpens">-</b></div>
+        <div><small>Snaps inside an open</small><b id="snapsHit">-</b></div>
+      </div>
+    </div>
+  </section>
+  <section class="pick">
+    <h2>Pick test through the FINAL lock</h2>
+    <small id="priceNote">-</small>
+    <div id="picks" class="picks"></div>
+    <p id="pickMsg"></p>
+  </section>
+</main>
+<script type="module" src="app.js?v=1"></script>
+</body>
+</html>
